@@ -14,13 +14,13 @@
                     <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Product Form</h1>
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Add Product</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
+                                <a href="#" class="text-muted text-hover-primary">Product</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -29,116 +29,12 @@
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
-                            <li class="breadcrumb-item text-muted">eCommerce</li>
-                            <!--end::Item-->
-                            <!--begin::Item-->
-                            <li class="breadcrumb-item">
-                                <span class="bullet bg-gray-500 w-5px h-2px"></span>
-                            </li>
-                            <!--end::Item-->
-                            <!--begin::Item-->
-                            <li class="breadcrumb-item text-muted">Catalog</li>
+                            <li class="breadcrumb-item text-muted">Add Product</li>
                             <!--end::Item-->
                         </ul>
                         <!--end::Breadcrumb-->
                     </div>
                     <!--end::Page title-->
-                    <!--begin::Actions-->
-                    <div class="d-flex align-items-center gap-2 gap-lg-3">
-                        <!--begin::Filter menu-->
-                        <div class="m-0">
-                            <!--begin::Menu toggle-->
-                            <a href="#" class="btn btn-sm btn-flex btn-secondary fw-bold" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
-                            <i class="ki-duotone ki-filter fs-6 text-muted me-1">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>Filter</a>
-                            <!--end::Menu toggle-->
-                            <!--begin::Menu 1-->
-                            <div class="menu menu-sub menu-sub-dropdown w-250px w-md-300px" data-kt-menu="true" id="kt_menu_673c0c8a632e9">
-                                <!--begin::Header-->
-                                <div class="px-7 py-5">
-                                    <div class="fs-5 text-gray-900 fw-bold">Filter Options</div>
-                                </div>
-                                <!--end::Header-->
-                                <!--begin::Menu separator-->
-                                <div class="separator border-gray-200"></div>
-                                <!--end::Menu separator-->
-                                <!--begin::Form-->
-                                <div class="px-7 py-5">
-                                    <!--begin::Input group-->
-                                    <div class="mb-10">
-                                        <!--begin::Label-->
-                                        <label class="form-label fw-semibold">Status:</label>
-                                        <!--end::Label-->
-                                        <!--begin::Input-->
-                                        <div>
-                                            <select class="form-select form-select-solid" multiple="multiple" data-kt-select2="true" data-close-on-select="false" data-placeholder="Select option" data-dropdown-parent="#kt_menu_673c0c8a632e9" data-allow-clear="true">
-                                                <option></option>
-                                                <option value="1">Approved</option>
-                                                <option value="2">Pending</option>
-                                                <option value="2">In Process</option>
-                                                <option value="2">Rejected</option>
-                                            </select>
-                                        </div>
-                                        <!--end::Input-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="mb-10">
-                                        <!--begin::Label-->
-                                        <label class="form-label fw-semibold">Member Type:</label>
-                                        <!--end::Label-->
-                                        <!--begin::Options-->
-                                        <div class="d-flex">
-                                            <!--begin::Options-->
-                                            <label class="form-check form-check-sm form-check-custom form-check-solid me-5">
-                                                <input class="form-check-input" type="checkbox" value="1" />
-                                                <span class="form-check-label">Author</span>
-                                            </label>
-                                            <!--end::Options-->
-                                            <!--begin::Options-->
-                                            <label class="form-check form-check-sm form-check-custom form-check-solid">
-                                                <input class="form-check-input" type="checkbox" value="2" checked="checked" />
-                                                <span class="form-check-label">Customer</span>
-                                            </label>
-                                            <!--end::Options-->
-                                        </div>
-                                        <!--end::Options-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="mb-10">
-                                        <!--begin::Label-->
-                                        <label class="form-label fw-semibold">Notifications:</label>
-                                        <!--end::Label-->
-                                        <!--begin::Switch-->
-                                        <div class="form-check form-switch form-switch-sm form-check-custom form-check-solid">
-                                            <input class="form-check-input" type="checkbox" value="" name="notifications" checked="checked" />
-                                            <label class="form-check-label">Enabled</label>
-                                        </div>
-                                        <!--end::Switch-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Actions-->
-                                    <div class="d-flex justify-content-end">
-                                        <button type="reset" class="btn btn-sm btn-light btn-active-light-primary me-2" data-kt-menu-dismiss="true">Reset</button>
-                                        <button type="submit" class="btn btn-sm btn-primary" data-kt-menu-dismiss="true">Apply</button>
-                                    </div>
-                                    <!--end::Actions-->
-                                </div>
-                                <!--end::Form-->
-                            </div>
-                            <!--end::Menu 1-->
-                        </div>
-                        <!--end::Filter menu-->
-                        <!--begin::Secondary button-->
-                        <!--end::Secondary button-->
-                        <!--begin::Primary button-->
-                        <a href="#" class="btn btn-sm fw-bold btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">Create</a>
-                        <!--end::Primary button-->
-                    </div>
-                    <!--end::Actions-->
                 </div>
                 <!--end::Toolbar container-->
             </div>
@@ -147,8 +43,14 @@
             <div id="kt_app_content" class="app-content flex-column-fluid">
                 <!--begin::Content container-->
                 <div id="kt_app_content_container" class="app-container container-xxl">
+                    @if (session('success'))
+                        <div class="alert alert-success text-green-600 p-2">
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     <!--begin::Form-->
-                    <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row" data-kt-redirect="apps/ecommerce/catalog/products.html">
+                    <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row" action="{{route('wholesale.post.newproduct')}}" method="post" enctype="multipart/form-data">
+                        @csrf
                         <!--begin::Aside column-->
                         <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-300px mb-7 me-lg-10">
                             <!--begin::Thumbnail settings-->
@@ -228,23 +130,19 @@
                                 <!--begin::Card body-->
                                 <div class="card-body pt-0">
                                     <!--begin::Select2-->
-                                    <select class="form-select mb-2" data-control="select2" data-hide-search="true" data-placeholder="Select an option" id="kt_ecommerce_add_product_status_select">
+                                    <select class="form-select mb-2" data-control="select2" data-hide-search="true" name="status" data-placeholder="Select an option" id="kt_ecommerce_add_product_status_select">
                                         <option></option>
-                                        <option value="published" selected="selected">Published</option>
-                                        <option value="draft">Draft</option>
-                                        <option value="scheduled">Scheduled</option>
+                                        {{-- <option value="published" selected="selected">Published</option> --}}
+                                        <option value="active">Active</option>
+                                        {{-- <option value="scheduled">Scheduled</option> --}}
                                         <option value="inactive">Inactive</option>
                                     </select>
                                     <!--end::Select2-->
                                     <!--begin::Description-->
-                                    <div class="text-muted fs-7">Set the product status.</div>
+                                    @error('status')
+                                        <div class="text-muted fs-7">Set the product status.</div>
+                                    @enderror
                                     <!--end::Description-->
-                                    <!--begin::Datepicker-->
-                                    <div class="d-none mt-10">
-                                        <label for="kt_ecommerce_add_product_status_datepicker" class="form-label">Select publishing date and time</label>
-                                        <input class="form-control" id="kt_ecommerce_add_product_status_datepicker" placeholder="Pick date & time" />
-                                    </div>
-                                    <!--end::Datepicker-->
                                 </div>
                                 <!--end::Card body-->
                             </div>
@@ -267,7 +165,7 @@
                                     <label class="form-label">Categories</label>
                                     <!--end::Label-->
                                     <!--begin::Select2-->
-                                    <select class="form-select mb-2" data-control="select2" data-placeholder="Select an option" data-allow-clear="true" multiple="multiple">
+                                    <select class="form-select mb-2" data-control="select2" name="categories" data-placeholder="Select an option" data-allow-clear="true" multiple="multiple">
                                         <option></option>
                                         <option value="Computers">Computers</option>
                                         <option value="Watches">Watches</option>
@@ -282,28 +180,30 @@
                                     </select>
                                     <!--end::Select2-->
                                     <!--begin::Description-->
-                                    <div class="text-muted fs-7 mb-7">Add product to a category.</div>
+                                    @error('categories')
+                                        <div class="text-muted text-danger fs-7 mb-7">Add product to a category.</div>
+                                    @enderror
+
                                     <!--end::Description-->
                                     <!--end::Input group-->
-                                    <!--begin::Button-->
-                                    <a href="#" class="btn btn-light-primary btn-sm mb-10">
-                                    <i class="ki-duotone ki-plus fs-2"></i>Create new category</a>
-                                    <!--end::Button-->
+
                                     <!--begin::Input group-->
                                     <!--begin::Label-->
                                     <label class="form-label d-block">Tags</label>
                                     <!--end::Label-->
                                     <!--begin::Input-->
-                                    <input id="kt_ecommerce_add_product_tags" name="kt_ecommerce_add_product_tags" class="form-control mb-2" value="" />
+                                    <input id="kt_ecommerce_add_product_tags" name="tags" class="form-control mb-2" value="{{old('tags')}}" />
                                     <!--end::Input-->
                                     <!--begin::Description-->
-                                    <div class="text-muted fs-7">Add tags to a product.</div>
+                                    @error('tags')
+                                        <div class="text-muted text-danger fs-7">Add tags to a product.</div>
+                                    @enderror
                                     <!--end::Description-->
                                     <!--end::Input group-->
                                 </div>
                                 <!--end::Card body-->
                             </div>
-                            <!--end::Category & tags-->
+                            {{-- <!--end::Category & tags-->
                             <!--begin::Weekly sales-->
                             <div class="card card-flush py-4">
                                 <!--begin::Card header-->
@@ -321,39 +221,7 @@
                                 </div>
                                 <!--end::Card body-->
                             </div>
-                            <!--end::Weekly sales-->
-                            <!--begin::Template settings-->
-                            <div class="card card-flush py-4">
-                                <!--begin::Card header-->
-                                <div class="card-header">
-                                    <!--begin::Card title-->
-                                    <div class="card-title">
-                                        <h2>Product Template</h2>
-                                    </div>
-                                    <!--end::Card title-->
-                                </div>
-                                <!--end::Card header-->
-                                <!--begin::Card body-->
-                                <div class="card-body pt-0">
-                                    <!--begin::Select store template-->
-                                    <label for="kt_ecommerce_add_product_store_template" class="form-label">Select a product template</label>
-                                    <!--end::Select store template-->
-                                    <!--begin::Select2-->
-                                    <select class="form-select mb-2" data-control="select2" data-hide-search="true" data-placeholder="Select an option" id="kt_ecommerce_add_product_store_template">
-                                        <option></option>
-                                        <option value="default" selected="selected">Default template</option>
-                                        <option value="electronics">Electronics</option>
-                                        <option value="office">Office stationary</option>
-                                        <option value="fashion">Fashion</option>
-                                    </select>
-                                    <!--end::Select2-->
-                                    <!--begin::Description-->
-                                    <div class="text-muted fs-7">Assign a template from your current theme to define how a single product is displayed.</div>
-                                    <!--end::Description-->
-                                </div>
-                                <!--end::Card body-->
-                            </div>
-                            <!--end::Template settings-->
+                            <!--end::Weekly sales--> --}}
                         </div>
                         <!--end::Aside column-->
                         <!--begin::Main column-->
@@ -394,10 +262,27 @@
                                                     <label class="required form-label">Product Name</label>
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
-                                                    <input type="text" name="product_name" class="form-control mb-2" placeholder="Product name" value="" />
+                                                    <input type="text" name="product_name" class="form-control mb-2" placeholder="Product name" value="{{old('product_name')}}" />
                                                     <!--end::Input-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
+                                                    @error('product_name')
+                                                        <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
+                                                    @enderror
+                                                    <!--end::Description-->
+                                                </div>
+                                                <!--end::Input group-->
+                                                <!--begin::Input group-->
+                                                <div class="mb-10 fv-row">
+                                                    <!--begin::Label-->
+                                                    <label class="required form-label">Slug Name</label>
+                                                    <!--end::Label-->
+                                                    <!--begin::Input-->
+                                                    <input type="text" name="slug" class="form-control mb-2" placeholder="Slug Name" value="{{old('Slug')}}" />
+                                                    <!--end::Input-->
+                                                    <!--begin::Description-->
+                                                    @error('slug')
+                                                        <div class="text-muted fs-7">A Slug name is required and recommended to be unique.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
@@ -407,12 +292,14 @@
                                                     <label class="form-label">Description</label>
                                                     <!--end::Label-->
                                                     <!--begin::Editor-->
-                                                    <div id="kt_ecommerce_add_product_description" name="kt_ecommerce_add_product_description" class="min-h-200px mb-2">
-                                                        <textarea name="product_description" id="" cols="30" rows="10" class="form-control"></textarea>
-                                                    </div>
+                                                    {{-- <div id="kt_ecommerce_add_product_description" class="min-h-200px mb-2"> --}}
+                                                        <textarea name="product_description"  id="" cols="30" rows="10" class="form-control">{{old('product_description')}}</textarea>
+                                                    {{-- </div> --}}
                                                     <!--end::Editor-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Set a description to the product for better visibility.</div>
+                                                    @error('product_description')
+                                                        <div class="text-muted fs-7">Set a description to the product for better visibility.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
@@ -434,6 +321,26 @@
                                                 <!--begin::Input group-->
                                                 <div class="fv-row mb-2">
                                                     <!--begin::Dropzone-->
+                                                    <div class="dropzone mb-2" id="kt_ecommerce_add_product_media">
+                                                        <!--begin::Message-->
+                                                        <div class="dz-message needsclick">
+                                                            <!--begin::Icon-->
+                                                            <i class="ki-duotone ki-file-up text-primary fs-3x">
+                                                                <span class="path1"></span>
+                                                                <span class="path2"></span>
+                                                            </i>
+                                                            <!--end::Icon-->
+                                                            <!--begin::Info-->
+                                                            <div class="ms-4">
+                                                                <h3 class="fs-5 fw-bold text-gray-900 mb-1">Drop Images files here or click to upload.</h3>
+                                                                <span class="fs-7 fw-semibold text-gray-500">Upload up to 5 files</span>
+                                                            </div>
+                                                            <!--end::Info-->
+                                                        </div>
+                                                    </div>
+                                                    <!--end::Dropzone-->
+
+                                                    <!--begin::Dropzone-->
                                                     <div class="dropzone" id="kt_ecommerce_add_product_media">
                                                         <!--begin::Message-->
                                                         <div class="dz-message needsclick">
@@ -445,8 +352,8 @@
                                                             <!--end::Icon-->
                                                             <!--begin::Info-->
                                                             <div class="ms-4">
-                                                                <h3 class="fs-5 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
-                                                                <span class="fs-7 fw-semibold text-gray-500">Upload up to 10 files</span>
+                                                                <h3 class="fs-5 fw-bold text-gray-900 mb-1">Drop Video files here or click to upload.</h3>
+                                                                <span class="fs-7 fw-semibold text-gray-500">Upload up to 1 files</span>
                                                             </div>
                                                             <!--end::Info-->
                                                         </div>
@@ -461,6 +368,7 @@
                                             <!--end::Card header-->
                                         </div>
                                         <!--end::Media-->
+
                                         <!--begin::Pricing-->
                                         <div class="card card-flush py-4">
                                             <!--begin::Card header-->
@@ -478,10 +386,12 @@
                                                     <label class="required form-label">Base Price</label>
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
-                                                    <input type="text" name="price" class="form-control mb-2" placeholder="Product price" value="" />
+                                                    <input type="number" name="price" class="form-control mb-2" placeholder="Product price" value="{{old('price')}}" />
                                                     <!--end::Input-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Set the product price.</div>
+                                                    @error('price')
+                                                        <div class="text-muted fs-7">Set the product price.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
@@ -505,7 +415,7 @@
                                                             <label class="btn btn-outline btn-outline-dashed btn-active-light-primary active d-flex text-start p-6" data-kt-button="true">
                                                                 <!--begin::Radio-->
                                                                 <span class="form-check form-check-custom form-check-solid form-check-sm align-items-start mt-1">
-                                                                    <input class="form-check-input" type="radio" name="discount_option" value="1" checked="checked" />
+                                                                    <input class="form-check-input" type="radio" name="discount_option"  value="1" checked="checked" />
                                                                 </span>
                                                                 <!--end::Radio-->
                                                                 <!--begin::Info-->
@@ -582,15 +492,17 @@
                                                     <label class="form-label">Fixed Discounted Price</label>
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
-                                                    <input type="text" name="dicsounted_price" class="form-control mb-2" placeholder="Discounted price" />
+                                                    <input type="text" name="dicsounted_price" class="form-control mb-2" placeholder="Discounted price" {{old('dicsounted_price')}} />
                                                     <!--end::Input-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Set the discounted product price. The product will be reduced at the determined fixed price</div>
+                                                    @error('dicsounted_price')
+                                                        <div class="text-muted fs-7">Set the discounted product price. The product will be reduced at the determined fixed price</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
                                                 <!--begin::Tax-->
-                                                <div class="d-flex flex-wrap gap-5">
+                                                {{-- <div class="d-flex flex-wrap gap-5">
                                                     <!--begin::Input group-->
                                                     <div class="fv-row w-100 flex-md-root">
                                                         <!--begin::Label-->
@@ -622,7 +534,7 @@
                                                         <!--end::Description-->
                                                     </div>
                                                     <!--end::Input group-->
-                                                </div>
+                                                </div> --}}
                                                 <!--end:Tax-->
                                             </div>
                                             <!--end::Card header-->
@@ -651,15 +563,17 @@
                                                     <label class="required form-label">SKU</label>
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
-                                                    <input type="text" name="sku" class="form-control mb-2" placeholder="SKU Number" value="" />
+                                                    <input type="text" name="sku" class="form-control mb-2" placeholder="SKU Number" value="{{old('sku')}}" />
                                                     <!--end::Input-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Enter the product SKU.</div>
+                                                    @error('sku')
+                                                        <div class="text-muted fs-7">Enter the product SKU.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
                                                 <!--begin::Input group-->
-                                                <div class="mb-10 fv-row">
+                                                {{-- <div class="mb-10 fv-row">
                                                     <!--begin::Label-->
                                                     <label class="required form-label">Barcode</label>
                                                     <!--end::Label-->
@@ -669,7 +583,7 @@
                                                     <!--begin::Description-->
                                                     <div class="text-muted fs-7">Enter the product barcode number.</div>
                                                     <!--end::Description-->
-                                                </div>
+                                                </div> --}}
                                                 <!--end::Input group-->
                                                 <!--begin::Input group-->
                                                 <div class="mb-10 fv-row">
@@ -678,17 +592,18 @@
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
                                                     <div class="d-flex gap-3">
-                                                        <input type="number" name="shelf" class="form-control mb-2" placeholder="On shelf" value="" />
-                                                        <input type="number" name="warehouse" class="form-control mb-2" placeholder="In warehouse" />
+                                                        <input type="number" name="quantity" class="form-control mb-2" placeholder="how many product have" value="{{old('quantity')}}" />
                                                     </div>
                                                     <!--end::Input-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Enter the product quantity.</div>
+                                                    @error('quantity')
+                                                        <div class="text-muted fs-7">Enter the product quantity.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
                                                 <!--begin::Input group-->
-                                                <div class="fv-row">
+                                                {{-- <div class="fv-row">
                                                     <!--begin::Label-->
                                                     <label class="form-label">Allow Backorders</label>
                                                     <!--end::Label-->
@@ -701,7 +616,7 @@
                                                     <!--begin::Description-->
                                                     <div class="text-muted fs-7">Allow customers to purchase products that are out of stock.</div>
                                                     <!--end::Description-->
-                                                </div>
+                                                </div> --}}
                                                 <!--end::Input group-->
                                             </div>
                                             <!--end::Card header-->
@@ -727,7 +642,7 @@
                                                     <div id="kt_ecommerce_add_product_options">
                                                         <!--begin::Form group-->
                                                         <div class="form-group">
-                                                            <div data-repeater-list="kt_ecommerce_add_product_options" class="d-flex flex-column gap-3">
+                                                            <div data-repeater-list="add_product_options" class="d-flex flex-column gap-3">
                                                                 <div data-repeater-item="" class="form-group d-flex flex-wrap align-items-center gap-5">
                                                                     <!--begin::Select2-->
                                                                     <div class="w-100 w-md-200px">
@@ -741,7 +656,7 @@
                                                                     </div>
                                                                     <!--end::Select2-->
                                                                     <!--begin::Input-->
-                                                                    <input type="text" class="form-control mw-100 w-200px" name="product_option_value" placeholder="Variation" />
+                                                                    <input type="text" class="form-control mw-100 w-200px" name="product_option_value" placeholder="Variation" value="{{old('product_option_value')}}" />
                                                                     <!--end::Input-->
                                                                     <button type="button" data-repeater-delete="" class="btn btn-sm btn-icon btn-light-danger">
                                                                         <i class="ki-duotone ki-cross fs-1">
@@ -768,7 +683,7 @@
                                         </div>
                                         <!--end::Variations-->
                                         <!--begin::Shipping-->
-                                        <div class="card card-flush py-4">
+                                        {{-- <div class="card card-flush py-4">
                                             <!--begin::Card header-->
                                             <div class="card-header">
                                                 <div class="card-title">
@@ -827,7 +742,7 @@
                                                 <!--end::Shipping form-->
                                             </div>
                                             <!--end::Card header-->
-                                        </div>
+                                        </div> --}}
                                         <!--end::Shipping-->
                                         <!--begin::Meta options-->
                                         <div class="card card-flush py-4">
@@ -846,10 +761,12 @@
                                                     <label class="form-label">Meta Tag Title</label>
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
-                                                    <input type="text" class="form-control mb-2" name="meta_title" placeholder="Meta tag name" />
+                                                    <input type="text" class="form-control mb-2" name="meta_title" placeholder="Meta tag name" value="{{old('meta_title')}}" />
                                                     <!--end::Input-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Set a meta tag title. Recommended to be simple and precise keywords.</div>
+                                                    @error('meta_title')
+                                                        <div class="text-muted fs-7">Set a meta tag title. Recommended to be simple and precise keywords.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
@@ -859,11 +776,11 @@
                                                     <label class="form-label">Meta Tag Description</label>
                                                     <!--end::Label-->
                                                     <!--begin::Editor-->
-                                                    <div id="kt_ecommerce_add_product_meta_description" name="kt_ecommerce_add_product_meta_description" class="min-h-100px mb-2"></div>
+                                                    <textarea name="meta_description"  id="" cols="30" rows="10" class="form-control">{{old('product_description')}}</textarea>
+                                                    @error('meta_description')
+                                                        <div class="text-muted fs-7">Set a meta tag description to the product for increased SEO ranking.</div>
+                                                    @enderror
                                                     <!--end::Editor-->
-                                                    <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Set a meta tag description to the product for increased SEO ranking.</div>
-                                                    <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
                                                 <!--begin::Input group-->
@@ -872,11 +789,13 @@
                                                     <label class="form-label">Meta Tag Keywords</label>
                                                     <!--end::Label-->
                                                     <!--begin::Editor-->
-                                                    <input id="kt_ecommerce_add_product_meta_keywords" name="kt_ecommerce_add_product_meta_keywords" class="form-control mb-2" />
+                                                    <input id="kt_ecommerce_add_product_meta_keywords" name="product_meta_keywords" value="{{old('product_meta_keywords')}}" class="form-control mb-2" />
                                                     <!--end::Editor-->
                                                     <!--begin::Description-->
-                                                    <div class="text-muted fs-7">Set a list of keywords that the product is related to. Separate the keywords by adding a comma
-                                                    <code>,</code>between each keyword.</div>
+                                                    @error('product_meta_keywords')
+                                                        <div class="text-muted fs-7">Set a list of keywords that the product is related to. Separate the keywords by adding a comma
+                                                        <code>,</code>between each keyword.</div>
+                                                    @enderror
                                                     <!--end::Description-->
                                                 </div>
                                                 <!--end::Input group-->
@@ -895,7 +814,7 @@
                                 <!--end::Button-->
                                 <!--begin::Button-->
                                 <button type="submit" id="kt_ecommerce_add_product_submit" class="btn btn-primary">
-                                    <span class="indicator-label">Save Changes</span>
+                                    <span class="indicator-label">Add Product</span>
                                     <span class="indicator-progress">Please wait...
                                     <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                                 </button>
@@ -917,6 +836,8 @@
 @endsection
 
 @section('script')
-<script src="{{asset('assets/js/custom/utilities/modals/create-app.js')}}"></script>
-<script src="{{asset('assets/js/custom/utilities/modals/users-search.js')}}"></script>
+    <script src="{{asset('assets/plugins/custom/formrepeater/formrepeater.bundle.js')}}"></script>
+    <script src="{{asset('assets/js/custom/apps/ecommerce/catalog/save-product.js')}}"></script>
+    <script src="{{asset('assets/js/custom/utilities/modals/create-app.js')}}"></script>
+    <script src="{{asset('assets/js/custom/utilities/modals/users-search.js')}}"></script>
 @endsection

@@ -49,6 +49,9 @@ Route::prefix('wholesaler')->middleware(['auth', 'verified', 'wholesaler'])->gro
     Route::get('/product-list', [WholesalerController::class, 'productList'])->name('wholesale.product.list');
     Route::get('/add-new-product', [WholesalerController::class, 'addProductview'])->name('wholesale.addnewproduct.view');
     Route::post('/post-new-product', [WholesalerController::class, 'postNewproduct'])->name('wholesale.post.newproduct');
+    Route::get('/edit-product/{id}', [WholesalerController::class, 'editProduct'])->name('wholesale.edit.product');
+    Route::post('/edit-product-update/{id}', [WholesalerController::class, 'updateProduct'])->name('wholesale.update.product');
+
     Route::get('/order-list', [WholesalerController::class, 'orderList'])->name('wholesale.order.list');
     Route::get('/order-item/{id}', [WholesalerController::class, 'orderItem'])->name('wholesale.order.item');
     Route::post('/order-item-update', [WholesalerController::class, 'orderItemUpdate'])->name('wholesale.order.item.update');
@@ -61,5 +64,7 @@ Route::get('/cc', function() {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
     Artisan::call('optimize');
+    Artisan::call('stroage:link');
+
     return 'DONE'; //Return anything
 });
