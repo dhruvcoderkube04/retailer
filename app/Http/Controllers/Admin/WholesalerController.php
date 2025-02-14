@@ -217,5 +217,4 @@ class WholesalerController extends Controller
 
         return view('admin.wholesaler.pending-wholesaler-list', compact('wholesalers'));
     }
-
 }

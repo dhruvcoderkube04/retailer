@@ -11,7 +11,9 @@ class WholesalerController extends Controller
 {
     public function wholesalerDashboard()
     {
-        return view('wholesale.dashboard');
+        $auth_id = Auth::user()->id;
+        $data['wholesaer_total_product'] = Product::where('status','active')->where('wholesaler_id',$auth_id)->count();
+        return view('wholesale.dashboard',['data'=>$data]);
     }
 
     public function productList()
@@ -78,7 +80,7 @@ class WholesalerController extends Controller
             'meta_title' => $request->meta_title,
             'meta_description'=>'',
             'meta_keywords' => $request->product_meta_keywords,
-            'images' => $imagePath,
+            'images' => $imagePath ?? '',
         ]);
 
         return redirect()->back()->with('success', 'Product added successfully!');

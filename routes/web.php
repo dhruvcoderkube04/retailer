@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
@@ -41,6 +42,14 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->group(functio
     Route::post('/post-wholesaler', [AdminWholesalerController::class, 'postWholesaler'])->name('admin.post.wholesaler');
     Route::get('/wholesaler-detail/{id}', [AdminWholesalerController::class, 'wholesalerDetail'])->name('admin.wholesaler.detail');
     Route::post('/wholesaler-update/{id}', [AdminWholesalerController::class, 'wholesalerUpdate'])->name('admin.wholesaler.update');
+
+    // category
+    Route::get('/add-category', [CategoryController::class, 'categoryPage'])->name('admin.category.page');
+    Route::post('/post-category', [CategoryController::class, 'postCategory'])->name('admin.category.post');
+    Route::get('/category-detail/{category_id}', [CategoryController::class, 'categoryDetail'])->name('admin.category.detail');
+    Route::post('/category-update/{category_id}', [CategoryController::class, 'categoryUpdate'])->name('admin.category.update');
+    Route::get('/category-list', [CategoryController::class, 'categoryList'])->name('admin.category.list');
+    Route::post('/category-delete/{category_id}', [CategoryController::class, 'deleteCategory'])->name('admin.category.delete');
 });
 
 // Wholesaler Route
@@ -64,7 +73,6 @@ Route::get('/cc', function() {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
     Artisan::call('optimize');
-    Artisan::call('stroage:link');
 
     return 'DONE'; //Return anything
 });
