@@ -101,17 +101,12 @@
                                             </td>
 
                                             @php
-                                                $subCategories = json_decode($categorie->sub_category_name, true); // Decode JSON to array
+                                                $subCategories = explode(',', $categorie->sub_category_name);
                                             @endphp
-
                                             <td>
-                                                @if(is_array($subCategories))
-                                                    @foreach ($subCategories as $subCategory)
-                                                        <span class="badge bg-primary text-white me-1">{{ $subCategory }}</span>
-                                                    @endforeach
-                                                @else
-                                                    <a href="#" class="badge bg-primary text-white me-1">{{ $category->sub_category_name }}</a>
-                                                @endif
+                                                @foreach ($subCategories as $subCategory)
+                                                    <span class="badge bg-primary text-white me-1">{{ trim($subCategory) }}</span>
+                                                @endforeach
                                             </td>
 
                                             <td data-filter="mastercard">

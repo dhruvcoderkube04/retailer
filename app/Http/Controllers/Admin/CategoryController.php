@@ -15,24 +15,16 @@ class CategoryController extends Controller
 
     // Store a new category
     public function postCategory(Request $request){
-
-        $request->merge([
-            'category_name' => strtolower($request->input('category_name')),
-            'sub_category' => array_map('trim', explode(',', strtolower($request->input('sub_category')))),
-            'status' => $request->boolean('status')
-        ]);
-
         $request->validate([
             'category_name' => 'required|string|max:255|unique:categories,category_name',
-            'sub_category' => 'required|array',
-            'sub_category.*' => 'required|string|max:255',
+            'sub_category' => 'required|string|max:255',
             'status' => 'required|boolean'
         ]);
 
         // Save to the database
         Category::create([
-            'category_name' => $request->category_name,
-            'sub_category_name' => json_encode($request->sub_category), // Store as JSON
+            'category_name' => strtolower($request->category_name),
+            'sub_category_name' => strtolower($request->sub_category),
             'status' => $request->status
         ]);
 
@@ -50,13 +42,17 @@ class CategoryController extends Controller
     public function categoryUpdate(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-            'status' => 'nullable|boolean'
+            // 'category_name' => 'required|string|max:255|unique:categories,category_name',
+            'sub_category' => 'required|string|max:255',
+            'status' => 'boolean'
         ]);
+
+        // dd($request->all());
 
         $category = Category::findOrFail($id);
         $category->update([
-            'name' => $request->name,
+            // 'category_name' => $request->category_name,
+            'sub_category_name'=> $request->sub_category,
             'status' => $request->status ?? 1
         ]);
 

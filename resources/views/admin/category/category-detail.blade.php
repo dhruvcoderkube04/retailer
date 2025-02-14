@@ -80,7 +80,7 @@
                                             <div class="row">
                                                 <!--begin::Col-->
                                                 <div class="col-lg-6 fv-row">
-                                                    <input type="text" name="category_name" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 form-control @error('category_name') is-invalid @enderror" placeholder="Category Name" value="{{$category->category_name}}" />
+                                                    <input type="text" name="category_name" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 form-control @error('category_name') is-invalid @enderror" placeholder="Category Name" value="{{$category->category_name}}" disabled />
                                                     @error('category_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -103,7 +103,7 @@
                                             <input type="text" name="sub_category"
                                                 class="form-control form-control-lg form-control-solid @error('sub_category') is-invalid @enderror"
                                                 placeholder="Computer, Electronics in small"
-                                                value="{{ isset($category) ? implode(',', json_decode($category->sub_category_name, true)) : '' }}" />
+                                                value="{{ isset($category->sub_category_name) ? implode(',', explode(',', $category->sub_category_name)) : '' }}" />
 
                                             @error('sub_category')
                                                 <div class="invalid-feedback">{{ $message }}</div>

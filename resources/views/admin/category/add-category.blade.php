@@ -98,7 +98,7 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="sub_category" class="form-control form-control-lg form-control-solid @error('sub_category') is-invalid @enderror" placeholder="Computer,Electromics in small" placeholder="Zero"  value="{{ old('sub_category') ? (is_array(old('sub_category')) ? implode(',', old('sub_category')) : old('sub_category')) : '' }}" />
+                                            <input type="text" name="sub_category" class="form-control form-control-lg form-control-solid @error('sub_category') is-invalid @enderror" placeholder="Computer,Electromics in small" placeholder="Zero"  value="{{ old('sub_category')}}" />
                                             @error('sub_category')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
