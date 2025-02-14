@@ -2410,5 +2410,12 @@
         </div>
         <!--end::Content wrapper-->
         @include('admin.layouts.footer')
+         <!--end::Footer-->
     </div>
+@endsection
+
+@section('script')
+<!--begin::Custom Javascript(used for this page only)-->
+
+<!--end::Custom Javascript-->
 @endsection

@@ -1,6 +1,6 @@
 @extends('wholesale.layouts.base')
 @section('title')
-    TrendMart| Add Product
+    Add Product- TrendMart
 @endsection
 @section('content')
     <!--begin::Main-->
@@ -830,7 +830,7 @@
             <!--end::Content-->
         </div>
         <!--end::Content wrapper-->
-       `@include('wholesale.layouts.footer')
+        @include('wholesale.layouts.footer')
     </div>
     <!--end:::Main-->
 @endsection

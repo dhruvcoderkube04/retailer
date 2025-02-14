@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\WholesalerController as AdminWholesalerController
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () { return redirect()->to('login'); });
+
 // Public Routes
 Route::controller(LoginController::class)->group(function () {
     Route::get('login', 'showLoginForm')->name('login');

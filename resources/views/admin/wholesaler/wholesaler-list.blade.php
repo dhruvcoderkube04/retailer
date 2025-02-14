@@ -1,6 +1,6 @@
 @extends('admin.layouts.base')
 @section('title')
-    TrendMart - Wholesaler List
+    Wholesaler List - TrendMart
 @endsection
 @section('content')
     <!--begin::Main-->
@@ -370,7 +370,7 @@
                                                         <option value="HN">Honduras</option>
                                                         <option value="HK">Hong Kong</option>
                                                         <option value="HU">Hungary</option>
-                                                        <option value="IS">Iceland</option>
+                                                        <option value="IS" selected="selected">Iceland</option>
                                                         <option value="IN">India</option>
                                                         <option value="ID">Indonesia</option>
                                                         <option value="IR">Iran, Islamic Republic of</option>
@@ -494,7 +494,7 @@
                                                         <option value="UA">Ukraine</option>
                                                         <option value="AE">United Arab Emirates</option>
                                                         <option value="GB">United Kingdom</option>
-                                                        <option value="US" selected="selected">United States</option>
+                                                        <option value="US">United States</option>
                                                         <option value="UY">Uruguay</option>
                                                         <option value="UZ">Uzbekistan</option>
                                                         <option value="VU">Vanuatu</option>
@@ -675,39 +675,16 @@
         </div>
         <!--end::Content wrapper-->
         <!--begin::Footer-->
-        <div id="kt_app_footer" class="app-footer">
-            <!--begin::Footer container-->
-            <div class="app-container container-fluid d-flex flex-column flex-md-row flex-center flex-md-stack py-3">
-                <!--begin::Copyright-->
-                <div class="text-gray-900 order-2 order-md-1">
-                    <span class="text-muted fw-semibold me-1">2024&copy;</span>
-                    <a href="https://keenthemes.com" target="_blank" class="text-gray-800 text-hover-primary">Keenthemes</a>
-                </div>
-                <!--end::Copyright-->
-                <!--begin::Menu-->
-                <ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
-                    <li class="menu-item">
-                        <a href="https://keenthemes.com" target="_blank" class="menu-link px-2">About</a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="https://devs.keenthemes.com" target="_blank" class="menu-link px-2">Support</a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="https://1.envato.market/Vm7VRE" target="_blank" class="menu-link px-2">Purchase</a>
-                    </li>
-                </ul>
-                <!--end::Menu-->
-            </div>
-            <!--end::Footer container-->
-        </div>
-        <!--end::Footer-->
+        @include('admin.layouts.footer')
+         <!--end::Footer-->
     </div>
-    <!--end:::Main-->
 @endsection
 
 @section('script')
+<!--begin::Custom Javascript(used for this page only)-->
     <script src="{{asset('assets/js/custom/apps/customers/list/export.js')}}"></script>
     <script src="{{asset('assets/js/custom/apps/customers/list/list.js')}}"></script>
     <script src="{{asset('assets/js/custom/apps/customers/add.js')}}"></script>
     <script src="{{asset('assets/js/custom/utilities/modals/create-app.js')}}"></script>
+<!--end::Custom Javascript-->
 @endsection
