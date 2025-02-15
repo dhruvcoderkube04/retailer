@@ -47,7 +47,6 @@ class CategoryController extends Controller
             'status' => 'boolean'
         ]);
 
-        // dd($request->all());
 
         $category = Category::findOrFail($id);
         $category->update([
