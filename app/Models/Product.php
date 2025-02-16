@@ -11,7 +11,7 @@ class Product extends Model
 
     protected $fillable = [
         'wholesaler_id', 'name', 'slug', 'description',
-        'brand_name', 'tags', 'quantity', 'price', 'discount_price',
+        'brand_name', 'tags', 'quantity', 'new_price','old_price', 'discount_price',
         'sku', 'images', 'videos', 'url', 'status', 'color', 'size',
         'specifications', 'meta_title', 'meta_description', 'meta_keywords'
     ];

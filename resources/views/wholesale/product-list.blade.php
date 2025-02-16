@@ -41,6 +41,11 @@
             <div id="kt_app_content" class="app-content flex-column-fluid">
                 <!--begin::Content container-->
                 <div id="kt_app_content_container" class="app-container container-xxl">
+                    @if (session('success'))
+                        <div class="alert alert-success text-green-600 p-2">
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     <!--begin::Products-->
                     <div class="card card-flush">
                         <!--begin::Card header-->
@@ -92,8 +97,8 @@
                                         <th class="min-w-200px">Product</th>
                                         <th class="text-end min-w-100px">SKU</th>
                                         <th class="text-end min-w-70px">Qty</th>
-                                        <th class="text-end min-w-100px">Price</th>
-                                        <th class="text-end min-w-100px">Rating</th>
+                                        <th class="text-end min-w-100px">Old Price</th>
+                                        <th class="text-end min-w-100px">New Price</th>
                                         <th class="text-end min-w-100px">Status</th>
                                         <th class="text-end min-w-70px">Actions</th>
                                     </tr>
@@ -110,7 +115,10 @@
                                                 <div class="d-flex align-items-center">
                                                     <!--begin::Thumbnail-->
                                                     <a href="{{route('wholesale.edit.product',$product->id)}}" class="symbol symbol-50px">
-                                                        <span class="symbol-label" style="background-image: url('{{ asset("storage/" . $product->images) }}');"></span>
+                                                        @php
+                                                            $get_image =  explode(',',@$product->images)[0] ?? '';
+                                                        @endphp
+                                                        <span class="symbol-label" style="background-image: url('{{ asset("storage/" . $get_image) }}');"></span>
                                                     </a>
                                                     <!--end::Thumbnail-->
                                                     <div class="ms-5">
@@ -126,26 +134,10 @@
                                             <td class="text-end pe-0" data-order="22">
                                                 <span class="fw-bold ms-3">{{$product->quantity}}</span>
                                             </td>
-                                            <td class="text-end pe-0">{{$product->price}}</td>
-                                            <td class="text-end pe-0" data-order="rating-4">
-                                                <div class="rating justify-content-end">
-                                                    <div class="rating-label checked">
-                                                        <i class="ki-duotone ki-star fs-6"></i>
-                                                    </div>
-                                                    <div class="rating-label checked">
-                                                        <i class="ki-duotone ki-star fs-6"></i>
-                                                    </div>
-                                                    <div class="rating-label checked">
-                                                        <i class="ki-duotone ki-star fs-6"></i>
-                                                    </div>
-                                                    <div class="rating-label checked">
-                                                        <i class="ki-duotone ki-star fs-6"></i>
-                                                    </div>
-                                                    <div class="rating-label">
-                                                        <i class="ki-duotone ki-star fs-6"></i>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                            <td class="text-end pe-0">{{$product->old_price}}</td>
+                                            <td class="text-end pe-0 "> <span class=" badge badge-primary">{{$product->new_price}}</span> </td>
+
+
                                             <td class="text-end pe-0" data-order="Inactive">
                                                 <div class="badge {{ $product->status == 'active' ? 'badge-light-primary':'badge-light-danger'}}">{{$product->status == 'active' ? 'Active':'Inactive'}}</div>
                                             </td>
@@ -160,9 +152,9 @@
                                                     </div>
                                                     <!--end::Menu item-->
                                                     <!--begin::Menu item-->
-                                                    <div class="menu-item px-3">
-                                                        <a href="#" class="menu-link px-3" data-kt-ecommerce-product-filter="delete_row">Delete</a>
-                                                    </div>
+                                                    {{-- <div class="menu-item px-3">
+                                                        <a href="{{route('wholesale.delete.product',$product->id)}}" class="menu-link px-3" data-kt-ecommerce-product-filter="delete_row">Delete</a>
+                                                    </div> --}}
                                                     <!--end::Menu item-->
                                                 </div>
                                                 <!--end::Menu-->

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class WholesalerController extends Controller
 {
@@ -32,55 +33,78 @@ class WholesalerController extends Controller
 
         $request->validate([
             'sku' => 'required|string|unique:products,sku',
-            'tags' => 'required',
-            'slug'=>'required|string|unique:products,slug',
+            'product_tags' => 'required|string|max:255',
+            'slug' => 'required|string|unique:products,slug',
             'status' => 'required|string|in:active,inactive',
             'product_name' => 'required|string|max:255',
+            'categories' => 'required|string|max:255',
             'product_description' => 'required|string|min:10',
-            'price' => 'required|numeric|min:1',
-            'discount_option' => 'required|numeric|min:0|max:100',
+            'new_price' => 'required|numeric|min:1',
+            'old_price' => 'required|numeric|min:1',
             'quantity' => 'required|integer|min:1',
             'meta_title' => 'required|string|max:255',
-            'meta_description'=>'required|string|max:255',
+            'meta_description' => 'required|string|max:255',
             'product_meta_keywords' => 'nullable|string',
-            // 'avatar' => 'required|image|mimes:jpg,png,jpeg|max:2048',
-            // 'categories'=>'nullable|string',
+
+            // Image validations
+            'image_1' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+            'image_2' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+            'image_3' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+            'video' => 'required|mimes:mp4|max:10240',
         ]);
-        // 'dicsounted_price' => 'required|numeric|lt:price',
 
-        // Handle Image Upload
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('products', $fileName, 'public'); // No extra quotes
+        // dd($request->all());
 
-            // Store only the relative path (without double quotes)
-            $imagePath = "products/" . $fileName;
+        $imagePaths = []; // Initialize the array
+
+        foreach (['image_1', 'image_2', 'image_3'] as $imageField) {
+            if ($request->hasFile($imageField)) {
+                $file = $request->file($imageField);
+
+                // Generate a unique name using a combination of time, random string, and original name
+                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+
+                // Store the file in 'storage/app/public/products'
+                $filePath = $file->storeAs('products', $fileName, 'public');
+
+                // Store the path to save in the database
+                $imagePaths[] = "products/" . $fileName;
+            }
         }
 
 
-        // Create Product
+        $imagePathsString = implode(',', $imagePaths);
+
+        $videoPath = null;
+        if ($request->hasFile('video')) {
+            $file = $request->file('video');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('products/videos', $fileName, 'public');
+            $videoPath = "products/videos/" . $fileName;
+        }
+
         Product::create([
             'wholesaler_id' => Auth::id(),
             'name' => $request->product_name,
             'description' => $request->product_description,
-            'price' => $request->price,
-            'slug'=>$request->slug,
-            'discount_option' => $request->discount_option,
-            'discount_price' => $request->discounted_price,
+            'old_price' => $request->old_price,
+            'new_price' => $request->new_price,
+            'slug' => $request->slug,
+            'discount_option' => null,
+            'discount_price' => null,
             'sku' => $request->sku,
-            'videos'=>'',
-            'url'=>'',
-            'status'=>$request->status,
-            'color'=>'',
-            'size'=>'',
-            'specifications'=>'',
+            'videos' => $videoPath, // Store the video path
+            'url' => '',
+            'status' => $request->status,
+            'color' => '',
+            'size' => '',
+            'specifications' => '',
             'quantity' => $request->quantity,
-            'tags' => json_decode($request->tags, true),
+            'tags' => $request->product_tags, // Ensure this is valid JSON
             'meta_title' => $request->meta_title,
-            'meta_description'=>'',
+            'meta_description' => $request->meta_description,
             'meta_keywords' => $request->product_meta_keywords,
-            'images' => $imagePath ?? '',
+            'images' => $imagePathsString, // Store image paths as a comma-separated string
         ]);
 
         return redirect()->back()->with('success', 'Product added successfully!');
@@ -95,36 +119,57 @@ class WholesalerController extends Controller
     public function updateProduct(Request $request, $id)
     {
         // Find the product
-        $product = Product::where('wholesaler_id',Auth::id())->where('id',$id)->first();
+        $product = Product::where('wholesaler_id', Auth::id())->where('id', $id)->firstOrFail();
+        // dd($product);
         $request->validate([
-            // 'sku' => 'nullable|string|unique:products,sku',
-            'tags' => 'required',
-            'slug'=>'nullable|string|unique:products,slug',
-            'status' => 'nullable|string|in:active,inactive',
             'product_name' => 'nullable|string|max:255',
-            'product_description' => 'nullable|string|min:10',
-            'price' => 'nullable|numeric|min:1',
-            'discount_option' => 'nullable|numeric|min:0|max:100',
+            'product_tags' => 'required|string|max:255',
+            'categories'=>'required|string|max:255',
+            'status' => 'required|string|in:active,inactive',
+            'product_description' => 'nullable|string|min:10|max:255',
+            'new_price' => 'nullable|numeric|min:1',
+            'old_price' => 'nullable|numeric|min:1',
             'quantity' => 'nullable|integer|min:1',
             'meta_title' => 'nullable|string|max:255',
-            'meta_description'=>'nullable|string|max:255',
-            'product_meta_keywords' => 'nullable|string',
-            // 'avatar' => 'required|image|mimes:jpg,png,jpeg|max:2048',
-            // 'categories'=>'nullable|string',
+            'meta_description' => 'nullable|string|max:255',
+            'product_meta_keywords' => 'nullable|string|max:255',
+
+            'image_1' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'image_2' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'image_3' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'video' => 'nullable|mimes:mp4|max:10240',
         ]);
-        // 'dicsounted_price' => 'required|numeric|lt:price',
 
-        // Handle Image Upload
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('products', $fileName, 'public'); // No extra quotes
+        // sku
+        // Retrieve existing images from the database
+        $existingImages = explode(',', $product->images);
 
-            // Store only the relative path (without double quotes)
-            $imagePath = "products/" . $fileName;
+        $imagePaths = $existingImages; // Start with existing images
+
+        foreach (['image_1', 'image_2', 'image_3'] as $index => $imageField) {
+            if ($request->hasFile($imageField)) {
+                $file = $request->file($imageField);
+                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('products', $fileName, 'public');
+
+                // Replace the image in the same position
+                $imagePaths[$index] = "products/" . $fileName;
+            }
         }
 
-            // Collect fields for update
+        // Remove empty values & convert array to a comma-separated string
+        $imagePathsString = implode(',', array_filter($imagePaths));
+
+        // Handle video upload only if a new file is provided
+        $videoPath = $product->videos; // Keep existing video if no new one is uploaded
+        if ($request->hasFile('video')) {
+            $file = $request->file('video');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('products/videos', $fileName, 'public');
+            $videoPath = "products/videos/" . $fileName;
+        }
+
+        // Prepare data for update
         $updateData = [];
 
         if ($request->filled('product_name')) {
@@ -135,18 +180,6 @@ class WholesalerController extends Controller
         }
         if ($request->filled('price')) {
             $updateData['price'] = $request->price;
-        }
-        if ($request->filled('slug')) {
-            $updateData['slug'] = $request->slug;
-        }
-        if ($request->filled('discount_option')) {
-            $updateData['discount_option'] = $request->discount_option;
-        }
-        if ($request->filled('discounted_price')) {
-            $updateData['discount_price'] = $request->discounted_price;
-        }
-        if ($request->filled('sku')) {
-            $updateData['sku'] = $request->sku;
         }
         if ($request->filled('quantity')) {
             $updateData['quantity'] = $request->quantity;
@@ -166,22 +199,48 @@ class WholesalerController extends Controller
 
         // Convert tags JSON to array if provided
         if ($request->has('tags')) {
-            $updateData['tags'] = json_decode($request->tags, true);
+            $updateData['tags'] = $request->tags;
         }
 
-        // Handle image upload
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('products', $fileName, 'public');
-
-            $updateData['images'] = "products/" . $fileName; // Store new image path
+        // Update images only if they exist
+        if (!empty($imagePathsString)) {
+            $updateData['images'] = $imagePathsString;
         }
 
-        // Update product
+        // Update video only if a new one is uploaded
+        if ($videoPath !== $product->videos) {
+            $updateData['videos'] = $videoPath;
+        }
+
+        // Perform the update
         $product->update($updateData);
 
         return redirect()->back()->with('success', 'Product updated successfully!');
+    }
+
+
+    public function deleteProduct(Request $request, $id)
+    {
+        $id = Auth::user()->id;
+        // Find the product
+        $product = Product::where('wholesaler_id', Auth::id())->where('id', $id)->firstOrFail();
+        // Delete images from storage
+        if (!empty($product->images)) {
+            $imagePaths = explode(',', $product->images);
+            foreach ($imagePaths as $image) {
+                Storage::disk('public')->delete($image);
+            }
+        }
+
+        // Delete video from storage
+        if (!empty($product->videos)) {
+            Storage::disk('public')->delete($product->videos);
+        }
+
+        // Delete product from database
+        $product->delete();
+
+        return redirect()->back()->with('success', 'Product deleted successfully!');
     }
 
     public function orderList()

@@ -372,4 +372,5 @@
 		<script src="{{asset('assets/js/custom/utilities/modals/offer-a-deal/main.js')}}"></script>
 		<script src="{{asset('assets/js/custom/utilities/modals/two-factor-authentication.js')}}"></script>
 		<script src="{{asset('assets/js/custom/utilities/modals/users-search.js')}}"></script>
+        <script src="{{asset('assets/js/countries.js')}}"></script>
 @endsection
