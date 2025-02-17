@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Wholesale;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -258,5 +259,107 @@ class WholesalerController extends Controller
     public function paymentHistory()
     {
         return view('wholesale.payment-history');
+    }
+
+    public function Profile()
+    {
+        $id = Auth::user()->id;
+        $user = User::with('userDetail')->findOrFail($id);
+        return view('wholesale.profile.profile',['userprofile'=>$user]);
+    }
+
+    public function profileUpdate(Request $request)
+    {
+        $id = Auth::user()->id;
+        $request->validate([
+            'firstname'     => 'nullable|string|max:255',
+            'lastname'      => 'nullable|string|max:255',
+            'company'  => 'nullable|string|max:255',
+            'phone'  => 'nullable|string|min:6|max:20|regex:/^[0-9\-+()\s]*$/',
+            'address'       => 'nullable|string|max:500',
+            'country'       => 'nullable|string|max:255',
+            'state'         => 'nullable|string|max:255',
+            'city'          => 'nullable|string|max:255',
+            'pincode'   => 'nullable|string|max:10|regex:/^[0-9]{4,10}$/',
+            'profile'       => 'mimes:jpeg,png,jpg|max:1048',
+        ]);
+        // dd($request->all());
+        // Find the wholesaler
+        $wholesaler = User::with('userDetail')->findOrFail($id);
+
+        // Update only the fields that are filled
+        $updateData = [];
+        if ($request->filled('firstname')) {
+            $updateData['firstname'] = $request->firstname;
+        }
+        if ($request->filled('lastname')) {
+            $updateData['lastname'] = $request->lastname;
+        }
+        if ($request->filled('phone')) {
+            $updateData['phone_number'] = $request->phone_number;
+        }
+        // if ($request->filled('status')) {
+        //     $updateData['status'] = $request->status;
+        // }
+        // else
+        // {
+        //     $updateData['status'] = 0;
+        // }
+
+        if (!empty($updateData)) {
+            $wholesaler->update($updateData);
+        }
+
+        // Update password if provided
+        // if ($request->filled('password')) {
+        //     $wholesaler->update([
+        //         'password' => bcrypt($request->password),
+        //     ]);
+        // }
+
+         // Handle profile image upload
+         if ($request->hasFile('profile')) {
+            $file = $request->file('profile');  // Get file
+            $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
+            $file->move(public_path('uploads/company_profile'), $filename); // Save to public/uploads/company_logos
+        } else {
+            $filename = null; // No file uploaded
+        }
+
+        // Update userDetail fields only if they are filled
+        if ($wholesaler->userDetail) {
+            $userDetailUpdate = [];
+
+            if ($request->filled('company')) {
+                $userDetailUpdate['company_name'] = $request->company_name;
+            }
+            if ($request->filled('address')) {
+                $userDetailUpdate['address'] = $request->address;
+            }
+            if ($request->filled('country')) {
+                $userDetailUpdate['country'] = $request->country;
+            }
+            if ($request->filled('state')) {
+                $userDetailUpdate['state'] = $request->state;
+            }
+            if ($request->filled('city')) {
+                $userDetailUpdate['city'] = $request->city;
+            }
+            if ($request->filled('address')) {
+                $userDetailUpdate['address'] = $request->address;
+            }
+            if ($request->filled('pincode')) {
+                $userDetailUpdate['postal_code'] = $request->pincode;
+            }
+            if ($request->hasFile('profile')) {
+                $userDetailUpdate['company_logo'] = $filename;
+            }
+
+            if (!empty($userDetailUpdate)) {
+                $wholesaler->userDetail->update($userDetailUpdate);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Wholesaler updated successfully.');
     }
 }

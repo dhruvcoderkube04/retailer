@@ -1,0 +1,1 @@
+@extends('retailers.layouts.base')

@@ -63,7 +63,7 @@
                         <div id="kt_account_settings_profile_details" class="collapse show">
                             <!--begin::Form-->
                             {{-- id="kt_account_profile_details_form" --}}
-                            <form  class="form" method="post" action="{{route('admin.post.wholesaler')}}">
+                            <form  class="form" method="post" action="{{route('admin.post.wholesaler')}}" enctype="multipart/form-data">
                                 @csrf
                                 <!--begin::Card body-->
                                 <div class="card-body border-top p-9">
@@ -276,8 +276,8 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <select id="districtSel" name="country" id="countySel" aria-label="Select a Country" data-control="select2"  data-placeholder="Select a country..." class="form-select form-select-solid form-select-lg fw-semibold @error('country') is-invalid @enderror">
-                                                <option value="">Select a Country...</option>
+                                            <select id="districtSel" name="city" aria-label="Select a City" data-control="select2"  data-placeholder="Select a city..." class="form-select form-select-solid form-select-lg fw-semibold @error('city') is-invalid @enderror">
+                                                <option value="">Select a City...</option>
                                             </select>
                                             @error('city')
                                                 <div class="invalid-feedback">{{ $message }} </div>

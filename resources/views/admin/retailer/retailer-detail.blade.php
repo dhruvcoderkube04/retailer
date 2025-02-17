@@ -1,6 +1,6 @@
 @extends('admin.layouts.base')
 @section('title')
-    TrendMart - Wholesaler Detail
+    TrendMart - Retailer Detail
 @endsection
 @section('content')
     <!--begin::Main-->
@@ -14,13 +14,13 @@
                     <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Wholesaler Detail</h1>
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Retailer Detail</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Wholesaler</a>
+                                <a href="index.html" class="text-muted text-hover-primary">Retailer</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -29,7 +29,7 @@
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
-                            <li class="breadcrumb-item text-muted">Wholesaler Detail</li>
+                            <li class="breadcrumb-item text-muted">Retailer Detail</li>
                             <!--end::Item-->
                         </ul>
                         <!--end::Breadcrumb-->
@@ -51,18 +51,10 @@
                                 {{ session('success') }}
                             </div>
                         @endif
-                        @if ($errors->any())
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
-
                         <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
                             <!--begin::Card title-->
                             <div class="card-title m-0">
-                                <h3 class="fw-bold m-0">Wholesaler Details</h3>
+                                <h3 class="fw-bold m-0">Retailer Details</h3>
                             </div>
                             <!--end::Card title-->
                         </div>
@@ -72,7 +64,7 @@
                         <div id="kt_account_settings_profile_details" class="collapse show">
                             <!--begin::Form-->
                             {{-- id="kt_account_profile_details_form" --}}
-                            <form  class="form" method="post" action="{{route('admin.wholesaler.update',$wholesaler->id)}}" enctype="multipart/form-data">
+                            <form  class="form" method="post" action="{{route('admin.retailer.update',$retailer->id)}}" enctype="multipart/form-data">
                                 @csrf
                                 <!--begin::Card body-->
                                 <div class="card-body border-top p-9">
@@ -87,7 +79,7 @@
                                             <div class="image-input image-input-outline" data-kt-image-input="true" style="background-image: url('assets/media/svg/avatars/blank.svg')">
                                                 <!--begin::Preview existing avatar-->
                                                 <div class="image-input-wrapper w-125px h-125px"
-                                                        style="background-image: url('{{ asset('uploads/company_profile/' . $wholesaler->userDetail->company_logo) }}')">
+                                                        style="background-image: url('{{ asset('uploads/company_profile/' . $retailer->userDetail->company_logo) }}')">
                                                     </div>
                                                 <!--end::Preview existing avatar-->
                                                 <!--begin::Label-->
@@ -138,7 +130,7 @@
                                             <div class="row">
                                                 <!--begin::Col-->
                                                 <div class="col-lg-6 fv-row">
-                                                    <input type="text" name="firstname" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 form-control @error('firstname') is-invalid @enderror" placeholder="First name" value="{{$wholesaler->firstname}}" />
+                                                    <input type="text" name="firstname" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 form-control @error('firstname') is-invalid @enderror" placeholder="First name" value="{{$retailer->firstname}}" />
                                                     @error('firstname')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -146,7 +138,7 @@
                                                 <!--end::Col-->
                                                 <!--begin::Col-->
                                                 <div class="col-lg-6 fv-row">
-                                                    <input type="text" name="lastname" class="form-control form-control-lg form-control-solid @error('lastname') is-invalid @enderror" placeholder="Last name" value="{{$wholesaler->lastname}}" />
+                                                    <input type="text" name="lastname" class="form-control form-control-lg form-control-solid @error('lastname') is-invalid @enderror" placeholder="Last name" value="{{$retailer->lastname}}" />
                                                     @error('lastname')
                                                       <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -165,7 +157,7 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="company_name" class="form-control form-control-lg form-control-solid @error('company_name') is-invalid @enderror" placeholder="Company name" placeholder="Zero" value="{{$wholesaler->userDetail->company_name}}"  />
+                                            <input type="text" name="company_name" class="form-control form-control-lg form-control-solid @error('company_name') is-invalid @enderror" placeholder="Company name" placeholder="Zero" value="{{$retailer->userDetail->company_name}}"  />
                                             @error('company_name')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -180,7 +172,7 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="email" name="email" class="form-control form-control-lg form-control-solid @error('email') is-invalid @enderror" placeholder="nathan@zero.com" value="{{$wholesaler->email}}" />
+                                            <input type="email" name="email" class="form-control form-control-lg form-control-solid @error('email') is-invalid @enderror" placeholder="nathan@zero.com" value="{{$retailer->email}}" />
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -219,7 +211,7 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="tel" name="phone_number" class="form-control form-control-lg form-control-solid @error('phone_number') is-invalid @enderror" placeholder="Phone number" value="{{$wholesaler->phone_number}}"/>
+                                            <input type="tel" name="phone_number" class="form-control form-control-lg form-control-solid @error('phone_number') is-invalid @enderror" placeholder="Phone number" value="{{$retailer->phone_number}}"/>
                                             @error('phone_number')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -227,6 +219,7 @@
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Input group-->
+
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->
@@ -244,8 +237,7 @@
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
                                             <select name="country" id="countySel" aria-label="Select a Country" data-control="select2"  data-placeholder="Select a country..." class="form-select form-select-solid form-select-lg fw-semibold @error('country') is-invalid @enderror">
-                                                {{-- <option value="">Select a Country...</option> --}}
-                                                <option value="{{!empty($wholesaler->userDetail->country)  ? $wholesaler->userDetail->country : ''}}">{{ !empty($wholesaler->userDetail->country)  ? $wholesaler->userDetail->country : 'Select a Country...'}}</option>
+                                                <option value="{{!empty($retailer->userDetail->country)  ? $retailer->userDetail->country : ''}}">{{ !empty($retailer->userDetail->country)  ? $retailer->userDetail->country : 'Select a Country...'}}</option>
                                             </select>
                                             @error('country')
                                                 <div class="invalid-feedback">{{ $message }} </div>
@@ -272,7 +264,8 @@
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
                                             <select name="state" id="stateSel" aria-label="Select a State" data-control="select2" data-placeholder="Select a State..." class="form-select form-select-solid form-select-lg fw-semibold @error('state') is-invalid @enderror">
-                                                <option value="{{!empty($wholesaler->userDetail->state)  ? $wholesaler->userDetail->state : ''}}">{{ !empty($wholesaler->userDetail->state)  ? $wholesaler->userDetail->state : 'Select a State...'}}</option>
+                                                {{-- <option value="">Select a State...</option> --}}
+                                                <option value="{{!empty($retailer->userDetail->state)  ? $retailer->userDetail->state : ''}}">{{ !empty($retailer->userDetail->state)  ? $retailer->userDetail->state : 'Select a State...'}}</option>
                                             </select>
                                             @error('state')
                                                 <div class="invalid-feedback">{{ $message }} </div>
@@ -288,11 +281,12 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <select name="city" id="districtSel"  aria-label="Select a City" data-control="select2" data-placeholder="Select a City..." class="form-select form-select-solid form-select-lg fw-semibold @error('city') is-invalid @enderror">
-                                                <option value="{{!empty($wholesaler->userDetail->city)  ? $wholesaler->userDetail->city : ''}}">{{ !empty($wholesaler->userDetail->city)  ? $wholesaler->userDetail->city : 'Select a City...'}}</option>
+                                            <select id="districtSel" name="city" aria-label="Select a City" data-control="select2"  data-placeholder="Select a City ..." class="form-select form-select-solid form-select-lg fw-semibold @error('city') is-invalid @enderror">
+                                                {{-- <option value="">Select a City...</option> --}}
+                                                <option value="{{!empty($retailer->userDetail->city)  ? $retailer->userDetail->city : ''}}">{{ !empty($retailer->userDetail->city)  ? $retailer->userDetail->city : 'Select a City...'}}</option>
                                             </select>
                                             @error('city')
-                                                <div class="invalid-feedback">{{ $message }} </div>
+                                                <div class="invalid-feedback">{{ $message }} </div>country
                                             @enderror
                                         </div>
                                         <!--end::Col-->
@@ -305,7 +299,7 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="address" class="form-control form-control-lg form-control-solid @error('address') is-invalid @enderror" placeholder="Address" value="{{$wholesaler->userDetail->address}}" />
+                                            <input type="text" name="address" class="form-control form-control-lg form-control-solid @error('address') is-invalid @enderror" placeholder="Address" value="{{$retailer->userDetail->address}}" />
                                             @error('address')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -320,7 +314,7 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="postal_code" class="form-control form-control-lg form-control-solid @error('postal_code') is-invalid @enderror" placeholder="PIN Code" value="{{$wholesaler->userDetail->postal_code}}" />
+                                            <input type="text" name="postal_code" class="form-control form-control-lg form-control-solid @error('postal_code') is-invalid @enderror" placeholder="PIN Code" value="{{$retailer->userDetail->postal_code}}" />
                                             @error('postal_code')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -337,7 +331,7 @@
                                         {{-- {{dd($wholesaler)}} --}}
                                         <div class="col-lg-8 d-flex align-items-center">
                                             <div class="form-check form-check-solid form-switch form-check-custom fv-row">
-                                                <input class="form-check-input w-45px h-30px" type="checkbox" {{$wholesaler->status == 1 ? 'checked':''}} value="1" id="status" name="status"   />
+                                                <input class="form-check-input w-45px h-30px" type="checkbox" {{$retailer->status == 1 ? 'checked':''}} value="1" id="status" name="status"   />
                                                 <label class="form-check-label" for="status"></label>
                                             </div>
                                         </div>
@@ -349,7 +343,7 @@
                                 <!--begin::Actions-->
                                 <div class="card-footer d-flex justify-content-end py-6 px-9">
                                     <button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-                                    <button type="submit" class="btn btn-primary" >Update Wholesaler</button>
+                                    <button type="submit" class="btn btn-primary" >Update Retailer</button>
                                 </div>
                                 <!--end::Actions-->
                             </form>

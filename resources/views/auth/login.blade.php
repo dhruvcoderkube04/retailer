@@ -33,6 +33,12 @@
                         <!--begin::Wrapper-->
                         <div class="d-flex flex-center flex-column flex-column-fluid pb-15 pb-lg-20">
                             <!--begin::Form-->
+
+                            @if (session('error'))
+                                <div class="alert alert-danger text-white-600 p-2">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
                             <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" action="{{route('post-login')}}" method="post">
                                 @csrf
                                 <!--begin::Heading-->

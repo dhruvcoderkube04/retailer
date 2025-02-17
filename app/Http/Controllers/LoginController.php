@@ -41,7 +41,7 @@ class LoginController extends Controller
             } elseif ($user->user_type == 2) {
                 return redirect()->route('wholesaler.dashboard'); // Wholesaler (user_type = 2)
             } elseif ($user->user_type == 3) {
-                return redirect()->route('user.dashboard'); // Normal User (user_type = 3)
+                return redirect()->route('retailer.dashboard'); // Normal User (user_type = 3)
             } else {
                 return redirect('/'); // Fallback route
             }

@@ -115,8 +115,7 @@
                         <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                         ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
                         : asset('assets/default-avatar.png') }}"
-                 class="rounded-3" alt="user" />
-                </div>
+                 class="rounded-3" alt="user" />                    </div>
                     <!--begin::User account menu-->
                     <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" data-kt-menu="true">
                         <!--begin::Menu item-->
@@ -144,7 +143,7 @@
                         <!--end::Menu separator-->
                         <!--begin::Menu item-->
                         <div class="menu-item px-5">
-                            <a href="{{route('wholesale.profile')}}" class="menu-link px-5">My Profile</a>
+                            <a href="{{route('retailer.profile')}}" class="menu-link px-5">My Profile</a>
                         </div>
                         <!--end::Menu item-->
                         <!--begin::Menu item-->

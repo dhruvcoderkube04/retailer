@@ -36,7 +36,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{{route('wholesaler.dashboard')}}">
+                        <a class="menu-link {{request()->is('wholesaler/dashboard') ? 'active':''}}" href="{{route('wholesaler.dashboard')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-element-11 fs-2">
                                     <span class="path1"></span>
@@ -51,7 +51,7 @@
                     </div>
                     <!--end:Menu item-->
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion  {{ in_array(request()->path(), ['wholesaler/product-list', 'wholesaler/add-new-product']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -70,7 +70,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('wholesale.product.list')}}">
+                                <a class="menu-link {{request()->is('wholesaler/product-list') ? 'active':''}}" href="{{route('wholesale.product.list')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -82,7 +82,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('wholesale.addnewproduct.view')}}">
+                                <a class="menu-link {{request()->is('wholesaler/add-new-product') ? 'active':''}}" href="{{route('wholesale.addnewproduct.view')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -108,7 +108,7 @@
                     </div>
                     <!--end:Menu item-->
                      <!--begin:Menu item-->
-                     <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                     <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ in_array(request()->path(), ['wholesaler/order-list']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -127,7 +127,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('wholesale.order.list')}}">
+                                <a class="menu-link {{request()->is('wholesaler/order-list') ? 'active':''}}" href="{{route('wholesale.order.list')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -139,19 +139,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="#">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Manage Order </span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link" href="#">
+                                <a class="menu-link {{request()->is('wholesaler/order-list') ? 'active':''}}" href="#">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -165,7 +153,7 @@
                     </div>
                     <!--end:Menu item-->
                      <!--begin:Menu item-->
-                     <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                     <div data-kt-menu-trigger="click" class="menu-item menu-accordion  {{ in_array(request()->path(), ['wholesaler/payment-history']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -184,7 +172,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('wholesale.payment.history')}}">
+                                <a class="menu-link {{request()->is('wholesaler/payment-history') ? 'active':''}}" href="{{route('wholesale.payment.history')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>

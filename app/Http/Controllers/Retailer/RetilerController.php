@@ -1,30 +1,49 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Retailer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardController extends Controller
+class RetilerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function adminDashboard()
+    public function retailerDashboard()
     {
-        $data['wholesaler_count'] = User::where('user_type',2)->where('status',1)->count();
-        $data['retailer_count'] = User::where('user_type',3)->where('status',1)->count();
+        // $auth_id = Auth::user()->id;
+        // $data['wholesaer_total_product'] = Product::where('status','active')->where('wholesaler_id',$auth_id)->count();
+        return view('retailers.dashboard');
+    }
 
-        return view('admin.dashboard',['data' =>$data]);
+    public function wholesalerList()
+    {
+        $wholesaler_list = User::where('user_type',2)->where('status',1)->get();
+        return view('retailers.wholesaler-list',['wholesalers'=>$wholesaler_list]);
+    }
+
+    public function wholesalerWiseProductList(string $id)
+    {
+        $wholesaler_wise_product = Product::where('wholesaler_id',$id)->get();
+        return view('retailers.retailer-product-list',['productlist'=>$wholesaler_wise_product]);
+    }
+
+    public function retailerProduct()
+    {
+        return view('retailers.retailer-own-product');
+    }
+
+    public function retailerOrder()
+    {
+        return view('retailers.reatiler-orders-list');
     }
 
     public function Profile()
     {
         $id = Auth::user()->id;
         $user = User::with('userDetail')->findOrFail($id);
-        return view('admin.profile.profile',['userprofile'=>$user]);
+        return view('retailers.profile.profile',['userprofile'=>$user]);
     }
 
     public function profileUpdate(Request $request)

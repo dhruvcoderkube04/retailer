@@ -1,6 +1,6 @@
 @extends('admin.layouts.base')
 @section('title')
-    Wholesaler List - TrendMart
+    TrendMart - Retailer Pending List
 @endsection
 @section('content')
     <!--begin::Main-->
@@ -14,13 +14,13 @@
                     <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Wholesaler List</h1>
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Retailer Pending List</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Wholesaler</a>
+                                <a href="index.html" class="text-muted text-hover-primary">Retailer</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -29,7 +29,7 @@
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
-                            <li class="breadcrumb-item text-muted">Wholesaler List</li>
+                            <li class="breadcrumb-item text-muted">Retailer Pending List</li>
                             <!--end::Item-->
                         </ul>
                         <!--end::Breadcrumb-->
@@ -82,7 +82,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
-                                    @foreach ($wholesalers as $wholesaler)
+                                    @foreach ($retailers as $retailer)
                                         <tr>
                                             <td>
                                                 <div class="form-check form-check-sm form-check-custom form-check-solid">
@@ -90,20 +90,20 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href="apps/customers/view.html" class="text-gray-800 text-hover-primary mb-1">{{$wholesaler->firstname }} {{$wholesaler->lastname}}</a>
+                                                <a href="apps/customers/view.html" class="text-gray-800 text-hover-primary mb-1">{{$retailer->firstname }} {{$retailer->lastname}}</a>
                                             </td>
                                             <td>
-                                                <a href="#" class="text-gray-600 text-hover-primary mb-1">{{$wholesaler->email}}</a>
+                                                <a href="#" class="text-gray-600 text-hover-primary mb-1">{{$retailer->email}}</a>
                                             </td>
-                                            <td>{{$wholesaler->userDetail->company_name}}</td>
+                                            <td>{{$retailer->userDetail->company_name}}</td>
                                             <td data-filter="mastercard">
-                                                @if ($wholesaler->status == 1)
+                                                @if ($retailer->status == 1)
                                                     <span class="badge bg-primary text-white" > active </span>
                                                 @else
                                                     <span class="badge bg-danger text-white" > inactive </span>
                                                 @endif
                                             </td>
-                                            <td>{{$wholesaler->created_at}}</td>
+                                            <td>{{$retailer->created_at}}</td>
                                             <td class="text-end">
                                                 <a href="#" class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
                                                 <i class="ki-duotone ki-down fs-5 ms-1"></i></a>
@@ -111,16 +111,16 @@
                                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                                     <!--begin::Menu item-->
                                                     <div class="menu-item px-3">
-                                                        <a href="{{route('admin.wholesaler.detail',$wholesaler->id)}}" class="menu-link px-3">View</a>
+                                                        <a href="{{route('admin.retailer.detail',$retailer->id)}}" class="menu-link px-3">View</a>
                                                     </div>
                                                     <!--end::Menu item-->
-                                                    <div class="menu-item px-3">
+                                                    {{-- <div class="menu-item px-3">
                                                         <a href="apps/customers/view.html" class="menu-link px-3">Inactive</a>
                                                     </div>
                                                     <!--begin::Menu item-->
                                                     <div class="menu-item px-3">
                                                         <a href="#" class="menu-link px-3" data-kt-customer-table-filter="delete_row">Delete</a>
-                                                    </div>
+                                                    </div> --}}
                                                     <!--end::Menu item-->
                                                 </div>
                                                 <!--end::Menu-->
@@ -146,17 +146,11 @@
     </div>
 @endsection
 
+
 @section('script')
-<!--begin::Custom Javascript(used for this page only)-->
     <script src="{{asset('assets/plugins/custom/datatables/datatables.bundle.js')}}"></script>
-    <script src="{{asset('assets/js/custom/apps/ecommerce/customers/listing/listing.js')}}"></script>
-    <script src="{{asset('assets/js/custom/apps/ecommerce/customers/listing/add.js')}}"></script>
-    <script src="{{asset('assets/js/custom/apps/ecommerce/customers/listing/export.js')}}"></script>
-    <script src="{{asset('assets/js/widgets.bundle.js')}}"></script>
-    <script src="{{asset('assets/js/custom/widgets.js')}}"></script>
-    <script src="{{asset('assets/js/custom/apps/chat/chat.js')}}"></script>
-    <script src="{{asset('assets/js/custom/utilities/modals/upgrade-plan.js')}}"></script>
+    <script src="{{asset('assets/js/custom/apps/customers/list/export.js')}}"></script>
+    <script src="{{asset('assets/js/custom/apps/customers/list/list.js')}}"></script>
+    <script src="{{asset('assets/js/custom/apps/customers/add.js')}}"></script>
     <script src="{{asset('assets/js/custom/utilities/modals/create-app.js')}}"></script>
-    <script src="{{asset('assets/js/custom/utilities/modals/users-search.js')}}"></script>
-<!--end::Custom Javascript-->
 @endsection

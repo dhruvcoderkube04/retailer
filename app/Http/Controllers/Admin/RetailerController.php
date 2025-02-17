@@ -9,28 +9,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class WholesalerController extends Controller
+class RetailerController extends Controller
 {
-
     public function index()
     {
-        $wholesalers = User::with('userDetail')
+        $retailers = User::with('userDetail')
             // ->select('id', 'firstname', 'lastname', 'email')
-            ->where('user_type', 2)
+            ->where('user_type', 3)
             ->where('status', 1)
             ->get();
 
-        return view('admin.wholesaler.wholesaler-list', compact('wholesalers'));
+        return view('admin.retailer.retailer-list', compact('retailers'));
     }
 
-    public function addWholesaler()
+    public function addRetailer()
     {
-        return view('admin.wholesaler.add-wholesaler');
+        return view('admin.retailer.add-retailer');
     }
 
-    public function postWholesaler(Request $request)
+    public function postRetailer(Request $request)
     {
-        // dd($request->all());
         // Validate request
         $request->validate([
             'firstname'     => 'required|string|max:255',
@@ -39,7 +37,7 @@ class WholesalerController extends Controller
             'phone_number'  => 'required|string|min:6|max:20|regex:/^[0-9\-+()\s]*$/',
             'email'         => 'required|email|max:255|unique:users,email',
             'password'      => 'required|string|min:8|max:20', // Must be confirmed with 'password_confirmation'
-            'address'       => 'required|string|max:255',
+            'address'       => 'required|string|max:500',
             'country'       => 'required|string|max:255',
             'state'         => 'required|string|max:255',
             'city'          => 'required|string|max:255',
@@ -47,7 +45,7 @@ class WholesalerController extends Controller
             'profile'       => 'nullable|image|mimes:jpeg,png,jpg|max:1048', // 1MB max
             // 'avatar_remove' => 'nullable|boolean',
         ]);
-        // dd($request->all());
+
         try {
 
             DB::beginTransaction(); // Start transaction
@@ -58,7 +56,7 @@ class WholesalerController extends Controller
                 'lastname' => $request->lastname,
                 'email' => $request->email,
                 'password' => Hash::make($request->password), // Set a default or send an email for password setup
-                'user_type' => 2, // Set user type for wholesalers
+                'user_type' => 3, // Set user type for Retailer
                 'phone_number'=> $request->phone_number,
                 'status' => $request->status ?? 0,
                 'ip_address' => $request->ip(),
@@ -67,10 +65,10 @@ class WholesalerController extends Controller
 
             // Step 2: Create user details
 
-            if ($request->hasFile('profile')) {
-                $file = $request->file('profile');  // Get file
+            if ($request->hasFile('company_logo')) {
+                $file = $request->file('company_logo');  // Get file
                 $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
-                $file->move(public_path('uploads/company_profile'), $filename); // Save to public/uploads/company_logos
+                $file->move(public_path('uploads/company_logos'), $filename); // Save to public/uploads/company_logos
             } else {
                 $filename = null; // No file uploaded
             }
@@ -87,7 +85,7 @@ class WholesalerController extends Controller
             ]);
 
             DB::commit(); // Commit transaction
-            return redirect()->back()->with('success', 'Wholesaler added successfully.');
+            return redirect()->back()->with('success', 'Retailer added successfully.');
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback transaction in case of error
             return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
@@ -97,23 +95,23 @@ class WholesalerController extends Controller
     /**
      * Display the specified wholesaler.
      */
-    public function wholesalerDetail(string $id)
+    public function retailerDetail(string $id)
     {
-        $wholesalers = User::with('userDetail')
+        $retailer = User::with('userDetail')
         // ->select('id', 'firstname', 'lastname', 'email')
-        ->where('user_type', 2)
+        ->where('user_type', 3)   // for retialer
         // ->where('status', 1)
         ->where('id',$id)
         ->first();
-        return view('admin.wholesaler.wholesaler-detail', ['wholesaler'=>$wholesalers]);
+        return view('admin.retailer.retailer-detail', ['retailer'=>$retailer]);
     }
 
     /**
      * Update the specified wholesaler in the database
      */
-    public function wholesalerUpdate(Request $request, string $id)
+    public function retailerUpdate(Request $request, string $id)
     {
-        // dd($request->all()) ;
+
         $request->validate([
             'firstname'     => 'nullable|string|max:255',
             'lastname'      => 'nullable|string|max:255',
@@ -126,11 +124,11 @@ class WholesalerController extends Controller
             'state'         => 'nullable|string|max:255',
             'city'          => 'nullable|string|max:255',
             'postal_code'   => 'nullable|string|max:10|regex:/^[0-9]{4,10}$/',
-            'profile'       => 'mimes:jpeg,png,jpg|max:1048',
+            'profile'       => 'nullable|image|mimes:jpeg,png,jpg|max:1048',
         ]);
 
         // Find the wholesaler
-        $wholesaler = User::with('userDetail')->findOrFail($id);
+        $retailer = User::with('userDetail')->findOrFail($id);
         // dd($request->all());
         // Update only the fields that are filled
         $updateData = [];
@@ -152,18 +150,18 @@ class WholesalerController extends Controller
         }
 
         if (!empty($updateData)) {
-            $wholesaler->update($updateData);
+            $retailer->update($updateData);
         }
 
         // Update password if provided
         if ($request->filled('password')) {
-            $wholesaler->update([
+            $retailer->update([
                 'password' => bcrypt($request->password),
             ]);
         }
 
-         // Handle profile image upload
-         if ($request->hasFile('profile')) {
+        // Handle profile image upload
+        if ($request->hasFile('profile')) {
             $file = $request->file('profile');  // Get file
             $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
             $file->move(public_path('uploads/company_profile'), $filename); // Save to public/uploads/company_logos
@@ -172,7 +170,7 @@ class WholesalerController extends Controller
         }
 
         // Update userDetail fields only if they are filled
-        if ($wholesaler->userDetail) {
+        if ($retailer->userDetail) {
             $userDetailUpdate = [];
 
             if ($request->filled('company_name')) {
@@ -198,35 +196,24 @@ class WholesalerController extends Controller
             }
 
             if (!empty($userDetailUpdate)) {
-                $wholesaler->userDetail->update($userDetailUpdate);
+                $retailer->userDetail->update($userDetailUpdate);
             }
         }
-
-
 
         return redirect()->back()->with('success', 'Wholesaler updated successfully.');
     }
 
     /**
-     * Remove the specified wholesaler datasbe.
-     */
-    // public function destroy(string $id)
-    // {
-    //     Wholesaler::findOrFail($id)->delete();
-    //     return redirect()->route('admin.wholesalers.index')->with('success', 'Wholesaler deleted successfully.');
-    // }
-
-    /**
      * Pending supplier list.
      */
-    public function pendingWholesalerList()
+    public function pendingRetailerList()
     {
-        $wholesalers = User::with('userDetail')
+        $retailers = User::with('userDetail')
         // ->select('id', 'firstname', 'lastname', 'email')
-        ->where('user_type', 2)
+        ->where('user_type', 3)
         ->where('status', 0)
         ->get();
 
-        return view('admin.wholesaler.pending-wholesaler-list', compact('wholesalers'));
+        return view('admin.retailer.pending-retailer-list', compact('retailers'));
     }
 }

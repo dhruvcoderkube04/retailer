@@ -1,7 +1,5 @@
-@extends('admin.layouts.base')
-@section('title')
-    TrendMart - Wholesaler Detail
-@endsection
+@extends('wholesale.layouts.base')
+
 @section('content')
     <!--begin::Main-->
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -14,13 +12,13 @@
                     <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Wholesaler Detail</h1>
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Account Settings</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Wholesaler</a>
+                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -29,7 +27,7 @@
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
-                            <li class="breadcrumb-item text-muted">Wholesaler Detail</li>
+                            <li class="breadcrumb-item text-muted">Account</li>
                             <!--end::Item-->
                         </ul>
                         <!--end::Breadcrumb-->
@@ -46,49 +44,41 @@
                     <!--begin::Basic info-->
                     <div class="card mb-5 mb-xl-10">
                         <!--begin::Card header-->
-                        @if (session('success'))
-                            <div class="alert alert-success text-green-600 p-2">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-                        @if ($errors->any())
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
-
                         <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
                             <!--begin::Card title-->
                             <div class="card-title m-0">
-                                <h3 class="fw-bold m-0">Wholesaler Details</h3>
+                                <h3 class="fw-bold m-0">Profile Details</h3>
                             </div>
                             <!--end::Card title-->
                         </div>
                         <!--begin::Card header-->
-
                         <!--begin::Content-->
                         <div id="kt_account_settings_profile_details" class="collapse show">
                             <!--begin::Form-->
-                            {{-- id="kt_account_profile_details_form" --}}
-                            <form  class="form" method="post" action="{{route('admin.wholesaler.update',$wholesaler->id)}}" enctype="multipart/form-data">
+                            @if (session('success'))
+                                <div class="alert alert-success text-green-600 p-2">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+                            <form id="kt_account_profile_details_form" class="form" action="{{route('wholesale.profile.update')}}" method="post" enctype="multipart/form-data">
                                 @csrf
                                 <!--begin::Card body-->
                                 <div class="card-body border-top p-9">
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->
-                                        <label class="col-lg-4 col-form-label fw-semibold fs-6">Brand Logo</label>
+                                        <label class="col-lg-4 col-form-label fw-semibold fs-6">Avatar</label>
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8">
                                             <!--begin::Image input-->
+
                                             <div class="image-input image-input-outline" data-kt-image-input="true" style="background-image: url('assets/media/svg/avatars/blank.svg')">
                                                 <!--begin::Preview existing avatar-->
                                                 <div class="image-input-wrapper w-125px h-125px"
-                                                        style="background-image: url('{{ asset('uploads/company_profile/' . $wholesaler->userDetail->company_logo) }}')">
-                                                    </div>
+                                                    style="background-image: url('{{ asset('uploads/company_profile/' . @$userprofile->userDetail->company_logo) }}')">
+                                                </div>
+                                                {{-- <div class="image-input-wrapper w-125px h-125px" style="background-image: url(assets/media/avatars/300-1.jpg)"></div> --}}
                                                 <!--end::Preview existing avatar-->
                                                 <!--begin::Label-->
                                                 <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
@@ -138,17 +128,17 @@
                                             <div class="row">
                                                 <!--begin::Col-->
                                                 <div class="col-lg-6 fv-row">
-                                                    <input type="text" name="firstname" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 form-control @error('firstname') is-invalid @enderror" placeholder="First name" value="{{$wholesaler->firstname}}" />
+                                                    <input type="text" name="firstname" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 @error('firstname') is-invalid @enderror" placeholder="First name" value="{{$userprofile->firstname}}" />
                                                     @error('firstname')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                        <div class="invalid-feedback">{{ $message }} </div>
                                                     @enderror
                                                 </div>
                                                 <!--end::Col-->
                                                 <!--begin::Col-->
                                                 <div class="col-lg-6 fv-row">
-                                                    <input type="text" name="lastname" class="form-control form-control-lg form-control-solid @error('lastname') is-invalid @enderror" placeholder="Last name" value="{{$wholesaler->lastname}}" />
+                                                    <input type="text" name="lastname" class="form-control form-control-lg form-control-solid @error('lastname') is-invalid @enderror" placeholder="Last name" value="{{$userprofile->lastname}}" />
                                                     @error('lastname')
-                                                      <div class="invalid-feedback">{{ $message }}</div>
+                                                        <div class="invalid-feedback">{{ $message }} </div>
                                                     @enderror
                                                 </div>
                                                 <!--end::Col-->
@@ -165,38 +155,23 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="company_name" class="form-control form-control-lg form-control-solid @error('company_name') is-invalid @enderror" placeholder="Company name" placeholder="Zero" value="{{$wholesaler->userDetail->company_name}}"  />
-                                            @error('company_name')
+                                            <input type="text" name="company" class="form-control form-control-lg form-control-solid @error('company') is-invalid @enderror" placeholder="Company name" value="{{@$userprofile->userDetail->company_name}}" />
+                                            @error('company')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
                                         </div>
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Input group-->
-                                       <!--begin::Input group-->
-                                       <div class="row mb-6">
+                                     <!--begin::Input group-->
+                                     <div class="row mb-6">
                                         <!--begin::Label-->
                                         <label class="col-lg-4 col-form-label required fw-semibold fs-6">Email</label>
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="email" name="email" class="form-control form-control-lg form-control-solid @error('email') is-invalid @enderror" placeholder="nathan@zero.com" value="{{$wholesaler->email}}" />
+                                            <input type="email" class="form-control form-control-lg form-control-solid 	@error('email') is-invalid @enderror" placeholder="Email" value="{{$userprofile->email}}"  disabled/>
                                             @error('email')
-                                                <div class="invalid-feedback">{{ $message }} </div>
-                                            @enderror
-                                        </div>
-                                        <!--end::Col-->
-                                    </div>
-                                    <!--end::Input group-->
-                                      <!--begin::Input group-->
-                                      <div class="row mb-6">
-                                        <!--begin::Label-->
-                                        <label class="col-lg-4 col-form-label required fw-semibold fs-6">Password</label>
-                                        <!--end::Label-->
-                                        <!--begin::Col-->
-                                        <div class="col-lg-8 fv-row">
-                                            <input type="text" name="password" class="form-control form-control-lg form-control-solid @error('password') is-invalid @enderror" placeholder="Password" value=""/>
-                                            @error('password')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
                                         </div>
@@ -219,8 +194,8 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="tel" name="phone_number" class="form-control form-control-lg form-control-solid @error('phone_number') is-invalid @enderror" placeholder="Phone number" value="{{$wholesaler->phone_number}}"/>
-                                            @error('phone_number')
+                                            <input type="tel" name="phone" class="form-control form-control-lg form-control-solid 	@error('phone') is-invalid @enderror" placeholder="Phone number" value="{{$userprofile->phone_number}}" />
+                                            @error('phone')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
                                         </div>
@@ -243,24 +218,19 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <select name="country" id="countySel" aria-label="Select a Country" data-control="select2"  data-placeholder="Select a country..." class="form-select form-select-solid form-select-lg fw-semibold @error('country') is-invalid @enderror">
-                                                {{-- <option value="">Select a Country...</option> --}}
-                                                <option value="{{!empty($wholesaler->userDetail->country)  ? $wholesaler->userDetail->country : ''}}">{{ !empty($wholesaler->userDetail->country)  ? $wholesaler->userDetail->country : 'Select a Country...'}}</option>
+                                            <select name="country"  id="countySel" aria-label="Select a Country" data-control="select2" data-placeholder="Select a country..." class="form-select form-select-solid form-select-lg fw-semibold">
+                                                <option value="{{!empty(@$userprofile->userDetail->country)  ? @$userprofile->userDetail->country : ''}}">{{ !empty(@$userprofile->userDetail->country)  ? @$userprofile->userDetail->country : 'Select a Country...'}}</option>
                                             </select>
-                                            @error('country')
-                                                <div class="invalid-feedback">{{ $message }} </div>
-                                            @enderror
                                         </div>
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Input group-->
-
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->
                                         <label class="col-lg-4 col-form-label fw-semibold fs-6">
                                             <span class="required">State</span>
-                                            <span class="ms-1" data-bs-toggle="tooltip" title="State of origination">
+                                            <span class="ms-1" data-bs-toggle="tooltip" title="Country of origination">
                                                 <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
                                                     <span class="path1"></span>
                                                     <span class="path2"></span>
@@ -271,12 +241,33 @@
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <select name="state" id="stateSel" aria-label="Select a State" data-control="select2" data-placeholder="Select a State..." class="form-select form-select-solid form-select-lg fw-semibold @error('state') is-invalid @enderror">
-                                                <option value="{{!empty($wholesaler->userDetail->state)  ? $wholesaler->userDetail->state : ''}}">{{ !empty($wholesaler->userDetail->state)  ? $wholesaler->userDetail->state : 'Select a State...'}}</option>
+                                            <select name="state" id="stateSel" aria-label="Select a State" data-control="select2" data-placeholder="Select a state..." class="form-select form-select-solid form-select-lg fw-semibold">
+                                                <option value="{{!empty(@$userprofile->userDetail->state)  ? @$userprofile->userDetail->state : ''}}">{{ !empty(@$userprofile->userDetail->state)  ? @$userprofile->userDetail->state : 'Select a State...'}}</option>
                                             </select>
-                                            @error('state')
-                                                <div class="invalid-feedback">{{ $message }} </div>
-                                            @enderror
+                                        </div>
+                                        <!--end::Col-->
+                                    </div>
+                                    <!--end::Input group-->
+
+                                    <!--begin::Input group-->
+                                    <div class="row mb-6">
+                                        <!--begin::Label-->
+                                        <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                                            <span class="required">City</span>
+                                            <span class="ms-1" data-bs-toggle="tooltip" title="Country of origination">
+                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                    <span class="path3"></span>
+                                                </i>
+                                            </span>
+                                        </label>
+                                        <!--end::Label-->
+                                        <!--begin::Col-->
+                                        <div class="col-lg-8 fv-row">
+                                            <select name="city" id="districtSel" aria-label="Select a City" data-control="select2" data-placeholder="Select a city..." class="form-select form-select-solid form-select-lg fw-semibold">
+                                                <option value="{{!empty(@$userprofile->userDetail->city)  ? @$userprofile->userDetail->city : ''}}">{{ !empty(@$userprofile->userDetail->city)  ? @$userprofile->userDetail->city : 'Select a City...'}}</option>
+                                            </select>
                                         </div>
                                         <!--end::Col-->
                                     </div>
@@ -284,64 +275,26 @@
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->
-                                        <label class="col-lg-4 col-form-label required fw-semibold fs-6">City</label>
-                                        <!--end::Label-->
-                                        <!--begin::Col-->
-                                        <div class="col-lg-8 fv-row">
-                                            <select name="city" id="districtSel"  aria-label="Select a City" data-control="select2" data-placeholder="Select a City..." class="form-select form-select-solid form-select-lg fw-semibold @error('city') is-invalid @enderror">
-                                                <option value="{{!empty($wholesaler->userDetail->city)  ? $wholesaler->userDetail->city : ''}}">{{ !empty($wholesaler->userDetail->city)  ? $wholesaler->userDetail->city : 'Select a City...'}}</option>
-                                            </select>
-                                            @error('city')
-                                                <div class="invalid-feedback">{{ $message }} </div>
-                                            @enderror
-                                        </div>
-                                        <!--end::Col-->
-                                    </div>
-                                    <!--end::Input group-->
-                                      <!--begin::Input group-->
-                                      <div class="row mb-6">
-                                        <!--begin::Label-->
                                         <label class="col-lg-4 col-form-label required fw-semibold fs-6">Address</label>
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="address" class="form-control form-control-lg form-control-solid @error('address') is-invalid @enderror" placeholder="Address" value="{{$wholesaler->userDetail->address}}" />
-                                            @error('address')
-                                                <div class="invalid-feedback">{{ $message }} </div>
-                                            @enderror
+                                            <input type="text" name="address" class="form-control form-control-lg form-control-solid" placeholder="Address" value="{{$userprofile->address}}" />
                                         </div>
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Input group-->
-                                      <!--begin::Input group-->
-                                      <div class="row mb-6">
+
+                                    <!--begin::Input group-->
+                                    <div class="row mb-6">
                                         <!--begin::Label-->
-                                        <label class="col-lg-4 col-form-label required fw-semibold fs-6">Pin Code</label>
+                                        <label class="col-lg-4 col-form-label required fw-semibold fs-6">Pincode</label>
                                         <!--end::Label-->
                                         <!--begin::Col-->
                                         <div class="col-lg-8 fv-row">
-                                            <input type="text" name="postal_code" class="form-control form-control-lg form-control-solid @error('postal_code') is-invalid @enderror" placeholder="PIN Code" value="{{$wholesaler->userDetail->postal_code}}" />
-                                            @error('postal_code')
-                                                <div class="invalid-feedback">{{ $message }} </div>
-                                            @enderror
+                                            <input type="text" name="pincode" class="form-control form-control-lg form-control-solid" placeholder="Pin code" value="{{$userprofile->postal_code}}" />
                                         </div>
                                         <!--end::Col-->
-                                    </div>
-                                    <!--end::Input group-->
-                                    <!--begin::Input group-->
-                                    <div class="row mb-0">
-                                        <!--begin::Label-->
-                                        <label class="col-lg-4 col-form-label fw-semibold fs-6">Account Status (Default Active)</label>
-                                        <!--begin::Label-->
-                                        <!--begin::Label-->
-                                        {{-- {{dd($wholesaler)}} --}}
-                                        <div class="col-lg-8 d-flex align-items-center">
-                                            <div class="form-check form-check-solid form-switch form-check-custom fv-row">
-                                                <input class="form-check-input w-45px h-30px" type="checkbox" {{$wholesaler->status == 1 ? 'checked':''}} value="1" id="status" name="status"   />
-                                                <label class="form-check-label" for="status"></label>
-                                            </div>
-                                        </div>
-                                        <!--begin::Label-->
                                     </div>
                                     <!--end::Input group-->
                                 </div>
@@ -349,7 +302,7 @@
                                 <!--begin::Actions-->
                                 <div class="card-footer d-flex justify-content-end py-6 px-9">
                                     <button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
-                                    <button type="submit" class="btn btn-primary" >Update Wholesaler</button>
+                                    <button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
                                 </div>
                                 <!--end::Actions-->
                             </form>
@@ -365,25 +318,12 @@
         </div>
         <!--end::Content wrapper-->
         <!--begin::Footer-->
-        @include('admin.layouts.footer')
+        @include('wholesale.layouts.footer')
         <!--end::Footer-->
     </div>
     <!--end:::Main-->
 @endsection
 
 @section('script')
-        <script src="{{asset('assets/js/custom/account/settings/signin-methods.js')}}"></script>
-		<script src="{{asset('assets/js/custom/account/settings/profile-details.js')}}"></script>
-		<script src="{{asset('assets/js/custom/account/settings/deactivate-account.js')}}"></script>
-		<script src="{{asset('assets/js/custom/pages/user-profile/general.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/upgrade-plan.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/create-app.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/offer-a-deal/type.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/offer-a-deal/details.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/offer-a-deal/finance.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/offer-a-deal/complete.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/offer-a-deal/main.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/two-factor-authentication.js')}}"></script>
-		<script src="{{asset('assets/js/custom/utilities/modals/users-search.js')}}"></script>
-        <script src="{{asset('assets/js/countries.js')}}"></script>
+    <script src="{{asset('assets/js/countries.js')}}"></script>
 @endsection

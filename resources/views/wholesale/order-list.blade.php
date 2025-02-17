@@ -3457,6 +3457,7 @@
     <!--end:::Main-->
 @endsection
 @section('script')
+    <script src="{{asset('assets/plugins/custom/datatables/datatables.bundle.js')}}"></script>
     <script src="{{asset('assets/js/custom/apps/ecommerce/sales/listing.js')}}"></script>
     <script src="{{asset('assets/js/widgets.bundle.js')}}"></script>
     <script src="{{asset('assets/js/custom/widgets.js')}}"></script>

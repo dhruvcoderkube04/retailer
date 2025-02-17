@@ -42,7 +42,7 @@
                     </div>
                     <!--end:Menu item-->
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ in_array(request()->path(), ['admin/wholesaler-list','admin/add-wholesaler','admin/pending-wholesaler-list']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -59,9 +59,9 @@
                         <!--begin:Menu sub-->
                         <div class="menu-sub menu-sub-accordion">
                             <!--begin:Menu item-->
-                            <div class="menu-item {{request()->is('admin/wholesaler-list') ? 'active':''}}">
+                            <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('admin.wholesaler.list')}}">
+                                <a class="menu-link {{request()->is('admin/wholesaler-list') ? 'active':''}}" href="{{route('admin.wholesaler.list')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -73,7 +73,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('admin.add.wholesaler')}}">
+                                <a class="menu-link  {{request()->is('admin/add-wholesaler') ? 'active':''}}" href="{{route('admin.add.wholesaler')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -85,7 +85,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('admin.pending.wholesaler.list')}}">
+                                <a class="menu-link  {{request()->is('admin/pending-wholesaler-list') ? 'active':''}}" href="{{route('admin.pending.wholesaler.list')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -98,8 +98,65 @@
                         <!--end:Menu sub-->
                     </div>
                     <!--end:Menu item-->
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ in_array(request()->path(), ['admin/retailer-list','admin/add-retailer','admin/pending-retailer-list']) ? 'show' : '' }}">
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-address-book fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Retailer</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item ">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{request()->is('admin/retailer-list') ? 'active':''}}" href="{{route('admin.retailer.list')}}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Retailer List</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{request()->is('admin/add-retailer') ? 'active':''}}" href="{{route('admin.add.retailer')}}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Add Retailer</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{request()->is('admin/pending-retailer-list') ? 'active':''}}" href="{{route('admin.pending.retailer.list')}}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Pending Retailer</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
                      <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ in_array(request()->path(), ['admin/category-list','admin/add-category']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -116,9 +173,9 @@
                         <!--begin:Menu sub-->
                         <div class="menu-sub menu-sub-accordion">
                             <!--begin:Menu item-->
-                            <div class="menu-item {{request()->is('admin/category-list') ? 'active':''}}">
+                            <div class="menu-item ">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('admin.category.list')}}">
+                                <a class="menu-link {{request()->is('admin/category-list') ? 'active':''}}" href="{{route('admin.category.list')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -128,9 +185,9 @@
                             </div>
                             <!--end:Menu item-->
                             <!--begin:Menu item-->
-                            <div class="menu-item {{request()->is('admin/category-page') ? 'active':''}}">
+                            <div class="menu-item ">
                                 <!--begin:Menu link-->
-                                <a class="menu-link" href="{{route('admin.category.page')}}">
+                                <a class="menu-link {{request()->is('admin/add-category') ? 'active':''}}" href="{{route('admin.category.page')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
