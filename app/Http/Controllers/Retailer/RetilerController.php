@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Retailer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\RetailerProducts;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RetilerController extends Controller
 {
@@ -19,19 +22,66 @@ class RetilerController extends Controller
 
     public function wholesalerList()
     {
-        $wholesaler_list = User::where('user_type',2)->where('status',1)->get();
-        return view('retailers.wholesaler-list',['wholesalers'=>$wholesaler_list]);
+        $wholesaler_list = User::where('user_type', 2)->where('status', 1)->get();
+        return view('retailers.wholesaler-list', ['wholesalers' => $wholesaler_list]);
     }
 
     public function wholesalerWiseProductList(string $id)
     {
-        $wholesaler_wise_product = Product::where('wholesaler_id',$id)->get();
-        return view('retailers.retailer-product-list',['productlist'=>$wholesaler_wise_product]);
+        $retailer = Auth::user();
+
+        $wholesaler_wise_product = Product::where('wholesaler_id', $id)->get();
+        $added_product_list = RetailerProducts::where('retailer_id', $retailer->id)
+            ->pluck('product_id')
+            ->toArray();
+
+        return view('retailers.retailer-product-list', ['productlist' => $wholesaler_wise_product, 'added_product_list' => $added_product_list]);
     }
 
     public function retailerProduct()
     {
         return view('retailers.retailer-own-product');
+    }
+
+    // Product details view (while retailer add the product)
+    public function addProductView(Request $request, $product_id)
+    {
+        try {
+            $product = Product::where('id', $product_id)->first();
+
+            return view('retailers.add-product-view', compact('product'));
+        } catch (Exception $e) {
+            return redirect()->route('retailer.dashboard');
+        }
+    }
+
+    // add product (by retailer in his wishlist)
+    public function addProduct(Request $request, $product_id)
+    {
+        $request->validate([
+            'margin' => 'required|integer|max:100'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $retailer = Auth::user();
+
+            RetailerProducts::updateOrCreate([
+                'retailer_id' => $retailer->id,
+                'wholesaler_id' => $request->wholesaler_id,
+                'product_id' => $request->product_id,
+            ], [
+                'margin' => $request->margin
+            ]);
+            DB::commit();
+
+            return redirect()->route('retailer.wholesalerwise.productlist', $request->wholesaler_id)
+                ->with('success', 'Product added successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Something went wrong');
+            return redirect()->route('retailer.add-product', $product_id);
+        }
     }
 
     public function retailerOrder()
@@ -43,7 +93,7 @@ class RetilerController extends Controller
     {
         $id = Auth::user()->id;
         $user = User::with('userDetail')->findOrFail($id);
-        return view('retailers.profile.profile',['userprofile'=>$user]);
+        return view('retailers.profile.profile', ['userprofile' => $user]);
     }
 
     public function profileUpdate(Request $request)
@@ -95,8 +145,8 @@ class RetilerController extends Controller
         //     ]);
         // }
 
-         // Handle profile image upload
-         if ($request->hasFile('profile')) {
+        // Handle profile image upload
+        if ($request->hasFile('profile')) {
             $file = $request->file('profile');  // Get file
             $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
             $file->move(public_path('uploads/company_profile'), $filename); // Save to public/uploads/company_logos
@@ -140,5 +190,4 @@ class RetilerController extends Controller
 
         return redirect()->back()->with('success', 'Wholesaler updated successfully.');
     }
-
 }
