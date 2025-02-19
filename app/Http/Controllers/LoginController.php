@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    public function showLoginForm() {
+    public function showLoginForm()
+    {
         return view('auth.login');
     }
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $request->validate([
             'email' => 'required|email|max:255',
             'password' => 'required|min:8|max:20',
@@ -24,13 +26,15 @@ class LoginController extends Controller
 
         // Account Lock Check
         if ($user && $user->locked_until && $user->locked_until->isFuture()) {
-            return back()->withErrors(['email' => 'Account locked. Try again after ' . $user->locked_until->diffForHumans()]);
+            session()->flash('error', 'Account locked. Try again after ' . $user->locked_until->diffForHumans());
+            return redirect()->route('login');
         }
 
         // Password Check
         if ($user && Hash::check($request->password, $user->password)) {
             if (!$user->hasVerifiedEmail()) {
-                return back()->withErrors(['email' => 'Please verify your email before logging in.']);
+                session()->flash('error', 'Please verify your email before logging in');
+                return redirect()->route('login');
             }
 
             Auth::login($user);
@@ -56,10 +60,12 @@ class LoginController extends Controller
             }
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials.']);
+        session()->flash('error', 'Invalid credentials');
+        return redirect()->route('login');
     }
 
-    public function logout() {
+    public function logout()
+    {
         Auth::logout();
         return redirect('/login');
     }
