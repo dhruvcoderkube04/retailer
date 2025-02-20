@@ -44,14 +44,14 @@ Add Product Details - TrendMart
          <!--begin::Content container-->
          <div id="kt_app_content_container" class="app-container container-xxl">
             @if (session('success'))
-               <div class="alert alert-success text-green-600 p-2">
-                  {{ session('success') }}
-               </div>
+            <div class="alert alert-success text-green-600 p-2">
+               {{ session('success') }}
+            </div>
             @endif
             @if (session('error'))
-               <div class="alert alert-danger text-green-600 p-2">
-                  {{ session('error') }}
-               </div>
+            <div class="alert alert-danger text-green-600 p-2">
+               {{ session('error') }}
+            </div>
             @endif
             <!--begin::Form-->
             <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row" action="{{ route('retailer.add-product',$product->id) }}" method="post">
@@ -162,77 +162,71 @@ Add Product Details - TrendMart
                   <div class="d-flex flex-column gap-7 gap-lg-10">
                      <!--begin::Inventory-->
                      <div class="card card-flush py-4">
-                        <!--begin::Card header-->
-                        <div class="card-header">
-                           <div class="card-title">
-                              <h2>Media</h2>
-                           </div>
-                        </div>
-                        <!--end::Card header-->
                         <!--begin::Card body-->
                         <div class="card-body pt-0">
-                           <!--begin::Input group-->
+                           <!-- begin::image -->
                            <div class="row">
-                              <div class="col-md-6">
+                              <div class="col-md-12">
                                  <div class="mb-10 fv-row">
-                                    <!--begin::Label-->
-                                    <label class="form-label">Images</label>
-                                    <!--end::Label-->
-                                    <!--begin::Input-->
-                                    <input type="file" name="image_1" class="form-control mb-2 @error('image_1') is-invalid @enderror" placeholder="Image 1" value="{{old('image_1')}}" />
-                                    <!--end::Input-->
-                                    <!--begin::Description-->
-                                    @error('image_1')
-                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                    @enderror
-                                    <!--end::Description-->
-                                 </div>
-                                 <div class="mb-10 fv-row">
-                                    <!--begin::Label-->
-                                    <!--end::Label-->
-                                    <!--begin::Input-->
-                                    <input type="file" name="image_2" class="form-control mb-2 @error('image_2') is-invalid @enderror" placeholder="Image 2" value="{{old('image_2')}}" />
-                                    <!--end::Input-->
-                                    <!--begin::Description-->
-                                    @error('image_2')
-                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                    @enderror
-                                    <!--end::Description-->
-                                 </div>
-                                 <div class="mb-10 fv-row">
-                                    <!--begin::Label-->
-                                    <!--end::Label-->
-                                    <!--begin::Input-->
-                                    <input type="file" name="image_3" class="form-control mb-2 @error('image_3') is-invalid @enderror" placeholder="Image 3" value="{{old('image_3')}}" />
-                                    <!--end::Input-->
-                                    <!--begin::Description-->
-                                    @error('image_3')
-                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                    @enderror
-                                    <!--end::Description-->
-                                 </div>
-                              </div>
-                              <div class="col-md-6">
-                                 <div class="mb-10 fv-row">
-                                    <!--begin::Label-->
-                                    <label class="form-label">Video </label>
-                                    <!--end::Label-->
-                                    <!--begin::Input-->
-                                    <div class="d-flex gap-3">
-                                       <input type="file" name="video" class="form-control mb-2 @error('video') is-invalid @enderror" placeholder="video" value="{{old('video')}}" />
+                                    @php
+                                    $images = explode(',', $product->images);
+                                    @endphp
+                                    <div class="card-header">
+                                       <div class="card-title">
+                                          <h2>Images</h2>
+                                       </div>
                                     </div>
-                                    <!--end::Input-->
-                                    <!--begin::Description-->
-                                    @error('video')
-                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                    @enderror
-                                    <!--end::Description-->
+                                    <div class="d-flex flex-wrap gap-3">
+                                       @foreach ($images as $key => $image)
+                                       @if ($image)
+                                       <div class="card card-flush py-4" style="width: 20rem;">
+                                          <div class="card-body text-center pt-0">
+                                             <img src="{{ Storage::url($image) }}"
+                                                class="img-fluid"
+                                                alt="Product Image"
+                                                style="width: 100%; height: 200px; object-fit: cover;" />
+                                             <div class="text-muted fs-7 mt-2">
+                                                Image {{$key+1}}
+                                             </div>
+                                          </div>
+                                       </div>
+                                       @endif
+                                       @endforeach
+                                    </div>
                                  </div>
                               </div>
                            </div>
-
+                           <!-- end::image -->
+                           <!-- begin::video -->
+                           <div class="row">
+                              <div class="col-md-12">
+                                 <div class="mb-10 fv-row">
+                                    <div class="card-header">
+                                       <div class="card-title">
+                                          <h2>Video</h2>
+                                       </div>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-3">
+                                       @if ($product->videos)
+                                       <div class="card card-flush py-4" style="width: 30rem;">
+                                          <div class="card-body d-flex flex-column align-items-center text-center pt-0">
+                                             <video width="100%" height="200" controls style="object-fit: cover;" muted autoplay>
+                                                <source src="{{ Storage::url($product->videos) }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                             </video>
+                                             <div class="text-muted fs-7 mt-2">
+                                                Product Info Through Short Video
+                                             </div>
+                                          </div>
+                                       </div>
+                                       @endif
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <!-- end::video -->
                         </div>
-                        <!--end::Card header-->
+                        <!--end::Card body-->
                      </div>
                      <!--end::Inventory-->
                   </div>
@@ -313,7 +307,8 @@ Add Product Details - TrendMart
                                     <!--begin::Input-->
                                     <input type="hidden" name="wholesaler_id" value="{{ $product->wholesaler_id }}" />
                                     <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                                    <input type="number" name="margin" class="form-control mb-2 @error('margin') is-invalid @enderror" placeholder="Add Your Margin" />
+                                    <input type="number" name="margin" class="form-control mb-2 @error('margin') is-invalid @enderror" placeholder="Add Your Margin"
+                                       value="{{ $retailer_product ? $retailer_product->margin : '' }}" />
                                     <!--end::Input-->
                                     <!--begin::Description-->
                                     @error('margin')
@@ -335,11 +330,23 @@ Add Product Details - TrendMart
                      <!-- <a href="#" id="kt_ecommerce_add_product_cancel" class="btn btn-light me-5">Cancel</a> -->
                      <!--end::Button-->
                      <!--begin::Button-->
+                     @if ($retailer_product)
+                     <button type="submit" id="kt_ecommerce_add_product_submit" class="btn btn-primary">
+                        <span class="indicator-label">Update Margin</span>
+                        <span class="indicator-progress">Please wait...
+                           <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                     </button>
+                     <a href="{{ route('retailer.remove-product', $retailer_product->id) }}" class="ms-3 btn btn-danger"
+                     onclick="return confirm('Are you sure you want to remove this product?');">
+                        <span class="indicator-label">Remove Product</span>
+                     </a>
+                     @else
                      <button type="submit" id="kt_ecommerce_add_product_submit" class="btn btn-primary">
                         <span class="indicator-label">Add Product</span>
                         <span class="indicator-progress">Please wait...
                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                      </button>
+                     @endif
                      <!--end::Button-->
                   </div>
                </div>
