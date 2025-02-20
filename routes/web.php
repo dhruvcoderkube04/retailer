@@ -97,8 +97,12 @@ Route::prefix('retailer')->middleware(['auth', 'verified', 'retailer'])->group(f
     Route::get('/wholesaler-list', [RetilerController::class, 'wholesalerList'])->name('retailer.wholesaler.list');
     Route::get('/wholesaler-list/{id}', [RetilerController::class, 'wholesalerWiseProductList'])->name('retailer.wholesalerwise.productlist');
 
-
+    // add product
+    Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');
+    Route::post('/add-product/{id}', [RetilerController::class, 'addProduct'])->name('retailer.add-product');
     Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product');
+
+    // order
     Route::get('/retailer-orders', [RetilerController::class, 'retailerOrder'])->name('retailer.order');
 
     // mange Profile

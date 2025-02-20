@@ -106,15 +106,20 @@
                                                     <div class="mb-10 fv-row">
                                                         <!--begin::Input group-->
                                                         <!--begin::Label-->
-                                                        <label class="form-label">Categories</label>
+                                                        <label class="required form-label">Categories</label>
                                                         <!--end::Label-->
                                                         <!--begin::Select2-->
                                                         <select class="form-select mb-2 @error('categories') is-invalid @enderror" data-control="select2" name="categories" data-placeholder="Select an option">
                                                             <option></option>
-                                                            <option value="Computers">Computers</option>
-                                                            <option value="Watches">Watches</option>
-                                                            <option value="Headphones">Headphones</option>
-                                                            <option value="Footwear">Footwear</option>
+                                                            <option value="Computers" {{ old("categories") === "Computers" ? "selected" : "" }}>Computers</option>
+                                                            <option value="Watches" {{ old("categories") === "Watches" ? "selected" : "" }}>Watches</option>
+                                                            <option value="Headphones" {{ old("categories") === "Headphones" ? "selected" : "" }}>Headphones</option>
+                                                            <option value="Footwear" {{ old("categories") === "Footwear" ? "selected" : "" }}>Footwear</option>
+                                                            <option value="Cameras" {{ old("categories") === "Cameras" ? "selected" : "" }}>Cameras</option>
+                                                            <option value="Shirts" {{ old("categories") === "Shirts" ? "selected" : "" }}>Shirts</option>
+                                                            <option value="Household" {{ old("categories") === "Household" ? "selected" : "" }}>Household</option>
+                                                            <option value="Handbags" {{ old("categories") === "Handbags" ? "selected" : "" }}>Handbags</option>
+                                                            <option value="Sandals" {{ old("categories") === "Sandals" ? "selected" : "" }}>Sandals</option>
                                                         </select>
                                                         <!--end::Select2-->
                                                         <!--begin::Description-->
@@ -189,7 +194,7 @@
 
                                             <div>
                                                 <!--begin::Label-->
-                                                <label class="form-label">Description</label>
+                                                <label class="required form-label">Description</label>
                                                 <!--end::Label-->
                                                 <!--begin::Editor-->
                                                 <textarea name="product_description"  id="" cols="30" rows="3" class="form-control @error('product_description') is-invalid @enderror">{{$product_detail->description}}</textarea>
@@ -355,7 +360,7 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-5">
                                                 <!--begin::Label-->
-                                                <label class="form-label">Meta Tag Title</label>
+                                                <label class="required form-label">Meta Tag Title</label>
                                                 <!--end::Label-->
                                                 <!--begin::Input-->
                                                 <input type="text" class="form-control mb-2 @error('meta_title') is-invalid @enderror" name="meta_title" placeholder="Meta title name" value="{{$product_detail->meta_title}}" />
@@ -380,7 +385,7 @@
                                         </div>
                                         <div class="mb-5">
                                             <!--begin::Label-->
-                                            <label class="form-label">Meta Tag Description</label>
+                                            <label class="required form-label">Meta Tag Description</label>
                                             <!--end::Label-->
                                             <!--begin::Editor-->
                                             <textarea name="meta_description"  id="" cols="30" rows="3" class="form-control @error('meta_description') is-invalid @enderror">{{$product_detail->meta_description}}</textarea>
