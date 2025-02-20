@@ -47,9 +47,14 @@ class RetilerController extends Controller
     public function addProductView(Request $request, $product_id)
     {
         try {
-            $product = Product::where('id', $product_id)->first();
+            $retailer = Auth::user();
 
-            return view('retailers.add-product-view', compact('product'));
+            $product = Product::where('id', $product_id)->first();
+            $retailer_product = RetailerProducts::where('retailer_id', $retailer->id)
+                ->where('product_id', $product_id)
+                ->first();
+
+            return view('retailers.add-product-view', compact('product', 'retailer_product'));
         } catch (Exception $e) {
             return redirect()->route('retailer.dashboard');
         }
@@ -76,11 +81,36 @@ class RetilerController extends Controller
             DB::commit();
 
             return redirect()->route('retailer.wholesalerwise.productlist', $request->wholesaler_id)
-                ->with('success', 'Product added successfully');
+                ->with('success', 'Product added/updated successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');
             return redirect()->route('retailer.add-product', $product_id);
+        }
+    }
+
+    // remove product (by retailer from his wishlist)
+    public function removeProduct(Request $request, $retailer_product_id)
+    {
+        DB::beginTransaction();
+        try {
+            $retailer_product = RetailerProducts::where('id', $retailer_product_id)->first();
+            
+            if (!$retailer_product) {
+                session()->flash('error', 'Product not exist or already deleted');
+                return redirect()->back();
+            }
+            
+            $retailer_product->delete();
+
+            DB::commit();
+
+            return redirect()->route('retailer.wholesalerwise.productlist', $retailer_product->wholesaler_id)
+                ->with('success', 'Product removed successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Something went wrong');
+            return redirect()->back();
         }
     }
 

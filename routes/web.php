@@ -100,6 +100,7 @@ Route::prefix('retailer')->middleware(['auth', 'verified', 'retailer'])->group(f
     // add product
     Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');
     Route::post('/add-product/{id}', [RetilerController::class, 'addProduct'])->name('retailer.add-product');
+    Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
     Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product');
 
     // order
