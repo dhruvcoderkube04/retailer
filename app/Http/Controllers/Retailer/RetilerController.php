@@ -40,7 +40,11 @@ class RetilerController extends Controller
 
     public function retailerProduct()
     {
-        return view('retailers.retailer-own-product');
+        $retailer = Auth::user();
+        $retailerProducts = RetailerProducts::with(['product', 'wholesaler.userDetail'])
+            ->where('retailer_id', $retailer->id)
+            ->get();
+        return view('retailers.retailer-own-product', compact('retailerProducts'));
     }
 
     // Product details view (while retailer add the product)
@@ -95,12 +99,12 @@ class RetilerController extends Controller
         DB::beginTransaction();
         try {
             $retailer_product = RetailerProducts::where('id', $retailer_product_id)->first();
-            
+
             if (!$retailer_product) {
                 session()->flash('error', 'Product not exist or already deleted');
                 return redirect()->back();
             }
-            
+
             $retailer_product->delete();
 
             DB::commit();

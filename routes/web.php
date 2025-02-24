@@ -103,6 +103,8 @@ Route::prefix('retailer')->middleware(['auth', 'verified', 'retailer'])->group(f
     Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
     Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product');
 
+    
+
     // order
     Route::get('/retailer-orders', [RetilerController::class, 'retailerOrder'])->name('retailer.order');
 
