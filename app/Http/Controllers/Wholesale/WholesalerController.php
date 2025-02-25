@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Wholesale;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerOrders;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -246,7 +247,24 @@ class WholesalerController extends Controller
 
     public function orderList()
     {
-        return view('wholesale.order-list');
+        $wholesaler = Auth::user();
+        $wholesalerOrders = CustomerOrders::with([
+            'customer',
+            'product',
+            'retailer.userDetail'
+        ])
+        ->where('wholesaler_id', $wholesaler->id)
+        ->whereIn('status', [
+            'transfered_retailer_to_wholesaler', 
+            'confirmed_by_wholesaler', 
+            'shipped_by_wholesaler', 
+            'delivered_by_wholesaler', 
+            'cancelled_by_wholesaler'
+        ])
+        ->orderBy('id', 'DESC')
+        ->get();
+
+        return view('wholesale.orders.orders-list', compact('wholesalerOrders'));
     }
 
 

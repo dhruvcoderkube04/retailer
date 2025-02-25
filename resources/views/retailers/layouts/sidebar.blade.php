@@ -75,10 +75,30 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <!--begin:Menu link-->
+                        <a class="menu-link {{request()->is('retailer/place-order') ? 'active':''}}" href="{{route('retailer.place-order-view')}}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-element-11 fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Place Order</span>
+                        </a>
+                        <!--end:Menu link-->
+                    </div>
+                    <!--end:Menu item-->
+
+
                      <!--begin:Menu item-->
                      <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is('retailer/retailer-orders') ? 'active':''}}" href="{{route('retailer.order')}}">
+                        <a class="menu-link {{request()->is('retailer/retailer-orders') ? 'active':''}}" href="{{route('retailer.order.list')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-element-11 fs-2">
                                     <span class="path1"></span>

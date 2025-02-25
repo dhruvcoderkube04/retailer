@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class CustomerOrders extends Model
+{
+    protected $fillable = [
+        'customer_id',
+        'product_id',
+        'retailer_id',
+        'wholesaler_id',
+        'quantity',
+        
+        'status',
+        'confirmed_by_retailer_at',
+        'transfered_retailer_to_wholesaler_at',
+        'confirmed_by_wholesaler_at',
+        'shipped_by_retailer_at',
+        'shipped_by_wholesaler_at',
+        'delivered_by_retailer_at',
+        'delivered_by_wholesaler_at',
+        'cancelled_by_customer_at',
+        'cancelled_by_retailer_at',
+        'cancelled_by_wholesaler_at',
+        'received_at',
+
+        'delivered_by',
+        'cancelled_by',
+
+        'tracking_number',
+        'courier_service',
+        'expected_delivery',
+
+        'payment_status',
+        'payment_method'
+    ];
+
+    public function customer()
+    {
+        return $this->belongsTo(CustomerDetails::class, 'customer_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function retailer() {
+        return $this->belongsTo(User::class, 'retailer_id')->where('user_type', 3);
+    }
+    
+    public function wholesaler()
+    {
+        return $this->belongsTo(User::class, 'wholesaler_id')->where('user_type', 2);
+    }
+}
