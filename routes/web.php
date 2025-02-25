@@ -79,11 +79,13 @@ Route::prefix('wholesaler')->middleware(['auth', 'verified', 'wholesaler'])->gro
     Route::get('/edit-product/{id}', [WholesalerController::class, 'editProduct'])->name('wholesale.edit.product');
     Route::post('/edit-product-update/{id}', [WholesalerController::class, 'updateProduct'])->name('wholesale.update.product');
 
-    Route::get('/order-list', [WholesalerController::class, 'orderList'])->name('wholesale.order.list');
+    // order
+    Route::get('/orders-list', [WholesalerController::class, 'orderList'])->name('wholesaler.order.list');
+    Route::post('/orders-list/action', [WholesalerController::class, 'orderAction'])->name('wholesaler.order.action');
+
     Route::get('/order-item/{id}', [WholesalerController::class, 'orderItem'])->name('wholesale.order.item');
     Route::post('/order-item-update', [WholesalerController::class, 'orderItemUpdate'])->name('wholesale.order.item.update');
     Route::get('/payment-history', [WholesalerController::class, 'paymentHistory'])->name('wholesale.payment.history');
-
 
     // manage profile page
     Route::get('/profile', [WholesalerController::class, 'Profile'])->name('wholesale.profile');
@@ -103,10 +105,13 @@ Route::prefix('retailer')->middleware(['auth', 'verified', 'retailer'])->group(f
     Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
     Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product');
 
-    
+    // place order
+    Route::get('/place-order', [RetilerController::class, 'placeOrderView'])->name('retailer.place-order-view');
+    Route::post('/place-order', [RetilerController::class, 'placeOrder'])->name('retailer.place-order');
 
     // order
-    Route::get('/retailer-orders', [RetilerController::class, 'retailerOrder'])->name('retailer.order');
+    Route::get('/orders-list', [RetilerController::class, 'orderList'])->name('retailer.order.list');
+    Route::post('/orders-list/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
 
     // mange Profile
     Route::get('/profile', [RetilerController::class, 'Profile'])->name('retailer.profile');

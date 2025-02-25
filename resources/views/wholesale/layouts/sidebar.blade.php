@@ -127,7 +127,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link {{request()->is('wholesaler/order-list') ? 'active':''}}" href="{{route('wholesale.order.list')}}">
+                                <a class="menu-link {{request()->is('wholesaler/order-list') ? 'active':''}}" href="{{route('wholesaler.order.list')}}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>

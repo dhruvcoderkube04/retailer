@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Retailer;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerDetails;
+use App\Models\CustomerOrders;
 use App\Models\Product;
 use App\Models\RetailerProducts;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -118,9 +121,135 @@ class RetilerController extends Controller
         }
     }
 
-    public function retailerOrder()
+    // place-order page view
+    public function placeOrderView(Request $request)
     {
-        return view('retailers.reatiler-orders-list');
+        $retailer = Auth::user();
+        $retailerProducts = RetailerProducts::with([
+            'product',
+            'wholesaler.userDetail'
+        ])
+            ->where('retailer_id', $retailer->id)
+            ->get();
+
+        return view('retailers.place-order.place-order-view', compact('retailerProducts'));
+    }
+
+    // place-order
+    public function placeOrder(Request $request)
+    {
+        $request->validate([
+            'firstname' => 'required|max:30',
+            'lastname' => 'required|max:30',
+            'phone_number' => 'required|numeric|digits:10',
+            'email' => 'nullable|email',
+            'address' => 'required|max:250',
+            'state' => 'required|max:50',
+            'city' => 'required|max:50',
+            'pincode' => 'required|numeric|digits:6'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $customerDetail = new CustomerDetails();
+            $customerDetail->firstname = $request->firstname;
+            $customerDetail->lastname = $request->lastname;
+            $customerDetail->phone_number = $request->phone_number;
+            $customerDetail->email = $request->email ?? null;
+            $customerDetail->address = $request->address;
+            $customerDetail->state = $request->state;
+            $customerDetail->city = $request->city;
+            $customerDetail->pincode = $request->pincode;
+            $customerDetail->save();
+
+            $customerOrder = new CustomerOrders();
+            $customerOrder->customer_id = $customerDetail->id;
+            $customerOrder->product_id = $request->product_id;
+            $customerOrder->retailer_id = $request->retailer_id;
+            $customerOrder->wholesaler_id = $request->wholesaler_id;
+            $customerOrder->quantity = $request->quantity;
+            $customerOrder->save();
+
+            DB::commit();
+            session()->flash('success', 'Order has been placed successfully');
+            return redirect()->route('retailer.order.list');
+        } catch (Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Something went wrong!');
+            return redirect()->route('retailer.place-order-view');
+        }
+    }
+
+    // order list page
+    public function orderList()
+    {
+        $retailer = Auth::user();
+        $retailerOrders = CustomerOrders::with([
+            'customer',
+            'product',
+            'wholesaler.userDetail'
+        ])
+        ->where('retailer_id', $retailer->id)
+        ->orderBy('id', 'DESC')
+        ->get();
+
+        return view('retailers.orders.orders-list', compact('retailerOrders'));
+    }
+
+    // order action
+    public function orderAction(Request $request)
+    {
+        $request->validate([
+            'status' => 'required',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $retailer = Auth::user();
+            $customerOrder = CustomerOrders::find($request->order_id);
+
+            if (!$customerOrder) {
+                session()->flash('error', 'Order not found');
+                return redirect()->route('retailer.order.list');
+            }
+
+            $updateData = [];
+            $message = '';
+            if ($request->status == 'confirmed_by_retailer') {
+                $updateData = [
+                    'status' => $request->status,
+                    'confirmed_by_retailer_at' => Carbon::now()
+                ];
+                $message = 'Order has been confirmed successfully';
+            } else if ($request->status == 'cancelled_by_retailer') {
+                $updateData = [
+                    'status' => $request->status,
+                    'cancelled_by_retailer_at' => Carbon::now(),
+                    'cancelled_by' => $retailer->id
+                ];
+                $message = 'Order has been cancelled by retailer';
+            } else if ($request->status == 'transfered_retailer_to_wholesaler') {
+                $updateData = [
+                    'status' => $request->status,
+                    'transfered_retailer_to_wholesaler_at' => Carbon::now()
+                ];
+                $message = 'Wholesaler will ship this product';
+            }
+
+            if (!empty($updateData)) {
+                $customerOrder->update($updateData);
+                DB::commit();
+                session()->flash('success', $message);
+            } else {
+                session()->flash('error', 'Invalid order status');
+            }
+
+            return redirect()->route('retailer.order.list');
+        } catch (Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Something went wrong!');
+            return redirect()->route('retailer.order.list');
+        }
     }
 
     public function Profile()
