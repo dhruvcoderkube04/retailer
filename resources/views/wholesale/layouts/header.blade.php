@@ -13,8 +13,12 @@
         <!--end::Sidebar mobile toggle-->
         <!--begin::Mobile logo-->
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
-            <a href="index.html" class="d-lg-none">
-                <img alt="Logo" src="assets/media/logos/default-small.svg" class="h-30px" />
+            <a href="" class="d-lg-none">
+                <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
+                ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
+                : asset('assets/media/avatars/blank.png') }}" class="rounded-3" alt="{{Auth::user()->firstname}}" />
+                <br/>
+                {{Auth::user()->firstname}}
             </a>
         </div>
         <!--end::Mobile logo-->
@@ -114,8 +118,8 @@
                     <div class="cursor-pointer symbol symbol-35px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                         <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                         ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
-                        : asset('assets/default-avatar.png') }}"
-                 class="rounded-3" alt="user" />
+                        : asset('assets/media/avatars/blank.png') }}" class="rounded-3" alt="{{Auth::user()->firstname}}" /><br/>
+                        {{Auth::user()->firstname}}
                 </div>
                     <!--begin::User account menu-->
                     <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" data-kt-menu="true">
@@ -126,8 +130,8 @@
                                 <div class="symbol symbol-50px me-5">
                                     <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                                     ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
-                                    : asset('assets/default-avatar.png') }}"
-                             class="rounded-3" alt="user" />                                </div>
+                                    : asset('assets/default-avatar.png') }}" class="rounded-3" alt="user" />
+                                </div>
                                 <!--end::Avatar-->
                                 <!--begin::Username-->
                                 <div class="d-flex flex-column">
