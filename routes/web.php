@@ -17,7 +17,7 @@ Route::controller(RetailerAuthController::class)->group(function () {
     Route::post('logout', 'logout')->name('retailer.logout')->middleware('auth'); // Use retailer guard
 });
 
-Route::middleware(['auth','retailer'])->group(function () {
+Route::middleware(['retailer'])->group(function () {
     Route::get('/dashboard', [RetilerController::class, 'retailerDashboard'])->name('retailer.dashboard');
 
     // wholesaler list
