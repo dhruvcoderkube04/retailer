@@ -1,0 +1,10 @@
+<?php
+
+use App\Http\Controllers\API\Retailer\RetailerProductController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+
+Route::post('/retailer-products', [RetailerProductController::class, 'getRetailerProducts']);
+Route::post('/checkout', [RetailerProductController::class, 'checkout']);
+
