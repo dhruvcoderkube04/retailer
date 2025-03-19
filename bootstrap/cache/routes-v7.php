@@ -33,7 +33,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::eCuP3BC5qcR3Tuag',
+            '_route' => 'generated::fEMVa46NFzTELJe1',
           ),
           1 => NULL,
           2 => 
@@ -52,7 +52,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::3peJaxfWVxpUMpNG',
+            '_route' => 'generated::qLmC9tq6N7aFdEBO',
           ),
           1 => NULL,
           2 => 
@@ -71,7 +71,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::K1FW7tzSUaBDBKMp',
+            '_route' => 'generated::7WFOu3pLt6RlfJYb',
           ),
           1 => NULL,
           2 => 
@@ -91,7 +91,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::JEzerZuexRYvYyFD',
+            '_route' => 'generated::yPt4zVcoM4GTsj5Y',
           ),
           1 => NULL,
           2 => 
@@ -452,7 +452,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::zpHeZSuRGLGF7vMi',
+            '_route' => 'generated::gT2bJRnnoBlL6ann',
           ),
           1 => NULL,
           2 => 
@@ -746,7 +746,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::eCuP3BC5qcR3Tuag' => 
+    'generated::fEMVa46NFzTELJe1' => 
     array (
       'methods' => 
       array (
@@ -766,7 +766,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::eCuP3BC5qcR3Tuag',
+        'as' => 'generated::fEMVa46NFzTELJe1',
       ),
       'fallback' => false,
       'defaults' => 
@@ -782,7 +782,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::3peJaxfWVxpUMpNG' => 
+    'generated::qLmC9tq6N7aFdEBO' => 
     array (
       'methods' => 
       array (
@@ -802,7 +802,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::3peJaxfWVxpUMpNG',
+        'as' => 'generated::qLmC9tq6N7aFdEBO',
       ),
       'fallback' => false,
       'defaults' => 
@@ -818,7 +818,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::K1FW7tzSUaBDBKMp' => 
+    'generated::7WFOu3pLt6RlfJYb' => 
     array (
       'methods' => 
       array (
@@ -846,8 +846,8 @@ app('router')->setCompiledRoutes(
                     return response(\\Illuminate\\Support\\Facades\\View::file(\'/home/zero/projects/Trendmart/RetailerTrendMart/vendor/laravel/framework/src/Illuminate/Foundation/Configuration\'.\'/../resources/health-up.blade.php\', [
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
-                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004c60000000000000000";}}',
-        'as' => 'generated::K1FW7tzSUaBDBKMp',
+                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000008ab0000000000000000";}}',
+        'as' => 'generated::7WFOu3pLt6RlfJYb',
       ),
       'fallback' => false,
       'defaults' => 
@@ -863,7 +863,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::JEzerZuexRYvYyFD' => 
+    'generated::yPt4zVcoM4GTsj5Y' => 
     array (
       'methods' => 
       array (
@@ -877,13 +877,13 @@ app('router')->setCompiledRoutes(
         array (
           0 => 'web',
         ),
-        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004cc0000000000000000";}}',
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000008b10000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::JEzerZuexRYvYyFD',
+        'as' => 'generated::yPt4zVcoM4GTsj5Y',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1132,8 +1132,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@retailerDashboard',
         'controller' => 'App\\Http\\Controllers\\RetilerController@retailerDashboard',
@@ -1171,8 +1170,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@wholesalerList',
         'controller' => 'App\\Http\\Controllers\\RetilerController@wholesalerList',
@@ -1210,8 +1208,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@viewCategoryMargin',
         'controller' => 'App\\Http\\Controllers\\RetilerController@viewCategoryMargin',
@@ -1249,8 +1246,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@getCategoryWiseProducts',
         'controller' => 'App\\Http\\Controllers\\RetilerController@getCategoryWiseProducts',
@@ -1287,8 +1283,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@storeCategoryMargin',
         'controller' => 'App\\Http\\Controllers\\RetilerController@storeCategoryMargin',
@@ -1326,8 +1321,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@editCategoryMargin',
         'controller' => 'App\\Http\\Controllers\\RetilerController@editCategoryMargin',
@@ -1364,8 +1358,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@removeCategoryMargin',
         'controller' => 'App\\Http\\Controllers\\RetilerController@removeCategoryMargin',
@@ -1403,8 +1396,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerWebManagement@webSetting',
         'controller' => 'App\\Http\\Controllers\\RetilerWebManagement@webSetting',
@@ -1441,8 +1433,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerWebManagement@webSettingSetup',
         'controller' => 'App\\Http\\Controllers\\RetilerWebManagement@webSettingSetup',
@@ -1480,8 +1471,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@retailerProduct',
         'controller' => 'App\\Http\\Controllers\\RetilerController@retailerProduct',
@@ -1519,8 +1509,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@retailerAddProduct',
         'controller' => 'App\\Http\\Controllers\\RetilerController@retailerAddProduct',
@@ -1557,8 +1546,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@retailerPostProduct',
         'controller' => 'App\\Http\\Controllers\\RetilerController@retailerPostProduct',
@@ -1596,8 +1584,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@cloneProductView',
         'controller' => 'App\\Http\\Controllers\\RetilerController@cloneProductView',
@@ -1634,8 +1621,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@cloneProductStore',
         'controller' => 'App\\Http\\Controllers\\RetilerController@cloneProductStore',
@@ -1672,8 +1658,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@cloneProductRemove',
         'controller' => 'App\\Http\\Controllers\\RetilerController@cloneProductRemove',
@@ -1711,8 +1696,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@placeOrderView',
         'controller' => 'App\\Http\\Controllers\\RetilerController@placeOrderView',
@@ -1749,8 +1733,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@placeOrder',
         'controller' => 'App\\Http\\Controllers\\RetilerController@placeOrder',
@@ -1788,8 +1771,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@orderList',
         'controller' => 'App\\Http\\Controllers\\RetilerController@orderList',
@@ -1826,8 +1808,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@orderAction',
         'controller' => 'App\\Http\\Controllers\\RetilerController@orderAction',
@@ -1865,8 +1846,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@Profile',
         'controller' => 'App\\Http\\Controllers\\RetilerController@Profile',
@@ -1903,8 +1883,7 @@ app('router')->setCompiledRoutes(
         'middleware' => 
         array (
           0 => 'web',
-          1 => 'auth',
-          2 => 'retailer',
+          1 => 'retailer',
         ),
         'uses' => 'App\\Http\\Controllers\\RetilerController@profileUpdate',
         'controller' => 'App\\Http\\Controllers\\RetilerController@profileUpdate',
@@ -1929,7 +1908,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::zpHeZSuRGLGF7vMi' => 
+    'generated::gT2bJRnnoBlL6ann' => 
     array (
       'methods' => 
       array (
@@ -1951,13 +1930,13 @@ app('router')->setCompiledRoutes(
     \\Illuminate\\Support\\Facades\\Artisan::call(\'optimize\');
 
     return \'DONE\';
-}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004ce0000000000000000";}}',
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000008b30000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::zpHeZSuRGLGF7vMi',
+        'as' => 'generated::gT2bJRnnoBlL6ann',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1989,7 +1968,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000004eb0000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000008d00000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,
