@@ -31,7 +31,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is('retailer/dashboard') ? 'active':''}}" href="{{route('retailer.dashboard')}}">
+                        <a class="menu-link {{request()->is('dashboard') ? 'active':''}}" href="{{route('retailer.dashboard')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-element-11 fs-2">
                                     <span class="path1"></span>
@@ -48,7 +48,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/wholesaler-list','retailer/wholesaler-list/*']) ? 'active':''}}" href="{{route('retailer.wholesaler.list')}}">
+                        <a class="menu-link {{request()->is(['wholesaler-list','wholesaler-list/*']) ? 'active':''}}" href="{{route('retailer.wholesaler.list')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-shop fs-2">
                                     <span class="path1"></span>
@@ -66,7 +66,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/retailer-product', 'retailer/add-product/*', 'retailer/remove-product/*']) ? 'active':''}}" href="{{route('retailer.product')}}">
+                        <a class="menu-link {{request()->is(['retailer-product', 'add-product/*', 'remove-product/*']) ? 'active':''}}" href="{{route('retailer.product')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-cube-2 fs-1">
                                     <span class="path1"></span>
@@ -83,7 +83,7 @@
                     <!--begin:Menu item-->
                     {{-- <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is('retailer/place-order') ? 'active':''}}" href="{{route('retailer.place-order-view')}}">
+                        <a class="menu-link {{request()->is('place-order') ? 'active':''}}" href="{{route('retailer.place-order-view')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-handcart fs-1">
                                     <span class="path1"></span>
@@ -99,7 +99,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/orders-list/*','retailer/orders-list','retailer/orders-list/action']) ? 'active':''}}" href="{{route('retailer.order.list')}}">
+                        <a class="menu-link {{request()->is(['orders-list/*','orders-list','orders-list/action']) ? 'active':''}}" href="{{route('retailer.order.list')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-delivery-3 fs-1">
                                     <span class="path1"></span>
@@ -115,7 +115,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is(['retailer/retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                    <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-delivery-3 fs-1">
                                 <span class="path1"></span>
@@ -132,7 +132,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is(['retailer/retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                    <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-delivery-3 fs-1">
                                 <span class="path1"></span>
@@ -150,7 +150,7 @@
                      <!--begin:Menu item-->
                      <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-delivery-3 fs-1">
                                     <span class="path1"></span>
@@ -167,7 +167,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-delivery-3 fs-1">
                                     <span class="path1"></span>
@@ -185,7 +185,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-delivery-3 fs-1">
                                     <span class="path1"></span>
@@ -203,7 +203,7 @@
                      <!--begin:Menu item-->
                      <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer/retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-delivery-3 fs-1">
                                     <span class="path1"></span>
