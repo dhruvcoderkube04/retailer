@@ -200,17 +200,23 @@
                                         <tbody class="fw-semibold text-gray-600">
                                             @foreach ($retailerCloneProducts as $cloneProduct)
                                                 <tr>
-                                                    <td class="text-center">
-                                                        <form
-                                                            action="{{ route('retailer.clone-product-remove', $cloneProduct->id) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to remove this product from clone?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                                style="white-space: nowrap;">Remove</button>
-                                                        </form>
+                                                    <td class="text-center d-flex justify-content-center align-items-center gap-2">
+                                                        <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
+                                                            data-id="{{ $cloneProduct->id }}">
+                                                            <i class="ki-duotone ki-trash fs-3">
+                                                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                                                <span class="path4"></span><span class="path5"></span>
+                                                            </i>
+                                                        </button>
+                                                        <button class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px" data-bs-toggle="modal"
+                                                            data-bs-target="#kt_modal_update_permission">
+                                                            <i class="ki-duotone ki-pencil fs-3">
+                                                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                                                <span class="path4"></span><span class="path5"></span>
+                                                            </i>
+                                                        </button>
                                                     </td>
+
                                                     <td>
                                                         {{-- <div class="form-check form-check-sm form-check-custom form-check-solid">
                                                             <input class="form-check-input" type="checkbox" value="1" />
@@ -316,7 +322,58 @@
                     </div>
                 </div>
             </div>
-            <!-- Modal -->
+
+            {{-- add product modal --}}
+            <div class="modal fade" id="kt_modal_add_clone_product" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-650px">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="fw-bold">Upload Product File </h2>
+                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            </div>
+                        </div>
+                        <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                            <form id="productUploadForm" class="form" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="fs-6 fw-semibold form-label mb-2">
+                                        <span class="required">Product File </span>
+                                        <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
+                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                        </span>
+                                    </label>
+                                    <input type="file" class="form-control form-control-solid" name="product_file">
+                                    <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div>
+                                </div>
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="fs-6 fw-semibold form-label mb-2">
+                                        <span class="required">Category Name</span>
+                                        <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
+                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                        </span>
+                                    </label>
+                                    <div class="mb-10 fv-row">
+                                        <select class="form-select mb-2 @error('categories') is-invalid @enderror" data-control="select2" name="categories" data-placeholder="Select an option">
+                                            @foreach ($category_list as $category)
+                                                <option value="{{$category->id}}">{{Str::upper($category->category_name) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Discard</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="indicator-label">Upload</span>
+                                        <span class="indicator-progress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             @include('layouts.footer')
         </div>
@@ -328,7 +385,6 @@
             // Initialize Form Validation
             $("#productUploadForm").submit(function(e) {
                 e.preventDefault();
-                console.log("hello click");
 
                 var formData = new FormData(this);
 
@@ -382,6 +438,40 @@
                         submitButton.prop("disabled", false);
                         submitButton.find(".indicator-label").show();
                         submitButton.find(".indicator-progress").hide();
+                    }
+                });
+            });
+
+            $(".delete-product").click(function() {
+                let productId = $(this).data("id");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('retailer.clone-product-remove', '') }}/" + productId,
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                _method: "DELETE"
+                            },
+                            success: function(response) {
+                                Swal.fire("Deleted!", "Product has been removed.", "success");
+                                location.reload(); // Reload the page or update the table dynamically
+                                $("#kt_tab_pane_1").removeClass("active"); // Remove active from all tabs
+                                $("#kt_tab_pane_2").addClass("active"); // Add active to Clone tab
+                            },
+                            error: function(xhr) {
+                                Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                            }
+                        });
                     }
                 });
             });
