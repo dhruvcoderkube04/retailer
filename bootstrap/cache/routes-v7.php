@@ -33,7 +33,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::7Yu0sOn412IAmqf7',
+            '_route' => 'generated::kAbPo0oxjiJmRm8n',
           ),
           1 => NULL,
           2 => 
@@ -52,7 +52,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::ZMqBB66qc9PfLWpW',
+            '_route' => 'generated::h7RRlTgrY8gc50Ho',
           ),
           1 => NULL,
           2 => 
@@ -71,7 +71,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::YyAjkqPckYmgFH0l',
+            '_route' => 'generated::vsyRBKoyescenM0t',
           ),
           1 => NULL,
           2 => 
@@ -91,7 +91,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::xgcE1aBWlOzNX8gc',
+            '_route' => 'generated::zpTlPCje80yAli5T',
           ),
           1 => NULL,
           2 => 
@@ -371,6 +371,45 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/download-stock-sample' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.download-stock-sample',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/upload-bulk-product' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.upload.bulkproduct',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/place-order' => 
       array (
         0 => 
@@ -452,7 +491,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::H5oiEUzmeqo7YlJK',
+            '_route' => 'generated::hT5VsZw8tt8dAYeI',
           ),
           1 => NULL,
           2 => 
@@ -746,7 +785,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::7Yu0sOn412IAmqf7' => 
+    'generated::kAbPo0oxjiJmRm8n' => 
     array (
       'methods' => 
       array (
@@ -766,7 +805,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::7Yu0sOn412IAmqf7',
+        'as' => 'generated::kAbPo0oxjiJmRm8n',
       ),
       'fallback' => false,
       'defaults' => 
@@ -782,7 +821,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::ZMqBB66qc9PfLWpW' => 
+    'generated::h7RRlTgrY8gc50Ho' => 
     array (
       'methods' => 
       array (
@@ -802,7 +841,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::ZMqBB66qc9PfLWpW',
+        'as' => 'generated::h7RRlTgrY8gc50Ho',
       ),
       'fallback' => false,
       'defaults' => 
@@ -818,7 +857,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::YyAjkqPckYmgFH0l' => 
+    'generated::vsyRBKoyescenM0t' => 
     array (
       'methods' => 
       array (
@@ -846,8 +885,8 @@ app('router')->setCompiledRoutes(
                     return response(\\Illuminate\\Support\\Facades\\View::file(\'/home/zero/projects/Trendmart/RetailerTrendMart/vendor/laravel/framework/src/Illuminate/Foundation/Configuration\'.\'/../resources/health-up.blade.php\', [
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
-                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004c60000000000000000";}}',
-        'as' => 'generated::YyAjkqPckYmgFH0l',
+                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004f70000000000000000";}}',
+        'as' => 'generated::vsyRBKoyescenM0t',
       ),
       'fallback' => false,
       'defaults' => 
@@ -863,7 +902,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::xgcE1aBWlOzNX8gc' => 
+    'generated::zpTlPCje80yAli5T' => 
     array (
       'methods' => 
       array (
@@ -877,13 +916,13 @@ app('router')->setCompiledRoutes(
         array (
           0 => 'web',
         ),
-        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004cc0000000000000000";}}',
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004fd0000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::xgcE1aBWlOzNX8gc',
+        'as' => 'generated::zpTlPCje80yAli5T',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1571,6 +1610,81 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'retailer.download-stock-sample' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'download-stock-sample',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@downloadStockSample',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@downloadStockSample',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.download-stock-sample',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.upload.bulkproduct' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'upload-bulk-product',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@uploadBulkProduct',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@uploadBulkProduct',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.upload.bulkproduct',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'retailer.clone-product-view' => 
     array (
       'methods' => 
@@ -1908,7 +2022,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::H5oiEUzmeqo7YlJK' => 
+    'generated::hT5VsZw8tt8dAYeI' => 
     array (
       'methods' => 
       array (
@@ -1930,13 +2044,13 @@ app('router')->setCompiledRoutes(
     \\Illuminate\\Support\\Facades\\Artisan::call(\'optimize\');
 
     return \'DONE\';
-}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004ce0000000000000000";}}',
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004ff0000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::H5oiEUzmeqo7YlJK',
+        'as' => 'generated::hT5VsZw8tt8dAYeI',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1968,7 +2082,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000004eb0000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000051e0000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,

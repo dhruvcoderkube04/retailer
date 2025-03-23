@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Imports\ProductImport;
 use App\Models\Category;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
@@ -17,6 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RetilerController extends Controller
 {
@@ -172,11 +175,15 @@ class RetilerController extends Controller
                 ->pluck('product_id')
                 ->toArray();
 
+            $category_list = Category::select('category_name','id')->where('status',1)->get();
+
+
             // Pass the filtered data to the view.
             return view('product.retailer-own-product', [
                 'retailerProducts' => $filteredRetailerProducts,
                 'retailerCloneProducts' => $retailerCloneProducts,
-                'clonedProducts' => $clonedProducts
+                'clonedProducts' => $clonedProducts,
+                'category_list' => $category_list
             ]);
         } catch (\Exception $e) {
             // Log the error (optional)
@@ -721,4 +728,59 @@ class RetilerController extends Controller
     //     }
     // }
     //<---------------------- END : NOTE IN USE ------------------------>
+
+
+    public function downloadStockSample()
+    {
+        $filePath = public_path('samplestock/sample_products.xlsx');
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+        return Response::download($filePath, 'stock_sample.xlsx');
+    }
+
+    public function uploadBulkProduct(Request $request)
+    {
+        $request->validate([
+            'product_file' => 'required|mimes:xlsx',
+            'categories' => 'required|integer',
+        ]);
+
+        $file = $request->file('product_file');
+
+        try {
+            $import = new ProductImport();
+            $results = Excel::import($import, $file);
+            $headings = collect(Excel::toArray(new ProductImport, $file)[0][0]);
+            dd($headings);
+            dd($import->checkColumns($headings));
+            if(!$import->checkColumns($headings)){
+                return response()->json(['error' => 'Invalid file structure. Required columns are missing.'], 400);
+            }
+
+            $data = [
+                'valid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['valid'],
+                'invalid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['invalid'],
+            ];
+
+            return response()->json($data);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                    'values' => $failure->values(),
+                ];
+            }
+
+            return response()->json(['errors' => $errors], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
+        }
+    }
 }
