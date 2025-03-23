@@ -751,43 +751,25 @@ class RetilerController extends Controller
 
         $file = $request->file('product_file');
         $categoryId = $request->input('categories');
-
         try {
             $import = new ProductImport($categoryId);
-            // dd($import);
-            // $results = Excel::import($import, $file);
-            // $headings = collect(Excel::toArray(new ProductImport, $file)[0][0]);
-            // $headings = collect(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
-
-            // dd($headings);
-            // dd($import->checkColumns($headings));
-            // if(!$import->checkColumns($headings)){
-            //     return response()->json(['error' => 'Invalid file structure. Required columns are missing.'], 400);
-            // }
-
-            // $data = [
-            //     'valid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['valid'],
-            //     'invalid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['invalid'],
-            // ];
-
-            // $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
-            $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0])
-                ->unique('sku') 
-                ->unique('product_name') 
-                ->unique('slug');
-
+        
+            // Prevent duplicate records based on 'sku', 'product_name', and 'slug'
+            $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
+        
+            // Only process once
+            $result = $import->collection($collection); // ✅ Processed only once
         
             $data = [
-                'valid' => $import->collection($collection)['valid'],
-                'invalid' => $import->collection($collection)['invalid'],
+                'valid' => $result['valid'], // ✅ Return valid rows
+                'invalid' => $result['invalid'], // ✅ Return invalid rows
             ];
-
-
+        
             return response()->json($data);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             $errors = [];
-
+        
             foreach ($failures as $failure) {
                 $errors[] = [
                     'row' => $failure->row(),
@@ -796,11 +778,12 @@ class RetilerController extends Controller
                     'values' => $failure->values(),
                 ];
             }
-
+        
             return response()->json(['errors' => $errors], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
         }
+        
     }
 
     // public function uploadBulkProduct(Request $request)

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Str;
 
-class ProductImport implements ToCollection, WithHeadingRow, WithValidation
+class ProductImport implements ToCollection, WithValidation, WithHeadingRow
 {
 
     // private $requiredColumns = ['product_name', 'product_description', 'product_tags','quantity','new_price','sku','image_1','image_2','image_3','video','slug']; // Define your required columns
@@ -24,121 +24,50 @@ class ProductImport implements ToCollection, WithHeadingRow, WithValidation
     }
 
 
-    // public function collection(Collection $rows)
-    // {
-    //     $validRows = [];
-
-    //     $retailerId = Auth::id();
-
-    //     foreach ($rows as $row) {
-    //         // Your existing logic for unique slug and sku
-    //         $slug = isset($row['product_name']) ? Str::slug($row['product_name']) : 'default-slug'; 
-    //         $originalSlug = $slug;
-    //         $counter = 1;
-        
-    //         // Ensure unique slug
-    //         while (RetailerCloneProduct::where('slug', $slug)->exists()) {
-    //             $slug = $originalSlug . '-' . $counter;
-    //             $counter++;
-    //         }
-        
-    //         $sku = $row['sku'] ?? null;
-    //         $originalSku = $sku;
-    //         $skuCounter = 1;
-        
-    //         // Ensure unique SKU
-    //         while (RetailerCloneProduct::where('sku', $sku)->exists()) {
-    //             $sku = $originalSku . '-' . $skuCounter;
-    //             $skuCounter++;
-    //         }
-        
-    //         RetailerCloneProduct::create([
-    //             'retailer_id' => $retailerId,
-    //             'name' => $row['product_name'],
-    //             'description' => $row['product_description'] ?? null,
-    //             'category_id' => $this->categoryId,
-    //             'tags' => $row['product_tags'] ?? null,
-    //             'slug' => $slug,
-    //             'quantity' => $row['quantity'],
-    //             'new_price' => $row['new_price'],
-    //             'old_price' => 0,
-    //             'sku' =>  $sku,
-    //             'image_1' => $row['image_1'] ?? null,
-    //             'image_2' => $row['image_2'] ?? null,
-    //             'image_3' => $row['image_3'] ?? null,
-    //             'video' => $row['video'] ?? null,
-    //         ]);
-        
-    //         $validRows[] = $row; // ✅ Fixed: No need for ->toArray()
-    //     }
-        
-
-    //     return ['valid' => $validRows];
-    // }
-
+   
 
     public function collection(Collection $rows)
     {
         $validRows = [];
         $invalidRows = [];
-    
         $retailerId = Auth::id();
-    
+
         foreach ($rows as $row) {
-            // Unique slug generate કરો
-            $slug = isset($row['product_name']) ? Str::slug($row['product_name']) : 'default-slug';
-            $originalSlug = $slug;
-            $counter = 1;
-        
-            while (RetailerCloneProduct::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
+            $row = $this->map($row); // Map headings correctly
+
+            // Skip rows where required data is missing
+            if (empty($row['product_name']) || empty($row['new_price']) || empty($row['quantity'])) {
+                $invalidRows[] = $row;
+                continue;
             }
-        
-            // Unique SKU Generate કરો
-            $sku = $row['sku'] ?? null;
-            $originalSku = $sku;
-            $skuCounter = 1;
-        
-            while (RetailerCloneProduct::where('sku', $sku)->exists()) {
-                $sku = $originalSku . '-' . $skuCounter;
-                $skuCounter++;
-            }
-        
-            // Now Insert Data
+            // Insert data
             RetailerCloneProduct::create([
                 'retailer_id' => $retailerId,
                 'name' => $row['product_name'],
                 'description' => $row['product_description'] ?? null,
                 'category_id' => $this->categoryId,
                 'tags' => $row['product_tags'] ?? null,
-                'slug' => $slug, // Unique Slug
+                'slug' => $row['slug'],
                 'quantity' => $row['quantity'],
                 'new_price' => $row['new_price'],
                 'old_price' => 0,
-                'sku' => $sku, // Unique SKU
+                'sku' => $row['sku'],
                 'image_1' => $row['image_1'] ?? null,
                 'image_2' => $row['image_2'] ?? null,
                 'image_3' => $row['image_3'] ?? null,
                 'video' => $row['video'] ?? null,
             ]);
-        
+
             $validRows[] = $row;
         }
-        
-    
+
         return [
             'valid' => $validRows,
-            'invalid' => $invalidRows, // ✅ Now returns invalid rows properly
+            'invalid' => $invalidRows,
         ];
     }
+
     
-
-
-    public function headingRow(): int
-    {
-        return 1; // Start reading from the first row
-    }
 
     public function rules(): array
     {
@@ -182,6 +111,24 @@ class ProductImport implements ToCollection, WithHeadingRow, WithValidation
     // }
     
     
-    
+    public function map($row): array
+    {
+
+        // dd($row);
+        return [
+            'product_name' => $row['product_name'] ?? null,
+            'product_description' => $row['product_description'] ?? null,
+            'product_tags' => $row['product_tags'] ?? null,
+            'quantity' => $row['quantity'] ?? null,
+            'new_price' => $row['new_price'] ?? null,
+            'sku' => $row['sku'] ?? null,
+            'image_1' => $row['image_1'] ?? null,
+            'image_2' => $row['image_2'] ?? null,
+            'image_3' => $row['image_3'] ?? null,
+            'video' => $row['video'] ?? null,
+            'slug' => $row['slug'] ?? null,
+        ];
+    }
+
     
 }
