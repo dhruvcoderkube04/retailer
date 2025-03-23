@@ -245,14 +245,9 @@
                                                         </div>
                                                     </td>
                                                     <td class="text-center" data-order="Inactive">
-                                                        @if ($cloneProduct->status == 'inactive')
-                                                            <div class="badge badge-light-danger">
-                                                                {{ $cloneProduct->status }}
-                                                            </div>
-                                                            <div class="badge badge-light-success">
-                                                                {{ $cloneProduct->status }}
-                                                            </div>
-                                                        @endif
+                                                        <div class="badge {{ $cloneProduct->status == 'inactive' ? 'badge-light-danger' : 'badge-light-success' }}">
+                                                            {{ ucfirst($cloneProduct->status) }}
+                                                        </div>
                                                     </td>
                                                     <td class="text-center pe-0" data-order="22">
                                                         <span class="fw-bold"></span>
@@ -375,7 +370,7 @@
                     error: function(mydata) {
                         Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
                         let errorMessage = "Product Import Failed!";
-                        
+
                         if (mydata.responseJSON && mydata.responseJSON.error) {
                             errorMessage = mydata.responseJSON.error; // Show backend error message
                         }

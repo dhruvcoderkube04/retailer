@@ -24,7 +24,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class RetilerController extends Controller
 {
     public function retailerDashboard()
-    {   
+    {
         // $auth_id = Auth::user()->id;
         // $data['wholesaer_total_product'] = Product::where('status','active')->where('wholesaler_id',$auth_id)->count();
         return view('dashboard');
@@ -792,8 +792,10 @@ class RetilerController extends Controller
 
             return response()->json(['errors' => $errors], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
+            // return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred during file processing check product name and slug is unique' ], 500);
         }
+
     }
 
 }
