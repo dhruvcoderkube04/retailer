@@ -740,10 +740,9 @@ class RetilerController extends Controller
         return Response::download($filePath, 'stock_sample.xlsx');
     }
 
+
     public function uploadBulkProduct(Request $request)
     {
-
-        // dd($request->all());
         $request->validate([
             'product_file' => 'required|mimes:xlsx',
             'categories' => 'required|integer',
@@ -751,25 +750,37 @@ class RetilerController extends Controller
 
         $file = $request->file('product_file');
         $categoryId = $request->input('categories');
+
         try {
             $import = new ProductImport($categoryId);
-        
-            // Prevent duplicate records based on 'sku', 'product_name', and 'slug'
+
+            // Read the first row to check for column headings
+            $headings = array_keys(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
+
+            // Check if required columns are present
+            $missingColumns = $import->checkColumns($headings);
+
+            if ($missingColumns !== true) {
+                return response()->json([
+                    'error' => 'The uploaded file is missing the following required columns: ' . implode(', ', $missingColumns),
+                ], 422);
+            }
+
+            // Process data after validating columns
             $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
-        
-            // Only process once
-            $result = $import->collection($collection); // ✅ Processed only once
-        
+
+            $result = $import->collection($collection); // Process once ✅
+
             $data = [
-                'valid' => $result['valid'], // ✅ Return valid rows
-                'invalid' => $result['invalid'], // ✅ Return invalid rows
+                'valid' => $result['valid'],
+                'invalid' => $result['invalid'],
             ];
-        
+
             return response()->json($data);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             $errors = [];
-        
+
             foreach ($failures as $failure) {
                 $errors[] = [
                     'row' => $failure->row(),
@@ -778,68 +789,11 @@ class RetilerController extends Controller
                     'values' => $failure->values(),
                 ];
             }
-        
+
             return response()->json(['errors' => $errors], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
         }
-        
     }
-
-    // public function uploadBulkProduct(Request $request)
-    // {
-    //     $request->validate([
-    //         'product_file' => 'required|mimes:xlsx',
-    //         'categories' => 'required|integer',
-    //     ]);
-
-    //     $file = $request->file('product_file');
-    //     $categoryId = $request->input('categories');
-
-    //     try {
-    //         $import = new ProductImport($categoryId);
-
-    //         // Read the file and extract headings
-    //         $headings = collect(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
-
-    //         $missingColumns = $import->checkColumns($headings);
-
-    //         if (is_array($missingColumns)) {
-    //             return response()->json([
-    //                 'error' => 'Invalid file structure. Missing columns: ' . implode(', ', $missingColumns)
-    //             ], 400);
-    //         }
-    //         // dd($headings);
-    //         // if(!$import->checkColumns($headings)){
-    //         //     return response()->json([
-    //         //         'error' => 'Invalid file structure. Required columns are missing.'
-    //         //     ], 400);
-    //         // }
-    //         // Process the import
-    //         $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
-
-    //         $data = [
-    //             'valid' => $import->collection($collection)['valid'],
-    //         ];
-
-    //         return response()->json($data);
-    //     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-    //         $failures = $e->failures();
-    //         $errors = [];
-
-    //         foreach ($failures as $failure) {
-    //             $errors[] = [
-    //                 'row' => $failure->row(),
-    //                 'attribute' => $failure->attribute(),
-    //                 'errors' => $failure->errors(),
-    //                 'values' => $failure->values(),
-    //             ];
-    //         }
-
-    //         return response()->json(['errors' => $errors], 422);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
-    //     }
-    // }
 
 }

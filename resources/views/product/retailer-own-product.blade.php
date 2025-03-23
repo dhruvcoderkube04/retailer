@@ -245,7 +245,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="text-center" data-order="Inactive">
-                                                        @if ($product->status == 'inactive')
+                                                        @if ($cloneProduct->status == 'inactive')
                                                             <div class="badge badge-light-danger">
                                                                 {{ $cloneProduct->status }}
                                                             </div>
@@ -339,6 +339,7 @@
 
                 let stockfile = $("input[name='product_file']")[0].files[0];
                 let categoryId = $("select[name='categories']").val(); // Correct selector
+                let submitButton = $(this).find("button[type='submit']");
 
                 if (!stockfile) {
                     Swal.fire({ icon: 'error', title: 'Error', text: 'Please select an Excel (.xlsx) file!' });
@@ -351,6 +352,10 @@
                 }
 
                 formData.append("categories", categoryId); // Append category to formdata.
+
+                submitButton.prop("disabled", true);
+                submitButton.find(".indicator-label").hide();
+                submitButton.find(".indicator-progress").show();
 
                 $.ajax({
                     url: "{{ url('upload-bulk-product') }}",
@@ -376,6 +381,12 @@
                         }
 
                         Swal.fire({ icon: 'error', title: 'Error!', text: errorMessage });
+                    },
+                    complete: function() {
+                        // Enable submit button and reset loading indicator
+                        submitButton.prop("disabled", false);
+                        submitButton.find(".indicator-label").show();
+                        submitButton.find(".indicator-progress").hide();
                     }
                 });
             });

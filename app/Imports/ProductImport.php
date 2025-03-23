@@ -14,8 +14,21 @@ use Illuminate\Support\Str;
 class ProductImport implements ToCollection, WithValidation, WithHeadingRow
 {
 
-    // private $requiredColumns = ['product_name', 'product_description', 'product_tags','quantity','new_price','sku','image_1','image_2','image_3','video','slug']; // Define your required columns
 
+    private $requiredColumns = [
+        'product_name', 
+        'product_description', 
+        'product_tags',
+        'quantity',
+        'new_price',
+        'sku',
+        'image_1',
+        'image_2',
+        'image_3',
+        'video',
+        'slug'
+    ];
+    
     protected $categoryId;
 
     public function __construct($categoryId)
@@ -40,23 +53,28 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
                 $invalidRows[] = $row;
                 continue;
             }
-            // Insert data
-            RetailerCloneProduct::create([
-                'retailer_id' => $retailerId,
-                'name' => $row['product_name'],
-                'description' => $row['product_description'] ?? null,
-                'category_id' => $this->categoryId,
-                'tags' => $row['product_tags'] ?? null,
-                'slug' => $row['slug'],
-                'quantity' => $row['quantity'],
-                'new_price' => $row['new_price'],
-                'old_price' => 0,
-                'sku' => $row['sku'],
-                'image_1' => $row['image_1'] ?? null,
-                'image_2' => $row['image_2'] ?? null,
-                'image_3' => $row['image_3'] ?? null,
-                'video' => $row['video'] ?? null,
-            ]);
+
+            RetailerCloneProduct::updateOrCreate(
+                [
+                    'retailer_id' => $retailerId,
+                    'name' => $row['product_name'], // Match by product_name and retailer_id
+                ],
+                [
+                    'description' => $row['product_description'] ?? null,
+                    'category_id' => $this->categoryId,
+                    'tags' => $row['product_tags'] ?? null,
+                    'slug' => $row['slug'],
+                    'quantity' => $row['quantity'],
+                    'new_price' => $row['new_price'],
+                    'old_price' => 0,
+                    'sku' => $row['sku'],
+                    'image_1' => $row['image_1'] ?? null,
+                    'image_2' => $row['image_2'] ?? null,
+                    'image_3' => $row['image_3'] ?? null,
+                    'video' => $row['video'] ?? null,
+                ]
+            );
+            
 
             $validRows[] = $row;
         }
@@ -89,26 +107,28 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
         ];
     }
 
-    // public function checkColumns(Collection $headings)
-    // {
-    //     // Extract only the column names (keys)
-    //     $headingsArray = array_keys($headings->toArray());
+    public function checkColumns(array $headings)
+    {
+
+        // dd($headings);
+        // Convert to lowercase, trim, and clean the headings
+        $headingsArray = array_map(function ($heading) {
+            return strtolower(trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $heading))); // Remove hidden characters
+        }, $headings);
     
-    //     // Normalize column names: lowercase, trim, remove hidden characters
-    //     $headingsArray = array_map(function ($heading) {
-    //         return strtolower(trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $heading))); // Remove hidden characters
-    //     }, $headingsArray);
+        // Check for missing columns
+        $missingColumns = [];
     
-    //     $missingColumns = [];
+        foreach ($this->requiredColumns as $column) {
+            if (!in_array(strtolower($column), $headingsArray, true)) {
+                $missingColumns[] = $column;
+            }
+        }
     
-    //     foreach ($this->requiredColumns as $column) {
-    //         if (!in_array(strtolower($column), $headingsArray, true)) {
-    //             $missingColumns[] = $column; // Store missing column name
-    //         }
-    //     }
+        return empty($missingColumns) ? true : $missingColumns;
+    }
     
-    //     return empty($missingColumns) ? true : $missingColumns; // Return missing columns if any
-    // }
+
     
     
     public function map($row): array
