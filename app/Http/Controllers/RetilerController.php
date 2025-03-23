@@ -24,7 +24,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class RetilerController extends Controller
 {
     public function retailerDashboard()
-    {
+    {   
         // $auth_id = Auth::user()->id;
         // $data['wholesaer_total_product'] = Product::where('status','active')->where('wholesaler_id',$auth_id)->count();
         return view('dashboard');
@@ -742,27 +742,46 @@ class RetilerController extends Controller
 
     public function uploadBulkProduct(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'product_file' => 'required|mimes:xlsx',
             'categories' => 'required|integer',
         ]);
 
         $file = $request->file('product_file');
+        $categoryId = $request->input('categories');
 
         try {
-            $import = new ProductImport();
-            $results = Excel::import($import, $file);
-            $headings = collect(Excel::toArray(new ProductImport, $file)[0][0]);
-            dd($headings);
-            dd($import->checkColumns($headings));
-            if(!$import->checkColumns($headings)){
-                return response()->json(['error' => 'Invalid file structure. Required columns are missing.'], 400);
-            }
+            $import = new ProductImport($categoryId);
+            // dd($import);
+            // $results = Excel::import($import, $file);
+            // $headings = collect(Excel::toArray(new ProductImport, $file)[0][0]);
+            // $headings = collect(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
 
+            // dd($headings);
+            // dd($import->checkColumns($headings));
+            // if(!$import->checkColumns($headings)){
+            //     return response()->json(['error' => 'Invalid file structure. Required columns are missing.'], 400);
+            // }
+
+            // $data = [
+            //     'valid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['valid'],
+            //     'invalid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['invalid'],
+            // ];
+
+            // $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
+            $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0])
+                ->unique('sku') 
+                ->unique('product_name') 
+                ->unique('slug');
+
+        
             $data = [
-                'valid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['valid'],
-                'invalid' => $import->collection(collect(Excel::toArray(new ProductImport, $file)[0]))['invalid'],
+                'valid' => $import->collection($collection)['valid'],
+                'invalid' => $import->collection($collection)['invalid'],
             ];
+
 
             return response()->json($data);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
@@ -783,4 +802,61 @@ class RetilerController extends Controller
             return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
         }
     }
+
+    // public function uploadBulkProduct(Request $request)
+    // {
+    //     $request->validate([
+    //         'product_file' => 'required|mimes:xlsx',
+    //         'categories' => 'required|integer',
+    //     ]);
+
+    //     $file = $request->file('product_file');
+    //     $categoryId = $request->input('categories');
+
+    //     try {
+    //         $import = new ProductImport($categoryId);
+
+    //         // Read the file and extract headings
+    //         $headings = collect(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
+
+    //         $missingColumns = $import->checkColumns($headings);
+
+    //         if (is_array($missingColumns)) {
+    //             return response()->json([
+    //                 'error' => 'Invalid file structure. Missing columns: ' . implode(', ', $missingColumns)
+    //             ], 400);
+    //         }
+    //         // dd($headings);
+    //         // if(!$import->checkColumns($headings)){
+    //         //     return response()->json([
+    //         //         'error' => 'Invalid file structure. Required columns are missing.'
+    //         //     ], 400);
+    //         // }
+    //         // Process the import
+    //         $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
+
+    //         $data = [
+    //             'valid' => $import->collection($collection)['valid'],
+    //         ];
+
+    //         return response()->json($data);
+    //     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+    //         $failures = $e->failures();
+    //         $errors = [];
+
+    //         foreach ($failures as $failure) {
+    //             $errors[] = [
+    //                 'row' => $failure->row(),
+    //                 'attribute' => $failure->attribute(),
+    //                 'errors' => $failure->errors(),
+    //                 'values' => $failure->values(),
+    //             ];
+    //         }
+
+    //         return response()->json(['errors' => $errors], 422);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
+    //     }
+    // }
+
 }

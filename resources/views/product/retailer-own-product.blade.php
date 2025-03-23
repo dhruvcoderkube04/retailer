@@ -249,7 +249,6 @@
                                                             <div class="badge badge-light-danger">
                                                                 {{ $cloneProduct->status }}
                                                             </div>
-                                                        @elseif ($product->status == 'active')
                                                             <div class="badge badge-light-success">
                                                                 {{ $cloneProduct->status }}
                                                             </div>
@@ -273,7 +272,7 @@
             </div>
 
             <div class="modal fade" id="kt_modal_add_product" tabindex="-1" style="display: none;" aria-hidden="true">
-                <div class="modal-dialog mw-650px">
+                <div class="modal-dialog modal-dialog-centered mw-650px">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h2 class="fw-bold">Upload Product File </h2>
@@ -322,6 +321,8 @@
                     </div>
                 </div>
             </div>
+            <!-- Modal -->
+
             @include('layouts.footer')
         </div>
     @endsection
@@ -362,8 +363,19 @@
                         $("#kt_ecommerce_products_table").load(location.href + " #kt_ecommerce_products_table");
                         $("#kt_modal_add_product").modal('hide');
                     },
+                    // error: function(mydata) {
+                    //     Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
+                    // }
+
                     error: function(mydata) {
                         Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
+                        let errorMessage = "Product Import Failed!";
+                        
+                        if (mydata.responseJSON && mydata.responseJSON.error) {
+                            errorMessage = mydata.responseJSON.error; // Show backend error message
+                        }
+
+                        Swal.fire({ icon: 'error', title: 'Error!', text: errorMessage });
                     }
                 });
             });
