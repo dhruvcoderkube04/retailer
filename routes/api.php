@@ -6,5 +6,6 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/retailer-products', [RetailerProductController::class, 'getRetailerProducts']);
+Route::post('/retailer-webinfo', [RetailerProductController::class, 'getRetailerWebInfo']);
 Route::post('/checkout', [RetailerProductController::class, 'checkout']);
 
