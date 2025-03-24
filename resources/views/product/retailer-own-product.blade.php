@@ -208,8 +208,19 @@
                                                                 <span class="path4"></span><span class="path5"></span>
                                                             </i>
                                                         </button>
-                                                        <button class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px" data-bs-toggle="modal"
-                                                            data-bs-target="#kt_modal_update_permission">
+                                                        <button class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px edit-product"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#kt_modal_update_permission"
+                                                            data-id="{{ $cloneProduct->id }}"
+                                                            data-name="{{ $cloneProduct->name }}"
+                                                            data-description="{{ $cloneProduct->description }}"
+                                                            data-tags="{{ $cloneProduct->tags }}"
+                                                            data-category="{{ $cloneProduct->category_id }}"
+                                                            data-price="{{ $cloneProduct->new_price }}"
+                                                            data-images="{{ $cloneProduct->images }}"
+                                                            data-videos="{{ $cloneProduct->videos }}"
+                                                            data-sku="{{ $cloneProduct->sku }}"
+                                                            data-quantity="{{ $cloneProduct->quantity }}">
                                                             <i class="ki-duotone ki-pencil fs-3">
                                                                 <span class="path1"></span><span class="path2"></span><span class="path3"></span>
                                                                 <span class="path4"></span><span class="path5"></span>
@@ -272,6 +283,94 @@
                 </div>
             </div>
 
+
+            <div class="modal fade" id="kt_modal_update_permission" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-650px">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="fw-bold">Edit Product</h2>
+                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-1"></i>
+                            </div>
+                        </div>
+                        <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                            <form id="updateProductForm">
+                                @csrf
+                                <input type="hidden" id="product_id" name="product_id">
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Product Name</label>
+                                    <input type="text" class="form-control" id="product_name" name="product_name">
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description"></textarea>
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Tags</label>
+                                    <input type="text" class="form-control" id="tags" name="tags">
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Categories</label>
+                                    <select class="form-select" id="categories" name="categories">
+                                        @foreach ($category_list as $category)
+                                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Price</label>
+                                    <input type="number" class="form-control" id="price" name="price">
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Images (Max: 3)</label>
+                                    <input type="file" class="form-control" id="image" name="images[]" multiple accept="image/*">
+                                    <small class="text-muted">You can upload up to 3 images.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Images Preview</label>
+                                    <div id="image-preview"></div>
+                                </div>
+                                
+
+                                <div class="mb-3">
+                                    <label class="form-label">Video (Max: 1)</label>
+                                    <input type="file" class="form-control" id="video" name="video" accept="video/*">
+                                    <small class="text-muted">Only 1 video file is allowed.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Video Preview</label>
+                                    <div id="video-preview"></div>
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">SKU</label>
+                                    <input type="text" class="form-control" id="sku" name="sku">
+                                </div>
+            
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity">
+                                </div>
+            
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
             <div class="modal fade" id="kt_modal_add_product" tabindex="-1" style="display: none;" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered mw-650px">
                     <div class="modal-content">
@@ -478,5 +577,133 @@
         });
 
     </script>
+
+    <script>
+      $(document).ready(function () {
+
+$(".edit-product").on("click", function () {
+    let productId = $(this).data("id");
+    let productName = $(this).data("name");
+    let description = $(this).data("description");
+    let tags = $(this).data("tags");
+    let category = $(this).data("category");
+    let price = $(this).data("price");
+    let images = $(this).data("images");
+    let videos = $(this).data("videos");
+    let sku = $(this).data("sku");
+    let quantity = $(this).data("quantity");
+
+    $("#product_id").val(productId);
+    $("#product_name").val(productName);
+    $("#description").val(description);
+    $("#tags").val(tags);
+    $("#categories").val(category);
+    $("#price").val(price);
+    $("#sku").val(sku);
+    $("#quantity").val(quantity);
+
+    // **Clear Previous Preview**
+    $("#image-preview").html("");
+    $("#video-preview").html("");
+
+    // **Handle Image Preview with Delete Option**
+    if (images) {
+        let imageList = images.split(",");
+        let imagePreviewHtml = "";
+        imageList.forEach((img, index) => {
+            let imagePath = `/uploads/products/${img}`;
+            imagePreviewHtml += `
+                <div class="image-container" data-image="${img}">
+                    <img src="${imagePath}" class="img-thumbnail m-1" width="100">
+                    <button type="button" class="btn btn-danger btn-sm remove-image" data-image="${img}">X</button>
+                </div>`;
+        });
+        $("#image-preview").html(imagePreviewHtml);
+    }
+
+    // **Handle Video Preview**
+    if (videos) {
+        let videoPath = `/uploads/videos/${videos}`;
+        let videoPreviewHtml = `
+            <video width="200" controls>
+                <source src="${videoPath}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>`;
+        $("#video-preview").html(videoPreviewHtml);
+    }
+});
+
+// **Remove Image from Preview**
+$(document).on("click", ".remove-image", function () {
+    let imageToRemove = $(this).data("image");
+    $(this).parent().remove();
+
+    // Remove the image from hidden input field
+    let remainingImages = [];
+    $("#image-preview .image-container").each(function () {
+        remainingImages.push($(this).data("image"));
+    });
+    $("#product_id").data("images", remainingImages.join(",")); // Update the stored images
+});
+
+// **Validate Image Upload Limit**
+$("#image").on("change", function () {
+    let existingImagesCount = $("#image-preview .image-container").length;
+    let newImagesCount = this.files.length;
+    if (existingImagesCount + newImagesCount > 3) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'You can upload a maximum of 3 images!',
+        });
+        this.value = "";
+    }
+});
+
+// **Validate Video Upload Limit**
+$("#video").on("change", function () {
+    if (this.files.length > 1) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Only 1 video is allowed!',
+        });
+        this.value = "";
+    }
+});
+
+// **Submit Form with AJAX**
+$("#updateProductForm").on("submit", function (e) {
+    e.preventDefault();
+    let formData = new FormData(this);
+
+    // Append remaining images to formData
+    let remainingImages = [];
+    $("#image-preview .image-container").each(function () {
+        remainingImages.push($(this).data("image"));
+    });
+    formData.append("remaining_images", remainingImages.join(","));
+
+    $.ajax({
+        url: "/retailer-update-product",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            alert("Product updated successfully!");
+            $("#kt_modal_update_permission").modal("hide");
+            location.reload();
+        },
+        error: function (xhr) {
+            alert("Something went wrong!");
+        }
+    });
+});
+});
+
+
+    </script>
+    
 
     @endsection

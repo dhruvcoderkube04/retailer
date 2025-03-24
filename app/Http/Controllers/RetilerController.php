@@ -798,4 +798,50 @@ class RetilerController extends Controller
 
     }
 
+
+    public function updateCloneProduct(Request $request)
+    {
+
+        
+        $product = RetailerCloneProduct::findOrFail($request->product_id);
+        $product->name = $request->product_name;
+        $product->description = $request->description;
+        $product->tags = $request->tags;
+        $product->category_id = $request->categories;
+        $product->new_price = $request->price;
+        $product->sku = $request->sku;
+        $product->quantity = $request->quantity;
+
+        // Handle images (limit to 3)
+        if ($request->hasFile('images')) {
+            $files = $request->file('images');
+            $imagePaths = [];
+
+            foreach ($files as $index => $file) {
+                if ($index >= 3) break; // Allow only 3 images
+                
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/products'), $filename);
+                $imagePaths[] = $filename;
+            }
+
+            // Store images as a comma-separated string in the 'images' field
+            $product->images = implode(',', $imagePaths);
+        }
+
+        // Handle video upload
+        if ($request->hasFile('video')) {
+            $video = $request->file('video');
+            $videoName = time() . '_' . $video->getClientOriginalName();
+            $video->move(public_path('uploads/videos'), $videoName);
+            $product->videos = $videoName;
+        }
+
+        $product->save();
+
+        return response()->json(['success' => true, 'message' => 'Product updated successfully!']);
+    }
+
+
+
 }
