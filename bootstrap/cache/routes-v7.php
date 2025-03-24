@@ -33,7 +33,26 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::bKp3O361ktuYceVk',
+            '_route' => 'generated::E9A06WARQo9IfgTP',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/api/retailer-webinfo' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::y5JfxEAQ4xc5SCLo',
           ),
           1 => NULL,
           2 => 
@@ -52,7 +71,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::MDSeR1ZnwpvlO8u6',
+            '_route' => 'generated::rWFzAUsptQJo1Na8',
           ),
           1 => NULL,
           2 => 
@@ -71,7 +90,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::mCIGOXOeDBnXRoRO',
+            '_route' => 'generated::mDt40M6bDQqkoySt',
           ),
           1 => NULL,
           2 => 
@@ -91,7 +110,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::Rm0aN7oAKZFB7bMy',
+            '_route' => 'generated::OYKiadlyDLQ8v76T',
           ),
           1 => NULL,
           2 => 
@@ -371,6 +390,25 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/retailer-update-product' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.products.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/download-stock-sample' => 
       array (
         0 => 
@@ -491,7 +529,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::AefgRs9tAX42CVDi',
+            '_route' => 'generated::IAzOqmEHVgq0SzDV',
           ),
           1 => NULL,
           2 => 
@@ -785,7 +823,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::bKp3O361ktuYceVk' => 
+    'generated::E9A06WARQo9IfgTP' => 
     array (
       'methods' => 
       array (
@@ -805,7 +843,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::bKp3O361ktuYceVk',
+        'as' => 'generated::E9A06WARQo9IfgTP',
       ),
       'fallback' => false,
       'defaults' => 
@@ -821,7 +859,43 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::MDSeR1ZnwpvlO8u6' => 
+    'generated::y5JfxEAQ4xc5SCLo' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'api/retailer-webinfo',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'api',
+        ),
+        'uses' => 'App\\Http\\Controllers\\API\\Retailer\\RetailerProductController@getRetailerWebInfo',
+        'controller' => 'App\\Http\\Controllers\\API\\Retailer\\RetailerProductController@getRetailerWebInfo',
+        'namespace' => NULL,
+        'prefix' => 'api',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::y5JfxEAQ4xc5SCLo',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::rWFzAUsptQJo1Na8' => 
     array (
       'methods' => 
       array (
@@ -841,7 +915,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::MDSeR1ZnwpvlO8u6',
+        'as' => 'generated::rWFzAUsptQJo1Na8',
       ),
       'fallback' => false,
       'defaults' => 
@@ -857,7 +931,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::mCIGOXOeDBnXRoRO' => 
+    'generated::mDt40M6bDQqkoySt' => 
     array (
       'methods' => 
       array (
@@ -885,8 +959,8 @@ app('router')->setCompiledRoutes(
                     return response(\\Illuminate\\Support\\Facades\\View::file(\'/home/zero/projects/Trendmart/RetailerTrendMart/vendor/laravel/framework/src/Illuminate/Foundation/Configuration\'.\'/../resources/health-up.blade.php\', [
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
-                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000009040000000000000000";}}',
-        'as' => 'generated::mCIGOXOeDBnXRoRO',
+                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004f70000000000000000";}}',
+        'as' => 'generated::mDt40M6bDQqkoySt',
       ),
       'fallback' => false,
       'defaults' => 
@@ -902,7 +976,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::Rm0aN7oAKZFB7bMy' => 
+    'generated::OYKiadlyDLQ8v76T' => 
     array (
       'methods' => 
       array (
@@ -916,13 +990,13 @@ app('router')->setCompiledRoutes(
         array (
           0 => 'web',
         ),
-        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"000000000000090a0000000000000000";}}',
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004fe0000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::Rm0aN7oAKZFB7bMy',
+        'as' => 'generated::OYKiadlyDLQ8v76T',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1610,6 +1684,43 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'retailer.products.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'retailer-update-product',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@updateCloneProduct',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@updateCloneProduct',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.products.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'retailer.download-stock-sample' => 
     array (
       'methods' => 
@@ -2022,7 +2133,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::AefgRs9tAX42CVDi' => 
+    'generated::IAzOqmEHVgq0SzDV' => 
     array (
       'methods' => 
       array (
@@ -2044,13 +2155,13 @@ app('router')->setCompiledRoutes(
     \\Illuminate\\Support\\Facades\\Artisan::call(\'optimize\');
 
     return \'DONE\';
-}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"000000000000090c0000000000000000";}}',
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000005000000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::AefgRs9tAX42CVDi',
+        'as' => 'generated::IAzOqmEHVgq0SzDV',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2082,7 +2193,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000092b0000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000005200000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,
