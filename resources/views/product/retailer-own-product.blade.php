@@ -240,8 +240,9 @@
                                                                     $get_image =
                                                                         explode(',', @$cloneProduct->images)[0] ?? '';
                                                                 @endphp
-                                                                <span class="symbol-label"
-                                                                    style="background-image: url('{{ 'https://wholesale.lghosts.com/uploads/' . $get_image }}');"></span>
+                                                                <span class="symbol-label" style="background-image: url('{{ asset('uploads/products/' . $get_image) }}');"></span>
+                                                                {{-- <span class="symbol-label"
+                                                                    style="background-image: url('{{ 'https://wholesale.lghosts.com/uploads/' . $get_image }}');"></span> --}}
                                                             </a>
                                                             <div class="ms-5">
                                                                 <a href="#"
