@@ -51,6 +51,11 @@
                                 </div>
                             </div>
                             <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                                <button type="button" class="btn btn-sm btn-flex btn-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_product">
+                                    <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                    Upload Product File
+                                </button>
+                                <a href="{{route('retailer.download-stock-sample')}}" class="btn btn-success">Download Sample Stock</a>
                                 <a href="{{route('retailer.add.product')}}" class="btn btn-primary">Add Product</a>
                             </div>
                         </div>
@@ -195,17 +200,34 @@
                                         <tbody class="fw-semibold text-gray-600">
                                             @foreach ($retailerCloneProducts as $cloneProduct)
                                                 <tr>
-                                                    <td class="text-center">
-                                                        <form
-                                                            action="{{ route('retailer.clone-product-remove', $cloneProduct->id) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to remove this product from clone?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                                style="white-space: nowrap;">Remove</button>
-                                                        </form>
+                                                    <td class="text-center d-flex justify-content-center align-items-center gap-2">
+                                                        <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
+                                                            data-id="{{ $cloneProduct->id }}">
+                                                            <i class="ki-duotone ki-trash fs-3">
+                                                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                                                <span class="path4"></span><span class="path5"></span>
+                                                            </i>
+                                                        </button>
+                                                        <button class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px edit-product"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#kt_modal_update_permission"
+                                                            data-id="{{ $cloneProduct->id }}"
+                                                            data-name="{{ $cloneProduct->name }}"
+                                                            data-description="{{ $cloneProduct->description }}"
+                                                            data-tags="{{ $cloneProduct->tags }}"
+                                                            data-category="{{ $cloneProduct->category_id }}"
+                                                            data-price="{{ $cloneProduct->new_price }}"
+                                                            data-images="{{ $cloneProduct->images }}"
+                                                            data-videos="{{ $cloneProduct->videos }}"
+                                                            data-sku="{{ $cloneProduct->sku }}"
+                                                            data-quantity="{{ $cloneProduct->quantity }}">
+                                                            <i class="ki-duotone ki-pencil fs-3">
+                                                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                                                <span class="path4"></span><span class="path5"></span>
+                                                            </i>
+                                                        </button>
                                                     </td>
+
                                                     <td>
                                                         {{-- <div class="form-check form-check-sm form-check-custom form-check-solid">
                                                             <input class="form-check-input" type="checkbox" value="1" />
@@ -240,15 +262,9 @@
                                                         </div>
                                                     </td>
                                                     <td class="text-center" data-order="Inactive">
-                                                        @if ($product->status == 'inactive')
-                                                            <div class="badge badge-light-danger">
-                                                                {{ $cloneProduct->status }}
-                                                            </div>
-                                                        @elseif ($product->status == 'active')
-                                                            <div class="badge badge-light-success">
-                                                                {{ $cloneProduct->status }}
-                                                            </div>
-                                                        @endif
+                                                        <div class="badge {{ $cloneProduct->status == 'inactive' ? 'badge-light-danger' : 'badge-light-success' }}">
+                                                            {{ ucfirst($cloneProduct->status) }}
+                                                        </div>
                                                     </td>
                                                     <td class="text-center pe-0" data-order="22">
                                                         <span class="fw-bold"></span>
@@ -266,17 +282,432 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="modal fade" id="kt_modal_update_permission" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-650px">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="fw-bold">Edit Product</h2>
+                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-1"></i>
+                            </div>
+                        </div>
+                        <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                            <form id="updateProductForm">
+                                @csrf
+                                <input type="hidden" id="product_id" name="product_id">
+
+                                <div class="mb-3">
+                                    <label class="form-label">Product Name</label>
+                                    <input type="text" class="form-control" id="product_name" name="product_name">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Tags</label>
+                                    <input type="text" class="form-control" id="tags" name="tags">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Categories</label>
+                                    <select class="form-select" id="categories" name="categories">
+                                        @foreach ($category_list as $category)
+                                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Price</label>
+                                    <input type="number" class="form-control" id="price" name="price">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Images (Max: 3)</label>
+                                    <input type="file" class="form-control" id="image" name="images[]" multiple accept="image/*">
+                                    <small class="text-muted">You can upload up to 3 images.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Images Preview</label>
+                                    <div class="row g-2" id="image-preview"></div>
+                                </div>
+
+
+                                <div class="mb-3">
+                                    <label class="form-label">Video (Max: 1)</label>
+                                    <input type="file" class="form-control" id="video" name="video" accept="video/*">
+                                    <small class="text-muted">Only 1 video file is allowed.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Video Preview</label>
+                                    <div id="video-preview"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">SKU</label>
+                                    <input type="text" class="form-control" id="sku" name="sku">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity">
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade" id="kt_modal_add_product" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-650px">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="fw-bold">Upload Product File </h2>
+                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            </div>
+                        </div>
+                        <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                            <form id="productUploadForm" class="form" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="fs-6 fw-semibold form-label mb-2">
+                                        <span class="required">Product File </span>
+                                        <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
+                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                        </span>
+                                    </label>
+                                    <input type="file" class="form-control form-control-solid" name="product_file">
+                                    <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div>
+                                </div>
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="fs-6 fw-semibold form-label mb-2">
+                                        <span class="required">Category Name</span>
+                                        <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
+                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                        </span>
+                                    </label>
+                                    <div class="mb-10 fv-row">
+                                        <select class="form-select mb-2 @error('categories') is-invalid @enderror" data-control="select2" name="categories" data-placeholder="Select an option">
+                                            @foreach ($category_list as $category)
+                                                <option value="{{$category->id}}">{{Str::upper($category->category_name) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Discard</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="indicator-label">Upload</span>
+                                        <span class="indicator-progress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- add product modal --}}
+            <div class="modal fade" id="kt_modal_add_clone_product" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-650px">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="fw-bold">Upload Product File </h2>
+                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            </div>
+                        </div>
+                        <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                            <form id="productUploadForm" class="form" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="fs-6 fw-semibold form-label mb-2">
+                                        <span class="required">Product File </span>
+                                        <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
+                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                        </span>
+                                    </label>
+                                    <input type="file" class="form-control form-control-solid" name="product_file">
+                                    <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div>
+                                </div>
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="fs-6 fw-semibold form-label mb-2">
+                                        <span class="required">Category Name</span>
+                                        <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
+                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                        </span>
+                                    </label>
+                                    <div class="mb-10 fv-row">
+                                        <select class="form-select mb-2 @error('categories') is-invalid @enderror" data-control="select2" name="categories" data-placeholder="Select an option">
+                                            @foreach ($category_list as $category)
+                                                <option value="{{$category->id}}">{{Str::upper($category->category_name) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Discard</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="indicator-label">Upload</span>
+                                        <span class="indicator-progress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @include('layouts.footer')
         </div>
-    @endsection
+@endsection
 
-    @section('script')
-        <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/apps/ecommerce/catalog/products.js') }}"></script>
-        <script src="{{ asset('assets/js/widgets.bundle.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/widgets.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/apps/chat/chat.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/utilities/modals/upgrade-plan.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/utilities/modals/create-app.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
-    @endsection
+@section('script')
+    <script>
+        $(document).ready(function() {
+            // Initialize Form Validation
+            $("#productUploadForm").submit(function(e) {
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                let stockfile = $("input[name='product_file']")[0].files[0];
+                let categoryId = $("select[name='categories']").val(); // Correct selector
+                let submitButton = $(this).find("button[type='submit']");
+
+                if (!stockfile) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Please select an Excel (.xlsx) file!' });
+                    return;
+                }
+
+                if (stockfile.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                    Swal.fire({ icon: 'error', title: 'Invalid File Type!', text: 'Only .xlsx files are allowed.' });
+                    return;
+                }
+
+                formData.append("categories", categoryId); // Append category to formdata.
+
+                submitButton.prop("disabled", true);
+                submitButton.find(".indicator-label").hide();
+                submitButton.find(".indicator-progress").show();
+
+                $.ajax({
+                    url: "{{ url('upload-bulk-product') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(mydata) {
+                        Swal.fire({ icon: 'success', title: 'Product Import Successful!' });
+                        $("#kt_ecommerce_products_table").load(location.href + " #kt_ecommerce_products_table");
+                        $("#kt_modal_add_product").modal('hide');
+                    },
+                    // error: function(mydata) {
+                    //     Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
+                    // }
+
+                    error: function(mydata) {
+                        Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
+                        let errorMessage = "Product Import Failed!";
+
+                        if (mydata.responseJSON && mydata.responseJSON.error) {
+                            errorMessage = mydata.responseJSON.error; // Show backend error message
+                        }
+
+                        Swal.fire({ icon: 'error', title: 'Error!', text: errorMessage });
+                    },
+                    complete: function() {
+                        // Enable submit button and reset loading indicator
+                        submitButton.prop("disabled", false);
+                        submitButton.find(".indicator-label").show();
+                        submitButton.find(".indicator-progress").hide();
+                    }
+                });
+            });
+
+            $(".delete-product").click(function() {
+                let productId = $(this).data("id");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('retailer.clone-product-remove', '') }}/" + productId,
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                _method: "DELETE"
+                            },
+                            success: function(response) {
+                                Swal.fire("Deleted!", "Product has been removed.", "success");
+                                location.reload(); // Reload the page or update the table dynamically
+                                $("#kt_tab_pane_1").removeClass("active"); // Remove active from all tabs
+                                $("#kt_tab_pane_2").addClass("active"); // Add active to Clone tab
+                            },
+                            error: function(xhr) {
+                                Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            $(".edit-product").on("click", function () {
+                let productId = $(this).data("id");
+                let productName = $(this).data("name");
+                let description = $(this).data("description");
+                let tags = $(this).data("tags");
+                let category = $(this).data("category");
+                let price = $(this).data("price");
+                let images = $(this).data("images");
+                let videos = $(this).data("videos");
+                let sku = $(this).data("sku");
+                let quantity = $(this).data("quantity");
+
+                $("#product_id").val(productId);
+                $("#product_name").val(productName);
+                $("#description").val(description);
+                $("#tags").val(tags);
+                $("#categories").val(category);
+                $("#price").val(price);
+                $("#sku").val(sku);
+                $("#quantity").val(quantity);
+
+                // **Clear Previous Preview**
+                $("#image-preview").html("");
+                $("#video-preview").html("");
+
+                // **Handle Image Preview with Delete Option**
+                if (images) {
+                    let imageList = images.split(",");
+                    let imagePreviewHtml = "";
+                    imageList.forEach((img, index) => {
+                        let imagePath = `/uploads/products/${img}`;
+                        imagePreviewHtml += `
+                        <div class="col-4 d-flex flex-column align-items-center">
+                            <div class="position-relative">
+                                <img src="${imagePath}" class="img-thumbnail m-1" style="width: 120px; height: 120px; object-fit: cover;">
+
+                                <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px position-absolute top-0 end-0 remove-image" data-image="${img}">
+                                    <i class="ki-duotone ki-cross fs-3">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </div>
+                        </div>`;
+                    });
+                    $("#image-preview").html(imagePreviewHtml);
+                }
+
+                // **Handle Video Preview**
+                if (videos) {
+                    let videoPath = `/uploads/videos/${videos}`;
+                    let videoPreviewHtml = `
+                        <video width="200" controls>
+                            <source src="${videoPath}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>`;
+                    $("#video-preview").html(videoPreviewHtml);
+                }
+            });
+
+            // **Remove Image from Preview**
+            $(document).on("click", ".remove-image", function () {
+                let imageToRemove = $(this).data("image");
+                $(this).parent().remove();
+
+                // Remove the image from hidden input field
+                let remainingImages = [];
+                $("#image-preview .image-container").each(function () {
+                    remainingImages.push($(this).data("image"));
+                });
+                $("#product_id").data("images", remainingImages.join(",")); // Update the stored images
+            });
+
+            // **Validate Image Upload Limit**
+            $("#image").on("change", function () {
+                let existingImagesCount = $("#image-preview .image-container").length;
+                let newImagesCount = this.files.length;
+                if (existingImagesCount + newImagesCount > 3) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'You can upload a maximum of 3 images!',
+                    });
+                    this.value = "";
+                }
+            });
+
+            // **Validate Video Upload Limit**
+            $("#video").on("change", function () {
+                if (this.files.length > 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Only 1 video is allowed!',
+                    });
+                    this.value = "";
+                }
+            });
+
+            // **Submit Form with AJAX**
+            $("#updateProductForm").on("submit", function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                // Append remaining images to formData
+                let remainingImages = [];
+                $("#image-preview .image-container").each(function () {
+                    remainingImages.push($(this).data("image"));
+                });
+                formData.append("remaining_images", remainingImages.join(","));
+
+                $.ajax({
+                    url: "/retailer-update-product",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Product updated successfully!'
+                        });
+                        $("#kt_modal_update_permission").modal("hide");
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ProSomething went wrong!'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+@endsection

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\RetailerProducts;
+use App\Models\RetailerCloneProduct;
 use App\Models\RetailerWebManagement;
 use App\Models\UserDetail;
 use Dotenv\Util\Regex;
@@ -18,74 +19,134 @@ use Illuminate\Support\Facades\Validator;
 
 class RetailerProductController extends Controller
 {
+    // public function getRetailerProducts(Request $request)
+    // {
+    //     try {
+    //         // Validate API key
+    //         $apiKey = $request->header('API-KEY');
+    //         if (!$apiKey) {
+    //             return response()->json(['error' => 'API Key is required.'], 401);
+    //         }
+
+    //         // Validate retailer based on API key
+    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+    //         if (!$retailer) {
+    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+    //         }
+
+    //         // Fetch retailer products with wholesaler details
+    //         $retailerProducts = RetailerProducts::with(['wholesaler.products'])
+    //             ->where('retailer_id', $retailer->retailer_id)
+    //             ->get();
+
+
+    //         // Extract only products and calculate final price
+    //         $products = $retailerProducts->flatMap(function ($retailerProduct) {
+    //             if (!$retailerProduct->wholesaler) {
+    //                 return [];
+    //             }
+
+    //             return $retailerProduct->wholesaler->products
+    //                 ->where('category_id', $retailerProduct->category_id)
+    //                 ->map(function ($product) use ($retailerProduct) {
+    //                     // Calculate final price after adding margin
+    //                     // $marginMultiplier = 1 + ($retailerProduct->margin / 100);
+    //                     // $finalPrice = round($product->new_price * $marginMultiplier, 2);
+    //                     $finalPrice = $product->new_price + $retailerProduct->margin;
+
+    //                     return [
+    //                         'id' => $product->id,
+    //                         'sku' => $product->sku,
+    //                         'name' => $product->name,
+    //                         'slug' => $product->slug,
+    //                         'description' => $product->description,
+    //                         'category_id' => $product->category_id,
+    //                         'wholesaler_id' => $product->wholesaler_id,
+    //                         'new_price' => $product->new_price,
+    //                         'final_price' => $finalPrice, // Price after adding margin
+    //                         'quantity' => $product->quantity,
+    //                         'product_images' => $product->images ?? null, // Get images or videos
+    //                         'product_video' => $product->videos ?? null,
+    //                         'product_url' => $product->url,
+    //                         'color' => $product->url,
+    //                         'size' => $product->size,
+    //                         'specifications' => $product->specifications
+    //                     ];
+    //                 });
+    //         })->values(); // Reset array keys
+
+    //         // Extract unique category names
+    //         $categoryIds = $products->pluck('category_id')->unique()->toArray();
+    //         $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
+
+    //         // get comany info
+    //         $companyinfo = UserDetail::select('company_logo','company_name')->where('user_id', $retailer->retailer_id)->first();
+    //         // dd($companyinfo);
+    //         return response()->json([
+    //             'success' => true,
+    //             'products' => $products,
+    //             'categories' => $categories ,// Unique category names
+    //             'companyinfo' => $companyinfo
+    //         ]);
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error fetching retailer products: ' . $e->getMessage());
+    //         return response()->json(['error' => 'An unexpected error occurred.'], 500);
+    //     }
+    // }
+
+
     public function getRetailerProducts(Request $request)
     {
         try {
-            // Validate API key
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
                 return response()->json(['error' => 'API Key is required.'], 401);
             }
 
-            // Validate retailer based on API key
             $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
             if (!$retailer) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
 
-            // Fetch retailer products with wholesaler details
+            // For RetailerProducts, you have the wholesaler relation.
             $retailerProducts = RetailerProducts::with(['wholesaler.products'])
                 ->where('retailer_id', $retailer->retailer_id)
                 ->get();
 
+            // For RetailerCloneProduct, assume product details are stored directly in the table.
+            $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
+                ->get();
 
-            // Extract only products and calculate final price
-            $products = $retailerProducts->flatMap(function ($retailerProduct) {
-                if (!$retailerProduct->wholesaler) {
-                    return [];
-                }
+            // Merge both collections.
+            $allProducts = $retailerProducts->merge($retailerCloneProducts);
 
-                return $retailerProduct->wholesaler->products
-                    ->where('category_id', $retailerProduct->category_id)
-                    ->map(function ($product) use ($retailerProduct) {
-                        // Calculate final price after adding margin
-                        // $marginMultiplier = 1 + ($retailerProduct->margin / 100);
-                        // $finalPrice = round($product->new_price * $marginMultiplier, 2);
-                        $finalPrice = $product->new_price + $retailerProduct->margin;
-
-                        return [
-                            'id' => $product->id,
-                            'sku' => $product->sku,
-                            'name' => $product->name,
-                            'slug' => $product->slug,
-                            'description' => $product->description,
-                            'category_id' => $product->category_id,
-                            'wholesaler_id' => $product->wholesaler_id,
-                            'new_price' => $product->new_price,
-                            'final_price' => $finalPrice, // Price after adding margin
-                            'quantity' => $product->quantity,
-                            'product_images' => $product->images ?? null, // Get images or videos
-                            'product_video' => $product->videos ?? null,
-                            'product_url' => $product->url,
-                            'color' => $product->url,
-                            'size' => $product->size,
-                            'specifications' => $product->specifications
-                        ];
+            // Process each record differently based on its source.
+            $products = $allProducts->flatMap(function ($item) {
+                // If the record is from RetailerProducts, use the wholesaler relation.
+                if ($item instanceof RetailerProducts) {
+                    if (!$item->wholesaler) {
+                        return [];
+                    }
+                    return $item->wholesaler->products->map(function ($product) use ($item) {
+                        return $this->formatProductFromRetailerProduct($product, $item);
                     });
-            })->values(); // Reset array keys
+                } else {
+                    // Otherwise, it comes from RetailerCloneProduct.
+                    // Assume the clone table stores all product information.
+                    return [$this->formatProductFromClone($item)];
+                }
+            })->values();
 
-            // Extract unique category names
-            $categoryIds = $products->pluck('category_id')->unique()->toArray();
+            // If you need to extract categories and the clone table does not provide one,
+            // then only the products from RetailerProducts will supply the category_id.
+            $categoryIds = $products->pluck('category_id')->filter()->unique()->toArray();
             $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
 
-            // get comany info
-            $companyinfo = UserDetail::select('company_logo','company_name')->where('user_id', $retailer->retailer_id)->first();
-            // dd($companyinfo);
             return response()->json([
-                'success' => true,
-                'products' => $products,
-                'categories' => $categories ,// Unique category names
-                'companyinfo' => $companyinfo
+                'success'    => true,
+                'products'   => $products,
+                'categories' => $categories,
             ]);
 
         } catch (\Exception $e) {
@@ -93,6 +154,86 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
+
+    private function formatProductFromRetailerProduct($product, $retailerProduct)
+    {
+        $finalPrice = $product->new_price + $retailerProduct->margin;
+
+        return [
+            'id'              => $product->id,
+            'sku'             => $product->sku,
+            'name'            => $product->name,
+            'slug'            => $product->slug,
+            'description'     => $product->description,
+            'category_id'     => $product->category_id,
+            'wholesaler_id'   => $product->wholesaler_id,
+            'new_price'       => $product->new_price,
+            'final_price'     => $finalPrice,
+            'quantity'        => $product->quantity,
+            'product_images'  => $product->images ?? null,
+            'product_video'   => $product->videos ?? null,
+            'product_url'     => $product->url,
+            'color'           => $product->color ?? null,
+            'size'            => $product->size,
+            'specifications'  => $product->specifications,
+        ];
+    }
+
+    private function formatProductFromClone($cloneProduct)
+    {
+        $finalPrice = $cloneProduct->new_price + $cloneProduct->margin;
+
+        return [
+            'id'              => $cloneProduct->id,
+            'sku'             => $cloneProduct->sku,
+            'name'            => $cloneProduct->name,
+            'slug'            => $cloneProduct->slug,
+            'description'     => $cloneProduct->description,
+            // If RetailerCloneProduct does not store category, this can be null or a default value.
+            'category_id'     => $cloneProduct->category_id ?? null,
+            'wholesaler_id'   => null, // No wholesaler relation here.
+            'new_price'       => $cloneProduct->new_price,
+            'final_price'     => $finalPrice,
+            'quantity'        => $cloneProduct->quantity,
+            'product_images'  => $cloneProduct->images ?? null,
+            'product_video'   => $cloneProduct->videos ?? null,
+            'product_url'     => $cloneProduct->url,
+            'color'           => $cloneProduct->color ?? null,
+            'size'            => $cloneProduct->size,
+            'specifications'  => $cloneProduct->specifications,
+        ];
+    }
+
+
+    public function getRetailerWebInfo(Request $request)
+    {
+        try {
+            $apiKey = $request->header('API-KEY');
+            if (!$apiKey) {
+                return response()->json(['error' => 'API Key is required.'], 401);
+            }
+
+            $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+            if (!$retailer) {
+                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+            }
+
+            $companyInfo = UserDetail::select('company_logo', 'company_name')
+                ->where('user_id', $retailer->retailer_id)
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'companyinfo' => $companyInfo
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error fetching retailer company info: ' . $e->getMessage());
+            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+        }
+    }
+
+
 
     public function checkout(Request $request)
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Imports\ProductImport;
 use App\Models\Category;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
@@ -17,6 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RetilerController extends Controller
 {
@@ -172,11 +175,15 @@ class RetilerController extends Controller
                 ->pluck('product_id')
                 ->toArray();
 
+            $category_list = Category::select('category_name','id')->where('status',1)->get();
+
+
             // Pass the filtered data to the view.
             return view('product.retailer-own-product', [
                 'retailerProducts' => $filteredRetailerProducts,
                 'retailerCloneProducts' => $retailerCloneProducts,
-                'clonedProducts' => $clonedProducts
+                'clonedProducts' => $clonedProducts,
+                'category_list' => $category_list
             ]);
         } catch (\Exception $e) {
             // Log the error (optional)
@@ -721,4 +728,120 @@ class RetilerController extends Controller
     //     }
     // }
     //<---------------------- END : NOTE IN USE ------------------------>
+
+
+    public function downloadStockSample()
+    {
+        $filePath = public_path('samplestock/sample_products.xlsx');
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+        return Response::download($filePath, 'stock_sample.xlsx');
+    }
+
+
+    public function uploadBulkProduct(Request $request)
+    {
+        $request->validate([
+            'product_file' => 'required|mimes:xlsx',
+            'categories' => 'required|integer',
+        ]);
+
+        $file = $request->file('product_file');
+        $categoryId = $request->input('categories');
+
+        try {
+            $import = new ProductImport($categoryId);
+
+            // Read the first row to check for column headings
+            $headings = array_keys(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
+
+            // Check if required columns are present
+            $missingColumns = $import->checkColumns($headings);
+
+            if ($missingColumns !== true) {
+                return response()->json([
+                    'error' => 'The uploaded file is missing the following required columns: ' . implode(', ', $missingColumns),
+                ], 422);
+            }
+
+            // Process data after validating columns
+            $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
+
+            $result = $import->collection($collection); // Process once ✅
+
+            $data = [
+                'valid' => $result['valid'],
+                'invalid' => $result['invalid'],
+            ];
+
+            return response()->json($data);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                    'values' => $failure->values(),
+                ];
+            }
+
+            return response()->json(['errors' => $errors], 422);
+        } catch (\Exception $e) {
+            // return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred during file processing check product name and slug is unique' ], 500);
+        }
+
+    }
+
+
+    public function updateCloneProduct(Request $request)
+    {
+
+        
+        $product = RetailerCloneProduct::findOrFail($request->product_id);
+        $product->name = $request->product_name;
+        $product->description = $request->description;
+        $product->tags = $request->tags;
+        $product->category_id = $request->categories;
+        $product->new_price = $request->price;
+        $product->sku = $request->sku;
+        $product->quantity = $request->quantity;
+
+        // Handle images (limit to 3)
+        if ($request->hasFile('images')) {
+            $files = $request->file('images');
+            $imagePaths = [];
+
+            foreach ($files as $index => $file) {
+                if ($index >= 3) break; // Allow only 3 images
+                
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/products'), $filename);
+                $imagePaths[] = $filename;
+            }
+
+            // Store images as a comma-separated string in the 'images' field
+            $product->images = implode(',', $imagePaths);
+        }
+
+        // Handle video upload
+        if ($request->hasFile('video')) {
+            $video = $request->file('video');
+            $videoName = time() . '_' . $video->getClientOriginalName();
+            $video->move(public_path('uploads/videos'), $videoName);
+            $product->videos = $videoName;
+        }
+
+        $product->save();
+
+        return response()->json(['success' => true, 'message' => 'Product updated successfully!']);
+    }
+
+
+
 }
