@@ -112,32 +112,62 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
-                        <span class="menu-icon">
-                            <i class="ki-duotone ki-delivery-3 fs-1">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                                <span class="path3"></span>
-                            </i>
+
+                     <!--begin:Menu item-->
+                     <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->is(['automation','automation-campaign']) ? 'show' : '' }}">
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-shop fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                    <span class="path5"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Automation</span>
+                            <span class="menu-arrow"></span>
                         </span>
-                        <span class="menu-title">Automation</span>
-                    </a>
-                    <!--end:Menu link-->
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{request()->is('automation') ? 'active':''}}" href="{{route('retailer.automation.index')}}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Broadcast</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link  {{request()->is('automation-campaign') ? 'active':''}}" href="{{route('retailer.automation.campaign')}}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Campaign </span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
                     </div>
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                    <a class="menu-link {{request()->is(['coupan-page']) ? 'active':''}}" href="{{route('retailer.coupan.index')}}">
                         <span class="menu-icon">
-                            <i class="ki-duotone ki-delivery-3 fs-1">
+                            <i class="ki-duotone ki-flag fs-1">
                                 <span class="path1"></span>
-                                <span class="path2"></span>
-                                <span class="path3"></span>
                             </i>
                         </span>
                         <span class="menu-title">Coupon</span>
@@ -146,16 +176,14 @@
                     </div>
                     <!--end:Menu item-->
 
-
                      <!--begin:Menu item-->
                      <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['abondard-page']) ? 'active':''}}" href="{{route('retailer.abandonard.index')}}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                <i class="ki-duotone ki-purchase fs-1">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
-                                    <span class="path3"></span>
                                 </i>
                             </span>
                             <span class="menu-title"> Abandoned Card </span>
@@ -167,9 +195,9 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['cms-page']) ? 'active':''}}" href="{{route('retailer.cms.index')}}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                <i class="ki-duotone ki-underlining fs-1">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -185,9 +213,9 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['setting-page']) ? 'active':''}}" href="{{route('retailer.setting.index')}}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                <i class="ki-duotone ki-filled ki-setting-2 fs-1">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -201,9 +229,9 @@
 
 
                      <!--begin:Menu item-->
-                     <div data-kt-menu-trigger="click" class="menu-item">
+                     {{-- <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer-web-setting']) ? 'active':''}}" href="{{route('retailer.web.setting')}}">
+                        <a class="menu-link {{request()->is(['v3builder-page']) ? 'active':''}}" href="{{route('retailer.v3builder.index')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-delivery-3 fs-1">
                                     <span class="path1"></span>
@@ -214,7 +242,7 @@
                             <span class="menu-title"> V3 Builder </span>
                         </a>
                         <!--end:Menu link-->
-                    </div>
+                    </div> --}}
                     <!--end:Menu item-->
 
                 </div>

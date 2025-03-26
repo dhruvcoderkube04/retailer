@@ -1,8 +1,14 @@
 <?php
 
+use App\Http\Controllers\AbandonardCard;
+use App\Http\Controllers\Automation;
+use App\Http\Controllers\CMS;
+use App\Http\Controllers\Coupan;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetilerController;;
 use App\Http\Controllers\RetilerWebManagement;
+use App\Http\Controllers\Setting;
+use App\Http\Controllers\VBuilder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +71,33 @@ Route::middleware(['retailer'])->group(function () {
     // mange Profile
     Route::get('/profile', [RetilerController::class, 'Profile'])->name('retailer.profile');
     Route::post('/profile-update', [RetilerController::class, 'profileUpdate'])->name('retailer.profile.update');
+
+
+    // abandonedcard
+    Route::get('/abondard-page', [AbandonardCard::class, 'index'])->name('retailer.abandonard.index');
+
+
+
+    // automation
+    Route::get('/automation', [Automation::class, 'index'])->name('retailer.automation.index');
+    Route::get('/automation-campaign', [Automation::class, 'automationCampaign'])->name('retailer.automation.campaign');
+
+
+    // cms
+    Route::get('/cms-page', [CMS::class, 'index'])->name('retailer.cms.index');
+
+
+    // coupan
+    Route::get('/coupan-page', [Coupan::class, 'index'])->name('retailer.coupan.index');
+
+
+    // setting
+    Route::get('/setting-page', [Setting::class, 'index'])->name('retailer.setting.index');
+
+
+    // v3builder
+    Route::get('/v3builder-page', [VBuilder::class, 'index'])->name('retailer.v3builder.index');
+
 });
 
 Route::get('/cc', function() {
