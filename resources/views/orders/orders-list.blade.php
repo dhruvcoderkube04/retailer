@@ -143,7 +143,7 @@
                         </div>
 
                         <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_products_table">
+                            {{-- <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_products_table">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center min-w-70px">Actions</th>
@@ -236,8 +236,54 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+                            </table> --}}
+
+                            <table class="table align-middle table-row-dashed fs-6 gy-5">
+                                <thead>
+                                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                        <th class="text-center">NO.</th>
+                                        <th class="text-center">ORDER DATE</th>
+                                        <th class="text-center">ORDER DETAIL</th>
+                                        <th class="text-center">CUSTOMER DETAIL</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-semibold text-gray-600">
+                                    @foreach ($retailerOrders as $key => $detail)
+                                        <tr>
+                                            <td class="text-center">{{ $key + 1 }}</td>
+                                            <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
+                                            <td>
+                                                <div>
+                                                    <strong>Order Id:</strong> {{ $detail->id }}<br>
+                                                    <strong>Name:</strong> {{ $detail->product->name }}<br>
+                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
+                                                    <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
+                                                    <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
+                                                    <strong>Order Status:</strong>
+                                                    <span class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
+                                                        {{ order_status($detail->status) }}
+                                                    </span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <img src="{{ asset('uploads/' . explode(',', $detail->product->images)[0]) }}"
+                                                         alt="Product Image"
+                                                         style="width: 100px; height: auto; border-radius: 5px;">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>Name:</strong> {{ $detail->customer->firstname }} {{ $detail->customer->lastname }}<br>
+                                                <strong>Address:</strong> {{ $detail->customer->address }}<br>
+                                                <strong>Pin Code:</strong> {{ $detail->customer->pincode }}<br>
+                                                <strong>City:</strong> {{ $detail->customer->city }}<br>
+                                                <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
                             </table>
                         </div>
+
+
                     </div>
                 </div>
             </div>
