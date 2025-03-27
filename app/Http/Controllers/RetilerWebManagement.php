@@ -21,16 +21,16 @@ class RetilerWebManagement extends Controller
 
     public function webSettingSetup(Request $request)
     {
-        // dd($request->all());
         $id = Auth::user()->id;
         $reatiler_details = User::where('id',$id)->first();
+
         $company_name = !empty(@$reatiler_details->userDetail->company_name) ? @$reatiler_details->userDetail->company_name:'';
         $retailer_subdoamin = 'https://'.trim(str_replace(' ','',$company_name)).'.'.'trendmart.com';
         $product_list_key = Str::uuid();
         if (!empty($company_name))
         {
             RetailerWeb::create([
-                'retailer_id'=> Auth::user()->id,
+                'retailer_id'=> $id,
                 'store_name'=>$company_name,
                 'theme'=>'',
                 'custom_domain'=>'',

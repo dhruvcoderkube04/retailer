@@ -10,11 +10,13 @@
                         {{ session('success') }}
                     </div>
                 @endif
-                @if (session('message'))
+
+                @if (session('error'))
                     <div class="alert alert-danger text-red-600 p-2">
-                        {{ session('message') }}
+                        {{ session('error') }}
                     </div>
                 @endif
+
                 <!--begin::API Overview-->
                 <form action="{{route('retailer.web.setting.setup')}}" method="post">
                     @csrf

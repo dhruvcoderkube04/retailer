@@ -33,7 +33,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::bdRd5xUAModELLPM',
+            '_route' => 'generated::BSyTTOkKAaJn6PQY',
           ),
           1 => NULL,
           2 => 
@@ -52,7 +52,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::jTWaHZ3AHE78EwGQ',
+            '_route' => 'generated::rKrrntmPEW1LnaGL',
           ),
           1 => NULL,
           2 => 
@@ -71,7 +71,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::bHtmMamhgGKwt0OU',
+            '_route' => 'generated::jbpIVHTHgf4YWwYX',
           ),
           1 => NULL,
           2 => 
@@ -90,7 +90,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::vvpgNnxN2vNsHRWJ',
+            '_route' => 'generated::45aAruInICZzbDXv',
           ),
           1 => NULL,
           2 => 
@@ -110,7 +110,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::CCYrdg0xUsY1MPYd',
+            '_route' => 'generated::wGV7K4el6r5Fnros',
           ),
           1 => NULL,
           2 => 
@@ -643,6 +643,25 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/retailer-setting-update' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.setting.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/v3builder-page' => 
       array (
         0 => 
@@ -663,13 +682,193 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/shipping-page' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.shipping.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/direct-shipping' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.direct.shipping',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/create-own-order' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.ownorder',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/ndr' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.ndr',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/label-setting' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.labelsetting',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/pick-address-list' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.pickaddress.list',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/rto-address' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.rto.address',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/report-page' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.report.page',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/shipping-charges' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.shipping.charges',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/cc' => 
       array (
         0 => 
         array (
           0 => 
           array (
-            '_route' => 'generated::rENrLpXrdi2rNpPc',
+            '_route' => 'generated::6Tgpsu7AqoMLBvJf',
           ),
           1 => NULL,
           2 => 
@@ -963,7 +1162,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::bdRd5xUAModELLPM' => 
+    'generated::BSyTTOkKAaJn6PQY' => 
     array (
       'methods' => 
       array (
@@ -983,7 +1182,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::bdRd5xUAModELLPM',
+        'as' => 'generated::BSyTTOkKAaJn6PQY',
       ),
       'fallback' => false,
       'defaults' => 
@@ -999,7 +1198,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::jTWaHZ3AHE78EwGQ' => 
+    'generated::rKrrntmPEW1LnaGL' => 
     array (
       'methods' => 
       array (
@@ -1019,7 +1218,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::jTWaHZ3AHE78EwGQ',
+        'as' => 'generated::rKrrntmPEW1LnaGL',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1035,7 +1234,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::bHtmMamhgGKwt0OU' => 
+    'generated::jbpIVHTHgf4YWwYX' => 
     array (
       'methods' => 
       array (
@@ -1055,7 +1254,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::bHtmMamhgGKwt0OU',
+        'as' => 'generated::jbpIVHTHgf4YWwYX',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1071,7 +1270,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::vvpgNnxN2vNsHRWJ' => 
+    'generated::45aAruInICZzbDXv' => 
     array (
       'methods' => 
       array (
@@ -1100,7 +1299,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004f70000000000000000";}}',
-        'as' => 'generated::vvpgNnxN2vNsHRWJ',
+        'as' => 'generated::45aAruInICZzbDXv',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1116,7 +1315,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::CCYrdg0xUsY1MPYd' => 
+    'generated::wGV7K4el6r5Fnros' => 
     array (
       'methods' => 
       array (
@@ -1136,7 +1335,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::CCYrdg0xUsY1MPYd',
+        'as' => 'generated::wGV7K4el6r5Fnros',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2440,8 +2639,8 @@ app('router')->setCompiledRoutes(
           0 => 'web',
           1 => 'retailer',
         ),
-        'uses' => 'App\\Http\\Controllers\\Coupan@index',
-        'controller' => 'App\\Http\\Controllers\\Coupan@index',
+        'uses' => 'App\\Http\\Controllers\\CoupanController@index',
+        'controller' => 'App\\Http\\Controllers\\CoupanController@index',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
@@ -2501,6 +2700,43 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'retailer.setting.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'retailer-setting-update',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Setting@webSettingUpdate',
+        'controller' => 'App\\Http\\Controllers\\Setting@webSettingUpdate',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.setting.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'retailer.v3builder.index' => 
     array (
       'methods' => 
@@ -2539,7 +2775,349 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::rENrLpXrdi2rNpPc' => 
+    'retailer.shipping.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'shipping-page',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@index',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@index',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.shipping.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.direct.shipping' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'direct-shipping',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@directShipping',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@directShipping',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.direct.shipping',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.ownorder' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'create-own-order',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@CreateOwnOrder',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@CreateOwnOrder',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.ownorder',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.ndr' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'ndr',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@NDR',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@NDR',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.ndr',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.labelsetting' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'label-setting',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@labelSetting',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@labelSetting',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.labelsetting',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.pickaddress.list' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'pick-address-list',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@pickAddressList',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@pickAddressList',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.pickaddress.list',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.rto.address' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'rto-address',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@rtoAddress',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@rtoAddress',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.rto.address',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.report.page' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'report-page',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@reportPage',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@reportPage',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.report.page',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.shipping.charges' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'shipping-charges',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ShippingController@shippingCharges',
+        'controller' => 'App\\Http\\Controllers\\ShippingController@shippingCharges',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.shipping.charges',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::6Tgpsu7AqoMLBvJf' => 
     array (
       'methods' => 
       array (
@@ -2567,7 +3145,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::rENrLpXrdi2rNpPc',
+        'as' => 'generated::6Tgpsu7AqoMLBvJf',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2599,7 +3177,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000005270000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000005310000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,

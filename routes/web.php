@@ -4,10 +4,12 @@ use App\Http\Controllers\AbandonardCard;
 use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
 use App\Http\Controllers\Coupan;
+use App\Http\Controllers\CoupanController;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetilerController;;
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\VBuilder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -88,16 +90,26 @@ Route::middleware(['retailer'])->group(function () {
 
 
     // coupan
-    Route::get('/coupan-page', [Coupan::class, 'index'])->name('retailer.coupan.index');
+    Route::get('/coupan-page', [CoupanController::class, 'index'])->name('retailer.coupan.index');
 
 
     // setting
     Route::get('/setting-page', [Setting::class, 'index'])->name('retailer.setting.index');
-
+    Route::post('/retailer-setting-update', [Setting::class, 'webSettingUpdate'])->name('retailer.setting.update');
 
     // v3builder
     Route::get('/v3builder-page', [VBuilder::class, 'index'])->name('retailer.v3builder.index');
 
+    // Shipping
+    Route::get('/shipping-page', [ShippingController::class, 'index'])->name('retailer.shipping.index');
+    Route::get('/direct-shipping', [ShippingController::class, 'directShipping'])->name('retailer.direct.shipping');
+    Route::get('/create-own-order', [ShippingController::class, 'CreateOwnOrder'])->name('retailer.ownorder');
+    Route::get('/ndr', [ShippingController::class, 'NDR'])->name('retailer.ndr');
+    Route::get('/label-setting', [ShippingController::class, 'labelSetting'])->name('retailer.labelsetting');
+    Route::get('/pick-address-list', [ShippingController::class, 'pickAddressList'])->name('retailer.pickaddress.list');
+    Route::get('/rto-address', [ShippingController::class, 'rtoAddress'])->name('retailer.rto.address');
+    Route::get('/report-page', [ShippingController::class, 'reportPage'])->name('retailer.report.page');
+    Route::get('/shipping-charges', [ShippingController::class, 'shippingCharges'])->name('retailer.shipping.charges');
 });
 
 Route::get('/cc', function() {
