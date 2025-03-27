@@ -577,10 +577,8 @@ class RetilerController extends Controller
             'pincode'   => 'nullable|string|max:10|regex:/^[0-9]{4,10}$/',
             'profile'       => 'mimes:jpeg,png,jpg|max:1048',
         ]);
-        // dd($request->all());
-        // Find the wholesaler
-        $wholesaler = User::with('userDetail')->findOrFail($id);
-
+        // Find the user
+        $user = User::with('userDetail')->findOrFail($id);
         // Update only the fields that are filled
         $updateData = [];
         if ($request->filled('firstname')) {
@@ -601,7 +599,7 @@ class RetilerController extends Controller
         // }
 
         if (!empty($updateData)) {
-            $wholesaler->update($updateData);
+            $user->update($updateData);
         }
 
         // Update password if provided
@@ -621,11 +619,11 @@ class RetilerController extends Controller
         }
 
         // Update userDetail fields only if they are filled
-        if ($wholesaler->userDetail) {
-            $userDetailUpdate = [];
 
+        if ($user->userDetail) {
+            $userDetailUpdate = [];
             if ($request->filled('company')) {
-                $userDetailUpdate['company_name'] = $request->company_name;
+                $userDetailUpdate['company_name'] = $request->company;
             }
             if ($request->filled('address')) {
                 $userDetailUpdate['address'] = $request->address;
@@ -650,11 +648,11 @@ class RetilerController extends Controller
             }
 
             if (!empty($userDetailUpdate)) {
-                $wholesaler->userDetail->update($userDetailUpdate);
+                $user->userDetail->update($userDetailUpdate);
             }
         }
 
-        return redirect()->back()->with('success', 'Wholesaler updated successfully.');
+        return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
 
@@ -802,7 +800,7 @@ class RetilerController extends Controller
     public function updateCloneProduct(Request $request)
     {
 
-        
+
         $product = RetailerCloneProduct::findOrFail($request->product_id);
         $product->name = $request->product_name;
         $product->description = $request->description;
@@ -819,7 +817,7 @@ class RetilerController extends Controller
 
             foreach ($files as $index => $file) {
                 if ($index >= 3) break; // Allow only 3 images
-                
+
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('uploads/products'), $filename);
                 $imagePaths[] = $filename;
