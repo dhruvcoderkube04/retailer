@@ -91,6 +91,7 @@ Route::middleware(['retailer'])->group(function () {
 
     // coupan
     Route::get('/coupan-page', [CoupanController::class, 'index'])->name('retailer.coupan.index');
+    Route::post('/add-coupan', [CoupanController::class, 'AddCoupan'])->name('retailer.coupan.add');
 
 
     // setting

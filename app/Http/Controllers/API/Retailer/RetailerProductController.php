@@ -157,7 +157,7 @@ class RetailerProductController extends Controller
     //     }
     // }
 
-  
+
 
 public function getRetailerProducts(Request $request)
 {
@@ -286,10 +286,10 @@ public function getRetailerProducts(Request $request)
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
 
-            $companyInfo = UserDetail::select('company_logo', 'company_name')
-                ->where('user_id', $retailer->retailer_id)
-                ->first();
-
+            // $companyInfo = UserDetail::select('company_logo', 'company_name')
+            //     ->where('user_id', $retailer->retailer_id)
+            //     ->first();
+            $companyInfo = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
             return response()->json([
                 'success' => true,
                 'companyinfo' => $companyInfo

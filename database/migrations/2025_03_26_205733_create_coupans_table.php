@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('coupans', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique(); // Unique coupon code
+            $table->string('coupan_code_name')->unique();
             $table->decimal('discount', 8, 2); // Discount amount or percentage
             $table->enum('discount_type', ['fixed', 'percentage'])->default('fixed'); // Type of discount
             $table->integer('usage_limit')->nullable(); // Maximum usage count

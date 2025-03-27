@@ -45,7 +45,7 @@ class RetilerWebManagement extends Controller
         }
         else
         {
-            return back()->with('message', 'Update Your Company Name !');
+            return back()->with('error', 'Update Your Company Name !');
         }
 
     }
