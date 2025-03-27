@@ -244,9 +244,9 @@
                                         <th class="text-center">NO.</th>
                                         <th class="text-center">ORDER DATE</th>
                                         <th class="">ORDER DETAIL</th>
+                                        <th class="">MEDIA</th>
                                         <th class="">CUSTOMER DETAIL</th>
-                                        <th class="">Media</th>
-                                        <th class=" min-w-70px">Actions</th>
+                                        <th class=" min-w-70px">ACTIONS</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
@@ -256,7 +256,7 @@
                                             <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
                                             <td class="">
                                                 <div>
-                                                    <strong>Order Id:</strong> {{ $detail->id }}<br>
+                                                    <strong>Order Id:</strong> {{ $detail->order_id }}<br>
                                                     <strong>Name:</strong> {{ $detail->product->name }}<br>
                                                     <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
                                                     <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
@@ -266,8 +266,10 @@
                                                         {{ order_status($detail->status) }}
                                                     </span>
                                                 </div>
+                                            </td>
+                                            <td>
                                                 <div class="mt-2">
-                                                    <img src="{{ asset('uploads/' . explode(',', $detail->product->images)[0]) }}"
+                                                    <img src="{{ 'https://wholesale.lghosts.com/uploads/' . explode(',', $detail->product->images)[0] }}"
                                                          alt="Product Image"
                                                          style="width: 100px; height: auto; border-radius: 5px;">
                                                 </div>
