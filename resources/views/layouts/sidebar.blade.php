@@ -288,7 +288,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{request()->is(['coupan-page']) ? 'active':''}}" href="{{route('retailer.coupan.index')}}">
+                    <a class="menu-link {{request()->is(['coupon-page']) ? 'active':''}}" href="{{route('retailer.coupon.index')}}">
                         <span class="menu-icon">
                             <i class="ki-duotone ki-flag fs-1">
                                 <span class="path1"></span>

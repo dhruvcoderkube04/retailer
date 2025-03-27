@@ -27,3 +27,5 @@ storage/debugbar
 /public/uploads/products/
 /vendor/
 bootstrap/cache/routes-v7.php
+bootstrap/cache/
+

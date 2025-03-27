@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('coupans', function (Blueprint $table) {
+        Schema::create('coupons', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique(); // Unique coupon code
-            $table->string('coupan_code_name')->unique();
+            $table->unsignedBigInteger('retailer_id');
+            $table->foreign('retailer_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->string('coupon_code')->unique(); // Unique coupon code
+            $table->string('coupon_name')->unique();
             $table->decimal('discount', 8, 2); // Discount amount or percentage
             $table->enum('discount_type', ['fixed', 'percentage'])->default('fixed'); // Type of discount
             $table->integer('usage_limit')->nullable(); // Maximum usage count

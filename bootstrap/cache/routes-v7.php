@@ -33,7 +33,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::0ntbxoiC5kewdUJc',
+            '_route' => 'generated::WWwbFXQTHi9ICB8K',
           ),
           1 => NULL,
           2 => 
@@ -52,7 +52,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::N57I8vIyBfVyqc4b',
+            '_route' => 'generated::KWX2606I3DbFv7Ib',
           ),
           1 => NULL,
           2 => 
@@ -71,7 +71,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::NiXdSl9mG6BCXnhm',
+            '_route' => 'generated::RAk5WVQrGZDO2mMf',
           ),
           1 => NULL,
           2 => 
@@ -90,7 +90,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::jUd8q38lMrfpvXen',
+            '_route' => 'generated::g7DarIV1epiQJjpT',
           ),
           1 => NULL,
           2 => 
@@ -110,7 +110,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::jEVpXywUwVVNhPnu',
+            '_route' => 'generated::VIz9Ae33Bpf6V7aA',
           ),
           1 => NULL,
           2 => 
@@ -609,7 +609,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'retailer.coupan.index',
+            '_route' => 'retailer.coupon.index',
           ),
           1 => NULL,
           2 => 
@@ -623,13 +623,70 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      '/add-coupan' => 
+      '/add-coupon' => 
       array (
         0 => 
         array (
           0 => 
           array (
-            '_route' => 'retailer.coupan.add',
+            '_route' => 'retailer.coupon.add',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/delete-coupon' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.coupon.delete',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/edit-coupon' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.coupon.edit',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/update-coupon' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.coupon.update',
           ),
           1 => NULL,
           2 => 
@@ -887,7 +944,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::uR1OLw2Mc2Ym7Ysr',
+            '_route' => 'generated::vpdg0BfYwL7NvF3i',
           ),
           1 => NULL,
           2 => 
@@ -1181,7 +1238,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::0ntbxoiC5kewdUJc' => 
+    'generated::WWwbFXQTHi9ICB8K' => 
     array (
       'methods' => 
       array (
@@ -1201,7 +1258,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::0ntbxoiC5kewdUJc',
+        'as' => 'generated::WWwbFXQTHi9ICB8K',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1217,7 +1274,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::N57I8vIyBfVyqc4b' => 
+    'generated::KWX2606I3DbFv7Ib' => 
     array (
       'methods' => 
       array (
@@ -1237,7 +1294,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::N57I8vIyBfVyqc4b',
+        'as' => 'generated::KWX2606I3DbFv7Ib',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1253,7 +1310,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::NiXdSl9mG6BCXnhm' => 
+    'generated::RAk5WVQrGZDO2mMf' => 
     array (
       'methods' => 
       array (
@@ -1273,7 +1330,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::NiXdSl9mG6BCXnhm',
+        'as' => 'generated::RAk5WVQrGZDO2mMf',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1289,7 +1346,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::jUd8q38lMrfpvXen' => 
+    'generated::g7DarIV1epiQJjpT' => 
     array (
       'methods' => 
       array (
@@ -1318,7 +1375,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004f70000000000000000";}}',
-        'as' => 'generated::jUd8q38lMrfpvXen',
+        'as' => 'generated::g7DarIV1epiQJjpT',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1334,7 +1391,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::jEVpXywUwVVNhPnu' => 
+    'generated::VIz9Ae33Bpf6V7aA' => 
     array (
       'methods' => 
       array (
@@ -1354,7 +1411,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::jEVpXywUwVVNhPnu',
+        'as' => 'generated::VIz9Ae33Bpf6V7aA',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2643,7 +2700,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'retailer.coupan.index' => 
+    'retailer.coupon.index' => 
     array (
       'methods' => 
       array (
@@ -2665,7 +2722,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'retailer.coupan.index',
+        'as' => 'retailer.coupon.index',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2681,13 +2738,13 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'retailer.coupan.add' => 
+    'retailer.coupon.add' => 
     array (
       'methods' => 
       array (
         0 => 'POST',
       ),
-      'uri' => 'add-coupan',
+      'uri' => 'add-coupon',
       'action' => 
       array (
         'middleware' => 
@@ -2695,14 +2752,125 @@ app('router')->setCompiledRoutes(
           0 => 'web',
           1 => 'retailer',
         ),
-        'uses' => 'App\\Http\\Controllers\\CoupanController@AddCoupan',
-        'controller' => 'App\\Http\\Controllers\\CoupanController@AddCoupan',
+        'uses' => 'App\\Http\\Controllers\\CoupanController@AddCoupon',
+        'controller' => 'App\\Http\\Controllers\\CoupanController@AddCoupon',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'retailer.coupan.add',
+        'as' => 'retailer.coupon.add',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.coupon.delete' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'delete-coupon',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\CoupanController@deleteCoupon',
+        'controller' => 'App\\Http\\Controllers\\CoupanController@deleteCoupon',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.coupon.delete',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.coupon.edit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'edit-coupon',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\CoupanController@editCoupon',
+        'controller' => 'App\\Http\\Controllers\\CoupanController@editCoupon',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.coupon.edit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.coupon.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'update-coupon',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\CoupanController@updateCoupon',
+        'controller' => 'App\\Http\\Controllers\\CoupanController@updateCoupon',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.coupon.update',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3173,7 +3341,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::uR1OLw2Mc2Ym7Ysr' => 
+    'generated::vpdg0BfYwL7NvF3i' => 
     array (
       'methods' => 
       array (
@@ -3201,7 +3369,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::uR1OLw2Mc2Ym7Ysr',
+        'as' => 'generated::vpdg0BfYwL7NvF3i',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3233,7 +3401,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000005320000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000005350000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,
