@@ -115,15 +115,13 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/report-page', [ShippingController::class, 'reportPage'])->name('retailer.report.page');
     Route::get('/shipping-charges', [ShippingController::class, 'shippingCharges'])->name('retailer.shipping.charges');
 
-    Route::post('/pick-address/store', [ShippingController::class, 'pickAddressStore'])
-    ->name('retailer.pickaddress.pickAddressStore');
+    Route::post('/pick-address/store', [ShippingController::class, 'pickAddressStore'])->name('retailer.pickaddress.pickAddressStore');
     Route::get('/pick-address/edit/{id}', [ShippingController::class, 'pickAddressedit']);
     Route::put('/pick-address/update/{id}', [ShippingController::class, 'pickAddressupdate']);
     Route::delete('/pick-addresses/{id}', [ShippingController::class, 'pickAddressdestroy'])->name('pickAddresses.destroy');
 
 
-    Route::post('/rto-address/store', [ShippingController::class, 'RTOAddressStore'])
-    ->name('retailer.rtoaddress.rtoAddressStore');
+    Route::post('/rto-address/store', [ShippingController::class, 'RTOAddressStore'])->name('retailer.rtoaddress.rtoAddressStore');
     Route::get('/rto-address/edit/{id}', [ShippingController::class, 'RTOAddressedit']);
     Route::put('/rto-address/update/{id}', [ShippingController::class, 'RTOAddressupdate']);
     Route::delete('/rto-addresses/{id}', [ShippingController::class, 'RTOAddressdestroy'])->name('rtoAddresses.destroy');

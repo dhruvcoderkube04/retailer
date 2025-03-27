@@ -133,7 +133,7 @@
                         <!--begin:Menu sub-->
                         <div class="menu-sub menu-sub-accordion">
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{request()->is('direct-shipping') ? 'active':''}}" href="{{route('retailer.direct.shipping')}}">
                                     <span class="menu-bullet">
@@ -142,10 +142,10 @@
                                     <span class="menu-title">Direct Shipping</span>
                                 </a>
                                 <!--end:Menu link-->
-                            </div>
+                            </div> --}}
                             <!--end:Menu item-->
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{request()->is('create-own-order') ? 'active':''}}" href="{{route('retailer.ownorder')}}">
                                     <span class="menu-bullet">
@@ -154,10 +154,10 @@
                                     <span class="menu-title">Create Your Own Order</span>
                                 </a>
                                 <!--end:Menu link-->
-                            </div>
+                            </div> --}}
                             <!--end:Menu item-->
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{request()->is('ndr') ? 'active':''}}" href="{{route('retailer.ndr')}}">
                                     <span class="menu-bullet">
@@ -166,11 +166,11 @@
                                     <span class="menu-title">NDR</span>
                                 </a>
                                 <!--end:Menu link-->
-                            </div>
+                            </div> --}}
                             <!--end:Menu item-->
 
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{request()->is('label-setting') ? 'active':''}}" href="{{route('retailer.labelsetting')}}">
                                     <span class="menu-bullet">
@@ -179,7 +179,7 @@
                                     <span class="menu-title">Label Setting</span>
                                 </a>
                                 <!--end:Menu link-->
-                            </div>
+                            </div> --}}
                             <!--end:Menu item-->
                             <!--begin:Menu item-->
                             <div class="menu-item">
@@ -208,7 +208,7 @@
                             <!--end:Menu item-->
 
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{request()->is('report-page') ? 'active':''}}" href="{{route('retailer.report.page')}}">
                                     <span class="menu-bullet">
@@ -217,11 +217,11 @@
                                     <span class="menu-title">Report</span>
                                 </a>
                                 <!--end:Menu link-->
-                            </div>
+                            </div> --}}
                             <!--end:Menu item-->
 
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{request()->is('shipping-charges') ? 'active':''}}" href="{{route('retailer.shipping.charges')}}">
                                     <span class="menu-bullet">
@@ -230,7 +230,7 @@
                                     <span class="menu-title">Shipping Charges</span>
                                 </a>
                                 <!--end:Menu link-->
-                            </div>
+                            </div> --}}
                             <!--end:Menu item-->
                         </div>
                         <!--end:Menu sub-->
@@ -238,7 +238,7 @@
                     <!--end:Menu item-->
 
                      <!--begin:Menu item-->
-                     <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->is(['automation','automation-campaign']) ? 'show' : '' }}">
+                     {{-- <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->is(['automation','automation-campaign']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -282,7 +282,7 @@
                             <!--end:Menu item-->
                         </div>
                         <!--end:Menu sub-->
-                    </div>
+                    </div> --}}
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
@@ -301,7 +301,7 @@
                     <!--end:Menu item-->
 
                      <!--begin:Menu item-->
-                     <div data-kt-menu-trigger="click" class="menu-item">
+                     {{-- <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link {{request()->is(['abondard-page']) ? 'active':''}}" href="{{route('retailer.abandonard.index')}}">
                             <span class="menu-icon">
@@ -313,11 +313,11 @@
                             <span class="menu-title"> Abandoned Card </span>
                         </a>
                         <!--end:Menu link-->
-                    </div>
+                    </div> --}}
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    {{-- <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link {{request()->is(['cms-page']) ? 'active':''}}" href="{{route('retailer.cms.index')}}">
                             <span class="menu-icon">
@@ -330,7 +330,7 @@
                             <span class="menu-title"> CMS </span>
                         </a>
                         <!--end:Menu link-->
-                    </div>
+                    </div> --}}
                     <!--end:Menu item-->
 
                      <!--begin:Menu item-->

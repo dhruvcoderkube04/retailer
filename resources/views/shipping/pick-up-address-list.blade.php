@@ -21,7 +21,7 @@
                 <!--end::Card header-->
                 <!--begin::Tab content-->
                 <div id="kt_billing_payment_tab_content" class="card-body">
-                       
+
                     <div class="row gx-9 gy-6">
                         @foreach($addresses as $address)
                         <div class="col-xl-6" data-kt-billing-element="card">
@@ -40,8 +40,12 @@
                                         <!--end::Icon-->
                                         <!--begin::Details-->
                                         <div>
-                                            <div class="fs-4 fw-bold">Mobile {{ $address->mobile_number }}</div>
-                                            <div class="fs-6 fw-semibold text-gray-500">Card expires at 09/24</div>
+                                            <div>
+                                                <div class="fs-4 fw-bold">Mobile: {{ $address->mobile_number }}</div>
+                                                <div class="fs-6 fw-semibold text-gray-500">{{ $address->address }},</div>
+                                                <div class="fs-6 fw-semibold text-gray-500">{{ $address->city }}, {{ $address->state }} - {{ $address->pincode }}</div>
+                                            </div>
+
                                         </div>
                                         <!--end::Details-->
                                     </div>
@@ -50,16 +54,16 @@
                                 <!--end::Info-->
                                 <!--begin::Actions-->
                                 <div class="d-flex align-items-center py-2">
-                                        <button class="btn btn-sm btn-light btn-active-light-primary me-3 delete-address" 
+                                        <button class="btn btn-sm btn-light btn-active-light-primary me-3 delete-address"
                                                 data-id="{{ $address->id }}">
                                             <span class="indicator-label">Delete</span>
                                             <span class="indicator-progress">Please wait...
                                             <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                                         </button>
 
-                                        <button class="btn btn-sm btn-light btn-active-light-primary edit-address" 
-                                                data-id="{{ $address->id }}" 
-                                                data-bs-toggle="modal" 
+                                        <button class="btn btn-sm btn-light btn-active-light-primary edit-address"
+                                                data-id="{{ $address->id }}"
+                                                data-bs-toggle="modal"
                                                 data-bs-target="#editAddressModal">
                                             Edit
                                         </button>
@@ -78,10 +82,13 @@
                                     <!--begin::Content-->
                                     <div class="mb-3 mb-md-0 fw-semibold">
                                         <h4 class="text-gray-900 fw-bold">Important Note!</h4>
-                                        <div class="fs-6 text-gray-700 pe-7">Please carefully read
-                                        <a href="#" class="fw-bold me-1">Product Terms</a>adding
-                                        <br />your new payment card</div>
+                                        <div class="fs-6 text-gray-700 pe-7">
+                                            Please carefully read
+                                            <a href="#" class="fw-bold me-1">Shipping Policy</a> before adding
+                                            <br />your new shipping address.
+                                        </div>
                                     </div>
+
                                     <!--end::Content-->
                                     <!--begin::Action-->
                                     {{-- <a href="#" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#kt_modal_new_card">Add Card</a> --}}
@@ -96,7 +103,7 @@
                         </div>
                     </div>
 
-                    
+
                 </div>
                     <!--end::Row-->
                 </div>
@@ -115,7 +122,7 @@
               <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            
+
             <div class="modal-body">
               <!-- Validation Error Display -->
               @if ($errors->any())
@@ -127,41 +134,41 @@
                   </ul>
                 </div>
               @endif
-      
+
               <!-- Address Form -->
               <form action="{{ url('/pick-address/store') }}" method="POST">
                 @csrf
-                
+
                 <div class="mb-3">
                   <label for="first_name" class="form-label"><span class="text-danger">*</span>First Name</label>
                   <input type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" value="{{ old('first_name') }}" required>
                   @error('first_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-      
+
                 <div class="mb-3">
                   <label for="last_name" class="form-label"><span class="text-danger">*</span>Last Name</label>
                   <input type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" value="{{ old('last_name') }}" required>
                   @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-      
+
                 <div class="mb-3">
                   <label for="mobile" class="form-label"><span class="text-danger">*</span>Mobile Number</label>
                   <input type="text" class="form-control @error('mobile') is-invalid @enderror" name="mobile" value="{{ old('mobile') }}" required>
                   @error('mobile') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-      
+
                 <div class="mb-3">
                   <label for="pincode" class="form-label"><span class="text-danger">*</span>Pincode</label>
                   <input type="text" class="form-control @error('pincode') is-invalid @enderror" name="pincode" value="{{ old('pincode') }}" required>
                   @error('pincode') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-      
+
                 <div class="mb-3">
                   <label for="address" class="form-label"><span class="text-danger">*</span>Address</label>
                   <textarea class="form-control @error('address') is-invalid @enderror" name="address" rows="2" required>{{ old('address') }}</textarea>
                   @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-      
+
                 <div class="row">
                   <div class="col-md-6">
                     <label for="state" class="form-label"><span class="text-danger">*</span>State</label>
@@ -174,12 +181,12 @@
                     @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
                   </div>
                 </div>
-      
+
                 <div class="modal-footer mt-3">
                   <button type="submit" class="btn btn-success">Add</button>
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
-      
+
               </form>
             </div>
           </div>
@@ -193,45 +200,45 @@
                         <h5 class="modal-title" id="editAddressModalLabel">Edit Pick Address</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    
+
                     <div class="modal-body">
                         <form id="editAddressForm" action="{{ url('/pick-address/update') }}" method="POST">
                             @csrf
                             @method('PUT')
-        
+
                             <!-- Hidden Field for Address ID -->
                             <input type="hidden" name="id" id="edit_id">
-        
+
                             <div class="mb-3">
                                 <label class="form-label">First Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" id="edit_first_name" required>
                                 @error('first_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Last Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" id="edit_last_name" required>
                                 @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('mobile') is-invalid @enderror" name="mobile_number" id="edit_mobile" required>
                                 @error('mobile') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Pincode <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('pincode') is-invalid @enderror" name="pincode" id="edit_pincode" required>
                                 @error('pincode') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Address <span class="text-danger">*</span></label>
                                 <textarea class="form-control @error('address') is-invalid @enderror" name="address" id="edit_address" rows="2" required></textarea>
                                 @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <label class="form-label">State <span class="text-danger">*</span></label>
@@ -244,19 +251,19 @@
                                     @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            
-        
+
+
                             <div class="modal-footer mt-3">
                                 <button type="submit" class="btn btn-success">Update</button>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             </div>
-                            
+
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        
+
 @endsection
 
 @section('script')
@@ -264,7 +271,7 @@
         $(document).ready(function() {
             // Initialize Form Validation
             $("#productUploadForm").submit(function(e) {
-                e.preventDefault(); 
+                e.preventDefault();
 
                 var formData = new FormData(this);
 
@@ -497,7 +504,7 @@
             document.querySelectorAll('.delete-address').forEach(button => {
                 button.addEventListener('click', function () {
                     let addressId = this.getAttribute('data-id');
-    
+
                     Swal.fire({
                         title: "Are you sure?",
                         text: "You won't be able to revert this!",
@@ -542,7 +549,7 @@
     <script>
         $(document).ready(function() {
     $('.edit-address').on('click', function() {
-        var addressId = $(this).data('id'); 
+        var addressId = $(this).data('id');
 // console.log('addressId' , addressId);
         $.ajax({
             url: '/pick-address/edit/' + addressId, // Backend route to fetch address details
@@ -564,5 +571,5 @@
 });
 
     </script>
-    
+
 @endsection
