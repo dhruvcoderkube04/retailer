@@ -243,8 +243,10 @@
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center">NO.</th>
                                         <th class="text-center">ORDER DATE</th>
-                                        <th class="text-center">ORDER DETAIL</th>
-                                        <th class="text-center">CUSTOMER DETAIL</th>
+                                        <th class="">ORDER DETAIL</th>
+                                        <th class="">CUSTOMER DETAIL</th>
+                                        <th class="">Media</th>
+                                        <th class=" min-w-70px">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
@@ -252,7 +254,7 @@
                                         <tr>
                                             <td class="text-center">{{ $key + 1 }}</td>
                                             <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
-                                            <td>
+                                            <td class="">
                                                 <div>
                                                     <strong>Order Id:</strong> {{ $detail->id }}<br>
                                                     <strong>Name:</strong> {{ $detail->product->name }}<br>
@@ -276,6 +278,36 @@
                                                 <strong>Pin Code:</strong> {{ $detail->customer->pincode }}<br>
                                                 <strong>City:</strong> {{ $detail->customer->city }}<br>
                                                 <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
+                                            </td>
+                                            <td>
+                                                @if ($detail->status == 'pending')
+                                                    <button type="button" class="btn btn-primary btn-sm pendingOrderAction"
+                                                        data-product-id="{{ $detail->product_id }}"
+                                                        data-order-id="{{ $detail->id }}">
+                                                        Action
+                                                    </button>
+                                                @elseif ($detail->status == 'confirmed_by_retailer')
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm confirmedOrderAction"
+                                                        data-product-id="{{ $detail->product_id }}"
+                                                        data-order-id="{{ $detail->id }}">
+                                                        Action
+                                                    </button>
+                                                @elseif ($detail->status == 'shipped_by_retailer')
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm readyToShipOrderAction"
+                                                        data-product-id="{{ $detail->product_id }}"
+                                                        data-order-id="{{ $detail->id }}">
+                                                        Action
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="btn btn-primary btn-sm"
+                                                        style="white-space: nowrap; opacity: 0.4"
+                                                        data-product-id="{{ $detail->product_id }}"
+                                                        data-order-id="{{ $detail->id }}" disabled>
+                                                        Action
+                                                    </button>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
