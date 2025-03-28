@@ -54,6 +54,44 @@ class CoupanController extends Controller
         ]);
     }
 
+
+    public function editCoupon($id)
+    {
+        $address = CouponModel::findOrFail($id);
+
+        // dd($address);
+        return response()->json($address);
+    }
+
+    public function updateCoupon(Request $request, $id)
+    {
+
+        // dd($request->all());
+        // Debugging: Check received data
+        if ($request->all()) {
+            \Log::info('Update Coupon Request:', $request->all());
+        }
+    
+        $request->validate([
+            'coupon_name' => 'required|string',
+            'coupon_code' => 'required|string|unique:coupons,coupon_code,' . $id,
+            'discount' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'status' => 'required|boolean'
+        ]);
+    
+        $Coupon = CouponModel::findOrFail($id);
+        $Coupon->update([
+            'coupon_name' => $request->coupon_name,
+            'coupon_code' => $request->coupon_code,
+            'discount_price' => $request->discount_price,
+            'usage_limit' => $request->quantity,
+            'status' => $request->status
+        ]);
+    
+        return response()->json(['success' => true, 'message' => 'Coupon updated successfully!']);
+    }
+
     public function deleteCoupon(Request $request)
     {
         $user_id = Auth::user()->id;

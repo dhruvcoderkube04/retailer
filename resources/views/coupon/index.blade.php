@@ -138,15 +138,18 @@
                                                         <span class="path5"></span>
                                                     </i>
                                                 </button>
-                                                <button class="btn btn-icon btn-success btn-light-success  w-30px h-30px me-3 edit-coupan"
-                                                    data-id="{{$coupon->id}}"
-                                                    data-bs-toggle="tooltip"
-                                                    title="Edit">
+                                                {{-- {{ dd($coupon)}} --}}
+                                                <button class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-coupan"
+                                                        data-id="{{$coupon->id}}"
+                                                        data-bs-toggle="model"
+                                                        data-bs-target="#kt_modal_edit_coupan" 
+                                                        title="Edit">
                                                     <i class="ki-duotone ki-pencil">
                                                         <span class="path1"></span>
                                                         <span class="path2"></span>
                                                     </i>
                                                 </button>
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -239,30 +242,31 @@
                 <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
                     <form id="coupanupdateform" class="form" method="POST">
                         @csrf
+
+
+                        <input type="hidden" id="edit_coupon_id" name="coupon_id">
+
                         <div class="mb-3">
                             <label class="form-label">Coupon Name</label>
-                            <input type="text" class="form-control" id="coupon_name" name="coupon_name">
+                            <input type="text" class="form-control coupon_name" id="edit_coupon_name" name="coupon_name">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Coupon Code</label>
-                            <input class="form-control" id="coupon_code" name="coupon_code"></input>
+                            <input class="form-control" id="edit_coupon_code" name="coupon_code"></input>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Disount Price</label>
-                            <input type="number" class="form-control" id="discount_price" name="discount_price">
+                            <input type="number" class="form-control" id="edit_discount_price" name="discount">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Quantity</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity">
+                            <input type="number" class="form-control" id="edit_quantity" name="quantity">
                         </div>
 
-                        {{-- <div class="mb-3">
-                            <label class="form-label">Select Date Range</label>
-                            <input type="text" class="form-control" id="dateRange" name="date_range" placeholder="Select date range">
-                        </div> --}}
+                    
 
                         <div class="mb-3">
                             <label class="form-label">Status</label>
@@ -291,6 +295,62 @@
 @section('script')
     <script>
         $(document).ready(function() {
+
+            $('.edit-coupan').on('click', function() {
+             var couponId = $(this).data('id');
+
+                $.ajax({
+                    url: '/edit-coupon/' + couponId, // Backend route to fetch coupon details
+                    type: 'GET',
+                    success: function(response) {
+                        console.log('response', response);
+                        
+                        $('#edit_coupon_id').val(response.id);
+                        $('#edit_coupon_name').val(response.coupon_name);
+                        $('#edit_coupon_code').val(response.coupon_code);
+                        $('#edit_discount_price').val(response.discount);
+                        $('#edit_quantity').val(response.usage_limit);
+
+                        // Manage status radio button
+                        if (response.status == 1) {
+                            $('input[name="status"][value="1"]').prop('checked', true);
+                        } else {
+                            $('input[name="status"][value="0"]').prop('checked', true);
+                        }
+
+                        $('#kt_modal_edit_coupan').modal('show');
+                    }
+                });
+            });
+            document.getElementById("coupanupdateform").addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                let couponId = document.getElementById("edit_coupon_id").value;
+                let formData = new FormData(this);
+
+                fetch(`/update-coupon/${couponId}`, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                        "Accept": "application/json"
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Coupon updated successfully!");
+                        window.location.reload(); // Reload page after successful update
+                    } else {
+                        alert("Error updating coupon");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+
+
+
+
             $('#coupanaddform').on('submit', function (e) {
                 e.preventDefault(); // Prevent form from submitting normally
                 console.log();
@@ -375,29 +435,6 @@
                     }
                 });
             });
-
-            $(".edit-coupan").on("click", function () {
-                let couponId = $(this).data("id");
-                let couponName = $(this).data("name");
-                let couponCode = $(this).data("code");
-                let discountPrice = $(this).data("discount");
-                let quantity = $(this).data("quantity");
-                let status = $(this).data("status");
-
-                $("#coupon_id").val(couponId);
-                $("#coupon_name").val(couponName);
-                $("#coupon_code").val(couponCode);
-                $("#discount_price").val(discountPrice);
-                $("#quantity").val(quantity);
-
-                // Set radio button for status
-                if (status == 1) {
-                    $('input[name="status"][value="1"]').prop("checked", true);
-                } else {
-                    $('input[name="status"][value="0"]').prop("checked", true);
-                }
-            });
-
         });
     </script>
 @endsection

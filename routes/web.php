@@ -93,8 +93,9 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/coupan-page', [CoupanController::class, 'index'])->name('retailer.coupon.index');
     Route::post('/add-coupon', [CoupanController::class, 'AddCoupon'])->name('retailer.coupon.add');
     Route::post('/delete-coupon', [CoupanController::class, 'deleteCoupon'])->name('retailer.coupon.delete');
-    Route::post('/edit-coupon', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
-    Route::post('/update-coupon', [CoupanController::class, 'updateCoupon'])->name('retailer.coupon.update');
+    Route::get('/edit-coupon/{id}', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
+    Route::post('/update-coupon/{id}', [CoupanController::class, 'updateCoupon'])->name('retailer.coupon.update');
+
 
 
     // setting
