@@ -44,7 +44,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -143,108 +143,14 @@
                         </div>
 
                         <div class="card-body pt-0">
-                            {{-- <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_products_table">
-                                <thead>
-                                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center min-w-70px">Actions</th>
-                                        <th class="text-center min-w-200px">Product</th>
-                                        <th class="text-center min-w-150px">Wholesaler</th>
-                                        <th class="text-center min-w-150px">Customer Name</th>
-                                        <th class="text-center min-w-150px">Customer Contact</th>
-                                        <th class="text-center min-w-0px"></th>
-                                        <th class="text-center min-w-100px">Price
-                                            <br> <span class="text-capitalize fs-9">(Per Pis)</span>
-                                        </th>
-                                        <th class="text-center min-w-150px">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="fw-semibold text-gray-600">
-                                    @foreach ($retailerOrders as $detail)
-                                        <tr>
-                                            <td class="text-center">
-                                                @if ($detail->status == 'pending')
-                                                    <button type="button" class="btn btn-primary btn-sm pendingOrderAction"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-order-id="{{ $detail->id }}">
-                                                        Action
-                                                    </button>
-                                                @elseif ($detail->status == 'confirmed_by_retailer')
-                                                    <button type="button"
-                                                        class="btn btn-primary btn-sm confirmedOrderAction"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-order-id="{{ $detail->id }}">
-                                                        Action
-                                                    </button>
-                                                @elseif ($detail->status == 'shipped_by_retailer')
-                                                    <button type="button"
-                                                        class="btn btn-primary btn-sm readyToShipOrderAction"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-order-id="{{ $detail->id }}">
-                                                        Action
-                                                    </button>
-                                                @else
-                                                    <button type="button" class="btn btn-primary btn-sm"
-                                                        style="white-space: nowrap; opacity: 0.4"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-order-id="{{ $detail->id }}" disabled>
-                                                        Action
-                                                    </button>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <a href="#" class="symbol symbol-50px">
-                                                        @php
-                                                            $get_image =
-                                                                explode(',', @$detail->product->images)[0] ?? '';
-                                                        @endphp
-                                                        <span class="symbol-label"
-                                                            style="background-image: url('{{ 'https://wholesale.lghosts.com/uploads/' . $get_image }}');"></span>
-                                                    </a>
-                                                    <div class="ms-5">
-                                                        <a href="#"
-                                                            class="text-gray-800 text-hover-primary fs-5 fw-bold"
-                                                            data-kt-ecommerce-product-filter="product_name">{{ $detail->product->name }}</a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="ms-5">
-                                                    <a href="{{ route('retailer.view-category-margin', $detail->wholesaler->id) }}"
-                                                        class="text-gray-800 text-hover-primary fs-5 fw-bold"
-                                                        data-kt-ecommerce-product-filter="product_name">{{ $detail->wholesaler->userDetail->company_name }}</a>
-                                                </div>
-                                            </td>
-                                            <td class="text-center pe-0" data-order="22">
-                                                <span class="fw-bold">{{ $detail->customer->firstname }}
-                                                    {{ $detail->customer->lastname }}</span>
-                                            </td>
-                                            <td class="text-center pe-0" data-order="22">
-                                                <span class="fw-bold">{{ $detail->customer->phone_number }}</span>
-                                            </td>
-                                            <td class="text-center pe-0" data-order="22">
-                                                <span class="fw-bold"></span>
-                                            </td>
-                                            <td class="text-center pe-0" data-order="22">
-                                                <div class="badge badge-light-success">{{ $detail->product->new_price }}
-                                                </div>
-                                            </td>
-                                            <td class="text-center" data-order="Inactive">
-                                                <div class="badge badge-light-danger text-wrap lh-base">
-                                                    {{ order_status($detail->status) }}</div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table> --}}
 
                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center">NO.</th>
-                                        <th class="text-center">ORDER DATE</th>
-                                        <th class="">ORDER DETAIL</th>
+                                        {{-- <th class="text-center">ORDER DATE</th> --}}
                                         <th class="">MEDIA</th>
+                                        <th class="">ORDER DETAIL</th>
                                         <th class="">CUSTOMER DETAIL</th>
                                         <th class=" min-w-70px">ACTIONS</th>
                                     </tr>
@@ -253,20 +159,7 @@
                                     @foreach ($retailerOrders as $key => $detail)
                                         <tr>
                                             <td class="text-center">{{ $key + 1 }}</td>
-                                            <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
-                                            <td class="">
-                                                <div>
-                                                    <strong>Order Id:</strong> {{ $detail->order_id }}<br>
-                                                    <strong>Name:</strong> {{ $detail->product->name }}<br>
-                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
-                                                    <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
-                                                    <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
-                                                    <strong>Order Status:</strong>
-                                                    <span class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
-                                                        {{ order_status($detail->status) }}
-                                                    </span>
-                                                </div>
-                                            </td>
+                                            {{-- <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td> --}}
                                             <td>
                                                 <div class="mt-2">
                                                     <img src="{{ 'https://wholesale.lghosts.com/uploads/' . explode(',', $detail->product->images)[0] }}"
@@ -274,12 +167,29 @@
                                                          style="width: 100px; height: auto; border-radius: 5px;">
                                                 </div>
                                             </td>
+                                            <td class="">
+                                                <div>
+                                                    <strong>Order Id:</strong> {{ $detail->order_id }}<br>
+                                                    <strong>Name:</strong> {{ $detail->product->name }}<br>
+                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
+                                                    <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
+                                                    <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
+                                                    <strong>Checkout At: {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</strong><br>
+                                                    <strong>Order Status:</strong>
+                                                    <span class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
+                                                        {{ order_status($detail->status) }}
+                                                    </span>
+                                                </div>
+                                            </td>
+
                                             <td>
                                                 <strong>Name:</strong> {{ $detail->customer->firstname }} {{ $detail->customer->lastname }}<br>
+                                                <strong>Email Id:</strong> {{ $detail->customer->email }} <br>
                                                 <strong>Address:</strong> {{ $detail->customer->address }}<br>
                                                 <strong>Pin Code:</strong> {{ $detail->customer->pincode }}<br>
                                                 <strong>City:</strong> {{ $detail->customer->city }}<br>
                                                 <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
+
                                             </td>
                                             <td>
                                                 @if ($detail->status == 'pending')

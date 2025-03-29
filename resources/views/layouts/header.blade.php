@@ -13,7 +13,7 @@
         <!--end::Sidebar mobile toggle-->
         <!--begin::Mobile logo-->
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
-            <a href="index.html" class="d-lg-none">
+            <a href="#" class="d-lg-none">
                 @php
                     $logoPath = 'uploads/company_profile/' . (Auth::user()->userDetail->company_logo ?? '');
                     $logoUrl = file_exists(public_path($logoPath)) && Auth::user()->userDetail && Auth::user()->userDetail->company_logo

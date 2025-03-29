@@ -18,7 +18,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -142,7 +142,7 @@
                                                 <button class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-coupan"
                                                         data-id="{{$coupon->id}}"
                                                         data-bs-toggle="model"
-                                                        data-bs-target="#kt_modal_edit_coupan" 
+                                                        data-bs-target="#kt_modal_edit_coupan"
                                                         title="Edit">
                                                     <i class="ki-duotone ki-pencil">
                                                         <span class="path1"></span>
@@ -266,7 +266,7 @@
                             <input type="number" class="form-control" id="edit_quantity" name="quantity">
                         </div>
 
-                    
+
 
                         <div class="mb-3">
                             <label class="form-label">Status</label>
@@ -303,8 +303,6 @@
                     url: '/edit-coupon/' + couponId, // Backend route to fetch coupon details
                     type: 'GET',
                     success: function(response) {
-                        console.log('response', response);
-                        
                         $('#edit_coupon_id').val(response.id);
                         $('#edit_coupon_name').val(response.coupon_name);
                         $('#edit_coupon_code').val(response.coupon_code);
@@ -353,7 +351,6 @@
 
             $('#coupanaddform').on('submit', function (e) {
                 e.preventDefault(); // Prevent form from submitting normally
-                console.log();
 
                 let formData = new FormData(this);
                 $.ajax({
@@ -370,6 +367,8 @@
                                 icon: "success",
                                 confirmButtonText: "OK"
                             }).then(() => {
+                                // form reset
+                                document.getElementById('coupanaddform').reset();
                                 location.reload(); // Reload the page after user clicks OK
                             });
                         } else {
