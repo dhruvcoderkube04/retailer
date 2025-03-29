@@ -23,7 +23,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-1 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
