@@ -21,143 +21,7 @@ use Illuminate\Support\Collection;
 
 class RetailerProductController extends Controller
 {
-    // public function getRetailerProducts(Request $request)
-    // {
-    //     try {
-    //         // Validate API key
-    //         $apiKey = $request->header('API-KEY');
-    //         if (!$apiKey) {
-    //             return response()->json(['error' => 'API Key is required.'], 401);
-    //         }
-
-    //         // Validate retailer based on API key
-    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-    //         if (!$retailer) {
-    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-    //         }
-
-    //         // Fetch retailer products with wholesaler details
-    //         $retailerProducts = RetailerProducts::with(['wholesaler.products'])
-    //             ->where('retailer_id', $retailer->retailer_id)
-    //             ->get();
-
-
-    //         // Extract only products and calculate final price
-    //         $products = $retailerProducts->flatMap(function ($retailerProduct) {
-    //             if (!$retailerProduct->wholesaler) {
-    //                 return [];
-    //             }
-
-    //             return $retailerProduct->wholesaler->products
-    //                 ->where('category_id', $retailerProduct->category_id)
-    //                 ->map(function ($product) use ($retailerProduct) {
-    //                     // Calculate final price after adding margin
-    //                     // $marginMultiplier = 1 + ($retailerProduct->margin / 100);
-    //                     // $finalPrice = round($product->new_price * $marginMultiplier, 2);
-    //                     $finalPrice = $product->new_price + $retailerProduct->margin;
-
-    //                     return [
-    //                         'id' => $product->id,
-    //                         'sku' => $product->sku,
-    //                         'name' => $product->name,
-    //                         'slug' => $product->slug,
-    //                         'description' => $product->description,
-    //                         'category_id' => $product->category_id,
-    //                         'wholesaler_id' => $product->wholesaler_id,
-    //                         'new_price' => $product->new_price,
-    //                         'final_price' => $finalPrice, // Price after adding margin
-    //                         'quantity' => $product->quantity,
-    //                         'product_images' => $product->images ?? null, // Get images or videos
-    //                         'product_video' => $product->videos ?? null,
-    //                         'product_url' => $product->url,
-    //                         'color' => $product->url,
-    //                         'size' => $product->size,
-    //                         'specifications' => $product->specifications
-    //                     ];
-    //                 });
-    //         })->values(); // Reset array keys
-
-    //         // Extract unique category names
-    //         $categoryIds = $products->pluck('category_id')->unique()->toArray();
-    //         $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
-
-    //         // get comany info
-    //         $companyinfo = UserDetail::select('company_logo','company_name')->where('user_id', $retailer->retailer_id)->first();
-    //         // dd($companyinfo);
-    //         return response()->json([
-    //             'success' => true,
-    //             'products' => $products,
-    //             'categories' => $categories ,// Unique category names
-    //             'companyinfo' => $companyinfo
-    //         ]);
-
-    //     } catch (\Exception $e) {
-    //         \Log::error('Error fetching retailer products: ' . $e->getMessage());
-    //         return response()->json(['error' => 'An unexpected error occurred.'], 500);
-    //     }
-    // }
-
-
-    // public function getRetailerProducts(Request $request)
-    // {
-    //     try {
-    //         $apiKey = $request->header('API-KEY');
-    //         if (!$apiKey) {
-    //             return response()->json(['error' => 'API Key is required.'], 401);
-    //         }
-
-    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-    //         if (!$retailer) {
-    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-    //         }
-
-    //         // For RetailerProducts, you have the wholesaler relation.
-    //         $retailerProducts = RetailerProducts::with(['wholesaler.products'])
-    //             ->where('retailer_id', $retailer->retailer_id)
-    //             ->get();
-
-    //         // For RetailerCloneProduct, assume product details are stored directly in the table.
-    //         $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
-    //             ->get();
-
-    //         // Merge both collections.
-    //         $allProducts = $retailerProducts->merge($retailerCloneProducts);
-
-    //         // Process each record differently based on its source.
-    //         $products = $allProducts->flatMap(function ($item) {
-    //             // If the record is from RetailerProducts, use the wholesaler relation.
-    //             if ($item instanceof RetailerProducts) {
-    //                 if (!$item->wholesaler) {
-    //                     return [];
-    //                 }
-    //                 return $item->wholesaler->products->map(function ($product) use ($item) {
-    //                     return $this->formatProductFromRetailerProduct($product, $item);
-    //                 });
-    //             } else {
-    //                 // Otherwise, it comes from RetailerCloneProduct.
-    //                 // Assume the clone table stores all product information.
-    //                 return [$this->formatProductFromClone($item)];
-    //             }
-    //         })->values();
-
-    //         // If you need to extract categories and the clone table does not provide one,
-    //         // then only the products from RetailerProducts will supply the category_id.
-    //         $categoryIds = $products->pluck('category_id')->filter()->unique()->toArray();
-    //         $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
-
-    //         return response()->json([
-    //             'success'    => true,
-    //             'products'   => $products,
-    //             'categories' => $categories,
-    //         ]);
-
-    //     } catch (\Exception $e) {
-    //         \Log::error('Error fetching retailer products: ' . $e->getMessage());
-    //         return response()->json(['error' => 'An unexpected error occurred.'], 500);
-    //     }
-    // }
-
-
+    
 
 public function getRetailerProducts(Request $request)
 {
@@ -244,6 +108,7 @@ public function getRetailerProducts(Request $request)
             'color'           => $product->color ?? null,
             'size'            => $product->size,
             'specifications'  => $product->specifications,
+            'retailer_id'     => $product->retailer_id ?? null,
         ];
     }
 
@@ -269,6 +134,7 @@ public function getRetailerProducts(Request $request)
             'color'           => $cloneProduct->color ?? null,
             'size'            => $cloneProduct->size,
             'specifications'  => $cloneProduct->specifications,
+            'retailer_id'     => $cloneProduct->retailer_id ?? null,
         ];
     }
 
@@ -302,7 +168,6 @@ public function getRetailerProducts(Request $request)
     }
 
 
-
     public function checkout(Request $request)
     {
         // Validate input data
@@ -314,8 +179,10 @@ public function getRetailerProducts(Request $request)
             'address' => 'required|max:250',
             'payment_method' => 'required|in:cod,upi',
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|integer',
-            'products.*.wholesaler_id' => 'required|integer',
+            'products.*.product_id' => 'nullable', 
+            'products.*.retailer_clone_product_id' => 'nullable', 
+            'products.*.wholesaler_id' => 'nullable',
+            'products.*.retailer_id' => 'nullable',
             'products.*.quantity' => 'required|integer|min:1'
         ]);
 
@@ -352,23 +219,35 @@ public function getRetailerProducts(Request $request)
                 'pincode' => $request->pincode
             ]);
 
+            // dd($customerDetail);
+
             // Generate a unique order ID
             $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
 
+            // dd($request->products);
             // Prepare order items
             $orderItems = collect($request->products)->map(function ($product) use ($orderID, $customerDetail, $retailer) {
+
+                $wholesalerId = $product['wholesaler_id'] ?? null;
+                $retailerId = $product['retailer_id'] ?? $retailer->retailer_id;
+                $productId = $product['product_id'] ?? null;
+                $retailercloneproductId = $product['retailer_clone_product_id'] ?? null;
+
                 return [
                     'order_id' => $orderID,
                     'customer_id' => $customerDetail->id,
-                    'product_id' => $product['product_id'],
-                    'retailer_id' => $retailer->retailer_id,
-                    'wholesaler_id' => $product['wholesaler_id'],
+                    'product_id' =>  $productId ?? null,
+                    'retailer_clone_product_id' =>  !is_null($retailercloneproductId) ? $retailercloneproductId : null,
+                    'retailer_id' => !is_null($retailerId) ? $retailerId : null,
+                    'wholesaler_id' => !is_null($wholesalerId) ? $wholesalerId : null,
                     'quantity' => $product['quantity'],
                     'payment_method' => request()->payment_method,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
             })->toArray();
+
+            // dd($orderItems);
 
             // Bulk insert orders
             CustomerOrders::insert($orderItems);
