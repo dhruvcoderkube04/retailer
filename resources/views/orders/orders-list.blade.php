@@ -148,9 +148,9 @@
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center">NO.</th>
-                                        <th class="text-center">ORDER DATE</th>
-                                        <th class="">ORDER DETAIL</th>
+                                        {{-- <th class="text-center">ORDER DATE</th> --}}
                                         <th class="">MEDIA</th>
+                                        <th class="">ORDER DETAIL</th>
                                         <th class="">CUSTOMER DETAIL</th>
                                         <th class=" min-w-70px">ACTIONS</th>
                                     </tr>
@@ -176,6 +176,7 @@
                                                     </span>
                                                 </div>
                                             </td>
+                                            {{-- <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td> --}}
                                             <td>
                                                 <div class="mt-2">
                                                     <img src="{{ 'https://wholesale.lghosts.com/uploads/' . explode(',', $detail->product->images)[0] }}"
@@ -183,13 +184,29 @@
                                                         style="width: 100px; height: auto; border-radius: 5px;">
                                                 </div>
                                             </td>
+                                            <td class="">
+                                                <div>
+                                                    <strong>Order Id:</strong> {{ $detail->order_id }}<br>
+                                                    <strong>Name:</strong> {{ $detail->product->name }}<br>
+                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
+                                                    <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
+                                                    <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
+                                                    <strong>Checkout At: {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</strong><br>
+                                                    <strong>Order Status:</strong>
+                                                    <span class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
+                                                        {{ order_status($detail->status) }}
+                                                    </span>
+                                                </div>
+                                            </td>
+
                                             <td>
-                                                <strong>Name:</strong> {{ $detail->customer->firstname }}
-                                                {{ $detail->customer->lastname }}<br>
+                                                <strong>Name:</strong> {{ $detail->customer->firstname }} {{ $detail->customer->lastname }}<br>
+                                                <strong>Email Id:</strong> {{ $detail->customer->email }} <br>
                                                 <strong>Address:</strong> {{ $detail->customer->address }}<br>
                                                 <strong>Pin Code:</strong> {{ $detail->customer->pincode }}<br>
                                                 <strong>City:</strong> {{ $detail->customer->city }}<br>
                                                 <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
+
                                             </td>
                                             <td>
                                                 @if ($detail->status == 'pending')
