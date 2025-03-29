@@ -44,7 +44,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
+                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -143,7 +143,7 @@
                         </div>
 
                         <div class="card-body pt-0">
-                           
+
                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -159,16 +159,19 @@
                                     @foreach ($retailerOrders as $key => $detail)
                                         <tr>
                                             <td class="text-center">{{ $key + 1 }}</td>
-                                            <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
+                                            <td class="text-center">
+                                                {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
                                             <td class="">
                                                 <div>
                                                     <strong>Order Id:</strong> {{ $detail->order_id }}<br>
                                                     <strong>Name:</strong> {{ $detail->product->name }}<br>
-                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
+                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size:
+                                                    {{ $detail->size }}<br>
                                                     <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
                                                     <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
                                                     <strong>Order Status:</strong>
-                                                    <span class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
+                                                    <span
+                                                        class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
                                                         {{ order_status($detail->status) }}
                                                     </span>
                                                 </div>
@@ -176,12 +179,13 @@
                                             <td>
                                                 <div class="mt-2">
                                                     <img src="{{ 'https://wholesale.lghosts.com/uploads/' . explode(',', $detail->product->images)[0] }}"
-                                                         alt="Product Image"
-                                                         style="width: 100px; height: auto; border-radius: 5px;">
+                                                        alt="Product Image"
+                                                        style="width: 100px; height: auto; border-radius: 5px;">
                                                 </div>
                                             </td>
                                             <td>
-                                                <strong>Name:</strong> {{ $detail->customer->firstname }} {{ $detail->customer->lastname }}<br>
+                                                <strong>Name:</strong> {{ $detail->customer->firstname }}
+                                                {{ $detail->customer->lastname }}<br>
                                                 <strong>Address:</strong> {{ $detail->customer->address }}<br>
                                                 <strong>Pin Code:</strong> {{ $detail->customer->pincode }}<br>
                                                 <strong>City:</strong> {{ $detail->customer->city }}<br>
@@ -189,7 +193,7 @@
                                             </td>
                                             <td>
                                                 @if ($detail->status == 'pending')
-                                                    <button type="button" class="btn btn-primary btn-sm pendingOrderAction"
+                                                    <button type="button" class="btn btn-primary btn-sm newOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-order-id="{{ $detail->id }}">
                                                         Action
@@ -230,6 +234,74 @@
         </div>
         @include('layouts.footer')
     </div>
+
+    <!-- New Order Modal -->
+    <div class="modal fade @if ($errors->any()) show d-block @endif" id="new-order-action-modal" tabindex="-1"
+        aria-labelledby="new-order-action-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-light">
+                    <h5 class="modal-title text-light" id="new-order-action-modal-label">
+                        {{-- <i class="bi bi-cart-check me-2"></i>  --}}
+                        Order Action
+                    </h5>
+                    <button type="button" class="btn-close text-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <form id="newOrderForm">
+                    <div class="modal-body p-4">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold d-none">Order Action:</label>
+
+                            <div class="list-group">
+                                <label class="list-group-item d-flex align-items-center gap-3">
+                                    <input class="form-check-input mt-0" type="radio" name="status"
+                                        id="confirmed_by_retailer" value="confirmed_by_retailer">
+                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                    <span>Confirm Order</span>
+                                </label>
+
+                                <label class="list-group-item d-flex align-items-center gap-3 mt-2">
+                                    <input class="form-check-input mt-0" type="radio" name="status"
+                                        id="transfered_retailer_to_wholesaler" value="transfered_retailer_to_wholesaler">
+                                    <i class="bi bi-box-arrow-right text-primary fs-5"></i>
+                                    <span>Transfer to Wholesaler</span>
+                                </label>
+
+                                <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
+                                    <input class="form-check-input mt-0" type="radio" name="status"
+                                        id="cancelled_by_retailer" value="cancelled_by_retailer">
+                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                                    <span>Cancel Order</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        @error('status')
+                            <span class="text-danger mt-2 d-block"><i class="bi bi-exclamation-triangle"></i>
+                                {{ $message }}</span>
+                        @enderror
+
+                        <input type="hidden" name="product_id" id="product_id">
+                        <input type="hidden" name="order_id" id="order_id">
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Submit Action
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Bootstrap Modal -->
     <div class="modal fade @if ($errors->any()) show d-block @endif" id="order-action-modal" tabindex="-1"
@@ -306,20 +378,60 @@
     <script>
         $(document).ready(function() {
             // pending order action
-            $(document).on('click', '.pendingOrderAction', function() {
+            $(document).on('click', '.newOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let order_id = $(this).attr('data-order-id');
                 $('#product_id').val(product_id);
                 $('#order_id').val(order_id);
 
-                $('#confirmed').removeClass('d-none');
-                $('#cancelled').removeClass('d-none');
-                $('#shift').removeClass('d-none');
-
-                $('#confirmed_by_retailer').attr('checked', true);
-
-                $('#order-action-modal').modal('show');
+                $('#new-order-action-modal').modal('show');
             });
+
+            $(document).on('submit', '#newOrderForm', function(e) {
+                e.preventDefault();
+
+                let formData = $(this).serializeArray(); // Convert to an array of objects for better access
+                let status = formData.find(item => item.name === "status")?.value; // Extract status value
+
+                if (!status) return; // Exit if no status is selected
+
+                let swalConfig = {
+                    title: "Are you sure?",
+                    text: "",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "",
+                };
+
+                switch (status) {
+                    case "confirmed_by_retailer":
+                        swalConfig.text = "You are about to confirm this order.";
+                        swalConfig.icon = "success";
+                        swalConfig.confirmButtonText = "Yes, Confirm it!";
+                        break;
+                    case "transfered_retailer_to_wholesaler":
+                        swalConfig.text = "This order will be transferred to the wholesaler.";
+                        swalConfig.icon = "success";
+                        swalConfig.confirmButtonText = "Yes, Transfer it!";
+                        break;
+                    case "cancelled_by_retailer":
+                        swalConfig.text = "You are about to reject this order.";
+                        swalConfig.icon = "warning";
+                        swalConfig.confirmButtonText = "Yes, Reject it!";
+                        break;
+                    default:
+                        return;
+                }
+
+                Swal.fire(swalConfig).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#newOrderForm')[0].submit();
+                    }
+                });
+            });
+
 
             // confirm order action
             $(document).on('click', '.confirmedOrderAction', function() {
