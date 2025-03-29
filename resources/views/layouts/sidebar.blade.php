@@ -380,6 +380,19 @@
                         <!--end:Menu sub-->
                     </div>
                     <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <!--begin:Menu link-->
+                        <a class="menu-link {{request()->is(['prohibited-item']) ? 'active':''}}" href="{{route('retailer.prohibited.item')}}">
+                            <span class="menu-icon fs-1">
+                                <i class="ki-solid ki-basket-ok"></i>
+                            </span>
+                            <span class="menu-title">Prohibited Item</span>
+                        </a>
+                        <!--end:Menu link-->
+                    </div>
+                    <!--end:Menu item-->
                 </div>
                 <!--end::Menu-->
             </div>

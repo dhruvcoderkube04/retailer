@@ -840,6 +840,8 @@ class RetilerController extends Controller
         return response()->json(['success' => true, 'message' => 'Product updated successfully!']);
     }
 
-
-
+    public function prohibitedItem()
+    {
+        return view('prohibiteditem');
+    }
 }
