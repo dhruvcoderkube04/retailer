@@ -378,9 +378,9 @@
                             <span class="new-order-error">asdfa asdf asdf asd</span>
                         </span> --}}
 
-                        <input type="hidden" name="product_id" id="product_id">
-                        <input type="hidden" name="retailer_clone_product_id" id="retailer_clone_product_id">
-                        <input type="hidden" name="order_id" id="order_id">
+                        <input type="hidden" name="product_id" class="product_id">
+                        <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_id" class="order_id">
                     </div>
 
                     <div class="modal-footer bg-light">
