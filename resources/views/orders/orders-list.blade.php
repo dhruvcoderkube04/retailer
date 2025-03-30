@@ -162,7 +162,7 @@
                                             {{-- <td class="text-center">{{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td> --}}
                                             <td>
                                                 <div class="mt-2">
-                                                    <img src="{{ 'https://wholesale.lghosts.com/uploads/' . explode(',', $detail->product->images)[0] }}"
+                                                    <img src="{{ 'https://wholesale.lghosts.com/uploads/' . explode(',', @$detail->product->images)[0] }}"
                                                          alt="Product Image"
                                                          style="width: 100px; height: auto; border-radius: 5px;">
                                                 </div>
@@ -170,9 +170,9 @@
                                             <td class="">
                                                 <div>
                                                     <strong>Order Id:</strong> {{ $detail->order_id }}<br>
-                                                    <strong>Name:</strong> {{ $detail->product->name }}<br>
+                                                    <strong>Name:</strong> {{ @$detail->product->name }}<br>
                                                     <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size: {{ $detail->size }}<br>
-                                                    <strong>Amount:</strong> ₹ {{ $detail->product->new_price }}<br>
+                                                    <strong>Amount:</strong> ₹ {{ @$detail->product->new_price }}<br>
                                                     <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
                                                     <strong>Checkout At: {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</strong><br>
                                                     <strong>Order Status:</strong>
@@ -192,7 +192,7 @@
 
                                             </td>
                                             <td>
-                                                @if ($detail->status == 'pending')
+                                                @if ($detail->status == 'pending')  
                                                     <button type="button" class="btn btn-primary btn-sm pendingOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-order-id="{{ $detail->id }}">

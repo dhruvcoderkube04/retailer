@@ -170,8 +170,6 @@ public function getRetailerProducts(Request $request)
 
     public function checkout(Request $request)
     {
-
-        // dd($request->all());
         // Validate input data
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|max:30',
@@ -222,12 +220,9 @@ public function getRetailerProducts(Request $request)
                 'pincode' => $request->pincode
             ]);
 
-            // dd($customerDetail);
-
             // Generate a unique order ID
             $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
 
-            // dd($request->products);
             // Prepare order items
             $orderItems = collect($request->products)->map(function ($product) use ($orderID, $customerDetail, $retailer) {
 
@@ -250,8 +245,6 @@ public function getRetailerProducts(Request $request)
                     'updated_at' => now()
                 ];
             })->toArray();
-
-            // dd($orderItems);
 
             // Bulk insert orders
             CustomerOrders::insert($orderItems);
