@@ -67,8 +67,11 @@ Route::middleware(['retailer'])->group(function () {
     Route::post('/place-order', [RetilerController::class, 'placeOrder'])->name('retailer.place-order');
 
     // order
-    Route::get('/orders-list/{type?}', [RetilerController::class, 'orderList'])->name('retailer.order.list');
-    Route::post('/orders-list/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
+    Route::prefix('orders-list')->group(function () {
+        Route::get('/{type?}', [RetilerController::class, 'orderList'])->name('retailer.order.list');
+        Route::post('/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
+        Route::post('/action/new-order', [RetilerController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
+    });
 
     // mange Profile
     Route::get('/profile', [RetilerController::class, 'Profile'])->name('retailer.profile');

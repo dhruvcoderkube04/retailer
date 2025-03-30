@@ -7,6 +7,7 @@ use App\Imports\ProductImport;
 use App\Models\Category;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
+use App\Models\PickAddress;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
@@ -175,7 +176,7 @@ class RetilerController extends Controller
                 ->pluck('product_id')
                 ->toArray();
 
-            $category_list = Category::select('category_name','id')->where('status',1)->get();
+            $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
 
 
             // Pass the filtered data to the view.
@@ -215,21 +216,21 @@ class RetilerController extends Controller
     // Add Product
     public function retailerAddProduct(Request $request)
     {
-        $category_list = Category::select('category_name','id')->where('status',1)->get();
-        return view('product.add-product-view',['category_list' => $category_list]);
+        $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
+        return view('product.add-product-view', ['category_list' => $category_list]);
     }
 
     public function retailerPostProduct(Request $request)
     {
 
         $request->validate([
-            'product_name' =>'required|min:3|max:100',
-            'product_description' =>'required|min:5|max:100',
-            'product_tags' =>'required|min:3|max:255',
-            'categories'=> 'required|numeric',
-            'quantity' =>'required|integer|min:1',
-            'new_price' =>'required|numeric|min:1',
-            'sku' =>'required|string',
+            'product_name' => 'required|min:3|max:100',
+            'product_description' => 'required|min:5|max:100',
+            'product_tags' => 'required|min:3|max:255',
+            'categories' => 'required|numeric',
+            'quantity' => 'required|integer|min:1',
+            'new_price' => 'required|numeric|min:1',
+            'sku' => 'required|string',
             // 'discount_price' => 'nullable|numeric|min:0.01|max:100'
             'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
             'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
@@ -282,11 +283,10 @@ class RetilerController extends Controller
             return redirect()->route('retailer.product');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error in retailerPostProduct: '. $e->getMessage());
+            Log::error('Error in retailerPostProduct: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong');
             return redirect()->route('retailer.product');
         }
-
     }
 
     // clone product store
@@ -452,7 +452,8 @@ class RetilerController extends Controller
         $sql = CustomerOrders::with([
             'customer',
             'product',
-            'wholesaler.userDetail'
+            'retailerCloneProduct',
+            'wholesaler.userDetail',
         ])
             ->where('retailer_id', $retailer->id);
 
@@ -477,11 +478,88 @@ class RetilerController extends Controller
         $retailerOrders = $sql->orderBy('id', 'DESC')
             ->get();
 
-        return view('orders.orders-list', compact('retailerOrders'));
+        $pickupAddress = PickAddress::where('retailer_id', $retailer->id)->get();
+
+        return view('orders.orders-list', compact('retailerOrders', 'pickupAddress'));
     }
 
     // order action
-    public function orderAction(Request $request)
+    // public function orderAction(Request $request)
+    // {
+    //     $request->validate([
+    //         'status' => 'required',
+    //     ]);
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $retailer = Auth::user();
+    //         $customerOrder = CustomerOrders::find($request->order_id);
+
+    //         if (!$customerOrder) {
+    //             session()->flash('error', 'Order not found');
+    //             return redirect()->route('retailer.order.list');
+    //         }
+
+    //         $updateData = [];
+    //         $message = '';
+    //         $type = '';
+    //         if ($request->status == 'confirmed_by_retailer') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'confirmed_by_retailer_at' => Carbon::now()
+    //             ];
+    //             $message = 'Order has been confirmed successfully';
+    //             $type = 'confirmed-by-retailer';
+    //         } else if ($request->status == 'shipped_by_retailer') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'shipped_by_retailer_at' => Carbon::now()
+    //             ];
+    //             $message = 'Order has been ready to ship (by supplier)';
+    //             $type = 'ready-to-ship';
+    //         } else if ($request->status == 'delivered_by_retailer') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'delivered_by_retailer_at' => Carbon::now(),
+    //                 'delivered_by' => $retailer->id
+    //             ];
+    //             $message = 'Order has been delivered by supplier';
+    //             $type = 'delivered-by-retailer';
+    //         } else if ($request->status == 'transfered_retailer_to_wholesaler') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'transfered_retailer_to_wholesaler_at' => Carbon::now()
+    //             ];
+    //             $message = 'Wholesaler will ship this product';
+    //             $type = 'transfered-retailer-to-wholesaler';
+    //         } else if ($request->status == 'cancelled_by_retailer') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'cancelled_by_retailer_at' => Carbon::now(),
+    //                 'cancelled_by' => $retailer->id
+    //             ];
+    //             $message = 'Order has been cancelled by retailer';
+    //             $type = 'cancelled-by-retailer';
+    //         }
+
+    //         if (!empty($updateData)) {
+    //             $customerOrder->update($updateData);
+    //             DB::commit();
+    //             session()->flash('success', $message);
+    //         } else {
+    //             session()->flash('error', 'Invalid order status');
+    //         }
+
+    //         return redirect()->route('retailer.order.list', ['type' => $type]);
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         session()->flash('error', 'Something went wrong!');
+    //         return redirect()->route('retailer.order.list');
+    //     }
+    // }
+
+    // 
+    public function newOrderAction(Request $request)
     {
         $request->validate([
             'status' => 'required',
@@ -493,8 +571,7 @@ class RetilerController extends Controller
             $customerOrder = CustomerOrders::find($request->order_id);
 
             if (!$customerOrder) {
-                session()->flash('error', 'Order not found');
-                return redirect()->route('retailer.order.list');
+                return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
             }
 
             $updateData = [];
@@ -507,21 +584,6 @@ class RetilerController extends Controller
                 ];
                 $message = 'Order has been confirmed successfully';
                 $type = 'confirmed-by-retailer';
-            } else if ($request->status == 'shipped_by_retailer') {
-                $updateData = [
-                    'status' => $request->status,
-                    'shipped_by_retailer_at' => Carbon::now()
-                ];
-                $message = 'Order has been ready to ship (by supplier)';
-                $type = 'ready-to-ship';
-            } else if ($request->status == 'delivered_by_retailer') {
-                $updateData = [
-                    'status' => $request->status,
-                    'delivered_by_retailer_at' => Carbon::now(),
-                    'delivered_by' => $retailer->id
-                ];
-                $message = 'Order has been delivered by supplier';
-                $type = 'delivered-by-retailer';
             } else if ($request->status == 'transfered_retailer_to_wholesaler') {
                 $updateData = [
                     'status' => $request->status,
@@ -542,16 +604,13 @@ class RetilerController extends Controller
             if (!empty($updateData)) {
                 $customerOrder->update($updateData);
                 DB::commit();
-                session()->flash('success', $message);
+                return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
-                session()->flash('error', 'Invalid order status');
+                return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
             }
-
-            return redirect()->route('retailer.order.list', ['type' => $type]);
         } catch (Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Something went wrong!');
-            return redirect()->route('retailer.order.list');
+            return response()->json(['status' => false, 'msg' => 'Something went wrong, Plase try later!']);
         }
     }
 
@@ -791,9 +850,8 @@ class RetilerController extends Controller
             return response()->json(['errors' => $errors], 422);
         } catch (\Exception $e) {
             // return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
-            return response()->json(['error' => 'An error occurred during file processing check product name and slug is unique' ], 500);
+            return response()->json(['error' => 'An error occurred during file processing check product name and slug is unique'], 500);
         }
-
     }
 
 

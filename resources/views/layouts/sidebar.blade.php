@@ -48,7 +48,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['wholesaler-list','wholesaler-list/*']) ? 'active':''}}" href="{{route('retailer.wholesaler.list')}}">
+                        <a class="menu-link {{request()->is(['wholesaler-list','wholesaler-list/*','wholesaler/*']) ? 'active':''}}" href="{{route('retailer.wholesaler.list')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-shop fs-2">
                                     <span class="path1"></span>
