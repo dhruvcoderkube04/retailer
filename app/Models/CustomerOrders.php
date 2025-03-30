@@ -55,4 +55,9 @@ class CustomerOrders extends Model
     {
         return $this->belongsTo(User::class, 'wholesaler_id')->where('user_type', 2);
     }
+
+    public function retailerCloneProduct()
+    {
+        return $this->belongsTo(RetailerCloneProduct::class, 'retailer_clone_product_id');
+    }
 }
