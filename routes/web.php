@@ -13,6 +13,7 @@ use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\VBuilder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VerificationController;
 
 Route::get('/', function () { return redirect()->to('login'); });
 
@@ -21,9 +22,19 @@ Route::controller(RetailerAuthController::class)->group(function () {
     Route::post('login', 'login')->name('retailer.post.login');
     Route::get('register', 'showRegistrationForm')->name('retailer.registerform');
     Route::post('register', 'register')->name('retailer.register');
+
     Route::get('forget-password', 'forgetPassword')->name('retailer.forget.password');
+    Route::post('forget-password', 'sendResetLink')->name('retailer.password.email');
+    Route::get('/password/reset/{token}', 'showResetPasswordForm')->name('retailer.password.reset');
+    Route::post('password/update', [RetailerAuthController::class, 'resetPassword'])->name('retailer.password.update');
+
     Route::post('logout', 'logout')->name('retailer.logout')->middleware('auth'); // Use retailer guard
 });
+
+    // Email Verification Routes
+    Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed'])->name('verification.verify');
+    Route::post('/email/resend', [VerificationController::class, 'resend'])->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
 Route::middleware(['retailer'])->group(function () {
     Route::get('/dashboard', [RetilerController::class, 'retailerDashboard'])->name('retailer.dashboard');

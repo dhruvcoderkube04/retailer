@@ -33,7 +33,11 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::mcPe83l3vcnzqkgR',
+=======
+            '_route' => 'generated::oW7c33RrLHHGpbo3',
+>>>>>>> Stashed changes
           ),
           1 => NULL,
           2 => 
@@ -52,7 +56,11 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::t7NCLKPqL0qgtdUP',
+=======
+            '_route' => 'generated::N9gAaJ15a3oyPPlP',
+>>>>>>> Stashed changes
           ),
           1 => NULL,
           2 => 
@@ -71,7 +79,11 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::WLwPu2sGG9LH4wbd',
+=======
+            '_route' => 'generated::Ta5sccYidZZKObsh',
+>>>>>>> Stashed changes
           ),
           1 => NULL,
           2 => 
@@ -90,7 +102,11 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::Wz85cZXmgrwChLFl',
+=======
+            '_route' => 'generated::sDv93qUkIzKoDV1V',
+>>>>>>> Stashed changes
           ),
           1 => NULL,
           2 => 
@@ -110,7 +126,11 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::n2Bky4l5nBXWjvup',
+=======
+            '_route' => 'generated::21NWoTeAMJfLjhry',
+>>>>>>> Stashed changes
           ),
           1 => NULL,
           2 => 
@@ -215,6 +235,41 @@ app('router')->setCompiledRoutes(
           5 => false,
           6 => NULL,
         ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.password.email',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/update' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.password.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
       ),
       '/logout' => 
       array (
@@ -223,6 +278,45 @@ app('router')->setCompiledRoutes(
           0 => 
           array (
             '_route' => 'retailer.logout',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/email/verify' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'verification.notice',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/email/resend' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'verification.resend',
           ),
           1 => NULL,
           2 => 
@@ -1061,7 +1155,11 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::2RhTuHfCoDYAZFgx',
+=======
+            '_route' => 'generated::BoR9h205RTheoyWI',
+>>>>>>> Stashed changes
           ),
           1 => NULL,
           2 => 
@@ -1078,11 +1176,171 @@ app('router')->setCompiledRoutes(
     ),
     2 => 
     array (
-      0 => '{^(?|/wholesaler/([^/]++)(?|(*:30)|/([^/]++)(*:46))|/add\\-category\\-margin/([^/]++)(*:85)|/r(?|emove\\-category\\-margin/([^/]++)/([^/]++)(*:138)|to\\-address(?|/(?|edit/([^/]++)(*:177)|update/([^/]++)(*:200))|es/([^/]++)(*:220)))|/clone\\-product/([^/]++)(?|(*:257))|/orders\\-list(?|(?:/([^/]++))?(*:296)|/action(*:311))|/edit\\-(?|coupon/([^/]++)(*:345)|ticket/([^/]++)(*:368))|/update\\-(?|coupon/([^/]++)(*:404)|ticket/([^/]++)(*:427))|/pick\\-address(?|/(?|edit/([^/]++)(*:470)|update/([^/]++)(*:493))|es/([^/]++)(*:513))|/storage/(.*)(*:535))/?$}sDu',
+      0 => '{^(?|/p(?|assword/reset/([^/]++)(*:34)|ick\\-address(?|/(?|edit/([^/]++)(*:73)|update/([^/]++)(*:95))|es/([^/]++)(*:114)))|/e(?|mail/verify/([^/]++)/([^/]++)(*:158)|dit\\-(?|coupon/([^/]++)(*:189)|ticket/([^/]++)(*:212)))|/wholesaler/([^/]++)(?|(*:245)|/([^/]++)(*:262))|/add\\-category\\-margin/([^/]++)(*:302)|/r(?|emove\\-category\\-margin/([^/]++)/([^/]++)(*:356)|to\\-address(?|/(?|edit/([^/]++)(*:395)|update/([^/]++)(*:418))|es/([^/]++)(*:438)))|/clone\\-product/([^/]++)(?|(*:475))|/orders\\-list(?|(?:/([^/]++))?(*:514)|/action(*:529))|/update\\-(?|coupon/([^/]++)(*:565)|ticket/([^/]++)(*:588))|/storage/(.*)(*:610))/?$}sDu',
     ),
     3 => 
     array (
-      30 => 
+      34 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.password.reset',
+          ),
+          1 => 
+          array (
+            0 => 'token',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      73 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::r0nUpzXSgERKrHuW',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      95 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::atc4FyThVvCI5DVJ',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'PUT' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      114 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'pickAddresses.destroy',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'DELETE' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      158 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'verification.verify',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+            1 => 'hash',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      189 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.coupon.edit',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      212 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.ticket.edit',
+          ),
+          1 => 
+          array (
+            0 => 'ticket_id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      245 => 
       array (
         0 => 
         array (
@@ -1105,7 +1363,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      46 => 
+      262 => 
       array (
         0 => 
         array (
@@ -1129,7 +1387,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      85 => 
+      302 => 
       array (
         0 => 
         array (
@@ -1151,7 +1409,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      138 => 
+      356 => 
       array (
         0 => 
         array (
@@ -1174,13 +1432,17 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      177 => 
+      395 => 
       array (
         0 => 
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::YCkNBn774Ai1fSE6',
+=======
+            '_route' => 'generated::51sIcgxPcwLm0Q9B',
+>>>>>>> Stashed changes
           ),
           1 => 
           array (
@@ -1197,13 +1459,17 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      200 => 
+      418 => 
       array (
         0 => 
         array (
           0 => 
           array (
+<<<<<<< Updated upstream
             '_route' => 'generated::dznoANks3ALtJLh2',
+=======
+            '_route' => 'generated::bWT0pmKy3cLPQQg3',
+>>>>>>> Stashed changes
           ),
           1 => 
           array (
@@ -1219,7 +1485,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      220 => 
+      438 => 
       array (
         0 => 
         array (
@@ -1241,7 +1507,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      257 => 
+      475 => 
       array (
         0 => 
         array (
@@ -1302,7 +1568,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      296 => 
+      514 => 
       array (
         0 => 
         array (
@@ -1326,7 +1592,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      311 => 
+      529 => 
       array (
         0 => 
         array (
@@ -1347,53 +1613,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      345 => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'retailer.coupon.edit',
-          ),
-          1 => 
-          array (
-            0 => 'id',
-          ),
-          2 => 
-          array (
-            'GET' => 0,
-            'HEAD' => 1,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => true,
-          6 => NULL,
-        ),
-      ),
-      368 => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'retailer.ticket.edit',
-          ),
-          1 => 
-          array (
-            0 => 'ticket_id',
-          ),
-          2 => 
-          array (
-            'GET' => 0,
-            'HEAD' => 1,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => true,
-          6 => NULL,
-        ),
-      ),
-      404 => 
+      565 => 
       array (
         0 => 
         array (
@@ -1415,7 +1635,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      427 => 
+      588 => 
       array (
         0 => 
         array (
@@ -1437,6 +1657,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+<<<<<<< Updated upstream
       470 => 
       array (
         0 => 
@@ -1505,6 +1726,9 @@ app('router')->setCompiledRoutes(
         ),
       ),
       535 => 
+=======
+      610 => 
+>>>>>>> Stashed changes
       array (
         0 => 
         array (
@@ -1579,7 +1803,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::mcPe83l3vcnzqkgR' => 
+=======
+    'generated::oW7c33RrLHHGpbo3' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -1599,7 +1827,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::mcPe83l3vcnzqkgR',
+=======
+        'as' => 'generated::oW7c33RrLHHGpbo3',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -1615,7 +1847,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::t7NCLKPqL0qgtdUP' => 
+=======
+    'generated::N9gAaJ15a3oyPPlP' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -1635,7 +1871,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::t7NCLKPqL0qgtdUP',
+=======
+        'as' => 'generated::N9gAaJ15a3oyPPlP',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -1651,7 +1891,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::WLwPu2sGG9LH4wbd' => 
+=======
+    'generated::Ta5sccYidZZKObsh' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -1671,7 +1915,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::WLwPu2sGG9LH4wbd',
+=======
+        'as' => 'generated::Ta5sccYidZZKObsh',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -1687,7 +1935,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::Wz85cZXmgrwChLFl' => 
+=======
+    'generated::sDv93qUkIzKoDV1V' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -1697,7 +1949,7 @@ app('router')->setCompiledRoutes(
       'uri' => 'up',
       'action' => 
       array (
-        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:841:"function () {
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:847:"function () {
                     $exception = null;
 
                     try {
@@ -1712,11 +1964,16 @@ app('router')->setCompiledRoutes(
                         $exception = $e->getMessage();
                     }
 
-                    return response(\\Illuminate\\Support\\Facades\\View::file(\'/home/zero/projects/Trendmart/RetailerTrendMart/vendor/laravel/framework/src/Illuminate/Foundation/Configuration\'.\'/../resources/health-up.blade.php\', [
+                    return response(\\Illuminate\\Support\\Facades\\View::file(\'C:\\\\wamp64\\\\www\\\\New folder\\\\RetailerTrendMart\\\\vendor\\\\laravel\\\\framework\\\\src\\\\Illuminate\\\\Foundation\\\\Configuration\'.\'/../resources/health-up.blade.php\', [
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
+<<<<<<< Updated upstream
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000009520000000000000000";}}',
         'as' => 'generated::Wz85cZXmgrwChLFl',
+=======
+                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004f60000000000000000";}}',
+        'as' => 'generated::sDv93qUkIzKoDV1V',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -1732,7 +1989,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::n2Bky4l5nBXWjvup' => 
+=======
+    'generated::21NWoTeAMJfLjhry' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -1746,13 +2007,21 @@ app('router')->setCompiledRoutes(
         array (
           0 => 'web',
         ),
+<<<<<<< Updated upstream
         'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000009590000000000000000";}}',
+=======
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:48:"function () { return \\redirect()->to(\'login\'); }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000004fd0000000000000000";}}',
+>>>>>>> Stashed changes
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::n2Bky4l5nBXWjvup',
+=======
+        'as' => 'generated::21NWoTeAMJfLjhry',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -1951,6 +2220,115 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'retailer.password.email' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'forget-password',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetailerAuthController@sendResetLink',
+        'controller' => 'App\\Http\\Controllers\\RetailerAuthController@sendResetLink',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.password.email',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.password.reset' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/reset/{token}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetailerAuthController@showResetPasswordForm',
+        'controller' => 'App\\Http\\Controllers\\RetailerAuthController@showResetPasswordForm',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.password.reset',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.password.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'password/update',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetailerAuthController@resetPassword',
+        'controller' => 'App\\Http\\Controllers\\RetailerAuthController@resetPassword',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.password.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'retailer.logout' => 
     array (
       'methods' => 
@@ -1973,6 +2351,119 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'retailer.logout',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'verification.notice' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'email/verify',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\VerificationController@show',
+        'controller' => 'App\\Http\\Controllers\\VerificationController@show',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'verification.notice',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'verification.verify' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'email/verify/{id}/{hash}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'signed',
+        ),
+        'uses' => 'App\\Http\\Controllers\\VerificationController@verify',
+        'controller' => 'App\\Http\\Controllers\\VerificationController@verify',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'verification.verify',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'verification.resend' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'email/resend',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'throttle:6,1',
+        ),
+        'uses' => 'App\\Http\\Controllers\\VerificationController@resend',
+        'controller' => 'App\\Http\\Controllers\\VerificationController@resend',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'verification.resend',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4020,7 +4511,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::hII38NRC6hFpydHG' => 
+=======
+    'generated::r0nUpzXSgERKrHuW' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -4042,7 +4537,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::hII38NRC6hFpydHG',
+=======
+        'as' => 'generated::r0nUpzXSgERKrHuW',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -4058,7 +4557,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::NVzpGbonqpPbYcx4' => 
+=======
+    'generated::atc4FyThVvCI5DVJ' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -4079,7 +4582,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::NVzpGbonqpPbYcx4',
+=======
+        'as' => 'generated::atc4FyThVvCI5DVJ',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -4169,7 +4676,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::YCkNBn774Ai1fSE6' => 
+=======
+    'generated::51sIcgxPcwLm0Q9B' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -4191,7 +4702,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::YCkNBn774Ai1fSE6',
+=======
+        'as' => 'generated::51sIcgxPcwLm0Q9B',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -4207,7 +4722,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::dznoANks3ALtJLh2' => 
+=======
+    'generated::bWT0pmKy3cLPQQg3' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -4228,7 +4747,11 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::dznoANks3ALtJLh2',
+=======
+        'as' => 'generated::bWT0pmKy3cLPQQg3',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -4281,7 +4804,11 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+<<<<<<< Updated upstream
     'generated::2RhTuHfCoDYAZFgx' => 
+=======
+    'generated::BoR9h205RTheoyWI' => 
+>>>>>>> Stashed changes
     array (
       'methods' => 
       array (
@@ -4303,13 +4830,21 @@ app('router')->setCompiledRoutes(
     \\Illuminate\\Support\\Facades\\Artisan::call(\'optimize\');
 
     return \'DONE\';
+<<<<<<< Updated upstream
 }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"000000000000095b0000000000000000";}}',
+=======
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"000000000000050b0000000000000000";}}',
+>>>>>>> Stashed changes
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
+<<<<<<< Updated upstream
         'as' => 'generated::2RhTuHfCoDYAZFgx',
+=======
+        'as' => 'generated::BoR9h205RTheoyWI',
+>>>>>>> Stashed changes
       ),
       'fallback' => false,
       'defaults' => 
@@ -4335,13 +4870,17 @@ app('router')->setCompiledRoutes(
       'uri' => 'storage/{path}',
       'action' => 
       array (
-        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:3:{s:4:"disk";s:5:"local";s:6:"config";a:5:{s:6:"driver";s:5:"local";s:4:"root";s:67:"/home/zero/projects/Trendmart/RetailerTrendMart/storage/app/private";s:5:"serve";b:1;s:5:"throw";b:0;s:6:"report";b:0;}s:12:"isProduction";b:0;}s:8:"function";s:323:"function (\\Illuminate\\Http\\Request $request, string $path) use ($disk, $config, $isProduction) {
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:3:{s:4:"disk";s:5:"local";s:6:"config";a:5:{s:6:"driver";s:5:"local";s:4:"root";s:62:"C:\\wamp64\\www\\New folder\\RetailerTrendMart\\storage\\app/private";s:5:"serve";b:1;s:5:"throw";b:0;s:6:"report";b:0;}s:12:"isProduction";b:0;}s:8:"function";s:323:"function (\\Illuminate\\Http\\Request $request, string $path) use ($disk, $config, $isProduction) {
                     return (new \\Illuminate\\Filesystem\\ServeFile(
                         $disk,
                         $config,
                         $isProduction
                     ))($request, $path);
+<<<<<<< Updated upstream
                 }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000009a00000000000000000";}}',
+=======
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000054a0000000000000000";}}',
+>>>>>>> Stashed changes
         'as' => 'storage.local',
       ),
       'fallback' => false,

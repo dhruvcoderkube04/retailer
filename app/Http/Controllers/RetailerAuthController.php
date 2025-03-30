@@ -2,22 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\UserDetail;
-use Carbon\Carbon;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Database\QueryException;
+use App\Models\User;
+use App\Models\UserDetail;
+use Carbon\Carbon;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Log;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class RetailerAuthController extends Controller
 {
     public function showRegistrationForm() {
         return view('auth.register');
     }
+
+ 
 
     public function register(Request $request) {
 
@@ -43,53 +51,144 @@ class RetailerAuthController extends Controller
             $user = User::create([
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
-                'phone_number' => $request->phone_number,
+                'phone_number' => $request->phonenumber, // Fixed typo (phonenumber)
                 'email' => $request->email,
                 'user_type' => '3',
                 'status' => '0',
                 'password' => Hash::make($request->password),
                 'ip_address' => $request->ip(),
-                'email_verified_at' => now(), // Email verification time
             ]);
 
             // Create User Details
             UserDetail::create([
                 'user_id' => $user->id,
-                'company_name' => $request->companyname, // Use companyname
+                'company_name' => $request->companyname,
             ]);
 
-            // event(new Registered($user)); // Trigger email verification if enabled
-            return redirect()->route('retailer.login')->with('success', 'Registration successful! Please verify your email.');
+            // Attempt to send verification email
+            try {
+                $user->notify(new VerifyEmail);
+            } catch (Exception $e) {
+                \Log::error('Failed to send verification email: ' . $e->getMessage());
+
+                return redirect()->route('retailer.login')
+                    ->with('success', 'Registration successful! However, we could not send the verification email. Please try resending it from your account.');
+            }
+
+            return redirect()->route('retailer.login')->with('success', 'Registration successful! Please check your email to verify your account.');
 
         } catch (QueryException $e) {
-            // Handle database errors (e.g., duplicate email)
-            if ($e->errorInfo[1] === 1062) { // MySQL duplicate entry error code
+            if ($e->errorInfo[1] === 1062) { // MySQL duplicate entry error
                 return redirect('retailer/register')
                     ->withErrors(['email' => 'This email address is already registered.'])
                     ->withInput();
             }
 
-            // Log other database errors
             \Log::error('Database error during registration: ' . $e->getMessage());
-
             return redirect('retailer/register')
                 ->withErrors(['error' => 'An error occurred during registration. Please try again later.'])
                 ->withInput();
-        } catch (\Exception $e) {
-            // Handle other unexpected errors
+        } catch (Exception $e) {
             \Log::error('Unexpected error during registration: ' . $e->getMessage());
-
             return redirect('retailer/register')
                 ->withErrors(['error' => 'An unexpected error occurred. Please try again later.'])
                 ->withInput();
         }
     }
 
+
     public function forgetPassword()
     {
         // forget password
-        return view('auth.login');
+        return view('auth.forgotPassword');
     }
+    public function sendResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'This email is not registered with us.');
+        }
+
+        try {
+            // ✅ Generate token
+            $token = Str::random(60);
+
+            // ✅ Store in password_reset_tokens table
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                [
+                    'token' =>   $token,
+                    'created_at' => Carbon::now(),
+                ]
+            );
+
+            // ✅ Send reset email
+            Mail::send('emails.password_reset', ['token' => $token, 'email' => $user->email], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Password Reset Request');
+            });
+
+            return back()->with('success', 'A password reset link has been sent to your email.');
+
+        } catch (Exception $e) {
+            Log::error('Password reset email failed: ' . $e->getMessage());
+            return back()->with('error', 'An unexpected error occurred. Please try again later.');
+        }
+    }
+    public function showResetPasswordForm($token)
+    {
+        
+        $resetToken = DB::table('password_reset_tokens')->where('token', $token)->first();
+        if (!$resetToken) {
+            return redirect()->route('retailer.login')->with('error', 'Invalid or expired reset token.');
+        }
+
+        return view('auth.resetPassword', [
+            'token' => $token,
+            'email' => $resetToken->email
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        try {
+            // Find token entry in password_reset_tokens table
+            $resetEntry = DB::table('password_reset_tokens')->where('token', $request->token)->first();
+
+            if (!$resetEntry) {
+                return back()->withErrors(['error' => 'Invalid or expired reset token.']);
+            }
+
+            // Find user by email
+            $user = User::where('email', $resetEntry->email)->first();
+
+            if (!$user) {
+                return back()->withErrors(['error' => 'No user found for this email.']);
+            }
+
+            // Update password
+            $user->update([
+                'password' => Hash::make($request->password),
+            ]);
+
+            // Delete reset token
+            DB::table('password_reset_tokens')->where('email', $resetEntry->email)->delete();
+
+            return redirect()->route('retailer.login')->with('success', 'Your password has been reset successfully.');
+        } catch (Exception $e) {
+            \Log::error('Password reset failed: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'An unexpected error occurred. Please try again later.']);
+        }
+    }
+
 
     public function showLoginForm()
     {
