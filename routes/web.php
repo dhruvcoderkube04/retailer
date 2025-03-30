@@ -96,7 +96,8 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/edit-coupon/{id}', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
     Route::post('/update-coupon/{id}', [CoupanController::class, 'updateCoupon'])->name('retailer.coupon.update');
 
-
+    // prohibited item page
+    Route::get('/prohibited-item', [RetilerController::class, 'prohibitedItem'])->name('retailer.prohibited.item');
 
     // setting
     Route::get('/setting-page', [Setting::class, 'index'])->name('retailer.setting.index');
