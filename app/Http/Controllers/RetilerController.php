@@ -23,12 +23,62 @@ use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RetilerController extends Controller
-{
+{  
     public function retailerDashboard()
+{
+    $from = Carbon::now()->startOfMonth(); // હાલના મહિના ની શરૂઆત
+    $to = Carbon::now()->endOfMonth(); // હાલના મહિના ની અંતિમ તારીખ
+
+    $data = [
+        'new_orders_count' => CustomerOrders::where('status', 'pending')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'confirmed_orders_count' => CustomerOrders::where('status', 'confirmed_by_retailer')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'ready_for_ship_orders_count' => CustomerOrders::where('status', 'shipped_by_retailer')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'delivered_orders_count' => CustomerOrders::where('status', 'delivered_by_retailer')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'total_sales' => CustomerOrders::whereBetween('created_at', [$from, $to])
+            ->sum('final_amount'),
+    ];
+
+    return view('dashboard', compact('data'));
+}
+
+
+
+    
+
+    public function dashboardReload(Request $request)
     {
-        // $auth_id = Auth::user()->id;
-        // $data['wholesaer_total_product'] = Product::where('status','active')->where('wholesaler_id',$auth_id)->count();
-        return view('dashboard');
+        $from = Carbon::createFromFormat('d/m/Y', $request->from)->startOfDay();
+        $to = Carbon::createFromFormat('d/m/Y', $request->to)->endOfDay();
+
+        $data = [
+            'new_orders_count' => CustomerOrders::where('status', 'pending')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'confirmed_orders_count' => CustomerOrders::where('status', 'confirmed_by_retailer')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'ready_for_ship_orders_count' => CustomerOrders::where('status', 'shipped_by_retailer')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'delivered_orders_count' => CustomerOrders::where('status', 'delivered_by_retailer')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'total_sales' => CustomerOrders::whereBetween('created_at', [$from, $to])->sum('final_amount'),
+        ];
+
+        return response()->json(['status' => true, 'data' => $data]);
     }
 
     // wholesaler list

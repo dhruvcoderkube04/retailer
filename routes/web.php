@@ -27,6 +27,8 @@ Route::controller(RetailerAuthController::class)->group(function () {
 
 Route::middleware(['retailer'])->group(function () {
     Route::get('/dashboard', [RetilerController::class, 'retailerDashboard'])->name('retailer.dashboard');
+    Route::post('/dashboard-reload', [RetilerController::class, 'dashboardReload'])->name('retailer.dashboard-reload');
+
 
     // wholesaler list
     Route::get('/wholesaler-list', [RetilerController::class, 'wholesalerList'])->name('retailer.wholesaler.list'); // wholesaler list
