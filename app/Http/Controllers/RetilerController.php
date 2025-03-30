@@ -11,6 +11,7 @@ use App\Models\PickAddress;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserDetail;
 use Carbon\Carbon;
@@ -23,12 +24,62 @@ use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RetilerController extends Controller
-{
+{  
     public function retailerDashboard()
+{
+    $from = Carbon::now()->startOfMonth(); // હાલના મહિના ની શરૂઆત
+    $to = Carbon::now()->endOfMonth(); // હાલના મહિના ની અંતિમ તારીખ
+
+    $data = [
+        'new_orders_count' => CustomerOrders::where('status', 'pending')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'confirmed_orders_count' => CustomerOrders::where('status', 'confirmed_by_retailer')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'ready_for_ship_orders_count' => CustomerOrders::where('status', 'shipped_by_retailer')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'delivered_orders_count' => CustomerOrders::where('status', 'delivered_by_retailer')
+            ->whereBetween('created_at', [$from, $to])
+            ->count(),
+
+        'total_sales' => CustomerOrders::whereBetween('created_at', [$from, $to])
+            ->sum('final_amount'),
+    ];
+
+    return view('dashboard', compact('data'));
+}
+
+
+
+    
+
+    public function dashboardReload(Request $request)
     {
-        // $auth_id = Auth::user()->id;
-        // $data['wholesaer_total_product'] = Product::where('status','active')->where('wholesaler_id',$auth_id)->count();
-        return view('dashboard');
+        $from = Carbon::createFromFormat('d/m/Y', $request->from)->startOfDay();
+        $to = Carbon::createFromFormat('d/m/Y', $request->to)->endOfDay();
+
+        $data = [
+            'new_orders_count' => CustomerOrders::where('status', 'pending')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'confirmed_orders_count' => CustomerOrders::where('status', 'confirmed_by_retailer')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'ready_for_ship_orders_count' => CustomerOrders::where('status', 'shipped_by_retailer')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'delivered_orders_count' => CustomerOrders::where('status', 'delivered_by_retailer')
+                ->whereBetween('created_at', [$from, $to])->count(),
+
+            'total_sales' => CustomerOrders::whereBetween('created_at', [$from, $to])->sum('final_amount'),
+        ];
+
+        return response()->json(['status' => true, 'data' => $data]);
     }
 
     // wholesaler list
@@ -857,8 +908,6 @@ class RetilerController extends Controller
 
     public function updateCloneProduct(Request $request)
     {
-
-
         $product = RetailerCloneProduct::findOrFail($request->product_id);
         $product->name = $request->product_name;
         $product->description = $request->description;
@@ -902,4 +951,94 @@ class RetilerController extends Controller
     {
         return view('prohibiteditem');
     }
+
+    public function ticketList(){
+        $user_id =  Auth::user()->id;
+        $tickets = Ticket::where('user_id',$user_id)->get();
+        return view('support.ticketlist',compact('tickets'));
+    }
+    public function generateTicket(Request $request)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'ticket_description' => 'required|string',
+            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // Genrate random tikcet id 10 digit  with  TM add tm in prefix
+        $ticket_id = 'TM'. mt_rand(100000, 999999);
+
+        // Create a new ticket
+        $ticket = new Ticket;
+        $ticket->subject = $request->subject;
+        $ticket->description = $request->ticket_description;
+        $ticket->status = 'Pending';
+        $ticket->category = '';
+        $ticket->ticket_id = $ticket_id;
+
+        $ticket->user_id = Auth::user()->id;
+
+        if ($request->hasFile('ticket_image_ref')) {
+            $files = $request->file('ticket_image_ref');
+
+            $filename = time() . '_' . $files->getClientOriginalName();
+            $files->move(public_path('uploads/ticket'), $filename);
+            $ticket->ref_image = $filename;
+        }
+        $ticket->save();
+
+        // Return JSON response
+        return response()->json(['success' => true, 'message' => 'Ticket Created Successfully', 'ticket' => $ticket]);
+    }
+
+    public function deleteTicket(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $request->validate([
+            'ticket_id' =>'required|exists:tickets,ticket_id'
+        ]);
+
+        // Find the ticket and delete it
+        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$request->ticket_id)->first();
+        $ticket->delete();
+
+        // Return JSON response
+        return response()->json(['success' => true, 'message' => 'Ticket Deleted Successfully']);
+    }
+
+    public function editTicket($ticketId)
+    {
+        $ticket = Ticket::where('ticket_id', $ticketId)->first();
+        // return json
+        return response()->json($ticket);
+
+    }
+    public function updateTicket(Request $request)
+    {
+        $request->validate([
+            'ticket_id' =>'required|exists:tickets,ticket_id',
+            'subject' => 'nullable|string|max:255',
+            'ticket_description' => 'nullable|string',
+            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        $user_id = Auth::user()->id;
+        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$request->ticket_id)->first();
+        $ticket->subject = $request->subject;
+        $ticket->description = $request->ticket_description;
+        if ($request->hasFile('ticket_image_ref')) {
+            $files = $request->file('ticket_image_ref');
+            $filename = time(). '_'. $files->getClientOriginalName();
+            $files->move(public_path('uploads/ticket'), $filename);
+            $ticket->ref_image = $filename;
+        }
+        $ticket->save();
+        // Return JSON response
+        return response()->json(['success' => true, 'message' => 'Ticket Updated Successfully']);
+    }
+
+    public function ratecCalculation(){
+        return view('rateccalculation');
+    }
+
 }

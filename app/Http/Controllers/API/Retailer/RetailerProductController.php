@@ -178,6 +178,7 @@ public function getRetailerProducts(Request $request)
             'email' => 'required|email',
             'address' => 'required|max:250',
             'payment_method' => 'required|in:cod,upi',
+            'final_amount' => 'required|numeric|min:0',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'nullable', 
             'products.*.retailer_clone_product_id' => 'nullable', 
@@ -219,12 +220,9 @@ public function getRetailerProducts(Request $request)
                 'pincode' => $request->pincode
             ]);
 
-            // dd($customerDetail);
-
             // Generate a unique order ID
             $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
 
-            // dd($request->products);
             // Prepare order items
             $orderItems = collect($request->products)->map(function ($product) use ($orderID, $customerDetail, $retailer) {
 
@@ -241,13 +239,12 @@ public function getRetailerProducts(Request $request)
                     'retailer_id' => !is_null($retailerId) ? $retailerId : null,
                     'wholesaler_id' => !is_null($wholesalerId) ? $wholesalerId : null,
                     'quantity' => $product['quantity'],
+                    'final_amount' => request()->final_amount, 
                     'payment_method' => request()->payment_method,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
             })->toArray();
-
-            // dd($orderItems);
 
             // Bulk insert orders
             CustomerOrders::insert($orderItems);
