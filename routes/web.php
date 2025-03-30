@@ -73,6 +73,7 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/{type?}', [RetilerController::class, 'orderList'])->name('retailer.order.list');
         Route::post('/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
         Route::post('/action/new-order', [RetilerController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
+        Route::post('/action/confirmed-order', [RetilerController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
     });
 
     // mange Profile

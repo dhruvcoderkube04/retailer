@@ -44,7 +44,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -81,48 +81,60 @@
                     <div class="card card-flush">
                         <div class="card-header align-items-center py-5 gap-2 gap-md-5">
                             <!-- tabs (stages tabs) -->
-                            <div class="card-toolbar flex-row-fluid justify-content-center gap-4 fs-6">
-                                <ul class="nav nav-pills">
+                            <div class="card-toolbar d-flex justify-content-center">
+                                <ul class="nav nav-pills d-flex justify-content-center flex-wrap gap-3">
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             New
+                                            <span class="badge badge-light ms-2">{{ $count['new'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && request('type') == 'transfered-retailer-to-wholesaler' ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'transfered-retailer-to-wholesaler' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'transfered-retailer-to-wholesaler']) }}">
                                             Transfered to Wholesaler
+                                            <span
+                                                class="badge badge-light ms-2">{{ $count['transfered_retailer_to_wholesaler'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-info px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'confirmed-by-retailer']) }}">
                                             Confirmed
+                                            <span
+                                                class="badge badge-light ms-2">{{ $count['confirmed_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && request('type') == 'ready-to-ship' ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'ready-to-ship' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'ready-to-ship']) }}">
                                             Ready To Ship
+                                            <span class="badge badge-light ms-2">{{ $count['ready_to_ship'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'delivered-by-retailer']) }}">
                                             Delivered
+                                            <span
+                                                class="badge badge-light ms-2">{{ $count['delivered_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancelled-by-retailer']) }}">
                                             Cancelled
+                                            <span
+                                                class="badge badge-light ms-2">{{ $count['cancelled_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-customer' ? 'active' : '' }}"
+                                        <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-customer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancelled-by-customer']) }}">
                                             Cancelled By Customer
+                                            <span
+                                                class="badge badge-light ms-2">{{ $count['cancelled_by_customer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -168,19 +180,32 @@
                                             {{-- order detail --}}
                                             <td class="">
                                                 <div>
-                                                    <strong>Order Id:</strong> {{ $detail->order_id }}<br>
-                                                    <strong>Name:</strong>
-                                                    {{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}<br>
-                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size:
-                                                    {{ $detail->size }}<br>
-                                                    <strong>Amount:</strong> ₹
-                                                    {{ $detail?->product?->new_price ?? ($detail?->retailerCloneProduct?->new_price ?? '') }}<br>
-                                                    <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
-                                                    <strong>Order Status:</strong>
-                                                    <span
-                                                        class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
-                                                        {{ order_status($detail->status) }}
-                                                    </span>
+                                                    <div class="my-2">
+                                                        <strong>Order Id:</strong> {{ $detail->order_id }}
+                                                    </div>
+                                                    <div class="my-2">
+                                                        <strong>Name:</strong>
+                                                        {{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}
+                                                    </div>
+                                                    <div class="my-2">
+                                                        <strong>Quantity:</strong> Qty: {{ $detail->quantity }}
+                                                        {{ $detail->size ? '| Size: ' . $detail->size : '' }}
+                                                    </div>
+                                                    <div class="my-2">
+                                                        <strong>Amount:</strong> ₹
+                                                        {{ $detail?->final_amount }}
+                                                        {{-- {{ $detail?->product?->new_price ?? ($detail?->retailerCloneProduct?->new_price ?? '') }} --}}
+                                                    </div>
+                                                    <div class="my-2">
+                                                        <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}
+                                                    </div>
+                                                    <div class="my-2">
+                                                        <strong>Order Status:</strong>
+                                                        <span
+                                                            class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
+                                                            {{ order_status($detail->status) }}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </td>
 
@@ -214,6 +239,7 @@
                                                     <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size:
                                                     {{ $detail->size }}<br>
                                                     <strong>Amount:</strong> ₹
+                                                    {{ $detail?->final_amount }}
                                                     {{ $detail?->product?->new_price ?? ($detail?->retailerCloneProduct?->new_price ?? '') }}<br>
                                                     <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
                                                     <strong>Checkout At:
@@ -228,13 +254,25 @@
 
                                             {{-- customer detail --}}
                                             <td>
-                                                <strong>Name:</strong> {{ $detail->customer->firstname }}
-                                                {{ $detail->customer->lastname }}<br>
-                                                <strong>Email Id:</strong> {{ $detail->customer->email }} <br>
-                                                <strong>Address:</strong> {{ $detail->customer->address }}<br>
-                                                <strong>Pin Code:</strong> {{ $detail->customer->pincode }}<br>
-                                                <strong>City:</strong> {{ $detail->customer->city }}<br>
-                                                <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
+                                                <div class="my-2">
+                                                    <strong>Name:</strong> {{ $detail->customer->firstname }}
+                                                    {{ $detail->customer->lastname }}
+                                                </div>
+                                                <div class="my-2">
+                                                    <strong>Email Id:</strong> {{ $detail->customer->email }}
+                                                </div>
+                                                <div class="my-2">
+                                                    <strong>Address:</strong> {{ $detail->customer->address }}
+                                                </div>
+                                                <div class="my-2">
+                                                    <strong>Pin Code:</strong> {{ $detail->customer->pincode }}
+                                                </div>
+                                                <div class="my-2">
+                                                    <strong>City:</strong> {{ $detail->customer->city }}
+                                                </div>
+                                                <div class="my-2">
+                                                    <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
+                                                </div>
                                             </td>
 
                                             {{-- action --}}
@@ -413,14 +451,20 @@
                             <div class="card shadow-sm border-0">
                                 <div class="card-body p-3">
                                     <label class="form-label fw-semibold text-gray-700">Choose a location:</label>
-                                    <select name="pickup_location" class="form-select form-select-lg"
-                                        data-control="select2">
+                                    <select name="pickup_address_id" class="form-select form-select-lg"
+                                        id="pickup_address_id" data-control="select2">
                                         <option value="" disabled selected>-- Select Pickup Location --</option>
                                         @foreach ($pickupAddress as $address)
-                                            <option value="{{$address->id}}" data-address="123 Main St, City A">
-                                                📍 {{$address->first_name}} {{$address->last_name}} - {{$address->address}}, {{$address->state}}, {{$address->city}} -  {{$address->pincode}}</option>
+                                            <option value="{{ $address->id }}" data-address="123 Main St, City A">
+                                                📍 {{ $address->first_name }} {{ $address->last_name }} -
+                                                {{ $address->address }}, {{ $address->state }}, {{ $address->city }} -
+                                                {{ $address->pincode }}</option>
                                         @endforeach
                                     </select>
+                                    <span class="text-danger mt-5 pickup-address-error-section" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="pickup-address-error">asdfa asdf asdf asd</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -445,7 +489,7 @@
     </div>
 
     <!-- Bootstrap Modal -->
-    <div class="modal fade @if ($errors->any()) show d-block @endif" id="order-action-modal" tabindex="-1"
+    {{-- <div class="modal fade @if ($errors->any()) show d-block @endif" id="order-action-modal" tabindex="-1"
         aria-labelledby="order-action-modal-label" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -503,7 +547,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 @section('script')
@@ -645,8 +689,16 @@
 
                 let form = new FormData(this);
                 let status = form.get("status");
+                let pickup_address_id = $('#pickup_address_id').val();
 
-                if (!status) return; // Exit if no status is selected
+                if (!pickup_address_id) {
+                    $('.pickup-address-error').text('Please select pickup address');
+                    $('.pickup-address-error-section').show();
+                    return;
+                }
+                if (!status) {
+                    return;
+                }
 
                 let swalConfig = {
                     title: "Are you sure?",
@@ -681,69 +733,58 @@
                 Swal.fire(swalConfig).then((result) => {
                     if (result.isConfirmed) {
                         if (status == "shipped_by_retailer") {
+                            const pickup_address_id = $('#pickup_address_id').val();
 
-                        } else {
-                            $.ajax({
-                                url: "{{ route('retailer.order.action.new-order') }}",
-                                type: "POST",
-                                data: form,
-                                processData: false,
-                                contentType: false,
-                                success: function(response) {
-                                    if (response.status) {
-                                        Swal.fire({
-                                            title: "Success!",
-                                            text: response.msg,
-                                            icon: "success",
-                                            confirmButtonText: "OK",
-                                        }).then(() => {
-                                            window.location.href =
-                                                `{{ route('retailer.order.list', ':type') }}`
-                                                .replace(
-                                                    ":type",
-                                                    response.type
-                                                );
-                                        });
-                                    } else {
-                                        Swal.fire({
-                                            title: "Error!",
-                                            text: response.msg,
-                                            icon: "error",
-                                            confirmButtonText: "OK"
-                                        });
-                                    }
-                                },
-                                error: function(xhr) {
+                            if (!pickup_address_id) {
+                                $('.pickup-address-error').text('Please select pickup address');
+                                $('.pickup-address-error-section').show();
+                                return;
+                            }
+                        }
+
+                        $.ajax({
+                            url: "{{ route('retailer.order.action.confirmed-order') }}",
+                            type: "POST",
+                            data: form,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.status) {
+                                    Swal.fire({
+                                        title: "Success!",
+                                        text: response.msg,
+                                        icon: "success",
+                                        confirmButtonText: "OK",
+                                    }).then(() => {
+                                        window.location.href =
+                                            `{{ route('retailer.order.list', ':type') }}`
+                                            .replace(
+                                                ":type",
+                                                response.type
+                                            );
+                                    });
+                                } else {
                                     Swal.fire({
                                         title: "Error!",
-                                        text: "Something went wrong, Please try later!",
+                                        text: response.msg,
                                         icon: "error",
                                         confirmButtonText: "OK"
                                     });
                                 }
-                            });
-                        }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Something went wrong, Please try later!",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        });
                     }
                 });
             });
             //<-------------- END: Confirmed Order --------------->
-
-
-            // confirm order action
-            // $(document).on('click', '.confirmedOrderAction', function() {
-            //     let product_id = $(this).attr('data-product-id');
-            //     let order_id = $(this).attr('data-order-id');
-            //     $('#product_id').val(product_id);
-            //     $('#order_id').val(order_id);
-
-            //     $('#ready_to_ship').removeClass('d-none');
-            //     $('#shift').removeClass('d-none');
-            //     $('#cancelled').removeClass('d-none');
-
-            //     $('#shipped_by_retailer').attr('checked', true);
-
-            //     $('#order-action-modal').modal('show');
-            // });
 
             // ready-to-ship order action
             // $(document).on('click', '.readyToShipOrderAction', function() {
