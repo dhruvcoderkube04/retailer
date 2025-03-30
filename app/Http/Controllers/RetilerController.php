@@ -845,7 +845,8 @@ class RetilerController extends Controller
     }
 
     public function ticketList(){
-        $tickets = Ticket::all();
+        $user_id =  Auth::user()->id;
+        $tickets = Ticket::where('user_id',$user_id)->get();
         return view('support.ticketlist',compact('tickets'));
     }
     public function generateTicket(Request $request)
