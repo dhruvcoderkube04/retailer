@@ -33,7 +33,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::pjFHt4i6fBej4522',
+            '_route' => 'generated::ZD7qEhtCK1r6sAIt',
           ),
           1 => NULL,
           2 => 
@@ -52,7 +52,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::zyysDjeY7EeIAwi4',
+            '_route' => 'generated::YZ72rTq4nE3B6z5A',
           ),
           1 => NULL,
           2 => 
@@ -71,7 +71,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::ZEMwSe8Z50CUVgYM',
+            '_route' => 'generated::AnCS380t9hjLiX1I',
           ),
           1 => NULL,
           2 => 
@@ -90,7 +90,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::Nrp8ZsGgsFy86TMx',
+            '_route' => 'generated::FIeD4KOnSNoEFDt5',
           ),
           1 => NULL,
           2 => 
@@ -110,7 +110,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::mfXPrMLKaiBmq6ll',
+            '_route' => 'generated::TQwj7hqT4loMERhT',
           ),
           1 => NULL,
           2 => 
@@ -661,26 +661,6 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      '/prohibited-item' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'retailer.prohibited.item',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'GET' => 0,
-            'HEAD' => 1,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
       '/setting-page' => 
       array (
         0 => 
@@ -713,6 +693,104 @@ app('router')->setCompiledRoutes(
           2 => 
           array (
             'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/prohibited-item' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.prohibited.item',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/ticket-list' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.ticket.list',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/generate-ticket' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.generate.ticket',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/delete-ticket' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.ticket.delete',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/rate-calculation' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.rate.calculation',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
           ),
           3 => NULL,
           4 => false,
@@ -964,7 +1042,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::08W4DRLH6y9UAsiy',
+            '_route' => 'generated::qcd5eG4EojclvTxy',
           ),
           1 => NULL,
           2 => 
@@ -981,7 +1059,7 @@ app('router')->setCompiledRoutes(
     ),
     2 => 
     array (
-      0 => '{^(?|/wholesaler/([^/]++)(?|(*:30)|/([^/]++)(*:46))|/add\\-category\\-margin/([^/]++)(*:85)|/r(?|emove\\-category\\-margin/([^/]++)/([^/]++)(*:138)|to\\-address(?|/(?|edit/([^/]++)(*:177)|update/([^/]++)(*:200))|es/([^/]++)(*:220)))|/clone\\-product/([^/]++)(?|(*:257))|/orders\\-list(?|(?:/([^/]++))?(*:296)|/action(*:311))|/edit\\-coupon/([^/]++)(*:342)|/update\\-coupon/([^/]++)(*:374)|/pick\\-address(?|/(?|edit/([^/]++)(*:416)|update/([^/]++)(*:439))|es/([^/]++)(*:459))|/storage/(.*)(*:481))/?$}sDu',
+      0 => '{^(?|/wholesaler/([^/]++)(?|(*:30)|/([^/]++)(*:46))|/add\\-category\\-margin/([^/]++)(*:85)|/r(?|emove\\-category\\-margin/([^/]++)/([^/]++)(*:138)|to\\-address(?|/(?|edit/([^/]++)(*:177)|update/([^/]++)(*:200))|es/([^/]++)(*:220)))|/clone\\-product/([^/]++)(?|(*:257))|/orders\\-list(?|(?:/([^/]++))?(*:296)|/action(*:311))|/edit\\-(?|coupon/([^/]++)(*:345)|ticket/([^/]++)(*:368))|/update\\-(?|coupon/([^/]++)(*:404)|ticket/([^/]++)(*:427))|/pick\\-address(?|/(?|edit/([^/]++)(*:470)|update/([^/]++)(*:493))|es/([^/]++)(*:513))|/storage/(.*)(*:535))/?$}sDu',
     ),
     3 => 
     array (
@@ -1083,7 +1161,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::KytLhThqyYG2XO5q',
+            '_route' => 'generated::0JyzLZlKxyJTUMne',
           ),
           1 => 
           array (
@@ -1106,7 +1184,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::jDmVISi0IKOVDpit',
+            '_route' => 'generated::wsMFrZpXhvBfGJYD',
           ),
           1 => 
           array (
@@ -1250,7 +1328,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      342 => 
+      345 => 
       array (
         0 => 
         array (
@@ -1273,7 +1351,30 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      374 => 
+      368 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'retailer.ticket.edit',
+          ),
+          1 => 
+          array (
+            0 => 'ticket_id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      404 => 
       array (
         0 => 
         array (
@@ -1295,13 +1396,35 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      416 => 
+      427 => 
       array (
         0 => 
         array (
           0 => 
           array (
-            '_route' => 'generated::9j2szZDbjnN5NUKG',
+            '_route' => 'retailer.ticket.update',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      470 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::mDLbA0kSEsxHLpKI',
           ),
           1 => 
           array (
@@ -1318,13 +1441,13 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      439 => 
+      493 => 
       array (
         0 => 
         array (
           0 => 
           array (
-            '_route' => 'generated::2yet6m4fQ2MoA8bs',
+            '_route' => 'generated::z3ctysPKXkZZ5eka',
           ),
           1 => 
           array (
@@ -1340,7 +1463,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      459 => 
+      513 => 
       array (
         0 => 
         array (
@@ -1362,7 +1485,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      481 => 
+      535 => 
       array (
         0 => 
         array (
@@ -1437,7 +1560,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::pjFHt4i6fBej4522' => 
+    'generated::ZD7qEhtCK1r6sAIt' => 
     array (
       'methods' => 
       array (
@@ -1457,7 +1580,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::pjFHt4i6fBej4522',
+        'as' => 'generated::ZD7qEhtCK1r6sAIt',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1473,7 +1596,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::zyysDjeY7EeIAwi4' => 
+    'generated::YZ72rTq4nE3B6z5A' => 
     array (
       'methods' => 
       array (
@@ -1493,7 +1616,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::zyysDjeY7EeIAwi4',
+        'as' => 'generated::YZ72rTq4nE3B6z5A',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1509,7 +1632,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::ZEMwSe8Z50CUVgYM' => 
+    'generated::AnCS380t9hjLiX1I' => 
     array (
       'methods' => 
       array (
@@ -1529,7 +1652,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::ZEMwSe8Z50CUVgYM',
+        'as' => 'generated::AnCS380t9hjLiX1I',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1545,7 +1668,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::Nrp8ZsGgsFy86TMx' => 
+    'generated::FIeD4KOnSNoEFDt5' => 
     array (
       'methods' => 
       array (
@@ -1574,7 +1697,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000004f70000000000000000";}}',
-        'as' => 'generated::Nrp8ZsGgsFy86TMx',
+        'as' => 'generated::FIeD4KOnSNoEFDt5',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1590,7 +1713,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::mfXPrMLKaiBmq6ll' => 
+    'generated::TQwj7hqT4loMERhT' => 
     array (
       'methods' => 
       array (
@@ -1610,7 +1733,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::mfXPrMLKaiBmq6ll',
+        'as' => 'generated::TQwj7hqT4loMERhT',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3086,44 +3209,6 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'retailer.prohibited.item' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'GET',
-        1 => 'HEAD',
-      ),
-      'uri' => 'prohibited-item',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'retailer',
-        ),
-        'uses' => 'App\\Http\\Controllers\\RetilerController@prohibitedItem',
-        'controller' => 'App\\Http\\Controllers\\RetilerController@prohibitedItem',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'retailer.prohibited.item',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
     'retailer.setting.index' => 
     array (
       'methods' => 
@@ -3184,6 +3269,269 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'retailer.setting.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.prohibited.item' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'prohibited-item',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@prohibitedItem',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@prohibitedItem',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.prohibited.item',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.ticket.list' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'ticket-list',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@ticketList',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@ticketList',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.ticket.list',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.generate.ticket' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'generate-ticket',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@generateTicket',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@generateTicket',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.generate.ticket',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.ticket.delete' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'delete-ticket',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@deleteTicket',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@deleteTicket',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.ticket.delete',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.ticket.edit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'edit-ticket/{ticket_id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@editTicket',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@editTicket',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.ticket.edit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.ticket.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'update-ticket/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@updateTicket',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@updateTicket',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.ticket.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'retailer.rate.calculation' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'rate-calculation',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'retailer',
+        ),
+        'uses' => 'App\\Http\\Controllers\\RetilerController@ratecCalculation',
+        'controller' => 'App\\Http\\Controllers\\RetilerController@ratecCalculation',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'retailer.rate.calculation',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3616,7 +3964,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::9j2szZDbjnN5NUKG' => 
+    'generated::mDLbA0kSEsxHLpKI' => 
     array (
       'methods' => 
       array (
@@ -3638,7 +3986,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::9j2szZDbjnN5NUKG',
+        'as' => 'generated::mDLbA0kSEsxHLpKI',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3654,7 +4002,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::2yet6m4fQ2MoA8bs' => 
+    'generated::z3ctysPKXkZZ5eka' => 
     array (
       'methods' => 
       array (
@@ -3675,7 +4023,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::2yet6m4fQ2MoA8bs',
+        'as' => 'generated::z3ctysPKXkZZ5eka',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3765,7 +4113,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::KytLhThqyYG2XO5q' => 
+    'generated::0JyzLZlKxyJTUMne' => 
     array (
       'methods' => 
       array (
@@ -3787,7 +4135,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::KytLhThqyYG2XO5q',
+        'as' => 'generated::0JyzLZlKxyJTUMne',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3803,7 +4151,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::jDmVISi0IKOVDpit' => 
+    'generated::wsMFrZpXhvBfGJYD' => 
     array (
       'methods' => 
       array (
@@ -3824,7 +4172,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::jDmVISi0IKOVDpit',
+        'as' => 'generated::wsMFrZpXhvBfGJYD',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3877,7 +4225,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::08W4DRLH6y9UAsiy' => 
+    'generated::qcd5eG4EojclvTxy' => 
     array (
       'methods' => 
       array (
@@ -3905,7 +4253,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::08W4DRLH6y9UAsiy',
+        'as' => 'generated::qcd5eG4EojclvTxy',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3937,7 +4285,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000053e0000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000005440000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,

@@ -88,7 +88,6 @@ Route::middleware(['retailer'])->group(function () {
     // cms
     Route::get('/cms-page', [CMS::class, 'index'])->name('retailer.cms.index');
 
-
     // coupan
     Route::get('/coupan-page', [CoupanController::class, 'index'])->name('retailer.coupon.index');
     Route::post('/add-coupon', [CoupanController::class, 'AddCoupon'])->name('retailer.coupon.add');
@@ -96,12 +95,23 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/edit-coupon/{id}', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
     Route::post('/update-coupon/{id}', [CoupanController::class, 'updateCoupon'])->name('retailer.coupon.update');
 
-    // prohibited item page
-    Route::get('/prohibited-item', [RetilerController::class, 'prohibitedItem'])->name('retailer.prohibited.item');
 
     // setting
     Route::get('/setting-page', [Setting::class, 'index'])->name('retailer.setting.index');
     Route::post('/retailer-setting-update', [Setting::class, 'webSettingUpdate'])->name('retailer.setting.update');
+
+    // prohibited item page
+    Route::get('/prohibited-item', [RetilerController::class, 'prohibitedItem'])->name('retailer.prohibited.item');
+    // Generate ticket
+    Route::get('/ticket-list', [RetilerController::class, 'ticketList'])->name('retailer.ticket.list');
+    Route::post('/generate-ticket', [RetilerController::class, 'generateTicket'])->name('retailer.generate.ticket');
+    Route::post('/delete-ticket', [RetilerController::class, 'deleteTicket'])->name('retailer.ticket.delete');
+    Route::get('/edit-ticket/{ticket_id}', [RetilerController::class, 'editTicket'])->name('retailer.ticket.edit');
+    Route::post('/update-ticket/{id}', [RetilerController::class, 'updateTicket'])->name('retailer.ticket.update');
+
+    // rate calculation
+    Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');
+
 
     // v3builder
     Route::get('/v3builder-page', [VBuilder::class, 'index'])->name('retailer.v3builder.index');

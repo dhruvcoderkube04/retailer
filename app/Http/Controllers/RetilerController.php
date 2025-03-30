@@ -10,6 +10,7 @@ use App\Models\CustomerOrders;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserDetail;
 use Carbon\Carbon;
@@ -799,8 +800,6 @@ class RetilerController extends Controller
 
     public function updateCloneProduct(Request $request)
     {
-
-
         $product = RetailerCloneProduct::findOrFail($request->product_id);
         $product->name = $request->product_name;
         $product->description = $request->description;
@@ -844,4 +843,93 @@ class RetilerController extends Controller
     {
         return view('prohibiteditem');
     }
+
+    public function ticketList(){
+        $tickets = Ticket::all();
+        return view('support.ticketlist',compact('tickets'));
+    }
+    public function generateTicket(Request $request)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'ticket_description' => 'required|string',
+            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // Genrate random tikcet id 10 digit  with  TM add tm in prefix
+        $ticket_id = 'TM'. mt_rand(100000, 999999);
+
+        // Create a new ticket
+        $ticket = new Ticket;
+        $ticket->subject = $request->subject;
+        $ticket->description = $request->ticket_description;
+        $ticket->status = 'Pending';
+        $ticket->category = '';
+        $ticket->ticket_id = $ticket_id;
+
+        $ticket->user_id = Auth::user()->id;
+
+        if ($request->hasFile('ticket_image_ref')) {
+            $files = $request->file('ticket_image_ref');
+
+            $filename = time() . '_' . $files->getClientOriginalName();
+            $files->move(public_path('uploads/ticket'), $filename);
+            $ticket->ref_image = $filename;
+        }
+        $ticket->save();
+
+        // Return JSON response
+        return response()->json(['success' => true, 'message' => 'Ticket Created Successfully', 'ticket' => $ticket]);
+    }
+
+    public function deleteTicket(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $request->validate([
+            'ticket_id' =>'required|exists:tickets,ticket_id'
+        ]);
+
+        // Find the ticket and delete it
+        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$request->ticket_id)->first();
+        $ticket->delete();
+
+        // Return JSON response
+        return response()->json(['success' => true, 'message' => 'Ticket Deleted Successfully']);
+    }
+
+    public function editTicket($ticketId)
+    {
+        $ticket = Ticket::where('ticket_id', $ticketId)->first();
+        // return json
+        return response()->json($ticket);
+
+    }
+    public function updateTicket(Request $request)
+    {
+        $request->validate([
+            'ticket_id' =>'required|exists:tickets,ticket_id',
+            'subject' => 'nullable|string|max:255',
+            'ticket_description' => 'nullable|string',
+            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        $user_id = Auth::user()->id;
+        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$request->ticket_id)->first();
+        $ticket->subject = $request->subject;
+        $ticket->description = $request->ticket_description;
+        if ($request->hasFile('ticket_image_ref')) {
+            $files = $request->file('ticket_image_ref');
+            $filename = time(). '_'. $files->getClientOriginalName();
+            $files->move(public_path('uploads/ticket'), $filename);
+            $ticket->ref_image = $filename;
+        }
+        $ticket->save();
+        // Return JSON response
+        return response()->json(['success' => true, 'message' => 'Ticket Updated Successfully']);
+    }
+
+    public function ratecCalculation(){
+        return view('rateccalculation');
+    }
+
 }

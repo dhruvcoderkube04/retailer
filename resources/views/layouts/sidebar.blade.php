@@ -338,13 +338,7 @@
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-time fs-1">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                    <span class="path5"></span>
-                                </i>
+                                <i class="ki-solid ki-setting-2 fs-1"></i>
                             </span>
                             <span class="menu-title">Setting</span>
                             <span class="menu-arrow"></span>
@@ -381,14 +375,58 @@
                     </div>
                     <!--end:Menu item-->
 
+
+                      <!--begin:Menu item-->
+                      <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->is(['ticket-list']) ? 'show' : '' }}">
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-solid ki-support-24 fs-1"></i>
+                            </span>
+                            <span class="menu-title">Support</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{request()->is('ticket-list') ? 'active':''}}" href="{{route('retailer.ticket.list')}}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Ticket List</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link {{request()->is(['prohibited-item']) ? 'active':''}}" href="{{route('retailer.prohibited.item')}}">
                             <span class="menu-icon fs-1">
-                                <i class="ki-solid ki-basket-ok"></i>
+                                <i class="ki-solid ki-basket-ok fs-1"></i>
                             </span>
                             <span class="menu-title">Prohibited Item</span>
+                        </a>
+                        <!--end:Menu link-->
+                    </div>
+                    <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <!--begin:Menu link-->
+                        <a class="menu-link {{request()->is(['rate-calculation']) ? 'active':''}}" href="{{route('retailer.rate.calculation')}}">
+                            <span class="menu-icon fs-1">
+                                <i class="ki-solid ki-finance-calculator fs-1"></i>
+                            </span>
+                            <span class="menu-title">Rate Calculation</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
