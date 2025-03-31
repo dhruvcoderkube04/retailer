@@ -31,8 +31,8 @@ class ShippingController extends Controller
 
         return view('shipping.pick-up-address-list',['addresses' => $addresses]);
     }
-    public function rtoAddress(){
-
+    public function rtoAddress()
+    {
         $user = Auth::user();
         $RTOaddresses = RTOAddress::where('retailer_id',$user->id)->get();
         return view('shipping.rto-address',['RTOaddresses' => $RTOaddresses]);
