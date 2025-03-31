@@ -653,10 +653,16 @@ class RetilerController extends Controller
                 $message = 'Wholesaler will ship this product';
                 $type = 'transfered-retailer-to-wholesaler';
             } else if ($request->status == 'cancelled_by_retailer') {
+                if ($request->reject_reason_select_new == 'Other') {
+                    $cancelled_reason = $request->reject_reason_input_new;
+                } else {
+                    $cancelled_reason = $request->reject_reason_select_new;
+                }
                 $updateData = [
                     'status' => $request->status,
                     'cancelled_by_retailer_at' => Carbon::now(),
-                    'cancelled_by' => $retailer->id
+                    'cancelled_by' => $retailer->id,
+                    'cancelled_reason' => $cancelled_reason
                 ];
                 $message = 'Order has been cancelled by retailer';
                 $type = 'cancelled-by-retailer';
@@ -697,7 +703,8 @@ class RetilerController extends Controller
                 $updateData = [
                     'status' => $request->status,
                     'shipped_by_retailer_at' => Carbon::now(),
-                    'pickup_address_id' => $request->pickup_address_id
+                    'pickup_address_id' => $request->pickup_address_id,
+                    'product_weight' => $request->product_weight
                 ];
                 $message = 'Order has been ready to ship (by supplier)';
                 $type = 'ready-to-ship';
@@ -709,10 +716,16 @@ class RetilerController extends Controller
                 $message = 'Wholesaler will ship this product';
                 $type = 'transfered-retailer-to-wholesaler';
             } else if ($request->status == 'cancelled_by_retailer') {
+                if ($request->reject_reason_select_confirmed == 'Other') {
+                    $cancelled_reason = $request->reject_reason_input_confirmed;
+                } else {
+                    $cancelled_reason = $request->reject_reason_select_confirmed;
+                }
                 $updateData = [
                     'status' => $request->status,
                     'cancelled_by_retailer_at' => Carbon::now(),
-                    'cancelled_by' => $retailer->id
+                    'cancelled_by' => $retailer->id,
+                    'cancelled_reason' => $cancelled_reason
                 ];
                 $message = 'Order has been cancelled by retailer';
                 $type = 'cancelled-by-retailer';

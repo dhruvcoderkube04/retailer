@@ -28,6 +28,10 @@ class CustomerOrders extends Model
 
         'delivered_by',
         'cancelled_by',
+        'cancelled_reason',
+
+        'pickup_address_id',
+        'product_weight',
 
         'tracking_number',
         'courier_service',

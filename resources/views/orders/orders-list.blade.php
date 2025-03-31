@@ -373,10 +373,52 @@
                             </div>
                         </div>
 
-                        {{-- <span class="text-danger mt-5 d-block">
-                            <i class="bi bi-exclamation-triangle"></i> 
-                            <span class="new-order-error">asdfa asdf asdf asd</span>
-                        </span> --}}
+                        {{-- Reject Reason Select --}}
+                        <div class="mt-12 mx-7 rejectReasonSelectContainer" style="display: none;">
+                            <h5 class="fw-bold text-gray-800 mb-3">
+                                <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
+                            </h5>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonSelectNew" class="form-label fw-semibold text-gray-700">Choose
+                                        a reject reason:</label>
+                                    <select name="reject_reason_select_new"
+                                        class="form-select form-select-lg reject_reason_select_new" id="rejectReasonSelectNew" data-control="select2">
+                                        <option value="" disabled selected>-- Select Reason --</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                        <option value="Pricing Issue">Pricing Issue</option>
+                                        <option value="Customer Request">Customer Requested Cancellation</option>
+                                        <option value="Payment Issue">Payment Not Received</option>
+                                        <option value="Shipping Restriction">Cannot Deliver to Customer's Location</option>
+                                        <option value="Product Discontinued">Product Discontinued</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="text-danger mt-5 reject-reason-select-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-select-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Input --}}
+                        <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonInput" class="form-label fw-semibold text-gray-700">Enter
+                                        Reason Here:</label>
+                                    <input type="text" class="form-control reject_reason_input_new"
+                                        name="reject_reason_input_new" id="rejectReasonInput" min="1" placeholder="Enter reject reason">
+
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-input-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
@@ -443,7 +485,7 @@
                             </div>
                         </div>
 
-                        <!-- Pickup Location -->
+                        {{-- Pickup Location --}}
                         <div class="mt-12 mx-7" id="pickupLocationContainer" style="display: none;">
                             <h5 class="fw-bold text-gray-800 mb-3">
                                 <i class="bi bi-geo-alt text-primary me-2"></i> Select Pickup Location
@@ -463,12 +505,78 @@
                                     </select>
                                     <span class="text-danger mt-5 pickup-address-error-section" style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
-                                        <span class="pickup-address-error">asdfa asdf asdf asd</span>
+                                        <span class="pickup-address-error"></span>
                                     </span>
                                 </div>
                             </div>
                         </div>
 
+                        {{-- product weight --}}
+                        <div class="mt-5 mx-7" id="productWeightContainer" style="display: none;">
+                            <h5 class="fw-bold text-gray-800 mb-2">
+                                <i class="bi bi-box text-primary me-2"></i> Enter Product Weight (in grams)
+                            </h5>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="product_weight" class="form-label fw-semibold text-gray-700">Product
+                                        Weight:</label>
+                                    <input type="number" class="form-control" name="product_weight" id="product_weight"
+                                        min="1" placeholder="Enter weight in grams">
+
+                                    <span class="text-danger mt-5 product-weight-error-section" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="product-weight-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Select --}}
+                        <div class="mt-12 mx-7 rejectReasonSelectContainer" style="display: none;">
+                            <h5 class="fw-bold text-gray-800 mb-3">
+                                <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
+                            </h5>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonSelectConfirmed" class="form-label fw-semibold text-gray-700">Choose
+                                        a reject reason:</label>
+                                    <select name="reject_reason_select_confirmed"
+                                        class="form-select form-select-lg reject_reason_select_confirmed" id="rejectReasonSelectConfirmed" data-control="select2">
+                                        <option value="" disabled selected>-- Select Reason --</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                        <option value="Pricing Issue">Pricing Issue</option>
+                                        <option value="Customer Request">Customer Requested Cancellation</option>
+                                        <option value="Payment Issue">Payment Not Received</option>
+                                        <option value="Shipping Restriction">Cannot Deliver to Customer's Location</option>
+                                        <option value="Product Discontinued">Product Discontinued</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="text-danger mt-5 reject-reason-select-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-select-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Input --}}
+                        <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonInput" class="form-label fw-semibold text-gray-700">Enter
+                                        Reason Here:</label>
+                                    <input type="text" class="form-control reject_reason_input_confirmed"
+                                        name="reject_reason_input_confirmed" id="rejectReasonInput" min="1" placeholder="Enter reject reason">
+
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-input-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
@@ -562,12 +670,51 @@
 
     <script>
         $(document).ready(function() {
+
+            // for datatable load and table's data search
             var table1 = $("#kt_order_list_table").DataTable();
             $("#search_field").on("keyup", function() {
                 table1.search(this.value).draw();
             });
 
+            // for search inside select option on modal show
+            $('#new-order-action-modal').on('shown.bs.modal', function() {
+                $('.reject_reason_select_new').select2({
+                    dropdownParent: $('#new-order-action-modal')
+                });
+            });
+            $('#confirmed-order-action-modal').on('shown.bs.modal', function() {
+                $('#pickup_address_id').select2({
+                    dropdownParent: $('#confirmed-order-action-modal')
+                });
+
+                $('#confirmed-order-action-modal .reject_reason_select_confirmed').select2({
+                    dropdownParent: $('#confirmed-order-action-modal')
+                });
+            });
+
             //<-------------- START: New Order --------------->
+            $('.reject_reason_select_new').change(function() { // for reject reason
+                let selectedReason = $(this).val();
+                if (selectedReason == "Other") {
+                    $('.rejectReasonInputContainer').show();
+                } else {
+                    $('.rejectReasonInputContainer').hide();
+                }
+            });
+
+            $(document).on('change', '#new-order-action-modal input[name="status"]', function() {
+                const status = $(this).val();
+                $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
+
+                if (status == 'cancelled_by_retailer') {
+                    $('.rejectReasonSelectContainer').show();
+                    $('#new-order-action-modal .reject_reason_select_new').trigger('change');
+                } else {
+                    $('.rejectReasonSelectContainer').hide();
+                }
+            });
+
             $(document).on('click', '.newOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
@@ -583,9 +730,35 @@
                 e.preventDefault();
 
                 let form = new FormData(this);
-                let status = form.get("status");
 
-                if (!status) return; // Exit if no status is selected
+                // START: validation
+                let status = form.get("status");
+                let reject_reason_select_new = $('.reject_reason_select_new').val();
+                let reject_reason_input_new = $('.reject_reason_input_new').val();
+
+                let errors = [];
+                $('.reject-reason-select-error-section, .reject-reason-input-error-section').hide();
+
+                if (!status) return;
+
+                if (status === "cancelled_by_retailer") {
+                    if (!reject_reason_select_new) {
+                        $(".reject-reason-select-error").text("Please select a reject reason");
+                        $(".reject-reason-select-error-section").show();
+                        errors.push("reject_reason_select_new");
+                    }
+
+                    if (reject_reason_select_new === "Other") {
+                        if (!reject_reason_input_new || reject_reason_input_new.trim() === "") {
+                            $(".reject-reason-input-error").text("Please enter a valid reject reason");
+                            $(".reject-reason-input-error-section").show();
+                            errors.push("reject_reason_input_new");
+                        }
+                    }
+                }
+
+                if (errors.length) return;
+                // END: validation
 
                 let swalConfig = {
                     title: "Are you sure?",
@@ -664,14 +837,35 @@
             //<-------------- END: New Order --------------->
 
             //<-------------- START: Confirmed Order --------------->
+            $('.reject_reason_select_confirmed').change(function() { // for reject reason
+                let selectedReason = $(this).val();
+                if (selectedReason == "Other") {
+                    $('.rejectReasonInputContainer').show();
+                } else {
+                    $('.rejectReasonInputContainer').hide();
+                }
+            });
+
             $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
+                $('#pickupLocationContainer, #productWeightContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer')
+                    .hide();
+
                 if (status == 'shipped_by_retailer') {
                     $('#pickupLocationContainer').show();
+                    $('#productWeightContainer').show();
                 } else {
                     $('#pickupLocationContainer').hide();
+                    $('#productWeightContainer').hide();
                 }
-            })
+
+                if (status == 'cancelled_by_retailer') {
+                    $('.rejectReasonSelectContainer').show();
+                    $('.reject_reason_select_confirmed').trigger('change');
+                } else {
+                    $('.rejectReasonSelectContainer').hide();
+                }
+            });
 
             $(document).on('click', '.confirmedOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
@@ -688,17 +882,51 @@
                 e.preventDefault();
 
                 let form = new FormData(this);
+
+                // START: validation
                 let status = form.get("status");
                 let pickup_address_id = $('#pickup_address_id').val();
+                let product_weight = $('#product_weight').val();
+                let reject_reason_select_confirmed = $('.reject_reason_select_confirmed').val();
+                let reject_reason_input_confirmed = $('.reject_reason_input_confirmed').val();
 
-                if (!pickup_address_id) {
-                    $('.pickup-address-error').text('Please select pickup address');
-                    $('.pickup-address-error-section').show();
-                    return;
+                let errors = [];
+                $('.pickup-address-error-section, .product-weight-error-section, .reject-reason-select-error-section, .reject-reason-input-error-section')
+                    .hide();
+
+                if (!status) return;
+
+                if (status === "shipped_by_retailer") {
+                    if (!pickup_address_id) {
+                        $(".pickup-address-error").text("Please select pickup address");
+                        $(".pickup-address-error-section").show();
+                        errors.push("pickup_address_id");
+                    }
+                    if (!product_weight) {
+                        $(".product-weight-error").text("Please enter product weight (in grams)");
+                        $(".product-weight-error-section").show();
+                        errors.push("product_weight");
+                    }
                 }
-                if (!status) {
-                    return;
+
+                if (status === "cancelled_by_retailer") {
+                    if (!reject_reason_select_confirmed) {
+                        $(".reject-reason-select-error").text("Please select a reject reason");
+                        $(".reject-reason-select-error-section").show();
+                        errors.push("reject_reason_select_confirmed");
+                    }
+
+                    if (reject_reason_select_confirmed === "Other") {
+                        if (!reject_reason_input_confirmed || reject_reason_input_confirmed.trim() === "") {
+                            $(".reject-reason-input-error").text("Please enter a valid reject reason");
+                            $(".reject-reason-input-error-section").show();
+                            errors.push("reject_reason_input_confirmed");
+                        }
+                    }
                 }
+
+                if (errors.length) return;
+                // END: validation
 
                 let swalConfig = {
                     title: "Are you sure?",
