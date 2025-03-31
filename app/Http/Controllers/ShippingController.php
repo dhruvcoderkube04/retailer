@@ -26,13 +26,15 @@ class ShippingController extends Controller
     }
     public function pickAddressList(){
 
-        $addresses = PickAddress::all();
+        $user = Auth::user();
+        $addresses = PickAddress::where('retailer_id',$user->id)->get();
 
         return view('shipping.pick-up-address-list',['addresses' => $addresses]);
     }
     public function rtoAddress(){
 
-        $RTOaddresses = RTOAddress::all();
+        $user = Auth::user();
+        $RTOaddresses = RTOAddress::where('retailer_id',$user->id)->get();
         return view('shipping.rto-address',['RTOaddresses' => $RTOaddresses]);
     }
     public function reportPage(){
@@ -108,13 +110,13 @@ class ShippingController extends Controller
     public function pickAddressdestroy($id)
     {
         $address = PickAddress::find($id);
-        
+
         if (!$address) {
             return response()->json(['success' => false, 'message' => 'Address not found.'], 404);
         }
-    
+
         $address->delete();
-    
+
         return response()->json(['success' => true, 'message' => 'Address deleted successfully.']);
     }
 
@@ -185,14 +187,14 @@ class ShippingController extends Controller
     public function RTOAddressdestroy($id)
     {
         $address = RTOAddress::find($id);
-        
+
         if (!$address) {
             return response()->json(['success' => false, 'message' => 'Address not found.'], 404);
         }
-    
+
         $address->delete();
-    
+
         return response()->json(['success' => true, 'message' => 'Address deleted successfully.']);
     }
-    
+
 }

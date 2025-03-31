@@ -25,7 +25,7 @@ class RetailerAuthController extends Controller
         return view('auth.register');
     }
 
- 
+
 
     public function register(Request $request) {
 
@@ -113,10 +113,10 @@ class RetailerAuthController extends Controller
         }
 
         try {
-            // ✅ Generate token
+            // Generate token
             $token = Str::random(60);
 
-            // ✅ Store in password_reset_tokens table
+            // Store in password_reset_tokens table
             DB::table('password_reset_tokens')->updateOrInsert(
                 ['email' => $user->email],
                 [
@@ -125,7 +125,7 @@ class RetailerAuthController extends Controller
                 ]
             );
 
-            // ✅ Send reset email
+            // Send reset email
             Mail::send('emails.password_reset', ['token' => $token, 'email' => $user->email], function ($message) use ($user) {
                 $message->to($user->email);
                 $message->subject('Password Reset Request');
@@ -140,7 +140,7 @@ class RetailerAuthController extends Controller
     }
     public function showResetPasswordForm($token)
     {
-        
+
         $resetToken = DB::table('password_reset_tokens')->where('token', $token)->first();
         if (!$resetToken) {
             return redirect()->route('retailer.login')->with('error', 'Invalid or expired reset token.');

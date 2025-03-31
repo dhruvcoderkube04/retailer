@@ -24,59 +24,57 @@ use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RetilerController extends Controller
-{  
-    public function retailerDashboard()
 {
-    $from = Carbon::now()->startOfMonth(); 
-    $to = Carbon::now()->endOfMonth();
+    public function retailerDashboard()
+    {
+        $from = Carbon::now()->startOfMonth();
+        $to = Carbon::now()->endOfMonth();
+        $user = Auth::user();
 
-    $data = [
-        'new_orders_count' => CustomerOrders::where('status', 'pending')
-            ->whereBetween('created_at', [$from, $to])
-            ->count(),
+        $data = [
+            'new_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'pending')
+                ->whereBetween('created_at', [$from, $to])
+                ->count(),
 
-        'confirmed_orders_count' => CustomerOrders::where('status', 'confirmed_by_retailer')
-            ->whereBetween('created_at', [$from, $to])
-            ->count(),
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'confirmed_by_retailer')
+                ->whereBetween('created_at', [$from, $to])
+                ->count(),
 
-        'ready_for_ship_orders_count' => CustomerOrders::where('status', 'shipped_by_retailer')
-            ->whereBetween('created_at', [$from, $to])
-            ->count(),
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'shipped_by_retailer')
+                ->whereBetween('created_at', [$from, $to])
+                ->count(),
 
-        'delivered_orders_count' => CustomerOrders::where('status', 'delivered_by_retailer')
-            ->whereBetween('created_at', [$from, $to])
-            ->count(),
+            'delivered_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'delivered_by_retailer')
+                ->whereBetween('created_at', [$from, $to])
+                ->count(),
 
-        'total_sales' => CustomerOrders::whereBetween('created_at', [$from, $to])
-            ->sum('final_amount'),
-    ];
+            'total_sales' => CustomerOrders::where('retailer_id',$user->id)->whereBetween('created_at', [$from, $to])
+                ->sum('final_amount'),
+        ];
 
-    return view('dashboard', compact('data'));
-}
-
-
-
-    
+        return view('dashboard', compact('data'));
+    }
 
     public function dashboardReload(Request $request)
     {
         $from = Carbon::createFromFormat('d/m/Y', $request->from)->startOfDay();
         $to = Carbon::createFromFormat('d/m/Y', $request->to)->endOfDay();
+        $user = Auth::user();
 
         $data = [
-            'new_orders_count' => CustomerOrders::where('status', 'pending')
+            'new_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'pending')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('status', 'confirmed_by_retailer')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'confirmed_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('status', 'shipped_by_retailer')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('retailer_id',$user->id)->where('status', 'shipped_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('status', 'delivered_by_retailer')
+            'delivered_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'delivered_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'total_sales' => CustomerOrders::whereBetween('created_at', [$from, $to])->sum('final_amount'),
+            'total_sales' => CustomerOrders::where('retailer_id',$user->id)->whereBetween('created_at', [$from, $to])->sum('final_amount'),
         ];
 
         return response()->json(['status' => true, 'data' => $data]);
@@ -621,7 +619,7 @@ class RetilerController extends Controller
     //     }
     // }
 
-    // 
+    //
     public function newOrderAction(Request $request)
     {
         $request->validate([
