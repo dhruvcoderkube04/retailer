@@ -27,8 +27,8 @@ class RetilerController extends Controller
 {  
     public function retailerDashboard()
 {
-    $from = Carbon::now()->startOfMonth(); // હાલના મહિના ની શરૂઆત
-    $to = Carbon::now()->endOfMonth(); // હાલના મહિના ની અંતિમ તારીખ
+    $from = Carbon::now()->startOfMonth(); 
+    $to = Carbon::now()->endOfMonth();
 
     $data = [
         'new_orders_count' => CustomerOrders::where('status', 'pending')
