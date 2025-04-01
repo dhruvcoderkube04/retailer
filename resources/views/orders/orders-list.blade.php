@@ -383,7 +383,8 @@
                                     <label for="rejectReasonSelectNew" class="form-label fw-semibold text-gray-700">Choose
                                         a reject reason:</label>
                                     <select name="reject_reason_select_new"
-                                        class="form-select form-select-lg reject_reason_select_new" id="rejectReasonSelectNew" data-control="select2">
+                                        class="form-select form-select-lg reject_reason_select_new"
+                                        id="rejectReasonSelectNew" data-control="select2">
                                         <option value="" disabled selected>-- Select Reason --</option>
                                         <option value="Out of Stock">Out of Stock</option>
                                         <option value="Pricing Issue">Pricing Issue</option>
@@ -406,10 +407,11 @@
                         <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
                             <div class="card shadow-sm border-0">
                                 <div class="card-body p-3">
-                                    <label for="rejectReasonInput" class="form-label fw-semibold text-gray-700">Enter
+                                    <label for="rejectReasonInputNew" class="form-label fw-semibold text-gray-700">Enter
                                         Reason Here:</label>
                                     <input type="text" class="form-control reject_reason_input_new"
-                                        name="reject_reason_input_new" id="rejectReasonInput" min="1" placeholder="Enter reject reason">
+                                        name="reject_reason_input_new" id="rejectReasonInputNew" min="1"
+                                        placeholder="Enter reject reason">
 
                                     <span class="text-danger mt-5 reject-reason-input-error-section"
                                         style="display: none;">
@@ -441,7 +443,7 @@
     <!-- Confirmed Order Modal -->
     <div class="modal fade" id="confirmed-order-action-modal" tabindex="-1"
         aria-labelledby="confirmed-order-action-modal-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title d-flex align-item-center gap-4 mt-1" id="confirmed-order-action-modal-label">
@@ -485,95 +487,177 @@
                             </div>
                         </div>
 
-                        {{-- Pickup Location --}}
-                        <div class="mt-12 mx-7" id="pickupLocationContainer" style="display: none;">
-                            <h5 class="fw-bold text-gray-800 mb-3">
-                                <i class="bi bi-geo-alt text-primary me-2"></i> Select Pickup Location
-                            </h5>
-                            <div class="card shadow-sm border-0">
-                                <div class="card-body p-3">
-                                    <label class="form-label fw-semibold text-gray-700">Choose a location:</label>
-                                    <select name="pickup_address_id" class="form-select form-select-lg"
-                                        id="pickup_address_id" data-control="select2">
-                                        <option value="" disabled selected>-- Select Pickup Location --</option>
-                                        @foreach ($pickupAddress as $address)
-                                            <option value="{{ $address->id }}" data-address="123 Main St, City A">
-                                                📍 {{ $address->first_name }} {{ $address->last_name }} -
-                                                {{ $address->address }}, {{ $address->state }}, {{ $address->city }} -
-                                                {{ $address->pincode }}</option>
-                                        @endforeach
-                                    </select>
-                                    <span class="text-danger mt-5 pickup-address-error-section" style="display: none;">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        <span class="pickup-address-error"></span>
-                                    </span>
+                        <div class="row mt-12">
+                            {{-- Pickup Location --}}
+                            <div class="col-md-6">
+                                <div class="mt-5 mx-7" id="pickupLocationContainer" style="display: none;">
+                                    <h5 class="fw-bold text-gray-800 mb-3">
+                                        <i class="bi bi-geo-alt text-primary me-2 fs-4"></i> Select Pickup Location
+                                    </h5>
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3">
+                                            <label class="form-label fw-semibold text-gray-700">Choose a location:</label>
+                                            <select name="pickup_address_id" class="form-select form-select-lg"
+                                                id="pickup_address_id" data-control="select2">
+                                                <option value="" disabled selected>-- Select Pickup Location --
+                                                </option>
+                                                @foreach ($pickupAddress as $address)
+                                                    <option value="{{ $address->id }}">
+                                                        📍 {{ $address->first_name }} {{ $address->last_name }} -
+                                                        {{ $address->address }}, {{ $address->state }},
+                                                        {{ $address->city }} -
+                                                        {{ $address->pincode }}</option>
+                                                @endforeach
+                                            </select>
+                                            <span class="text-danger mt-5 pickup-address-error-section"
+                                                style="display: none;">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span class="pickup-address-error"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- RTO Address --}}
+                            <div class="col-md-6">
+                                <div class="mt-5 mx-7" id="rtoAddressContainer" style="display: none;">
+                                    <h5 class="fw-bold text-gray-800 mb-3">
+                                        <i class="bi bi-geo-alt text-primary me-2 fs-4"></i> Select RTO Address
+                                    </h5>
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3">
+                                            <label class="form-label fw-semibold text-gray-700">Choose a address:</label>
+                                            <select name="rto_address_id" class="form-select form-select-lg"
+                                                id="rto_address_id" data-control="select2">
+                                                <option value="" disabled selected>-- Select RTO Address --
+                                                </option>
+                                                @foreach ($rtoAddress as $address)
+                                                    <option value="{{ $address->id }}">
+                                                        📍 {{ $address->first_name }} {{ $address->last_name }} -
+                                                        {{ $address->address }}, {{ $address->state }},
+                                                        {{ $address->city }} -
+                                                        {{ $address->pincode }}</option>
+                                                @endforeach
+                                            </select>
+                                            <span class="text-danger mt-5 rto-address-error-section"
+                                                style="display: none;">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span class="rto-address-error"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Courier Service --}}
+                            <div class="col-md-6">
+                                <div class="mt-5 mx-7" id="courierServicesContainer" style="display: none;">
+                                    <h5 class="fw-bold text-gray-800 mb-3">
+                                        <i class="bi bi-truck text-primary me-2 fs-4"></i> Select Courier Services
+                                    </h5>
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3">
+                                            <label class="form-label fw-semibold text-gray-700">Choose a location:</label>
+                                            <select name="courier_service" class="form-select form-select-lg"
+                                                id="courier_service" data-control="select2">
+                                                <option value="" disabled selected>-- Select Courier Service --
+                                                </option>
+                                                @foreach ($courierServices as $courier)
+                                                    <option value="{{ $courier['courierName'] }}"
+                                                        data-id="{{ $courier['courierId'] }}">
+                                                        {{ $courier['courierName'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            <span class="text-danger mt-5 courier-service-error-section"
+                                                style="display: none;">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span class="courier-service-error"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- product weight --}}
+                            <div class="col-md-6">
+                                <div class="mt-5 mx-7" id="productWeightContainer" style="display: none;">
+                                    <h5 class="fw-bold text-gray-800 mb-3">
+                                        <i class="bi bi-box text-primary me-2 fs-4"></i> Enter Product Weight (in grams)
+                                    </h5>
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3">
+                                            <label for="product_weight"
+                                                class="form-label fw-semibold text-gray-700">Product
+                                                Weight:</label>
+                                            <input type="number" class="form-control" name="product_weight"
+                                                id="product_weight" min="1" placeholder="Enter weight in grams">
+
+                                            <span class="text-danger mt-5 product-weight-error-section"
+                                                style="display: none;">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span class="product-weight-error"></span>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- product weight --}}
-                        <div class="mt-5 mx-7" id="productWeightContainer" style="display: none;">
-                            <h5 class="fw-bold text-gray-800 mb-2">
-                                <i class="bi bi-box text-primary me-2"></i> Enter Product Weight (in grams)
-                            </h5>
-                            <div class="card shadow-sm border-0">
-                                <div class="card-body p-3">
-                                    <label for="product_weight" class="form-label fw-semibold text-gray-700">Product
-                                        Weight:</label>
-                                    <input type="number" class="form-control" name="product_weight" id="product_weight"
-                                        min="1" placeholder="Enter weight in grams">
-
-                                    <span class="text-danger mt-5 product-weight-error-section" style="display: none;">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        <span class="product-weight-error"></span>
-                                    </span>
+                        <div class="row mt-12">
+                            {{-- Reject Reason Select --}}
+                            <div class="col-md-6">
+                                <div class="mt-5 mx-7 rejectReasonSelectContainer" style="display: none;">
+                                    <h5 class="fw-bold text-gray-800 mb-3">
+                                        <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
+                                    </h5>
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3">
+                                            <label for="rejectReasonSelectConfirmed"
+                                                class="form-label fw-semibold text-gray-700">Choose
+                                                a reject reason:</label>
+                                            <select name="reject_reason_select_confirmed"
+                                                class="form-select form-select-lg reject_reason_select_confirmed"
+                                                id="rejectReasonSelectConfirmed" data-control="select2">
+                                                <option value="" disabled selected>-- Select Reason --</option>
+                                                <option value="Out of Stock">Out of Stock</option>
+                                                <option value="Pricing Issue">Pricing Issue</option>
+                                                <option value="Customer Request">Customer Requested Cancellation</option>
+                                                <option value="Payment Issue">Payment Not Received</option>
+                                                <option value="Shipping Restriction">Cannot Deliver to Customer's Location
+                                                </option>
+                                                <option value="Product Discontinued">Product Discontinued</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <span class="text-danger mt-5 reject-reason-select-error-section"
+                                                style="display: none;">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span class="reject-reason-select-error"></span>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Reject Reason Select --}}
-                        <div class="mt-12 mx-7 rejectReasonSelectContainer" style="display: none;">
-                            <h5 class="fw-bold text-gray-800 mb-3">
-                                <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
-                            </h5>
-                            <div class="card shadow-sm border-0">
-                                <div class="card-body p-3">
-                                    <label for="rejectReasonSelectConfirmed" class="form-label fw-semibold text-gray-700">Choose
-                                        a reject reason:</label>
-                                    <select name="reject_reason_select_confirmed"
-                                        class="form-select form-select-lg reject_reason_select_confirmed" id="rejectReasonSelectConfirmed" data-control="select2">
-                                        <option value="" disabled selected>-- Select Reason --</option>
-                                        <option value="Out of Stock">Out of Stock</option>
-                                        <option value="Pricing Issue">Pricing Issue</option>
-                                        <option value="Customer Request">Customer Requested Cancellation</option>
-                                        <option value="Payment Issue">Payment Not Received</option>
-                                        <option value="Shipping Restriction">Cannot Deliver to Customer's Location</option>
-                                        <option value="Product Discontinued">Product Discontinued</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <span class="text-danger mt-5 reject-reason-select-error-section"
-                                        style="display: none;">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        <span class="reject-reason-select-error"></span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                            {{-- Reject Reason Input --}}
+                            <div class="col-md-6">
+                                <div class="mt-5 mx-7 rejectReasonInputContainer" style="display: none;">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3">
+                                            <label for="rejectReasonInputConfirm"
+                                                class="form-label fw-semibold text-gray-700">Enter
+                                                Reason Here:</label>
+                                            <input type="text" class="form-control reject_reason_input_confirmed"
+                                                name="reject_reason_input_confirmed" id="rejectReasonInputConfirm"
+                                                min="1" placeholder="Enter reject reason">
 
-                        {{-- Reject Reason Input --}}
-                        <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-body p-3">
-                                    <label for="rejectReasonInput" class="form-label fw-semibold text-gray-700">Enter
-                                        Reason Here:</label>
-                                    <input type="text" class="form-control reject_reason_input_confirmed"
-                                        name="reject_reason_input_confirmed" id="rejectReasonInput" min="1" placeholder="Enter reject reason">
-
-                                    <span class="text-danger mt-5 reject-reason-input-error-section"
-                                        style="display: none;">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        <span class="reject-reason-input-error"></span>
-                                    </span>
+                                            <span class="text-danger mt-5 reject-reason-input-error-section"
+                                                style="display: none;">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span class="reject-reason-input-error"></span>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -684,11 +768,7 @@
                 });
             });
             $('#confirmed-order-action-modal').on('shown.bs.modal', function() {
-                $('#pickup_address_id').select2({
-                    dropdownParent: $('#confirmed-order-action-modal')
-                });
-
-                $('#confirmed-order-action-modal .reject_reason_select_confirmed').select2({
+                $('#pickup_address_id, #rto_address_id, #courier_service, .reject_reason_select_confirmed').select2({
                     dropdownParent: $('#confirmed-order-action-modal')
                 });
             });
@@ -848,15 +928,18 @@
 
             $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
-                $('#pickupLocationContainer, #productWeightContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer')
-                    .hide();
+                $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
                 if (status == 'shipped_by_retailer') {
                     $('#pickupLocationContainer').show();
+                    $('#rtoAddressContainer').show();
                     $('#productWeightContainer').show();
+                    $('#courierServicesContainer').show();
                 } else {
                     $('#pickupLocationContainer').hide();
+                    $('#rtoAddressContainer').hide();
                     $('#productWeightContainer').hide();
+                    $('#courierServicesContainer').hide();
                 }
 
                 if (status == 'cancelled_by_retailer') {
@@ -878,6 +961,10 @@
                 $('#confirmed-order-action-modal').modal('show');
             });
 
+            $('#rejectReasonInputConfirm').on('click', function() {
+                $('#new-order-action-modal').modal('show');
+            });
+
             $(document).on('submit', '#confirmedOrderForm', function(e) {
                 e.preventDefault();
 
@@ -886,13 +973,14 @@
                 // START: validation
                 let status = form.get("status");
                 let pickup_address_id = $('#pickup_address_id').val();
+                let rto_address_id = $('#rto_address_id').val();
+                let courier_service = $('#courier_service').val();
                 let product_weight = $('#product_weight').val();
                 let reject_reason_select_confirmed = $('.reject_reason_select_confirmed').val();
                 let reject_reason_input_confirmed = $('.reject_reason_input_confirmed').val();
 
                 let errors = [];
-                $('.pickup-address-error-section, .product-weight-error-section, .reject-reason-select-error-section, .reject-reason-input-error-section')
-                    .hide();
+                $('.pickup-address-error-section, .product-weight-error-section, .reject-reason-select-error-section, .reject-reason-input-error-section, .rto-address-error-section, .courier-service-error-section').hide();
 
                 if (!status) return;
 
@@ -901,6 +989,16 @@
                         $(".pickup-address-error").text("Please select pickup address");
                         $(".pickup-address-error-section").show();
                         errors.push("pickup_address_id");
+                    }
+                    if (!rto_address_id) {
+                        $(".rto-address-error").text("Please enter product weight (in grams)");
+                        $(".rto-address-error-section").show();
+                        errors.push("product_weight");
+                    }
+                    if (!courier_service) {
+                        $(".courier-service-error").text("Please enter product weight (in grams)");
+                        $(".courier-service-error-section").show();
+                        errors.push("product_weight");
                     }
                     if (!product_weight) {
                         $(".product-weight-error").text("Please enter product weight (in grams)");
@@ -960,16 +1058,6 @@
 
                 Swal.fire(swalConfig).then((result) => {
                     if (result.isConfirmed) {
-                        if (status == "shipped_by_retailer") {
-                            const pickup_address_id = $('#pickup_address_id').val();
-
-                            if (!pickup_address_id) {
-                                $('.pickup-address-error').text('Please select pickup address');
-                                $('.pickup-address-error-section').show();
-                                return;
-                            }
-                        }
-
                         $.ajax({
                             url: "{{ route('retailer.order.action.confirmed-order') }}",
                             type: "POST",

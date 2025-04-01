@@ -11,6 +11,7 @@ use App\Models\PickAddress;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
+use App\Models\RTOAddress;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -19,6 +20,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -499,6 +501,7 @@ class RetilerController extends Controller
     {
         $retailer = Auth::user();
 
+        // count
         $count = CustomerOrders::where('retailer_id', $retailer->id)
         ->selectRaw("
             SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
@@ -510,14 +513,14 @@ class RetilerController extends Controller
             SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer
         ")->first()->toArray();
 
+        // customer orders
         $sql = CustomerOrders::with([
             'customer',
             'product',
             'retailerCloneProduct',
             'wholesaler.userDetail',
         ])
-            ->where('retailer_id', $retailer->id);
-
+        ->where('retailer_id', $retailer->id);
         if ($type == 'new') {
             $sql->where('status', 'pending');
         } else if ($type == 'transfered-retailer-to-wholesaler') {
@@ -535,13 +538,23 @@ class RetilerController extends Controller
         } else {
             return redirect()->route('retailer.order.list');
         }
-
         $retailerOrders = $sql->orderBy('id', 'DESC')
             ->get();
 
+        // pickup address
         $pickupAddress = PickAddress::where('retailer_id', $retailer->id)->get();
 
-        return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress'));
+        // rto address
+        $rtoAddress = RTOAddress::where('retailer_id', $retailer->id)->get();
+
+        // courier list from API
+        $response = Http::withHeaders([
+            'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb'
+        ])->get('https://capi-qc.fship.in/api/getallcourier');
+        $courierServices = $response->json();
+
+
+        return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'rtoAddress', 'courierServices'));
     }
 
     // order action
