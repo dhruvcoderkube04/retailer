@@ -1,6 +1,6 @@
 @extends('auth.base')
 @section('title')
-Sing In - TrandMart
+Sing-in Retailer | TrandMart
 @endsection
 @section('content')
 <div class="d-flex flex-column flex-root" id="kt_app_root">

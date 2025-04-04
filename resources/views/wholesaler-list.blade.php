@@ -1,5 +1,7 @@
 @extends('layouts.base')
-
+@section('title')
+    Wholesaler List | TrendMart
+@endsection
 @section('content')
     @if ($is_all_wholesaler_visible)
         <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -21,7 +23,8 @@
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                                 <!--begin::Item-->
                                 <li class="breadcrumb-item text-muted">
-                                    <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
+                                    <a href="{{ route('retailer.dashboard') }}"
+                                        class="text-muted text-hover-primary">Home</a>
                                 </li>
                                 <!--end::Item-->
                                 <!--begin::Item-->

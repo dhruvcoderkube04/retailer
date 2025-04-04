@@ -1,7 +1,7 @@
 @extends('auth.base')
 
 @section('title')
-Reset Password - TrandMart
+Reset Password | TrandMart
 @endsection
 
 @section('content')

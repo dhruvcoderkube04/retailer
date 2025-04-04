@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Clone Product
+    Clone Product | TrendMart
 @endsection
 @section('content')
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

@@ -1,6 +1,6 @@
 @extends('auth.base')
 @section('title')
-    TrendMart - Retailer Sign Up
+Sign-up Retailer | TrendMart
 @endsection
 
 @section('content')

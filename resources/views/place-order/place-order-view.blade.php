@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer's Added Product List
+    Place New Order | TrendMart
 @endsection
 @section('content')
     <!--begin::Main-->

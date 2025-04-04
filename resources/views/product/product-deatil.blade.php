@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Product Details - TrendMart
+    Product Details | TrendMart
 @endsection
 @section('content')
     <!--begin::Main-->

@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer Orders
+    Retailer's Order List | TrendMart
 @endsection
 
 @php
@@ -443,7 +443,7 @@
     <!-- Confirmed Order Modal -->
     <div class="modal fade" id="confirmed-order-action-modal" tabindex="-1"
         aria-labelledby="confirmed-order-action-modal-label" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title d-flex align-item-center gap-4 mt-1" id="confirmed-order-action-modal-label">

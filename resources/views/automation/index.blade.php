@@ -1,5 +1,7 @@
 @extends('layouts.base')
-
+@section('title')
+    Automation | TrendMart
+@endsection
 @section('content')
     <!--begin::Main-->
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

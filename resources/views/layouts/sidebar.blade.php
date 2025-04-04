@@ -4,9 +4,9 @@
         <!--begin::Logo image-->
         <a href="{{ route('retailer.dashboard') }}">
             <img src="{{ asset('assets/media/logos/big_mart_nepal_cover.jpg') }}" class="h-55px text-center" alt="{{Auth::user()->firstname}}" style="border-radius: 10px;" />
-            <!-- <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
+            {{-- <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                 ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
-                : asset('assets/media/avatars/blank.png') }}" class="h-25px app-sidebar-logo-default" alt="{{Auth::user()->firstname}}" /> -->
+                : asset('assets/media/avatars/blank.png') }}" class="h-25px app-sidebar-logo-default" alt="{{Auth::user()->firstname}}" /> --}}
             <!-- <br /> -->
             <!-- {{Auth::user()->firstname}} -->
         </a>
@@ -66,7 +66,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['retailer-product', 'add-product/*', 'remove-product/*']) ? 'active':''}}" href="{{route('retailer.product')}}">
+                        <a class="menu-link {{request()->is(['retailer-product', 'add-product/*', 'remove-product/*', 'retailer-add-product']) ? 'active':''}}" href="{{route('retailer.product')}}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-cube-2 fs-1">
                                     <span class="path1"></span>
