@@ -10,6 +10,7 @@ use App\Models\RetailerProducts;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerWebManagement;
 use App\Models\UserDetail;
+use App\Models\Otp;
 use Dotenv\Util\Regex;
 use Exception;
 use Illuminate\Http\Request;
@@ -167,6 +168,49 @@ public function getRetailerProducts(Request $request)
         }
     }
 
+    public function sendOtp(Request $request)
+    {
+// dd($request->all());
+        $request->validate([
+            'phone_number' => 'required|numeric|digits:10'
+        ]);
+
+        $otpCode = rand(100000, 999999);
+
+        Otp::updateOrCreate(
+            ['phone_number' => $request->phone_number],
+            ['otp' => $otpCode, 'verified' => false]
+        );
+
+        // Send OTP using SMS service (example implementation)
+        // SmsService::sendOtp($request->phone_number, $otpCode);
+
+        return response()->json(['message' => 'OTP sent successfully!', 'otp' => $otpCode]);
+    }
+
+    /**
+     * Verify OTP
+     */
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|numeric|digits:10',
+            'otp' => 'required|numeric|digits:6'
+        ]);
+
+        $otpRecord = Otp::where('phone_number', $request->phone_number)
+                        ->where('otp', $request->otp)
+                        ->first();
+
+        if (!$otpRecord) {
+            return response()->json(['error' => 'Invalid OTP!'], 400);
+        }
+
+        $otpRecord->update(['verified' => true]);
+
+        return response()->json(['message' => 'OTP verified successfully!']);
+    }
+
 
     public function checkout(Request $request)
     {
@@ -204,6 +248,16 @@ public function getRetailerProducts(Request $request)
         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
         if (!$retailer) {
             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+        }
+
+        $otpRecord = Otp::where('phone_number', $request->phone_number)
+        ->where('verified', true)
+        ->first();
+
+        // dd($otpRecord);
+
+        if (!$otpRecord) {
+        return response()->json(['error' => 'OTP verification required!'], 403);
         }
 
         DB::beginTransaction();

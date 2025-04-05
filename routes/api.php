@@ -9,3 +9,5 @@ Route::post('/retailer-products', [RetailerProductController::class, 'getRetaile
 Route::post('/retailer-webinfo', [RetailerProductController::class, 'getRetailerWebInfo']);
 Route::post('/checkout', [RetailerProductController::class, 'checkout']);
 
+Route::post('/send-otp', [RetailerProductController::class, 'sendOtp']);
+Route::post('/verify-otp', [RetailerProductController::class, 'verifyOtp']);
