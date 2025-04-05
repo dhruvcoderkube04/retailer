@@ -273,20 +273,19 @@ class RetilerController extends Controller
 
     public function retailerPostProduct(Request $request)
     {
-
         $request->validate([
             'product_name' => 'required|min:3|max:100',
             'product_description' => 'required|min:5|max:100',
             'product_tags' => 'required|min:3|max:255',
             'categories' => 'required|numeric',
-            'quantity' => 'required|integer|min:1',
             'new_price' => 'required|numeric|min:1',
-            'sku' => 'required|string',
-            // 'discount_price' => 'nullable|numeric|min:0.01|max:100'
+            // 'discount_price' => 'nullable|numeric|min:0.01|max:100',
             'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
             'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
-            'video' => 'nullable|mimes:mp4|max:10240',
+            'video' => 'required|mimes:mp4|max:10240',
+            'sku' => 'required|string',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         // all image set in array comman seprated store

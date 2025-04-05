@@ -6,6 +6,7 @@ use App\Http\Controllers\CMS;
 use App\Http\Controllers\Coupan;
 use App\Http\Controllers\CoupanController;
 use App\Http\Controllers\RetailerAuthController;
+use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\RetilerController;;
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
@@ -155,6 +156,17 @@ Route::middleware(['retailer'])->group(function () {
     Route::put('/rto-address/update/{id}', [ShippingController::class, 'RTOAddressupdate']);
     Route::delete('/rto-addresses/{id}', [ShippingController::class, 'RTOAddressdestroy'])->name('rtoAddresses.destroy');
 
+    // retailer catgory manage
+    Route::get('/category-list', [RetailerCategoryController::class, 'categoryList'])->name('retailer.category.list');
+    Route::post('/add-retailer-category', [RetailerCategoryController::class, 'addRetailerCategory'])->name('retailer.category.add-retailer-category');
+    Route::get('/my-category-list', [RetailerCategoryController::class, 'myCategoryList'])->name('retailer.mycategory.list');
+    Route::post('/remove-category', [RetailerCategoryController::class, 'removeCategory'])->name('retailer.remove.category');
+    Route::post('/update-category-image', [RetailerCategoryController::class, 'updateCategoryImage'])->name('retailer.category-image.update');
+
+    // category suggestion maanage
+    Route::get('/category-suggestion', [RetailerCategoryController::class, 'categorySuggestion'])->name('retailer.category-suggestion');
+    Route::post('/category-suggestion-create', [RetailerCategoryController::class, 'createCategorySuggestion'])->name('retailer.category-suggestion-create');
+    Route::post('/category-suggestion-delete', [RetailerCategoryController::class, 'deleteCategorySuggestion'])->name('retailer.category-suggestion-delete');
 });
 
 Route::get('/cc', function() {

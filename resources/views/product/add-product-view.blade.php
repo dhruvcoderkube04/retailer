@@ -73,6 +73,9 @@
                                                             class="form-control mb-2 @error('product_name') is-invalid @enderror"
                                                             placeholder="Product name" value="{{ old('product_name') }}" />
                                                         <!--end::Input-->
+                                                        @error('product_name')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-md-5">
@@ -84,6 +87,9 @@
                                                             value="{{ old('product_tags') }}"
                                                             placeholder="fashion,stylesh" />
                                                         <!--end::Label-->
+                                                        @error('product_tags')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                             </div>
@@ -102,6 +108,9 @@
                                                                     {{ Str::upper($category->category_name) }}</option>
                                                             @endforeach
                                                         </select>
+                                                        @error('categories')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                             </div>
@@ -117,6 +126,9 @@
                                                             class="form-control mb-2 @error('new_price') is-invalid @enderror"
                                                             placeholder="New Price" value="{{ old('new_price') }}" />
                                                         <!--end::Input-->
+                                                        @error('new_price')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
                                                         <!--begin::Description-->
                                                         <!--end::Description-->
                                                     </div>
@@ -211,16 +223,14 @@
                                                         <label class="required form-label">Video </label>
                                                         <!--end::Label-->
                                                         <!--begin::Input-->
-                                                        <div class="d-flex gap-3">
-                                                            <input type="file" name="video"
-                                                                class="form-control mb-2 @error('video') is-invalid @enderror"
-                                                                placeholder="video" value="{{ old('video') }}" />
-                                                        </div>
-                                                        <!--end::Input-->
-                                                        <!--begin::Description-->
+                                                        <input type="file" name="video"
+                                                            class="form-control mb-2 @error('video') is-invalid @enderror"
+                                                            placeholder="video" value="{{ old('video') }}" />
                                                         @error('video')
                                                             <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                         @enderror
+                                                        <!--end::Input-->
+                                                        <!--begin::Description-->
                                                         <!--end::Description-->
                                                     </div>
                                                 </div>
@@ -269,17 +279,15 @@
                                                         <label class="form-label">Quantity</label>
                                                         <!--end::Label-->
                                                         <!--begin::Input-->
-                                                        <div class="d-flex gap-3">
-                                                            <input type="number" name="quantity"
-                                                                class="form-control mb-2 @error('quantity') is-invalid @enderror"
-                                                                placeholder="how many product have"
-                                                                value="{{ old('quantity') }}" />
-                                                        </div>
-                                                        <!--end::Input-->
-                                                        <!--begin::Description-->
+                                                        <input type="number" name="quantity"
+                                                            class="form-control mb-2 @error('quantity') is-invalid @enderror"
+                                                            placeholder="how many product have"
+                                                            value="{{ old('quantity') }}" />
                                                         @error('quantity')
                                                             <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                         @enderror
+                                                        <!--end::Input-->
+                                                        <!--begin::Description-->
                                                         <!--end::Description-->
                                                     </div>
                                                 </div>
