@@ -60,98 +60,95 @@
                                     <!--end::Card header-->
                                     <!--begin::Card body-->
                                     <div class="card-body pt-0">
-                                        <div class="card-body pt-0">
-                                            <!--begin::Input group-->
-                                            <div class="row">
-                                                <div class="col-md-7">
-                                                    <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <label class="form-label">Product Name</label>
-                                                        <!--end::Label-->
-                                                        <!--begin::Input-->
-                                                        <input type="text" name="product_name"
-                                                            class="form-control mb-2 @error('product_name') is-invalid @enderror"
-                                                            placeholder="Product name" value="{{ old('product_name') }}" />
-                                                        <!--end::Input-->
-                                                        @error('product_name')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-5">
-                                                    <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <label class="form-label">Tags</label>
-                                                        <input name="product_tags"
-                                                            class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                            value="{{ old('product_tags') }}"
-                                                            placeholder="fashion,stylesh" />
-                                                        <!--end::Label-->
-                                                        @error('product_tags')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <div class="mb-10 fv-row">
-                                                        <label class="form-label">Categories</label>
-                                                        <select
-                                                            class="form-select mb-2 @error('categories') is-invalid @enderror"
-                                                            data-control="select2" name="categories"
-                                                            data-placeholder="Select an option">
-                                                            <option></option>
-                                                            @foreach ($category_list as $category)
-                                                                <option value="{{ $category->id }}">
-                                                                    {{ Str::upper($category->category_name) }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('categories')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <label class="form-label">Price</label>
-                                                        <!--end::Label-->
-                                                        <!--begin::Input-->
-                                                        <input type="number" name="new_price"
-                                                            class="form-control mb-2 @error('new_price') is-invalid @enderror"
-                                                            placeholder="New Price" value="{{ old('new_price') }}" />
-                                                        <!--end::Input-->
-                                                        @error('new_price')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                        <!--begin::Description-->
-                                                        <!--end::Description-->
-                                                    </div>
-                                                </div>
-
-                                                <div>
+                                        <!--begin::Input group-->
+                                        <div class="row">
+                                            <div class="col-md-7">
+                                                <div class="mb-10 fv-row">
                                                     <!--begin::Label-->
-                                                    <label class="form-label">Product Description</label>
+                                                    <label class="required form-label">Product Name</label>
                                                     <!--end::Label-->
-                                                    <!--begin::Editor-->
-                                                    <textarea name="product_description" id="" cols="30" rows="3"
-                                                        class="form-control @error('product_description') is-invalid @enderror">{{ old('product_description') }}</textarea>
-                                                    {{-- <div id="kt_ecommerce_add_product_description" class="min-h-150px mb-2">
-                                                </div> --}}
-                                                    <!--end::Editor-->
-                                                    <!--begin::Description-->
-                                                    @error('product_description')
+                                                    <!--begin::Input-->
+                                                    <input type="text" name="product_name"
+                                                        class="form-control mb-2 @error('product_name') is-invalid @enderror"
+                                                        placeholder="Product name" value="{{ old('product_name') }}" />
+                                                    <!--end::Input-->
+                                                    @error('product_name')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="mb-10 fv-row">
+                                                    <!--begin::Label-->
+                                                    <label class="required form-label">Tags</label>
+                                                    <input name="product_tags"
+                                                        class="form-control mb-2 @error('product_tags') is-invalid @enderror"
+                                                        value="{{ old('product_tags') }}" placeholder="fashion,stylesh" />
+                                                    <!--end::Label-->
+                                                    @error('product_tags')
+                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="mb-10 fv-row">
+                                                    <label class="required form-label">Categories</label>
+                                                    <select
+                                                        class="form-select mb-2 @error('categories') is-invalid @enderror"
+                                                        data-control="select2" name="categories"
+                                                        data-placeholder="Select an option">
+                                                        <option></option>
+                                                        @foreach ($category_list as $category)
+                                                            <option value="{{ $category->id }}">
+                                                                {{ Str::upper($category->category_name) }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('categories')
+                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-10 fv-row">
+                                                    <!--begin::Label-->
+                                                    <label class="required form-label">Price</label>
+                                                    <!--end::Label-->
+                                                    <!--begin::Input-->
+                                                    <input type="number" name="new_price"
+                                                        class="form-control mb-2 @error('new_price') is-invalid @enderror"
+                                                        placeholder="New Price" value="{{ old('new_price') }}" />
+                                                    <!--end::Input-->
+                                                    @error('new_price')
+                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                    @enderror
+                                                    <!--begin::Description-->
                                                     <!--end::Description-->
                                                 </div>
-                                                <!--end::Input group-->
                                             </div>
+
+                                            <div>
+                                                <!--begin::Label-->
+                                                <label class="required form-label">Product Description</label>
+                                                <!--end::Label-->
+                                                <!--begin::Editor-->
+                                                <textarea name="product_description" id="" cols="30" rows="3"
+                                                    class="form-control @error('product_description') is-invalid @enderror">{{ old('product_description') }}</textarea>
+                                                {{-- <div id="kt_ecommerce_add_product_description" class="min-h-150px mb-2">
+                                                </div> --}}
+                                                <!--end::Editor-->
+                                                <!--begin::Description-->
+                                                @error('product_description')
+                                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                @enderror
+                                                <!--end::Description-->
+                                            </div>
+                                            <!--end::Input group-->
                                         </div>
                                         <!--end::Card header-->
                                     </div>
@@ -259,7 +256,7 @@
                                                 <div class="col-md-5">
                                                     <div class="mb-10 fv-row">
                                                         <!--begin::Label-->
-                                                        <label class="form-label">SKU</label>
+                                                        <label class="required form-label">SKU</label>
                                                         <!--end::Label-->
                                                         <!--begin::Input-->
                                                         <input type="text" name="sku"
@@ -276,7 +273,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-10 fv-row">
                                                         <!--begin::Label-->
-                                                        <label class="form-label">Quantity</label>
+                                                        <label class="required form-label">Quantity</label>
                                                         <!--end::Label-->
                                                         <!--begin::Input-->
                                                         <input type="number" name="quantity"
