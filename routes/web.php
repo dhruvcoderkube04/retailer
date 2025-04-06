@@ -98,7 +98,7 @@ Route::middleware(['retailer'])->group(function () {
     // mange Profile
     Route::get('/profile', [RetilerController::class, 'Profile'])->name('retailer.profile');
     Route::post('/profile-update', [RetilerController::class, 'profileUpdate'])->name('retailer.profile.update');
-
+    Route::post('/account-info', [RetilerController::class, 'storeAccoutinfo'])->name('retailer.accountinfo');
 
     // abandonedcard
     Route::get('/abondard-page', [AbandonardCard::class, 'index'])->name('retailer.abandonard.index');
@@ -109,7 +109,6 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/automation', [Automation::class, 'index'])->name('retailer.automation.index');
     Route::get('/automation-campaign', [Automation::class, 'automationCampaign'])->name('retailer.automation.campaign');
 
-
     // cms
     Route::get('/cms-page', [CMS::class, 'index'])->name('retailer.cms.index');
 
@@ -119,7 +118,6 @@ Route::middleware(['retailer'])->group(function () {
     Route::post('/delete-coupon', [CoupanController::class, 'deleteCoupon'])->name('retailer.coupon.delete');
     Route::get('/edit-coupon/{id}', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
     Route::post('/update-coupon/{id}', [CoupanController::class, 'updateCoupon'])->name('retailer.coupon.update');
-
 
     // setting
     Route::get('/setting-page', [Setting::class, 'index'])->name('retailer.setting.index');
@@ -136,7 +134,6 @@ Route::middleware(['retailer'])->group(function () {
 
     // rate calculation
     Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');
-
 
     // v3builder
     Route::get('/v3builder-page', [VBuilder::class, 'index'])->name('retailer.v3builder.index');

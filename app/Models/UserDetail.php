@@ -17,7 +17,14 @@ class UserDetail extends Model
         'country',
         'company_logo',
         'company_name',
-        'postal_code'
+        'postal_code',
+        'account_number',
+        'ifsc_code',
+        'account_holder_name',
+        'pancard_number',
+        'pan_image',
+        'aadhar_image',
+        'cancel_cheque',
     ];
 
     // Inverse One-to-One Relationship
