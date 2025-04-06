@@ -13,6 +13,7 @@ use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
 use App\Models\RTOAddress;
 use App\Models\Ticket;
+use App\Models\COrders;
 use App\Models\User;
 use App\Models\UserDetail;
 use Carbon\Carbon;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
+
 
 class RetilerController extends Controller
 {
@@ -551,10 +553,76 @@ class RetilerController extends Controller
             'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb'
         ])->get('https://capi-qc.fship.in/api/getallcourier');
         $courierServices = $response->json();
+        // $courierServices = [];
+
 
 
         return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'rtoAddress', 'courierServices'));
     }
+
+    public function newOrderList($type = 'new')
+    {
+        $retailer = Auth::user();
+
+        // Count order statuses
+        $count = COrders::where('retailer_id', $retailer->id)
+            ->selectRaw("
+                SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new,
+                SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing,
+                SUM(CASE WHEN status = 'pickups' THEN 1 ELSE 0 END) as pickups,
+                SUM(CASE WHEN status = 'ready_to_ship' THEN 1 ELSE 0 END) as ready_to_ship,
+                SUM(CASE WHEN status = 'transit' THEN 1 ELSE 0 END) as transit,
+                SUM(CASE WHEN status = 'ofd' THEN 1 ELSE 0 END) as ofd,
+                SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+                SUM(CASE WHEN status = 'rto' THEN 1 ELSE 0 END) as rto,
+                SUM(CASE WHEN status = 'received' THEN 1 ELSE 0 END) as received,
+                SUM(CASE WHEN status = 'cancel' THEN 1 ELSE 0 END) as cancel,
+                SUM(CASE WHEN status = 'close' THEN 1 ELSE 0 END) as close
+            ")->first()->toArray();
+
+        // Fetch filtered orders based on type
+        $sql = COrders::with([
+            'customer',
+            'product',
+            'retailerCloneProduct',
+            'wholesaler.userDetail',
+        ])->where('retailer_id', $retailer->id);
+
+        // Map the $type to corresponding status
+        $statusMap = [
+            'new' => 'new',
+            'processing' => 'processing',
+            'pickups' => 'pickups',
+            'ready_to_ship' => 'ready_to_ship',
+            'transit' => 'transit',
+            'ofd' => 'ofd',
+            'delivered' => 'delivered',
+            'rto' => 'rto',
+            'received' => 'received',
+            'cancel' => 'cancel',
+            'close' => 'close',
+        ];
+
+        if (array_key_exists($type, $statusMap)) {
+            $sql->where('status', $statusMap[$type]);
+        } else {
+            return redirect()->route('retailer.order.list');
+        }
+
+        $retailerOrders = $sql->orderBy('id', 'DESC')->get();
+
+        // Pickup and RTO addresses
+        $pickupAddress = PickAddress::where('retailer_id', $retailer->id)->get();
+        $rtoAddress = RTOAddress::where('retailer_id', $retailer->id)->get();
+
+        // Courier services (currently empty or from API if uncommented)
+        $courierServices = [];
+
+        // dd($count);
+
+        return view('orders.new-order-list', compact('retailerOrders', 'count', 'pickupAddress', 'rtoAddress', 'courierServices'));
+    }
+
 
     // order action
     // public function orderAction(Request $request)

@@ -192,6 +192,24 @@
                     </div>
                     <!--end:Menu item-->
 
+                         <!--begin:Menu item-->
+                         <div data-kt-menu-trigger="click" class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->is(['new-orders-list/*', 'new-orders-list', 'new-orders-list/action']) ? 'active' : '' }}"
+                                href="{{ route('retailer.new-order.list') }}">
+                                <span class="menu-icon">
+                                    <i class="ki-duotone ki-delivery-3 fs-1">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                        <span class="path3"></span>
+                                    </i>
+                                </span>
+                                <span class="menu-title">New Orders</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges']) ? 'show' : '' }}">
