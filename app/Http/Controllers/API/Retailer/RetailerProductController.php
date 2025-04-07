@@ -23,6 +23,67 @@ use Illuminate\Support\Collection;
 class RetailerProductController extends Controller
 {
     
+    public function getSingalProductDetails(Request $request)
+    {
+
+        try {
+            $apiKey = $request->header('API-KEY');
+            if (!$apiKey) {
+                return response()->json(['error' => 'API Key is required.'], 401);
+            }
+
+    
+            $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+            if (!$retailer) {
+                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+            }
+
+
+    
+            $productId = $request->product_id;
+            $retailerCloneProductId = $request->retailer_clone_product_id;
+    
+            if (!$productId && !$retailerCloneProductId) {
+                return response()->json(['error' => 'Either product_id or retailer_clone_product_id is required.'], 422);
+            }
+    
+            if ($productId) {
+                $retailerProduct = RetailerProducts::with(['wholesaler.products'])->where('retailer_id', $retailer->retailer_id)->first();
+                // dd($retailerProduct);
+                // if (!$retailerProduct || !$retailerProduct->wholesaler) {
+                //     return response()->json(['error' => 'Retailer product not found or missing wholesaler.'], 404);
+                // }
+    
+                $product = $retailerProduct->wholesaler->products->where('id', $productId)->first();
+                if (!$product) {
+                    return response()->json(['error' => 'Product not found.'], 404);
+                }
+    
+                $formatted = $this->formatProductFromRetailerProduct($product, $retailerProduct);
+            } else {
+                $cloneProduct = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
+                    ->where('id', $retailerCloneProductId)
+                    ->first();
+    
+                if (!$cloneProduct) {
+                    return response()->json(['error' => 'Clone product not found.'], 404);
+                }
+    
+                $formatted = $this->formatProductFromClone($cloneProduct);
+            }
+    
+            return response()->json([
+                'success' => true,
+                'product' => $formatted
+            ], 200);
+    
+        } catch (\Exception $e) {
+            \Log::error('Get product detail error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong.'], 500);
+        }
+    }
+    
+
 
 public function getRetailerProducts(Request $request)
 {
@@ -156,7 +217,7 @@ public function getRetailerProducts(Request $request)
             // $companyInfo = UserDetail::select('company_logo', 'company_name')
             //     ->where('user_id', $retailer->retailer_id)
             //     ->first();
-            $companyInfo = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+            $companyInfo = RetailerWebManagement::where('product_listing_key', $apiKey)->paginate(10);
             return response()->json([
                 'success' => true,
                 'companyinfo' => $companyInfo
@@ -168,48 +229,47 @@ public function getRetailerProducts(Request $request)
         }
     }
 
-    public function sendOtp(Request $request)
-    {
-// dd($request->all());
-        $request->validate([
-            'phone_number' => 'required|numeric|digits:10'
-        ]);
+    // public function sendOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'phone_number' => 'required|numeric|digits:10'
+    //     ]);
 
-        $otpCode = rand(100000, 999999);
+    //     $otpCode = rand(100000, 999999);
 
-        Otp::updateOrCreate(
-            ['phone_number' => $request->phone_number],
-            ['otp' => $otpCode, 'verified' => false]
-        );
+    //     Otp::updateOrCreate(
+    //         ['phone_number' => $request->phone_number],
+    //         ['otp' => $otpCode, 'verified' => false]
+    //     );
 
-        // Send OTP using SMS service (example implementation)
-        // SmsService::sendOtp($request->phone_number, $otpCode);
+    //     // Send OTP using SMS service (example implementation)
+    //     // SmsService::sendOtp($request->phone_number, $otpCode);
 
-        return response()->json(['message' => 'OTP sent successfully!', 'otp' => $otpCode]);
-    }
+    //     return response()->json(['message' => 'OTP sent successfully!', 'otp' => $otpCode]);
+    // }
 
     /**
      * Verify OTP
      */
-    public function verifyOtp(Request $request)
-    {
-        $request->validate([
-            'phone_number' => 'required|numeric|digits:10',
-            'otp' => 'required|numeric|digits:6'
-        ]);
+    // public function verifyOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'phone_number' => 'required|numeric|digits:10',
+    //         'otp' => 'required|numeric|digits:6'
+    //     ]);
 
-        $otpRecord = Otp::where('phone_number', $request->phone_number)
-                        ->where('otp', $request->otp)
-                        ->first();
+    //     $otpRecord = Otp::where('phone_number', $request->phone_number)
+    //                     ->where('otp', $request->otp)
+    //                     ->first();
 
-        if (!$otpRecord) {
-            return response()->json(['error' => 'Invalid OTP!'], 400);
-        }
+    //     if (!$otpRecord) {
+    //         return response()->json(['error' => 'Invalid OTP!'], 400);
+    //     }
 
-        $otpRecord->update(['verified' => true]);
+    //     $otpRecord->update(['verified' => true]);
 
-        return response()->json(['message' => 'OTP verified successfully!']);
-    }
+    //     return response()->json(['message' => 'OTP verified successfully!']);
+    // }
 
 
     public function checkout(Request $request)
@@ -227,7 +287,7 @@ public function getRetailerProducts(Request $request)
             'products.*.product_id' => 'nullable', 
             'products.*.retailer_clone_product_id' => 'nullable', 
             'products.*.wholesaler_id' => 'nullable',
-            'products.*.retailer_id' => 'nullable',
+            'products.*.retailer_id' => 'required',
             'products.*.quantity' => 'required|integer|min:1'
         ]);
 
@@ -250,15 +310,14 @@ public function getRetailerProducts(Request $request)
             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
         }
 
-        $otpRecord = Otp::where('phone_number', $request->phone_number)
-        ->where('verified', true)
-        ->first();
+        // $otpRecord = Otp::where('phone_number', $request->phone_number)
+        // ->where('verified', true)
+        // ->first();
 
-        // dd($otpRecord);
 
-        if (!$otpRecord) {
-        return response()->json(['error' => 'OTP verification required!'], 403);
-        }
+        // if (!$otpRecord) {
+        // return response()->json(['error' => 'OTP verification required!'], 403);
+        // }
 
         DB::beginTransaction();
         try {

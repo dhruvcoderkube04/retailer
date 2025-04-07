@@ -212,8 +212,13 @@ class RetailerAuthController extends Controller
 
         // Password Check
         if ($user && Hash::check($request->password, $user->password)) {
-            if (!$user->hasVerifiedEmail()) {
-                session()->flash('error', 'Please verify your email before logging in');
+           if (!$user->hasVerifiedEmail()) {
+               session()->flash('error', 'Please verify your email before logging in');
+               return redirect()->route('retailer.login');
+            }
+
+            if ($user->status != 1) {
+                session()->flash('error', 'Your account is pending admin approval.');
                 return redirect()->route('retailer.login');
             }
 
