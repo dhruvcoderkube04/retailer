@@ -1,0 +1,8 @@
+ALTER TABLE `user_details`
+  ADD COLUMN `account_number` VARCHAR(255) NULL AFTER `postal_code`,
+  ADD COLUMN `ifsc_code` VARCHAR(255) NULL AFTER `account_number`,
+  ADD COLUMN `account_holder_name` VARCHAR(255) NULL AFTER `ifsc_code`,
+  ADD COLUMN `pancard_number` VARCHAR(255) NULL AFTER `account_holder_name`,
+  ADD COLUMN `pan_image` VARCHAR(255) NULL AFTER `pancard_number`,
+  ADD COLUMN `aadhar_image` VARCHAR(255) NULL AFTER `pan_image`,
+  ADD COLUMN `cancel_cheque` VARCHAR(255) NULL AFTER `aadhar_image`;

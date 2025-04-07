@@ -1200,4 +1200,41 @@ class RetilerController extends Controller
         return view('rateccalculation');
     }
 
+    public function storeAccoutinfo(Request $request)
+    {
+        $user = Auth::user()->id;
+        $request->validate([
+            'account_number' => 'nullable|string|max:50',
+            'ifsc_code' => 'nullable|string|max:20',
+            'account_holder_name' => 'nullable|string|max:100',
+            'pancard_number' => 'nullable|string|max:20',
+
+            'pan_image' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'aadhar_image' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'cancel_cheque' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->only([
+            'account_number', 'ifsc_code', 'account_holder_name', 'pancard_number'
+        ]);
+
+        // Handle uploads
+
+        foreach (['pan_image', 'aadhar_image', 'cancel_cheque'] as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/account'), $filename);
+                $data[$field === 'pan_card' ? 'pan_image' : $field] = 'uploads/account/' . $filename;
+            }
+        }
+
+        // Only update if record exists
+        $userDetail = UserDetail::where('user_id',$user)->first();
+
+        if ($userDetail) {
+            $userDetail->update($data);
+        }
+        return back()->with('success-account-info', 'Account information saved successfully!');
+    }
 }

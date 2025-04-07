@@ -12,7 +12,6 @@ class RetailerWebManagement extends Model
         'retailer_id',
         'store_name',
         'theme',
-        'custom_domain',
         'subdomain',
         'product_listing_key',
         'is_active',
