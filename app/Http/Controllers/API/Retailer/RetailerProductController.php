@@ -22,7 +22,7 @@ use Illuminate\Support\Collection;
 
 class RetailerProductController extends Controller
 {
-    
+
     public function getSingalProductDetails(Request $request)
     {
 
@@ -32,121 +32,119 @@ class RetailerProductController extends Controller
                 return response()->json(['error' => 'API Key is required.'], 401);
             }
 
-    
             $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
             if (!$retailer) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
 
 
-    
             $productId = $request->product_id;
             $retailerCloneProductId = $request->retailer_clone_product_id;
-    
+
             if (!$productId && !$retailerCloneProductId) {
                 return response()->json(['error' => 'Either product_id or retailer_clone_product_id is required.'], 422);
             }
-    
+
             if ($productId) {
                 $retailerProduct = RetailerProducts::with(['wholesaler.products'])->where('retailer_id', $retailer->retailer_id)->first();
                 // dd($retailerProduct);
                 // if (!$retailerProduct || !$retailerProduct->wholesaler) {
                 //     return response()->json(['error' => 'Retailer product not found or missing wholesaler.'], 404);
                 // }
-    
+
                 $product = $retailerProduct->wholesaler->products->where('id', $productId)->first();
                 if (!$product) {
                     return response()->json(['error' => 'Product not found.'], 404);
                 }
-    
+
                 $formatted = $this->formatProductFromRetailerProduct($product, $retailerProduct);
             } else {
                 $cloneProduct = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
                     ->where('id', $retailerCloneProductId)
                     ->first();
-    
+
                 if (!$cloneProduct) {
                     return response()->json(['error' => 'Clone product not found.'], 404);
                 }
-    
+
                 $formatted = $this->formatProductFromClone($cloneProduct);
             }
-    
+
             return response()->json([
                 'success' => true,
                 'product' => $formatted
             ], 200);
-    
+
         } catch (\Exception $e) {
             \Log::error('Get product detail error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong.'], 500);
         }
     }
-    
 
 
-public function getRetailerProducts(Request $request)
-{
-    try {
-        $apiKey = $request->header('API-KEY');
-        if (!$apiKey) {
-            return response()->json(['error' => 'API Key is required.'], 401);
-        }
 
-        $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-        if (!$retailer) {
-            return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-        }
-
-        // Fetch retailer products with wholesaler relation
-        $retailerProducts = RetailerProducts::with(['wholesaler.products'])
-            ->where('retailer_id', $retailer->retailer_id)
-            ->get();
-
-        // Fetch retailer clone products
-        $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
-            ->get();
-
-        // Merge both collections
-        $allProducts = $retailerProducts->merge($retailerCloneProducts);
-
-        // Process each record differently based on its source.
-        $products = $allProducts->flatMap(function ($item) {
-            if ($item instanceof RetailerProducts) {
-                if (!$item->wholesaler) {
-                    return [];
-                }
-                return $item->wholesaler->products->map(function ($product) use ($item) {
-                    return $this->formatProductFromRetailerProduct($product, $item);
-                });
-            } else {
-                return [$this->formatProductFromClone($item)];
+    public function getRetailerProducts(Request $request)
+    {
+        try {
+            $apiKey = $request->header('API-KEY');
+            if (!$apiKey) {
+                return response()->json(['error' => 'API Key is required.'], 401);
             }
-        })->values();
 
-        // Extract categories separately
-        $categoryIds = $products->pluck('category_id')->filter()->unique()->toArray();
-        $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
+            $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+            if (!$retailer) {
+                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+            }
 
-        // Implement pagination (8 products per page)
-        $perPage = 8;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $productsCollection = new Collection($products);
-        $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
-        $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
-        $paginatedProducts->setPath(url()->current());
+            // Fetch retailer products with wholesaler relation
+            $retailerProducts = RetailerProducts::with(['wholesaler.products'])
+                ->where('retailer_id', $retailer->retailer_id)
+                ->get();
 
-        return response()->json([
-            'success'    => true,
-            'products'   => $paginatedProducts,
-            'categories' => $categories,
-        ]);
+            // Fetch retailer clone products
+            $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
+                ->get();
 
-    } catch (\Exception $e) {
-        \Log::error('Error fetching retailer products: ' . $e->getMessage());
-        return response()->json(['error' => 'An unexpected error occurred.'], 500);
+            // Merge both collections
+            $allProducts = $retailerProducts->merge($retailerCloneProducts);
+
+            // Process each record differently based on its source.
+            $products = $allProducts->flatMap(function ($item) {
+                if ($item instanceof RetailerProducts) {
+                    if (!$item->wholesaler) {
+                        return [];
+                    }
+                    return $item->wholesaler->products->map(function ($product) use ($item) {
+                        return $this->formatProductFromRetailerProduct($product, $item);
+                    });
+                } else {
+                    return [$this->formatProductFromClone($item)];
+                }
+            })->values();
+
+            // Extract categories separately
+            $categoryIds = $products->pluck('category_id')->filter()->unique()->toArray();
+            $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
+
+            // Implement pagination (8 products per page)
+            $perPage = 8;
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $productsCollection = new Collection($products);
+            $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
+            $paginatedProducts->setPath(url()->current());
+
+            return response()->json([
+                'success'    => true,
+                'products'   => $paginatedProducts,
+                'categories' => $categories,
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error fetching retailer products: ' . $e->getMessage());
+            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+        }
     }
-}
 
 
     private function formatProductFromRetailerProduct($product, $retailerProduct)
@@ -209,18 +207,13 @@ public function getRetailerProducts(Request $request)
                 return response()->json(['error' => 'API Key is required.'], 401);
             }
 
-            $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-            if (!$retailer) {
+            $storeinfo = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+            if (!$storeinfo) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
-
-            // $companyInfo = UserDetail::select('company_logo', 'company_name')
-            //     ->where('user_id', $retailer->retailer_id)
-            //     ->first();
-            $companyInfo = RetailerWebManagement::where('product_listing_key', $apiKey)->paginate(10);
             return response()->json([
                 'success' => true,
-                'companyinfo' => $companyInfo
+                'storeinfo' => $storeinfo
             ]);
 
         } catch (\Exception $e) {
@@ -284,8 +277,8 @@ public function getRetailerProducts(Request $request)
             'payment_method' => 'required|in:cod,upi',
             'final_amount' => 'required|numeric|min:0',
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'nullable', 
-            'products.*.retailer_clone_product_id' => 'nullable', 
+            'products.*.product_id' => 'nullable',
+            'products.*.retailer_clone_product_id' => 'nullable',
             'products.*.wholesaler_id' => 'nullable',
             'products.*.retailer_id' => 'required',
             'products.*.quantity' => 'required|integer|min:1'
@@ -352,7 +345,7 @@ public function getRetailerProducts(Request $request)
                     'retailer_id' => !is_null($retailerId) ? $retailerId : null,
                     'wholesaler_id' => !is_null($wholesalerId) ? $wholesalerId : null,
                     'quantity' => $product['quantity'],
-                    'final_amount' => request()->final_amount, 
+                    'final_amount' => request()->final_amount,
                     'payment_method' => request()->payment_method,
                     'created_at' => now(),
                     'updated_at' => now()
