@@ -54,7 +54,7 @@ class RetailerAuthController extends Controller
                 'phone_number' => $request->phonenumber, // Fixed typo (phonenumber)
                 'email' => $request->email,
                 'user_type' => '3',
-                'status' => '0',
+                'status' => '0',  //Inacitve during register
                 'password' => Hash::make($request->password),
                 'ip_address' => $request->ip(),
             ]);
@@ -204,6 +204,11 @@ class RetailerAuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+        if ($user && $user->status == 0) {
+            session()->flash('error', 'Your account is currently inactive. Please contact support for assistance.');
+            return redirect()->route('retailer.login');
+        }
+
         // Account Lock Check
         if ($user && $user->locked_until && $user->locked_until->isFuture()) {
             session()->flash('error', 'Account locked. Try again after ' . $user->locked_until->diffForHumans());
@@ -212,13 +217,8 @@ class RetailerAuthController extends Controller
 
         // Password Check
         if ($user && Hash::check($request->password, $user->password)) {
-           if (!$user->hasVerifiedEmail()) {
-               session()->flash('error', 'Please verify your email before logging in');
-               return redirect()->route('retailer.login');
-            }
-
-            if ($user->status != 1) {
-                session()->flash('error', 'Your account is pending admin approval.');
+            if (!$user->hasVerifiedEmail()) {
+                session()->flash('error', 'Please verify your email before logging in');
                 return redirect()->route('retailer.login');
             }
 
@@ -228,7 +228,8 @@ class RetailerAuthController extends Controller
             if ($user->user_type == 3) {
                 return redirect()->route('retailer.dashboard');
             } else {
-                return redirect('/');
+                session()->flash('error', 'Invalid Crdential');
+                return redirect()->route('retailer.login');
             }
         }
 

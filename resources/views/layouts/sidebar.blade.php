@@ -7,16 +7,16 @@
         <a href="{{ route('retailer.dashboard') }}">
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                 ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
-                : asset('assets/media/logos/big_mart_nepal_cover.jpg') }}" 
+                : asset('assets/media/logos/big_mart_nepal_cover.jpg') }}"
                 class="h-55px text-center app-sidebar-logo-default"
-                alt="{{ Auth::user()->firstname }}" 
+                alt="{{ Auth::user()->firstname }}"
                 style="border-radius: 10px; justify-content: space-evenly;" />
 
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                 ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
-                : asset('assets/media/logos/bigmart.jpg') }}" 
-                class="h-25px app-sidebar-logo-minimize" 
-                alt="{{Auth::user()->firstname}}" 
+                : asset('assets/media/logos/bigmart.jpg') }}"
+                class="h-25px app-sidebar-logo-minimize"
+                alt="{{Auth::user()->firstname}}"
                 style="border-radius: 5px; justify-content: space-evenly;" />
         </a>
 
@@ -192,23 +192,23 @@
                     </div>
                     <!--end:Menu item-->
 
-                         <!--begin:Menu item-->
-                         <div data-kt-menu-trigger="click" class="menu-item">
-                            <!--begin:Menu link-->
-                            <a class="menu-link {{ request()->is(['new-orders-list/*', 'new-orders-list', 'new-orders-list/action']) ? 'active' : '' }}"
-                                href="{{ route('retailer.new-order.list') }}">
-                                <span class="menu-icon">
-                                    <i class="ki-duotone ki-delivery-3 fs-1">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                        <span class="path3"></span>
-                                    </i>
-                                </span>
-                                <span class="menu-title">New Orders</span>
-                            </a>
-                            <!--end:Menu link-->
-                        </div>
-                        <!--end:Menu item-->
+                    {{-- <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->is(['new-orders-list/*', 'new-orders-list', 'new-orders-list/action']) ? 'active' : '' }}"
+                        href="{{ route('retailer.new-order.list') }}">
+                        <span class="menu-icon">
+                            <i class="ki-duotone ki-delivery-3 fs-1">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </span>
+                        <span class="menu-title">New Orders</span>
+                    </a>
+                    <!--end:Menu link-->
+                    </div>
+                    <!--end:Menu item--> --}}
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
