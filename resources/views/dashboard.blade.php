@@ -3,11 +3,11 @@
     Retailers | TrendMart
 @endsection
 @section('content')
-<style>
-    body {
-        background-color: #f7f7f7!important;
-    }
-</style>
+    <style>
+        body {
+            background-color: #f7f7f7 !important;
+        }
+    </style>
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
         <div class="d-flex flex-column flex-column-fluid">
 
@@ -164,7 +164,7 @@
                                                     {{ (int) $wholesaler_ratio }}% - {{ (int) $retailer_ratio }}%
                                                 </span>
                                             </div>
-                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">Products</span>
+                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">Total Products</span>
                                         </div>
                                     </div>
                                     <div class="card-body pt-2 pb-4 d-flex align-items-center">
@@ -345,7 +345,7 @@
 
                                                                 {{-- product name --}}
                                                                 <td class="text-center">
-                                                                    {{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}
+                                                                    <strong>{{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}</strong>
                                                                 </td>
 
                                                                 {{-- order date --}}
@@ -360,7 +360,7 @@
 
                                                                 {{-- amount --}}
                                                                 <td class="text-center">
-                                                                    {{ $detail?->final_amount }}
+                                                                    ₹{{ $detail?->final_amount }}
                                                                 </td>
 
                                                                 {{-- other details --}}
