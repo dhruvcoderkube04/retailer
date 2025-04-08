@@ -78,7 +78,7 @@
                                                 <div id="category{{ $a }}" class="collapse show fs-6 ms-1">
                                                     @foreach ($category->subCategory as $b => $sub_category)
                                                         <div class="mb-4">
-                                                            <div class="d-flex align-items-center ps-10 mb-n1">
+                                                            {{-- <div class="d-flex align-items-center ps-10 mb-n1">
                                                                 <span class="bullet me-3"></span>
                                                                 <div class="text-gray-600 fw-semibold fs-6">
                                                                     {{ strtoupper($sub_category->sub_category_name) }}
@@ -94,6 +94,25 @@
                                                                         @endif
                                                                     </a>
                                                                 </div>
+                                                            </div> --}}
+
+                                                            <div
+                                                                class="form-check form-check-custom form-check-solid d-flex align-items-center ps-10">
+                                                                <input class="form-check-input me-3 sub-category-checkbox"
+                                                                    type="checkbox"
+                                                                    id="sub_category_{{ $sub_category->id }}"
+                                                                    name="sub_categories[]" value="{{ $sub_category->id }}"
+                                                                    {{ in_array($sub_category->id, $addedCategories ?? []) ? 'checked' : '' }}
+                                                                    data-sub-category-id="{{ $sub_category->id }}"
+                                                                    data-category-id="{{ $sub_category->category_id }}"
+                                                                    data-type="{{ in_array($sub_category->id, $addedCategories ?? []) ? 'remove' : 'select' }}"
+                                                                    style="width: 17px; height: 17px;" />
+
+                                                                <label
+                                                                    class="form-check-label text-gray-700 fw-semibold fs-6 mb-0"
+                                                                    for="sub_category_{{ $sub_category->id }}">
+                                                                    {{ strtoupper($sub_category->sub_category_name) }}
+                                                                </label>
                                                             </div>
                                                         </div>
                                                     @endforeach
@@ -146,7 +165,7 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            $(document).on('click', '.select-sub-category, .remove-sub-category', function() {
+            $(document).on('click', '.remove-sub-category', function() {
                 const subCategoryId = $(this).attr('data-sub-category-id');
                 const categoryId = $(this).attr('data-category-id');
                 const actionType = $(this).attr('data-type');
@@ -167,6 +186,30 @@
                     sendAjaxRequest(subCategoryId, categoryId, actionType);
                 }
             });
+
+            $(document).on('change', '.sub-category-checkbox', function() {
+                const subCategoryId = $(this).attr('data-sub-category-id');
+                const categoryId = $(this).attr('data-category-id');
+                const actionType = $(this).attr('data-type');
+
+                if (actionType == 'remove') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Are You sure to Remove it !',
+                        showCancelButton: true,
+                        confirmButtonColor: '#000',
+                        confirmButtonText: 'Yes, remove it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            sendAjaxRequest(subCategoryId, categoryId, actionType);
+                        } else {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                } else {
+                    sendAjaxRequest(subCategoryId, categoryId, actionType);
+                }
+            })
 
             function sendAjaxRequest(subCategoryId, categoryId, actionType) {
                 $.ajax({

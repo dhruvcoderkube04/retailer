@@ -36,27 +36,57 @@ class RetilerController extends Controller
         $user = Auth::user();
 
         $data = [
-            'new_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'pending')
+            'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'confirmed_by_retailer')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'confirmed_by_retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'shipped_by_retailer')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'shipped_by_retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'delivered_by_retailer')
+            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered_by_retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'total_sales' => CustomerOrders::where('retailer_id',$user->id)->whereBetween('created_at', [$from, $to])
+            'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])
                 ->sum('final_amount'),
         ];
+        
+        $wholesaler_product = 0;
+        $retailerProducts = RetailerProducts::where('retailer_id', $user->id)->get();
+        $retailerProducts->map(function ($retailerProduct) use (&$wholesaler_product) {
+            $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
+                ->where('category_id', $retailerProduct->category_id)
+                ->distinct('id')
+                ->count();
 
-        return view('dashboard', compact('data'));
+            $wholesaler_product += $products;
+        });
+
+        $retailer_own_product = RetailerCloneProduct::where('retailer_id', $user->id)->count();
+
+        $data['wholesaler_product_count'] = $wholesaler_product;
+        $data['retailer_product_count'] = $retailer_own_product;
+
+
+        // Fetch filtered orders based on type
+        $retailerOrders = CustomerOrders::with([
+            'customer',
+            'product',
+            'retailerCloneProduct',
+            'wholesaler.userDetail',
+        ])
+        ->where('retailer_id', $user->id)
+        ->where('status', 'pending')
+        ->orderBy('id', 'DESC')
+        ->take(5)
+        ->get();
+
+        return view('dashboard', compact('data', 'user', 'retailerOrders'));
     }
 
     public function dashboardReload(Request $request)
@@ -66,19 +96,19 @@ class RetilerController extends Controller
         $user = Auth::user();
 
         $data = [
-            'new_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'pending')
+            'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'confirmed_by_retailer')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'confirmed_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('retailer_id',$user->id)->where('status', 'shipped_by_retailer')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('retailer_id', $user->id)->where('status', 'shipped_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('retailer_id',$user->id)->where('status', 'delivered_by_retailer')
+            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'total_sales' => CustomerOrders::where('retailer_id',$user->id)->whereBetween('created_at', [$from, $to])->sum('final_amount'),
+            'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->sum('final_amount'),
         ];
 
         return response()->json(['status' => true, 'data' => $data]);
@@ -504,7 +534,7 @@ class RetilerController extends Controller
 
         // count
         $count = CustomerOrders::where('retailer_id', $retailer->id)
-        ->selectRaw("
+            ->selectRaw("
             SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
             SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
             SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
@@ -521,7 +551,7 @@ class RetilerController extends Controller
             'retailerCloneProduct',
             'wholesaler.userDetail',
         ])
-        ->where('retailer_id', $retailer->id);
+            ->where('retailer_id', $retailer->id);
         if ($type == 'new') {
             $sql->where('status', 'pending');
         } else if ($type == 'transfered-retailer-to-wholesaler') {
@@ -1111,10 +1141,11 @@ class RetilerController extends Controller
         return view('prohibiteditem');
     }
 
-    public function ticketList(){
+    public function ticketList()
+    {
         $user_id =  Auth::user()->id;
-        $tickets = Ticket::where('user_id',$user_id)->get();
-        return view('support.ticketlist',compact('tickets'));
+        $tickets = Ticket::where('user_id', $user_id)->get();
+        return view('support.ticketlist', compact('tickets'));
     }
     public function generateTicket(Request $request)
     {
@@ -1125,7 +1156,7 @@ class RetilerController extends Controller
         ]);
 
         // Genrate random tikcet id 10 digit  with  TM add tm in prefix
-        $ticket_id = 'TM'. mt_rand(100000, 999999);
+        $ticket_id = 'TM' . mt_rand(100000, 999999);
 
         // Create a new ticket
         $ticket = new Ticket;
@@ -1154,11 +1185,11 @@ class RetilerController extends Controller
     {
         $user_id = Auth::user()->id;
         $request->validate([
-            'ticket_id' =>'required|exists:tickets,ticket_id'
+            'ticket_id' => 'required|exists:tickets,ticket_id'
         ]);
 
         // Find the ticket and delete it
-        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$request->ticket_id)->first();
+        $ticket = Ticket::where('user_id', $user_id)->where('ticket_id', $request->ticket_id)->first();
         $ticket->delete();
 
         // Return JSON response
@@ -1170,24 +1201,23 @@ class RetilerController extends Controller
         $ticket = Ticket::where('ticket_id', $ticketId)->first();
         // return json
         return response()->json($ticket);
-
     }
     public function updateTicket(Request $request)
     {
         $request->validate([
-            'ticket_id' =>'required|exists:tickets,ticket_id',
+            'ticket_id' => 'required|exists:tickets,ticket_id',
             'subject' => 'nullable|string|max:255',
             'ticket_description' => 'nullable|string',
             'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         $user_id = Auth::user()->id;
-        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$request->ticket_id)->first();
+        $ticket = Ticket::where('user_id', $user_id)->where('ticket_id', $request->ticket_id)->first();
         $ticket->subject = $request->subject;
         $ticket->description = $request->ticket_description;
         if ($request->hasFile('ticket_image_ref')) {
             $files = $request->file('ticket_image_ref');
-            $filename = time(). '_'. $files->getClientOriginalName();
+            $filename = time() . '_' . $files->getClientOriginalName();
             $files->move(public_path('uploads/ticket'), $filename);
             $ticket->ref_image = $filename;
         }
@@ -1196,7 +1226,8 @@ class RetilerController extends Controller
         return response()->json(['success' => true, 'message' => 'Ticket Updated Successfully']);
     }
 
-    public function ratecCalculation(){
+    public function ratecCalculation()
+    {
         return view('rateccalculation');
     }
 
@@ -1215,7 +1246,10 @@ class RetilerController extends Controller
         ]);
 
         $data = $request->only([
-            'account_number', 'ifsc_code', 'account_holder_name', 'pancard_number'
+            'account_number',
+            'ifsc_code',
+            'account_holder_name',
+            'pancard_number'
         ]);
 
         // Handle uploads
@@ -1230,7 +1264,7 @@ class RetilerController extends Controller
         }
 
         // Only update if record exists
-        $userDetail = UserDetail::where('user_id',$user)->first();
+        $userDetail = UserDetail::where('user_id', $user)->first();
 
         if ($userDetail) {
             $userDetail->update($data);

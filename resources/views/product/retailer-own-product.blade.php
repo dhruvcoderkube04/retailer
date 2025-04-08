@@ -10,7 +10,7 @@
                 <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                            Your Added Products List</h1>
+                            Products List</h1>
 
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
@@ -55,7 +55,7 @@
                                     data-bs-target="#kt_modal_add_product">
                                     <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
                                             class="path2"></span><span class="path3"></span></i>
-                                    Upload Product File
+                                    Upload Products
                                 </button>
                                 <a href="{{ route('retailer.add.product') }}" class="btn btn-primary">Add Product</a>
                             </div>
@@ -68,7 +68,7 @@
                                     <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_1" data-tab="1">Wholesaler Products</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_2" data-tab="2">My Product</a>
+                                    <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_2" data-tab="2">My Products</a>
                                 </li>
                             </ul>
 

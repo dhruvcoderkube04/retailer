@@ -25,21 +25,20 @@
         <div id="category{{ $a }}" class="collapse show fs-6 ms-1">
             @foreach ($category->subCategory as $b => $sub_category)
                 <div class="mb-4">
-                    <div class="d-flex align-items-center ps-10 mb-n1">
-                        <span class="bullet me-3"></span>
-                        <div class="text-gray-600 fw-semibold fs-6">
-                            {{ strtoupper($sub_category->sub_category_name) }}
-                            <a href="javascript:void(0)" class="select-sub-category"
-                                data-sub-category-id={{ $sub_category->id }}
-                                data-category-id={{ $sub_category->category_id }} data-type="select">
+                    <div class="form-check form-check-custom form-check-solid d-flex align-items-center ps-10">
+                        <input class="form-check-input me-3 sub-category-checkbox" type="checkbox"
+                            id="sub_category_{{ $sub_category->id }}" name="sub_categories[]"
+                            value="{{ $sub_category->id }}"
+                            {{ in_array($sub_category->id, $addedCategories ?? []) ? 'checked' : '' }}
+                            data-sub-category-id="{{ $sub_category->id }}"
+                            data-category-id="{{ $sub_category->category_id }}"
+                            data-type="{{ in_array($sub_category->id, $addedCategories ?? []) ? 'remove' : 'select' }}"
+                            style="width: 17px; height: 17px;" />
 
-                                @if (!in_array($sub_category->id, $addedCategories ?? []))
-                                    <span class="badge badge-primary">
-                                        Select
-                                    </span>
-                                @endif
-                            </a>
-                        </div>
+                        <label class="form-check-label text-gray-700 fw-semibold fs-6 mb-0"
+                            for="sub_category_{{ $sub_category->id }}">
+                            {{ strtoupper($sub_category->sub_category_name) }}
+                        </label>
                     </div>
                 </div>
             @endforeach
