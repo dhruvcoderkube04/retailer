@@ -25,8 +25,6 @@ class RetailerAuthController extends Controller
         return view('auth.register');
     }
 
-
-
     public function register(Request $request) {
 
         $validator = Validator::make($request->all(), [
@@ -204,47 +202,42 @@ class RetailerAuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user && $user->status == 0) {
-            session()->flash('error', 'Your account is currently inactive. Please contact support for assistance.');
+        // First: Check if user exists and password is correct
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            session()->flash('error', 'Invalid credentials');
             return redirect()->route('retailer.login');
         }
 
-        // Account Lock Check
-        if ($user && $user->locked_until && $user->locked_until->isFuture()) {
+        // Check if account is locked
+        if ($user->locked_until && $user->locked_until->isFuture()) {
             session()->flash('error', 'Account locked. Try again after ' . $user->locked_until->diffForHumans());
             return redirect()->route('retailer.login');
         }
 
-        // Password Check
-        if ($user && Hash::check($request->password, $user->password)) {
-            if (!$user->hasVerifiedEmail()) {
-                session()->flash('error', 'Please verify your email before logging in');
-                return redirect()->route('retailer.login');
-            }
-
-            Auth::login($user);
-            $user->update(['login_attempt' => 0, 'locked_until' => null]); // Reset attempts
-
-            if ($user->user_type == 3) {
-                return redirect()->route('retailer.dashboard');
-            } else {
-                session()->flash('error', 'Invalid Crdential');
-                return redirect()->route('retailer.login');
-            }
+        // Check if account is inactive
+        if ($user->status == 0) {
+            session()->flash('error', 'Your account is currently inactive. Please contact support for assistance.');
+            return redirect()->route('retailer.login');
         }
 
-        // Failed Login - Increment Attempts
-        if ($user) {
-            $user->increment('login_attempt');
-
-            if ($user->login_attempt >= 5) {
-                $user->update(['locked_until' => Carbon::now()->addHours(24)]); // Lock for 24 hours
-            }
+        // Check user type (must be retailer)
+        if ($user->user_type != 3 ) {
+            session()->flash('error', 'Invalid credentials');
+            return redirect()->route('retailer.login');
         }
 
-        session()->flash('error', 'Invalid credentials');
-        return redirect()->route('retailer.login');
+        // Check email verification if needed
+        if (!$user->hasVerifiedEmail()) {
+            session()->flash('error', 'Please verify your email before logging in');
+            return redirect()->route('retailer.login');
+        }
+
+        // Successful login
+        Auth::login($user);
+        $user->update(['login_attempt' => 0, 'locked_until' => null]); // Reset login attempts
+        return redirect()->route('retailer.dashboard');
     }
+
 
     public function logout()
     {
