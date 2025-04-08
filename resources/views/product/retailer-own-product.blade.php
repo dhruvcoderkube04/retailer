@@ -206,6 +206,7 @@
                                                             data-description="{{ $cloneProduct->description }}"
                                                             data-tags="{{ $cloneProduct->tags }}"
                                                             data-category="{{ $cloneProduct->category_id }}"
+                                                            data-sub_category="{{ $cloneProduct->sub_category_id }}"
                                                             data-price="{{ $cloneProduct->new_price }}"
                                                             data-images="{{ $cloneProduct->images }}"
                                                             data-videos="{{ $cloneProduct->videos }}"
@@ -295,12 +296,21 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Categories</label>
-                                    <select class="form-select" id="categories" name="categories">
+                                    <select class="form-select" id="categories" data-control="select2"  name="categories">
                                         @foreach ($category_list as $category)
                                             <option value="{{ $category->id }}">{{ $category->category_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Sub Category</label>
+                                    <select class="form-select" id="sub_category" data-control="select2" name="sub_category">
+                                        <option value="">Select Sub Category</option>
+                                        <!-- Options will be loaded dynamically -->
+                                    </select>
+                                </div>
+
 
                                 <div class="mb-3">
                                     <label class="form-label">Price</label>
@@ -532,6 +542,29 @@
 
 
             $(document).ready(function() {
+
+
+            //     $('#categories').on('change', function () {
+            //         let categoryId = $(this).val();
+
+            //         if (categoryId) {
+            //     $.ajax({
+            //         url: "{{ route('retailer.getSubCategories') }}", // Create this route
+            //         type: "GET",
+            //         data: {
+            //             category_id: categoryId
+            //         },
+            //         success: function (data) {
+            //             $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
+            //             $.each(data, function (key, value) {
+            //                 $('#sub_category').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
+            //             });
+            //         }
+            //     });
+            // } else {
+            //     $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
+            // }
+            //     });
                 // Initialize Form Validation
                 $("#productUploadForm").submit(function(e) {
                     e.preventDefault();
@@ -692,6 +725,7 @@
                     let tags = $(this).data("tags"); // "asd,sad"
                     let tagArray = tags.split(',').map(tag => tag.trim());
                     let category = $(this).data("category");
+                    let subCategory = $(this).data("sub_category");
                     let price = $(this).data("price");
                     let images = $(this).data("images");
                     let videos = $(this).data("videos");
@@ -712,6 +746,23 @@
                     // **Clear Previous Preview**
                     $("#image-preview").html("");
                     $("#video-preview").html("");
+
+                    if (category) {
+                        $.ajax({
+                            url: "{{ route('retailer.getSubCategories') }}",
+                            type: "GET",
+                            data: { category_id: category },
+                            success: function (data) {
+                                $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
+                                $.each(data, function (key, value) {
+                                    $('#sub_category').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
+                                });
+
+                                // Set the selected sub category after dropdown is populated
+                                $('#sub_category').val(subCategory);
+                            }
+                        });
+                    }
 
                     // **Handle Image Preview with Delete Option**
                     if (images) {

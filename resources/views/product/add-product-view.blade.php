@@ -83,7 +83,7 @@
                                                     <label class="required form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                       id="tags" value="{{ old('product_tags') }}" placeholder="fashion,stylesh" />
+                                                        placeholder="fashion,stylesh" id="tags" value="{{ old('product_tags') }}" />
                                                     <!--end::Label-->
                                                     @error('product_tags')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
@@ -98,7 +98,7 @@
                                                     <label class="required form-label">Categories</label>
                                                     <select
                                                         class="form-select mb-2 @error('categories') is-invalid @enderror"
-                                                        data-control="select2" name="categories"
+                                                        data-control="select2" name="categories" id="category_select"
                                                         data-placeholder="Select an option">
                                                         <option></option>
                                                         @foreach ($category_list as $category)
@@ -111,7 +111,22 @@
                                                     @enderror
                                                 </div>
                                             </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-10 fv-row">
+                                                    <label class="required form-label">Sub Categories</label>
+                                                    <select class="form-select mb-2 @error('sub_category') is-invalid @enderror"
+                                                          data-control="select2" name="sub_category" id="sub_category_select"
+                                                            data-placeholder="Select a sub category">
+                                                        <option value="">Select Sub Category</option>
+                                                    </select>
+                                                    @error('sub_category')
+                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        
 
                                         <div class="row">
                                             <div class="col-md-6">
@@ -406,5 +421,30 @@
             reader.readAsDataURL(file);
         });
     }
+
+
+    $(document).ready(function () {
+        $('#category_select').on('change', function () {
+            let categoryId = $(this).val();
+
+            if (categoryId) {
+                $.ajax({
+                    url: "{{ route('retailer.getSubCategories') }}", // Create this route
+                    type: "GET",
+                    data: {
+                        category_id: categoryId
+                    },
+                    success: function (data) {
+                        $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
+                        $.each(data, function (key, value) {
+                            $('#sub_category_select').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
+            }
+        });
+    });
     </script>
 @endsection

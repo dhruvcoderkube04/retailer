@@ -259,9 +259,19 @@ class RetilerController extends Controller
                 ->pluck('product_id')
                 ->toArray();
 
-            $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
+            // $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
 
 
+                // Get category_ids linked to this retailer
+                $category_ids = DB::table('retailer_categories')
+                ->where('retailer_id', $retailer)
+                ->pluck('category_id');
+
+                // Fetch only categories which are active and assigned to this retailer
+                $category_list = Category::select('category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $category_ids)
+                ->get();
             // Pass the filtered data to the view.
             return view('product.retailer-own-product', [
                 'retailerProducts' => $filteredRetailerProducts,
@@ -299,8 +309,38 @@ class RetilerController extends Controller
     // Add Product
     public function retailerAddProduct(Request $request)
     {
-        $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
+        // $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
+
+        $retailer_id = auth()->id(); // Assume retailer is logged in
+
+        // Get category_ids linked to this retailer
+        $category_ids = DB::table('retailer_categories')
+            ->where('retailer_id', $retailer_id)
+            ->pluck('category_id');
+
+        // Fetch only categories which are active and assigned to this retailer
+        $category_list = Category::select('category_name', 'id')
+            ->where('status', 1)
+            ->whereIn('id', $category_ids)
+            ->get();
+
         return view('product.add-product-view', ['category_list' => $category_list]);
+    }
+
+    public function getSubCategories(Request $request)
+    {
+        $retailer_id = auth()->id(); // Or pass retailer id from frontend
+
+        $subCategoryIds = DB::table('retailer_categories')
+            ->where('retailer_id', $retailer_id)
+            ->where('category_id', $request->category_id)
+            ->pluck('sub_category_id');
+
+        $subCategories = DB::table('sub_categories')
+            ->whereIn('id', $subCategoryIds)
+            ->get(['id', 'sub_category_name']);
+
+        return response()->json($subCategories);
     }
 
     public function retailerPostProduct(Request $request)
@@ -343,6 +383,7 @@ class RetilerController extends Controller
             // dd($product->tags);
 
             $product->quantity = $request->quantity;
+            $product->sub_category_id = $request->sub_category;
             $product->new_price = $request->new_price;
             $product->old_price = 0;
             // $product->images = $request->images ? implode(',', $request->images) : null;
@@ -1111,6 +1152,7 @@ class RetilerController extends Controller
         $tags = json_decode($request->tags, true); // decode JSON to array
         $product->tags = collect($tags)->pluck('value')->implode(','); 
         $product->category_id = $request->categories;
+        $product->sub_category_id = $request->sub_category;
         $product->new_price = $request->price;
         $product->sku = $request->sku;
         $product->quantity = $request->quantity;

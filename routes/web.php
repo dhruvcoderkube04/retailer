@@ -132,6 +132,8 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/edit-ticket/{ticket_id}', [RetilerController::class, 'editTicket'])->name('retailer.ticket.edit');
     Route::post('/update-ticket/{id}', [RetilerController::class, 'updateTicket'])->name('retailer.ticket.update');
 
+    Route::get('/retailer/get-subcategories', [RetilerController::class, 'getSubCategories'])->name('retailer.getSubCategories');
+
     // rate calculation
     Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');
 
@@ -162,6 +164,7 @@ Route::middleware(['retailer'])->group(function () {
 
     // retailer catgory manage
     Route::get('/category-list', [RetailerCategoryController::class, 'categoryList'])->name('retailer.category.list');
+
     Route::post('/add-retailer-category', [RetailerCategoryController::class, 'addRetailerCategory'])->name('retailer.category.add-retailer-category');
     Route::get('/my-category-list', [RetailerCategoryController::class, 'myCategoryList'])->name('retailer.mycategory.list');
     Route::post('/remove-category', [RetailerCategoryController::class, 'removeCategory'])->name('retailer.remove.category');
