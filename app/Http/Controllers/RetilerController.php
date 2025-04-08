@@ -305,6 +305,8 @@ class RetilerController extends Controller
 
     public function retailerPostProduct(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'product_name' => 'required|min:3|max:100',
             'product_description' => 'required|min:5|max:100',
@@ -312,32 +314,17 @@ class RetilerController extends Controller
             'categories' => 'required|numeric',
             'new_price' => 'required|numeric|min:1',
             // 'discount_price' => 'nullable|numeric|min:0.01|max:100',
-            'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
-            'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
-            'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
+            // 'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
+            // 'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
+            // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
+            'images' => 'required|array|max:3', // Limit to 3 images
+            'images.*' => 'mimes:jpeg,png,jpg|max:4096', 
             'video' => 'required|mimes:mp4|max:10240',
             'sku' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        // all image set in array comman seprated store
-        // dd($request->all());
-        $imagePaths = []; // Initialize the array
-
-        foreach (['image_1', 'image_2', 'image_3'] as $imageField) {
-            if ($request->hasFile($imageField)) {
-                $file = $request->file($imageField);
-
-                // Generate a unique name using a combination of time, random string, and original name
-                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-
-                // Store the file in 'storage/app/public/products'
-                $file->move(public_path('uploads/products'), $fileName); // Save to public/uploads/product
-
-                // Store the path to save in the database
-                $imagePaths[] = "products/" . $fileName;
-            }
-        }
+       
 
         try {
 
@@ -350,11 +337,28 @@ class RetilerController extends Controller
             $product->description = $request->product_description;
             $product->slug = '';
             // $product->brand_name = $request->brand_name;
-            $product->tags = $request->product_tags;
+            // $product->tags = $request->product_tags;
+            $tags = json_decode($request->product_tags, true); // decode JSON to array
+            $product->tags = collect($tags)->pluck('value')->implode(','); 
+            // dd($product->tags);
+
             $product->quantity = $request->quantity;
             $product->new_price = $request->new_price;
             $product->old_price = 0;
-            $product->images = $request->images ? implode(',', $request->images) : null;
+            // $product->images = $request->images ? implode(',', $request->images) : null;
+            $imagePaths = [];
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $index => $file) {
+                    if ($index >= 3) break; // Just in case someone bypasses validation
+
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/products'), $filename);
+                    $imagePaths[] = $filename;
+                }
+                $product->images = implode(',', $imagePaths);
+            }
+
             $product->videos = $request->videos ? $request->videos : null;
             $product->sku = $request->sku;
             $product->retailer_id = $reatielr_id;
@@ -374,6 +378,7 @@ class RetilerController extends Controller
     // clone product store
     public function cloneProductStore(Request $request, $product_id)
     {
+
         $request->validate([
             'description' => 'required|min:10|max:500',
             'old_price' => 'required|numeric|min:0.01',
@@ -1040,6 +1045,8 @@ class RetilerController extends Controller
 
     public function uploadBulkProduct(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'product_file' => 'required|mimes:xlsx',
             'categories' => 'required|integer',
@@ -1100,7 +1107,9 @@ class RetilerController extends Controller
         $product = RetailerCloneProduct::findOrFail($request->product_id);
         $product->name = $request->product_name;
         $product->description = $request->description;
-        $product->tags = $request->tags;
+        // $product->tags = $request->tags;
+        $tags = json_decode($request->tags, true); // decode JSON to array
+        $product->tags = collect($tags)->pluck('value')->implode(','); 
         $product->category_id = $request->categories;
         $product->new_price = $request->price;
         $product->sku = $request->sku;

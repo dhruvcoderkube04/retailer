@@ -83,7 +83,7 @@
                                                     <label class="required form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                        value="{{ old('product_tags') }}" placeholder="fashion,stylesh" />
+                                                       id="tags" value="{{ old('product_tags') }}" placeholder="fashion,stylesh" />
                                                     <!--end::Label-->
                                                     @error('product_tags')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
@@ -170,7 +170,7 @@
                                             <!--begin::Input group-->
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    <div class="mb-10 fv-row">
+                                                    {{-- <div class="mb-10 fv-row">
                                                         <!--begin::Label-->
                                                         <label class="required form-label">Images</label>
                                                         <!--end::Label-->
@@ -212,7 +212,50 @@
                                                             <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                         @enderror
                                                         <!--end::Description-->
+                                                    </div> --}}
+                                                    {{-- <div class="mb-10 fv-row">
+                                                        <label class="required form-label">Images</label>
+                                                        <input type="file" name="image_1" id="image_1"
+                                                            class="form-control mb-2 @error('image_1') is-invalid @enderror"
+                                                            onchange="previewImage(event, 'preview_image_1')" />
+                                                        <img id="preview_image_1" src="#" alt="Preview" style="max-height: 100px; display:none;" />
+                                                        @error('image_1')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
+                                                    
+                                                    <div class="mb-10 fv-row">
+                                                        <input type="file" name="image_2" id="image_2"
+                                                            class="form-control mb-2 @error('image_2') is-invalid @enderror"
+                                                            onchange="previewImage(event, 'preview_image_2')" />
+                                                        <img id="preview_image_2" src="#" alt="Preview" style="max-height: 100px; display:none;" />
+                                                        @error('image_2')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    
+                                                    <div class="mb-10 fv-row">
+                                                        <input type="file" name="image_3" id="image_3"
+                                                            class="form-control mb-2 @error('image_3') is-invalid @enderror"
+                                                            onchange="previewImage(event, 'preview_image_3')" />
+                                                        <img id="preview_image_3" src="#" alt="Preview" style="max-height: 100px; display:none;" />
+                                                        @error('image_3')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                     --}}
+
+                                                     <div class="mb-3">
+                                                        <label class="form-label">Images (Max: 3)</label>
+                                                        <input type="file" class="form-control" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
+                                                        <small class="text-muted">You can upload up to 3 images.</small>
+                                                    </div>
+                                                    
+                                                    <!-- Preview container -->
+                                                    <div id="image-preview-container" class="d-flex gap-2 mt-2">
+                                                        <!-- Thumbnails will be inserted here -->
+                                                    </div>
+                                                    
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-10 fv-row">
@@ -328,4 +371,40 @@
     <script src="{{ asset('assets/js/custom/apps/ecommerce/catalog/save-product.js') }}"></script>
     <script src="{{ asset('assets/js/custom/utilities/modals/create-app.js') }}"></script>
     <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script>
+        var input = document.querySelector('#tags');
+        new Tagify(input, {
+            delimiters: " ", // space thi tag split thase
+            // comma pan joye to use: delimiters: ", "
+        });
+
+        function previewImages(event) {
+        const files = event.target.files;
+        const previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = ''; // Clear previous previews
+
+        if (files.length > 3) {
+            alert('You can upload a maximum of 3 images.');
+            event.target.value = ''; // Reset file input
+            return;
+        }
+
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '8px';
+                img.style.border = '1px solid #ccc';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    </script>
 @endsection
