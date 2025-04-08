@@ -110,6 +110,11 @@ class RetailerAuthController extends Controller
             return back()->with('error', 'This email is not registered with us.');
         }
 
+        // Check if account is inactive
+        if ($user->status == 0) {
+            return back()->with('error', 'Your account is inactive. Please contact our support team.');
+        }
+
         try {
             // Generate token
             $token = Str::random(60);
@@ -118,7 +123,7 @@ class RetailerAuthController extends Controller
             DB::table('password_reset_tokens')->updateOrInsert(
                 ['email' => $user->email],
                 [
-                    'token' =>   $token,
+                    'token' => $token,
                     'created_at' => Carbon::now(),
                 ]
             );
@@ -136,6 +141,7 @@ class RetailerAuthController extends Controller
             return back()->with('error', 'An unexpected error occurred. Please try again later.');
         }
     }
+
     public function showResetPasswordForm($token)
     {
 
