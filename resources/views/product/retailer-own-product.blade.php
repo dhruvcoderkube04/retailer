@@ -55,7 +55,7 @@
                                     data-bs-target="#kt_modal_add_product">
                                     <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
                                             class="path2"></span><span class="path3"></span></i>
-                                    Upload Product File
+                                        Bulk Product Upload
                                 </button>
                                 <a href="{{ route('retailer.add.product') }}" class="btn btn-primary">Add Product</a>
                             </div>
@@ -404,7 +404,7 @@
                                     </div>
                                     <div class="mb-10 fv-row">
                                         <a href="{{ route('retailer.download-stock-sample') }}">Download Sample Product
-                                            File</a>
+                                            File  </a> <p style="color: red">(Only excepted .xlsx formate)</p>
                                     </div>
                                     <div
                                         class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
@@ -500,6 +500,9 @@
     @endsection
 
     @section('script')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+
         <script>
             var table1 = $("#kt_margin_added_products_table").DataTable({
                 order: [], // disables initial sorting completely
@@ -557,6 +560,32 @@
                         });
                         return;
                     }
+
+                    // if (!stockfile) {
+                    //     Swal.fire({
+                    //         icon: 'error',
+                    //         title: 'Error',
+                    //         text: 'Please select a file to upload!'
+                    //     });
+                    //     return;
+                    // }
+
+                    // // Allowed MIME types for .xlsx and .csv
+                    // const allowedTypes = [
+                    //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+                    //     "text/csv", // .csv
+                    //     "application/vnd.ms-excel" // some browsers use this for .csv
+                    // ];
+
+                    // if (!allowedTypes.includes(stockfile.type)) {
+                    //     Swal.fire({
+                    //         icon: 'error',
+                    //         title: 'Invalid File Type!',
+                    //         text: 'Only .xlsx and .csv files are allowed.'
+                    //     });
+                    //     return;
+                    // }
+
 
                     formData.append("categories", categoryId); // Append category to formdata.
 
@@ -651,17 +680,25 @@
                     });
                 });
 
+                let tagInput = document.querySelector('#tags');
+                let tagify = new Tagify(tagInput);
+
+
                 $(".edit-product").on("click", function() {
                     let productId = $(this).data("id");
                     let productName = $(this).data("name");
                     let description = $(this).data("description");
-                    let tags = $(this).data("tags");
+                    // let tags = $(this).data("tags");
+                    let tags = $(this).data("tags"); // "asd,sad"
+                    let tagArray = tags.split(',').map(tag => tag.trim());
                     let category = $(this).data("category");
                     let price = $(this).data("price");
                     let images = $(this).data("images");
                     let videos = $(this).data("videos");
                     let sku = $(this).data("sku");
                     let quantity = $(this).data("quantity");
+                    tagify.removeAllTags();
+                    tagify.addTags(tagArray);
 
                     $("#product_id").val(productId);
                     $("#product_name").val(productName);
@@ -814,5 +851,11 @@
                 });
                 //<----------------- END : active-tab pass on url ---------------->
             });
+
+            var input = document.querySelector('#tags');
+    new Tagify(input, {
+        delimiters: " ", // space thi tag split thase
+        // comma pan joye to use: delimiters: ", "
+    });
         </script>
     @endsection

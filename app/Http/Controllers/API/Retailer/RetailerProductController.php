@@ -352,6 +352,35 @@ class RetailerProductController extends Controller
                 ];
             })->toArray();
 
+            foreach ($request->products as $product) {
+                $quantity = $product['quantity'];
+            
+                if (!empty($product['wholesaler_id'])) {
+                    // Wholesaler product stock update
+                    $productModel = Product::find($product['product_id']);
+                    if ($productModel) {
+                        if ($productModel->quantity < $quantity) {
+                            throw new \Exception('Insufficient stock for product ID ' . $product['product_id']);
+                        }
+                        $productModel->quantity -= $quantity;
+                        $productModel->save();
+                    }
+                } else {
+                    // Retailer clone product stock update
+                    $retailerProduct = RetailerCloneProduct::where('retailer_id', $product['retailer_id'])
+                        ->where('id', $product['retailer_clone_product_id']) // or use product_id if id not available
+                        ->first();
+            
+                    if ($retailerProduct) {
+                        if ($retailerProduct->quantity < $quantity) {
+                            throw new \Exception('Insufficient stock for retailer product ID ' . $product['retailer_clone_product_id']);
+                        }
+                        $retailerProduct->quantity -= $quantity;
+                        $retailerProduct->save();
+                    }
+                }
+            }
+
             // Bulk insert orders
             CustomerOrders::insert($orderItems);
 
