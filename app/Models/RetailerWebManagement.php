@@ -45,6 +45,8 @@ class RetailerWebManagement extends Model
         'enquiry_whatsapp',
         'hide_pickup_address',
         'request_offer',
+        'favicon',
+        'banner'
     ];
 
     protected $casts = [

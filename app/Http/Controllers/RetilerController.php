@@ -645,7 +645,6 @@ class RetilerController extends Controller
             SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
             SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer
         ")->first()->toArray();
-
         // customer orders
         $sql = CustomerOrders::with([
             'customer',

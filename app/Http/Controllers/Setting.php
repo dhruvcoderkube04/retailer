@@ -46,6 +46,8 @@ class Setting extends Controller
             'cod_charge' => 'nullable|numeric|min:0',
             'shipping_charge' => 'nullable|numeric|min:0',
             'cart_limit' => 'nullable|integer|min:0',
+            'favicon' => 'nullable|mimes:jpeg,jpg,png|max:1048',
+            'banner' => 'nullable|mimes:jpeg,jpg,png|max:2048',
         ]);
 
         // Find retailer by authenticated user ID
@@ -64,6 +66,28 @@ class Setting extends Controller
 
             // Add to validated data
             $validatedData['logo'] = $filePath;
+        }
+
+        // Handle favicon upload
+        if ($request->hasFile('favicon')) {
+            $file = $request->file('favicon');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = 'uploads/favicon/' . $filename;
+            $file->move(public_path('uploads/favicon'), $filename);
+
+            // Add to validated data
+            $validatedData['favicon'] = $filePath;
+        }
+
+        // Handle logo upload
+        if ($request->hasFile('banner')) {
+            $file = $request->file('banner');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = 'uploads/banner/' . $filename;
+            $file->move(public_path('uploads/banner'), $filename);
+
+            // Add to validated data
+            $validatedData['banner'] = $filePath;
         }
 
         $validatedData['sms_service'] = $request->boolean('sms_service') ? 1 : 0;

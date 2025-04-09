@@ -245,6 +245,40 @@
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Input group-->
+
+                                    <div class="row mb-6">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Favicon</label>
+                                                <input type="file" class="form-control" id="favicon" name="favicon" accept="image/x-icon,image/png,image/jpeg" onchange="previewFavicon(event)">
+                                                <small class="text-muted">Upload a favicon (Recommended: 32x32 or 64x64, .ico or .png)</small>
+                                            </div>
+                                            {{-- Favicon preview --}}
+                                            <div id="favicon-preview-container" class="d-flex gap-2 mt-2">
+                                                @if (!empty($store->favicon))
+                                                    <img src="{{ asset($store->favicon) }}" alt="Favicon Preview" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">
+                                                @endif
+                                            </div>
+
+                                            {{-- <div id="favicon-preview-container" class="d-flex gap-2 mt-2"></div> --}}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Website Banner</label>
+                                                <input type="file" class="form-control" id="banner" name="banner" accept="image/*" onchange="previewBanner(event)">
+                                                <small class="text-muted">Recommended size: 1200x300 pixels</small>
+                                            </div>
+                                            {{-- Banner preview --}}
+                                            <div id="banner-preview-container" class="mt-3">
+                                                @if (!empty($store->banner))
+                                                    <img src="{{ asset($store->banner) }}" alt="Banner Preview" style="max-width: 100%; width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
+                                                @endif
+                                            </div>
+                                            {{-- <div id="banner-preview-container" class="mt-3"></div> --}}
+
+                                        </div>
+                                    </div>
+
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->
@@ -819,5 +853,49 @@
 @endsection
 
 
-@section('scritp')
+@section('script')
+    <script>
+        function previewFavicon(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('favicon-preview-container');
+            previewContainer.innerHTML = ''; // Clear previous preview
+
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '32px'; // Typical favicon size
+                img.style.height = '32px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '4px';
+                img.style.border = '1px solid #ccc';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function previewBanner(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('banner-preview-container');
+            previewContainer.innerHTML = ''; // Clear previous preview
+
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100%'; // Full width for preview
+                img.style.maxWidth = '600px'; // Adjust based on your layout
+                img.style.height = 'auto';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '8px';
+                img.style.border = '1px solid #ccc';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
 @endsection

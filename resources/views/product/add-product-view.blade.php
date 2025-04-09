@@ -126,7 +126,7 @@
                                             </div>
                                         </div>
 
-                                        
+
 
                                         <div class="row">
                                             <div class="col-md-6">
@@ -238,7 +238,7 @@
                                                             <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    
+
                                                     <div class="mb-10 fv-row">
                                                         <input type="file" name="image_2" id="image_2"
                                                             class="form-control mb-2 @error('image_2') is-invalid @enderror"
@@ -248,7 +248,7 @@
                                                             <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    
+
                                                     <div class="mb-10 fv-row">
                                                         <input type="file" name="image_3" id="image_3"
                                                             class="form-control mb-2 @error('image_3') is-invalid @enderror"
@@ -265,12 +265,12 @@
                                                         <input type="file" class="form-control" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
                                                         <small class="text-muted">You can upload up to 3 images.</small>
                                                     </div>
-                                                    
+
                                                     <!-- Preview container -->
                                                     <div id="image-preview-container" class="d-flex gap-2 mt-2">
                                                         <!-- Thumbnails will be inserted here -->
                                                     </div>
-                                                    
+
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-10 fv-row">
@@ -396,31 +396,31 @@
         });
 
         function previewImages(event) {
-        const files = event.target.files;
-        const previewContainer = document.getElementById('image-preview-container');
-        previewContainer.innerHTML = ''; // Clear previous previews
+            const files = event.target.files;
+            const previewContainer = document.getElementById('image-preview-container');
+            previewContainer.innerHTML = ''; // Clear previous previews
 
-        if (files.length > 3) {
-            alert('You can upload a maximum of 3 images.');
-            event.target.value = ''; // Reset file input
-            return;
+            if (files.length > 3) {
+                alert('You can upload a maximum of 3 images.');
+                event.target.value = ''; // Reset file input
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    img.style.border = '1px solid #ccc';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
         }
-
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.width = '100px';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
-                img.style.borderRadius = '8px';
-                img.style.border = '1px solid #ccc';
-                previewContainer.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
 
 
     $(document).ready(function () {
