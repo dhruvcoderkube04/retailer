@@ -191,10 +191,27 @@ class RetilerController extends Controller
     }
 
     // edit category margin store
-    public function editCategoryMargin($wholesaler_id, $margin_id)
+    // public function editCategoryMargin($wholesaler_id, $margin_id)
+    // {
+    //     dd('wholesaler_id = ' . $wholesaler_id, 'margin_id = ' . $margin_id);
+    // }
+
+    public function editCategoryMargin(Request $request)
     {
-        dd('wholesaler_id = ' . $wholesaler_id, 'margin_id = ' . $margin_id);
+        $margin = RetailerProducts::where('wholesaler_id', $request->wholesaler_id)
+                    ->where('id', $request->margin_id)
+                    ->first();
+
+        if (!$margin) {
+            return response()->json(['error' => 'Margin not found.'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $margin
+        ]);
     }
+
 
     // remove category margin store
     public function removeCategoryMargin($wholesaler_id, $margin_id)
@@ -214,6 +231,40 @@ class RetilerController extends Controller
             return redirect()->route('retailer.view-category-margin', $wholesaler_id);
         }
     }
+
+    public function updateCategoryMargin(Request $request)
+    {
+        $request->validate([
+            'margin_id' => 'required|exists:retailer_products,id',
+            'margin' => 'required|numeric|min:0',
+            'wholesaler_id' => 'required|exists:retailer_products,wholesaler_id',
+        ]);
+
+        $margin = RetailerProducts::where('id', $request->margin_id)
+                    ->where('wholesaler_id', $request->wholesaler_id)
+                    ->first();
+
+        if (!$margin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Margin record not found.',
+            ], 404);
+        }
+
+        $margin->margin = $request->margin;
+        $margin->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Margin updated successfully.',
+            'data' => [
+                'margin_id' => $margin->id,
+                'updated_margin' => $margin->margin,
+            ]
+        ]);
+    }
+
+
 
     // get category wise product
     // public function getCategoryWiseProducts(Request $request)
@@ -1119,7 +1170,7 @@ class RetilerController extends Controller
             // Process data after validating columns
             $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
 
-            $result = $import->collection($collection); // Process once ✅
+            $result = $import->collection($collection); // Process once
 
             $data = [
                 'valid' => $result['valid'],

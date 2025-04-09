@@ -209,88 +209,201 @@
                                                 </div>
                                             </td>
                                             <td class="text-center pe-0">
-                                                <a href="{{ route('retailer.edit-category-margin', ['wholesaler_id' => $wholesaler->user_id, 'margin_id' => $marginDetail->id]) }}"
-                                                    class="btn btn-sm btn-primary">Edit</a>
+                                                <button
+                                                    class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-margin-btn"
+                                                     data-bs-toggle="model"
+                                                    data-wholesaler-id="{{ $wholesaler->user_id }}"
+                                                    data-margin-id="{{ $marginDetail->id }}"
 
-                                                <form
-                                                    action="{{ route('retailer.remove-category-margin', ['wholesaler_id' => $wholesaler->user_id, 'margin_id' => $marginDetail->id]) }}"
-                                                    method="POST" style="display: inline;">
-                                                    @csrf
-                                                    @method('DELETE')
+                                                    data-bs-target="#kt_modal_edit_ticket" title="Edit">
+                                                    <i class="ki-duotone ki-pencil">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                    </i>
+                                                </button>
 
-                                                    <button type="submit" class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Are you sure you want to Remove?');">Delete</button>
-                                                </form>
-
+                                                <button type="button"
+                                                    class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-margin-btn"
+                                                    data-url="{{ route('retailer.remove-category-margin', ['wholesaler_id' => $wholesaler->user_id, 'margin_id' => $marginDetail->id]) }}"
+                                                    title="Delete">
+                                                    <i class="ki-duotone ki-trash">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                        <span class="path4"></span>
+                                                        <span class="path5"></span>
+                                                    </i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-
         @include('layouts.footer')
+    </div>
 
+
+    <div class="modal fade" id="kt_modal_edit_margin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Update Margin</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1"></i>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                    <form id="marginupdateform" class="form" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label">Margin</label>
+                            <input type="number" min="1" class="form-control" id="margin_value"
+                                name="margin">
+                            <input type="hidden" class="form-control" name="wholesaler_id" id="wholesaler_id"
+                            >
+                            <input type="hidden"  class="form-control" name="margin_id" id="margin_id"
+                            >
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Update Margin</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
 @section('script')
-    <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/apps/ecommerce/catalog/products.js') }}"></script>
-    <script src="{{ asset('assets/js/widgets.bundle.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/widgets.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/apps/chat/chat.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/upgrade-plan.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/create-app.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
-
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
+            // Initialize DataTable
             const table = $('#kt_retailer_margin_details').DataTable();
 
-            $('#retailer_margin_details_search').on('input', function() {
+            // Search functionality
+            $('#retailer_margin_details_search').on('input', function () {
                 table.search(this.value).draw();
             });
 
-            // $(document).on('change', '#category_id', function() {
-            //     const category_id = $(this).val();
-            //     const wholesale_id = $('#wholesaler_id').val();
+            // DELETE margin with Swal confirmation
+            $('.delete-margin-btn').on('click', function () {
+                const url = $(this).data('url');
 
-            //     $('#product_id').empty().append('<option></option>');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This action cannot be undone.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                _method: 'DELETE'
+                            },
+                            success: function (response) {
+                                Swal.fire('Deleted!', 'Margin has been removed.', 'success').then(() => {
+                                    location.reload(); // Reload page or use table.row(...).remove().draw() if dynamic
+                                });
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
 
-            //     if (category_id) {
-            //         $.ajax({
-            //             url: "{{ route('retailer.get-category-wise-products') }}",
-            //             method: 'GET',
-            //             data: {
-            //                 category_id: category_id,
-            //                 wholesale_id: wholesale_id,
-            //                 _token: '{{ csrf_token() }}'
-            //             },
-            //             success: function(response) {
-            //                 if (response.status) {
-            //                     response.data.forEach(function(product) {
-            //                         $('#product_id').append(new Option(product.name,
-            //                             product.id));
-            //                     });
+            // Open modal and load margin data for editing
+            $('.edit-margin-btn').on('click', function () {
+                const wholesalerId = $(this).data('wholesaler-id');
+                const marginId = $(this).data('margin-id');
 
-            //                     $('#product_id').trigger('change');
-            //                 } else {
-            //                     console.log('Error: ' + response.msg);
-            //                 }
-            //             },
-            //             error: function(xhr, status, error) {
-            //                 console.error('AJAX Error:', error);
-            //             }
-            //         });
-            //     }
-            // });
+                $.ajax({
+                    url: "{{ route('retailer.edit-category-margin') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        wholesaler_id: wholesalerId,
+                        margin_id: marginId
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            console.log(response);
+
+                            $('#wholesaler_id').val(response.data.wholesaler_id);
+                            $('#margin_id').val(response.data.id);
+                            $('#margin_value').val(response.data.margin);
+                            $('#kt_modal_edit_margin').modal('show');
+                        } else {
+                            Swal.fire('Error!', response.error || 'Could not fetch data.', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error!', 'Failed to load margin details.', 'error');
+                    }
+                });
+            });
+
+            $('#marginupdateform').on('submit', function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+                $.ajax({
+                    url: "{{ route('retailer.update-category-margin') }}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Success!",
+                                text: "Margin Update successfully!",
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            }).then(() => {
+                                // form reset
+                                document.getElementById('marginupdateform').reset();
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error!",
+                                text: "Something went wrong!",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorMsg = "";
+                        $.each(errors, function(key, value) {
+                            errorMsg += value[0] + "\n";
+                        });
+
+                        Swal.fire({
+                            title: "Validation Error",
+                            text: errorMsg,
+                            icon: "warning",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                });
+            });
+
         });
     </script>
 @endsection
