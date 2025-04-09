@@ -150,7 +150,7 @@
                                         (($data['wholesaler_product_count'] ?? 0) * 100) / $total_products;
                                     $retailer_ratio = (($data['retailer_product_count'] ?? 0) * 100) / $total_products;
                                 @endphp
-                                <a href="{{ route('retailer.product') }}">
+                                <a href="{{ url('retailer-product?active-tab=2') }}">
                                     <div class="card-header pt-5">
                                         <div class="card-title d-flex flex-column">
                                             <div class="d-flex align-items-center">

@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Support\Str;
 
 class RetilerController extends Controller
 {
@@ -55,7 +55,7 @@ class RetilerController extends Controller
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])
                 ->sum('final_amount'),
         ];
-        
+
         $wholesaler_product = 0;
         $retailerProducts = RetailerProducts::where('retailer_id', $user->id)->get();
         $retailerProducts->map(function ($retailerProduct) use (&$wholesaler_product) {
@@ -358,13 +358,13 @@ class RetilerController extends Controller
             // 'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'images' => 'required|array|max:3', // Limit to 3 images
-            'images.*' => 'mimes:jpeg,png,jpg|max:4096', 
+            'images.*' => 'mimes:jpeg,png,jpg|max:4096',
             'video' => 'required|mimes:mp4|max:10240',
             'sku' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);
 
-       
+
 
         try {
 
@@ -375,11 +375,15 @@ class RetilerController extends Controller
             $product->name = $request->product_name;
 
             $product->description = $request->product_description;
-            $product->slug = '';
+            // Generate a unique slug using product name and current timestamp
+            $slugBase = Str::slug($request->product_name);
+            $uniqueSuffix = now()->timestamp; // or use uniqid() for more uniqueness
+            $product->slug = $slugBase . '-' . $uniqueSuffix;
+
             // $product->brand_name = $request->brand_name;
             // $product->tags = $request->product_tags;
             $tags = json_decode($request->product_tags, true); // decode JSON to array
-            $product->tags = collect($tags)->pluck('value')->implode(','); 
+            $product->tags = collect($tags)->pluck('value')->implode(',');
             // dd($product->tags);
 
             $product->quantity = $request->quantity;
@@ -404,6 +408,7 @@ class RetilerController extends Controller
             $product->sku = $request->sku;
             $product->retailer_id = $reatielr_id;
             $product->category_id = $request->categories;
+            $product->status = 'active';
             $product->save();
             DB::commit();
             session()->flash('success', 'Product added successfully');
@@ -1150,7 +1155,7 @@ class RetilerController extends Controller
         $product->description = $request->description;
         // $product->tags = $request->tags;
         $tags = json_decode($request->tags, true); // decode JSON to array
-        $product->tags = collect($tags)->pluck('value')->implode(','); 
+        $product->tags = collect($tags)->pluck('value')->implode(',');
         $product->category_id = $request->categories;
         $product->sub_category_id = $request->sub_category;
         $product->new_price = $request->price;
