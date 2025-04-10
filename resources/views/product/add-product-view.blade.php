@@ -479,7 +479,7 @@ function previewImages(event) {
 
     document.getElementById('videoInput').addEventListener('change', function (e) {
         const file = e.target.files[0];
-        const sizeLimit = 10 * 1024 * 1024; // 1MB
+        const sizeLimit = 3 * 1024 * 1024; // 1MB
 
         const videoSizeDiv = document.getElementById('videoSize');
         const videoPreview = document.getElementById('videoPreview');
