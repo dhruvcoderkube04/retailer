@@ -494,7 +494,7 @@ class RetilerController extends Controller
             // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'images' => 'required|array|max:3', // Limit to 3 images
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'required|mimes:mp4|max:10240',
+            'video' => 'required|mimes:mp4|max:10192',
             'sku' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);

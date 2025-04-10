@@ -150,14 +150,8 @@
                                             <div>
                                                 <!--begin::Label-->
                                                 <label class="required form-label">Product Description</label>
-                                                <!--end::Label-->
-                                                <!--begin::Editor-->
                                                 <textarea name="product_description" id="" cols="30" rows="3"
                                                     class="form-control @error('product_description') is-invalid @enderror">{{ old('product_description') }}</textarea>
-                                                {{-- <div id="kt_ecommerce_add_product_description" class="min-h-150px mb-2">
-                                                </div> --}}
-                                                <!--end::Editor-->
-                                                <!--begin::Description-->
                                                 @error('product_description')
                                                     <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                 @enderror
@@ -185,11 +179,10 @@
                                             <!--begin::Input group-->
                                             <div class="row">
                                                 <div class="col-md-6">
-        
+
                                                      <div class="mb-3">
                                                         <label class="required form-label">Images (Max: 3)</label>
                                                         <input type="file" class="form-control @error('images') is-invalid @enderror" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
-                                                            
                                                             @error('images')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
@@ -203,39 +196,23 @@
                                                     </div>
 
                                                 </div>
-                                                {{-- <div class="col-md-6">
-                                                    <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <label class="required form-label">Video </label>
-                                                        <!--end::Label-->
-                                                        <!--begin::Input-->
-                                                        <input type="file" name="video"
-                                                            class="form-control mb-2 @error('video') is-invalid @enderror"
-                                                            placeholder="video" value="{{ old('video') }}" />
-                                                        @error('video')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                        <!--end::Input-->
-                                                        <!--begin::Description-->
-                                                        <!--end::Description-->
-                                                    </div>
-                                                </div> --}}
+
                                                 <div class="col-md-6">
                                                     <div class="mb-10 fv-row">
                                                         <label class="required form-label">Video</label>
                                                         <input type="file" name="video" id="videoInput"
                                                             class="form-control mb-2 @error('video') is-invalid @enderror"
                                                             accept="video/*" />
-                                                
+
                                                         @error('video')
                                                             <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                         @enderror
-                                                
+
                                                         <div id="videoSize" class="text-muted mt-2"></div>
                                                         <video id="videoPreview" width="100%" height="auto" class="mt-2" controls style="display: none;"></video>
                                                     </div>
                                                 </div>
-                                                
+
                                             </div>
 
                                         </div>
@@ -330,9 +307,6 @@
 
 @section('script')
     <script src="{{ asset('assets/plugins/custom/formrepeater/formrepeater.bundle.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/apps/ecommerce/catalog/save-product.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/create-app.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script>
@@ -447,17 +421,6 @@ function previewImages(event) {
 
         $('#kt_ecommerce_add_product_form').on('submit', function (e) {
             e.preventDefault();
-
-            // if (!isImageSelected) {
-            //     Swal.fire({
-            //         icon: 'error',
-            //         title: 'Image Required',
-            //         text: 'Please upload at least one image.'
-            //     });
-            //     return;
-            // }
-
-
             $('.invalid-feedback').remove();
             $('.is-invalid').removeClass('is-invalid');
 
@@ -516,7 +479,7 @@ function previewImages(event) {
 
     document.getElementById('videoInput').addEventListener('change', function (e) {
         const file = e.target.files[0];
-        const sizeLimit = 1 * 1024 * 1024; // 1MB
+        const sizeLimit = 10 * 1024 * 1024; // 1MB
 
         const videoSizeDiv = document.getElementById('videoSize');
         const videoPreview = document.getElementById('videoPreview');
