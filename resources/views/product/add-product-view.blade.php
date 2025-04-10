@@ -44,7 +44,7 @@
                     @endif
                     <!--begin::Form-->
                     <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row"
-                        action="{{ route('retailer.post.product') }}" method="post" enctype="multipart/form-data">
+                        action="{{ route('retailer.post.product') }}" method="post" onsubmit="return validateForm(event)" enctype="multipart/form-data">
                         @csrf
                         <!--begin::Main column-->
                         <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
@@ -188,8 +188,13 @@
         
                                                      <div class="mb-3">
                                                         <label class="required form-label">Images (Max: 3)</label>
-                                                        <input type="file" class="form-control" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
+                                                        <input type="file" class="form-control @error('images') is-invalid @enderror" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
+                                                            
+                                                            @error('images')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
                                                         <small class="text-muted">You can upload up to 3 images.</small>
+                                                        <div id="image-error" class="text-danger mt-1"></div>
                                                     </div>
 
                                                     <!-- Preview container -->
@@ -337,56 +342,84 @@
             // comma pan joye to use: delimiters: ", "
         });
 
+        function validateForm(event) {
+    const imageInput = document.getElementById('image');
+    const imageError = document.getElementById('image-error');
 
+    if (imageInput.files.length === 0) {
+        event.preventDefault(); // Stop form submission
+        imageInput.classList.add('is-invalid');
+        imageError.innerText = 'At least one image is required.';
+        return false;
+    } else {
+        imageInput.classList.remove('is-invalid');
+        imageError.innerText = '';
+        return true;
+    }
+}
         let isImageSelected = false;
 
-        function previewImages(event) {
-            const files = event.target.files;
-            const previewContainer = document.getElementById('image-preview-container');
-            previewContainer.innerHTML = ''; // Clear previous previews
+function previewImages(event) {
+    const files = event.target.files;
+    const previewContainer = document.getElementById('image-preview-container');
+    const errorContainer = document.getElementById('image-error');
 
-            if (files.length === 0) {
-                isImageSelected = false;
-                return;
-            }
+    previewContainer.innerHTML = ''; // Clear previous previews
+    errorContainer.innerText = '';   // Clear previous errors
 
-            if (files.length > 3) {
-                alert('You can upload a maximum of 3 images.');
-                event.target.value = '';
-                isImageSelected = false;
-                return;
-            }
+    if (files.length === 0) {
+        isImageSelected = false;
+        errorContainer.innerText = 'At least one image is required.';
+        return;
+    }
 
-            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (files.length > 3) {
+        errorContainer.innerText = 'You can upload a maximum of 3 images.';
+        event.target.value = '';
+        isImageSelected = false;
+        return;
+    }
 
-            for (let i = 0; i < files.length; i++) {
-                if (!allowedTypes.includes(files[i].type)) {
-                    alert('Only PNG, JPG, and JPEG images are allowed.');
-                    event.target.value = ''; // Reset input
-                    previewContainer.innerHTML = '';
-                    isImageSelected = false;
-                    return;
-                }
-            }
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    const maxSizeInBytes = 5 * 1024 * 1024;
 
-            isImageSelected = true;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
 
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '100px';
-                    img.style.height = '100px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '8px';
-                    img.style.border = '1px solid #ccc';
-                    previewContainer.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
+        if (!allowedTypes.includes(file.type)) {
+            errorContainer.innerText = 'Only PNG, JPG, and JPEG images are allowed.';
+            event.target.value = '';
+            previewContainer.innerHTML = '';
+            isImageSelected = false;
+            return;
         }
 
+        if (file.size > maxSizeInBytes) {
+            errorContainer.innerText = `Image ${file.name} is larger than 5MB.`;
+            event.target.value = '';
+            previewContainer.innerHTML = '';
+            isImageSelected = false;
+            return;
+        }
+    }
+
+    isImageSelected = true;
+
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '8px';
+            img.style.border = '1px solid #ccc';
+            previewContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
 
     $(document).ready(function () {
@@ -415,14 +448,14 @@
         $('#kt_ecommerce_add_product_form').on('submit', function (e) {
             e.preventDefault();
 
-            if (!isImageSelected) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Image Required',
-                    text: 'Please upload at least one image.'
-                });
-                return;
-            }
+            // if (!isImageSelected) {
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Image Required',
+            //         text: 'Please upload at least one image.'
+            //     });
+            //     return;
+            // }
 
 
             $('.invalid-feedback').remove();
