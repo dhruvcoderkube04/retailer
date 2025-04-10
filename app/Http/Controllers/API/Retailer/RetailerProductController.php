@@ -12,6 +12,7 @@ use App\Models\RetailerWebManagement;
 use App\Models\UserDetail;
 use App\Models\Otp;
 use App\Models\Product;
+use App\Models\User; 
 use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use Dotenv\Util\Regex;
@@ -100,93 +101,108 @@ class RetailerProductController extends Controller
         }
     }
 
-    public function getProducts(Request $request)
-    {
-        try {
-            // Step 1: Validate API Key
-            $apiKey = $request->header('API-KEY');
-            if (!$apiKey) {
-                return response()->json(['error' => 'API Key is required.'], 401);
-            }
+        public function getProducts(Request $request)
+        {
 
-            // Step 2: Validate Retailer
-            $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-            if (!$retailer) {
-                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-            }
+            try {
+                // Step 1: Validate API Key
+                $apiKey = $request->header('API-KEY');
 
-            // Step 3: Fetch both model data
-            $retailerProducts = RetailerProducts::with(['wholesaler.products'])
-                ->where('retailer_id', $retailer->retailer_id)
-                ->get();
+                if (!$apiKey) {
+                    return response()->json(['error' => 'API Key is required.'], 401);
+                }
 
-            $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)->get();
+                // Step 2: Validate Retailer
+                $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
 
-            // Step 4: Combine both safely
-            $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
+                if (!$retailer) {
+                    return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+                }
 
-            // Step 5: If product_id filter is present
-            if ($request->has('product_id')) {
-                $productId = $request->product_id;
-                $allProducts = $allProducts->filter(fn($item) => $item->id == $productId);
-            }
 
-            // Step 6: Normalize all products to a consistent array
-            $products = $allProducts->flatMap(function ($item) {
-                if ($item instanceof RetailerProducts) {
-                    if (!$item->wholesaler || !$item->wholesaler->products) {
-                        return []; // skip if no wholesaler or products
+                $retailerId = $retailer->retailer_id;
+
+                $retailerUser = User::find($retailerId);
+                if (!$retailerUser) {
+                    return response()->json(['error' => 'Retailer user not found.'], 404);
+                }
+        
+                $retailerProducts = collect(); // default empty collection
+        
+                if ($retailerUser->is_all_wholesaler_visible == 1) {
+                    $retailerProducts = RetailerProducts::with(['wholesaler.products'])
+                        ->where('retailer_id', $retailerId)
+                        ->get();
+                }
+    
+
+                $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)->get();
+
+                // Step 4: Combine both safely
+                $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
+
+                // Step 5: If product_id filter is present
+                if ($request->has('product_id')) {
+                    $productId = $request->product_id;
+                    $allProducts = $allProducts->filter(fn($item) => $item->id == $productId);
+                }
+
+                // Step 6: Normalize all products to a consistent array
+                $products = $allProducts->flatMap(function ($item) {
+                    if ($item instanceof RetailerProducts) {
+                        if (!$item->wholesaler || !$item->wholesaler->products) {
+                            return []; // skip if no wholesaler or products
+                        }
+
+                        return $item->wholesaler->products->map(function ($product) use ($item) {
+                            return $this->formatProductFromRetailerProduct($product, $item);
+                        });
+                    } else {
+                        return [$this->formatProductFromClone($item)];
+                    }
+                })->values();
+
+                // Step 7: Extract unique categories
+                $categoryIds = $products->pluck('category_id')->filter()->unique();
+                $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
+
+                // Step 8: Handle single product response
+                if ($request->has('product_id')) {
+                    $single = $products->first();
+                    if (!$single) {
+                        return response()->json(['error' => 'Product not found.'], 404);
                     }
 
-                    return $item->wholesaler->products->map(function ($product) use ($item) {
-                        return $this->formatProductFromRetailerProduct($product, $item);
-                    });
-                } else {
-                    return [$this->formatProductFromClone($item)];
+                    return response()->json([
+                        'success' => true,
+                        'product' => $single,
+                    ]);
                 }
-            })->values();
 
-            // Step 7: Extract unique categories
-            $categoryIds = $products->pluck('category_id')->filter()->unique();
-            $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
-
-            // Step 8: Handle single product response
-            if ($request->has('product_id')) {
-                $single = $products->first();
-                if (!$single) {
-                    return response()->json(['error' => 'Product not found.'], 404);
-                }
+                // Step 9: Paginate the full product list
+                $perPage = 8;
+                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                $productsCollection = new Collection($products);
+                $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+                $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
+                $paginatedProducts->setPath(url()->current());
 
                 return response()->json([
-                    'success' => true,
-                    'product' => $single,
+                    'success'    => true,
+                    'products'   => $paginatedProducts,
+                    'categories' => $categories,
                 ]);
+
+            } catch (\Exception $e) {
+                \Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
+                    'line'    => $e->getLine(),
+                    'file'    => $e->getFile(),
+                    'trace'   => $e->getTraceAsString(),
+                ]);
+
+                return response()->json(['error' => 'An unexpected error occurred.'], 500);
             }
-
-            // Step 9: Paginate the full product list
-            $perPage = 8;
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $productsCollection = new Collection($products);
-            $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
-            $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
-            $paginatedProducts->setPath(url()->current());
-
-            return response()->json([
-                'success'    => true,
-                'products'   => $paginatedProducts,
-                'categories' => $categories,
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
-                'line'    => $e->getLine(),
-                'file'    => $e->getFile(),
-                'trace'   => $e->getTraceAsString(),
-            ]);
-
-            return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
-    }
 
     public function getSingalProductDetails(Request $request)
     {

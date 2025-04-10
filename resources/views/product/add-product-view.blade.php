@@ -185,83 +185,9 @@
                                             <!--begin::Input group-->
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    {{-- <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <label class="required form-label">Images</label>
-                                                        <!--end::Label-->
-                                                        <!--begin::Input-->
-                                                        <input type="file" name="image_1"
-                                                            class="form-control mb-2 @error('image_1') is-invalid @enderror"
-                                                            placeholder="Image 1" value="{{ old('image_1') }}" />
-                                                        <!--end::Input-->
-                                                        <!--begin::Description-->
-                                                        @error('image_1')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                        <!--end::Description-->
-                                                    </div>
-                                                    <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <!--end::Label-->
-                                                        <!--begin::Input-->
-                                                        <input type="file" name="image_2"
-                                                            class="form-control mb-2 @error('image_2') is-invalid @enderror"
-                                                            placeholder="Image 2" value="{{ old('image_2') }}" />
-                                                        <!--end::Input-->
-                                                        <!--begin::Description-->
-                                                        @error('image_2')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                        <!--end::Description-->
-                                                    </div>
-                                                    <div class="mb-10 fv-row">
-                                                        <!--begin::Label-->
-                                                        <!--end::Label-->
-                                                        <!--begin::Input-->
-                                                        <input type="file" name="image_3"
-                                                            class="form-control mb-2 @error('image_3') is-invalid @enderror"
-                                                            placeholder="Image 3" value="{{ old('image_3') }}" />
-                                                        <!--end::Input-->
-                                                        <!--begin::Description-->
-                                                        @error('image_3')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                        <!--end::Description-->
-                                                    </div> --}}
-                                                    {{-- <div class="mb-10 fv-row">
-                                                        <label class="required form-label">Images</label>
-                                                        <input type="file" name="image_1" id="image_1"
-                                                            class="form-control mb-2 @error('image_1') is-invalid @enderror"
-                                                            onchange="previewImage(event, 'preview_image_1')" />
-                                                        <img id="preview_image_1" src="#" alt="Preview" style="max-height: 100px; display:none;" />
-                                                        @error('image_1')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-10 fv-row">
-                                                        <input type="file" name="image_2" id="image_2"
-                                                            class="form-control mb-2 @error('image_2') is-invalid @enderror"
-                                                            onchange="previewImage(event, 'preview_image_2')" />
-                                                        <img id="preview_image_2" src="#" alt="Preview" style="max-height: 100px; display:none;" />
-                                                        @error('image_2')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-10 fv-row">
-                                                        <input type="file" name="image_3" id="image_3"
-                                                            class="form-control mb-2 @error('image_3') is-invalid @enderror"
-                                                            onchange="previewImage(event, 'preview_image_3')" />
-                                                        <img id="preview_image_3" src="#" alt="Preview" style="max-height: 100px; display:none;" />
-                                                        @error('image_3')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                     --}}
-
+        
                                                      <div class="mb-3">
-                                                        <label class="form-label">Images (Max: 3)</label>
+                                                        <label class="required form-label">Images (Max: 3)</label>
                                                         <input type="file" class="form-control" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
                                                         <small class="text-muted">You can upload up to 3 images.</small>
                                                     </div>
@@ -272,7 +198,7 @@
                                                     </div>
 
                                                 </div>
-                                                <div class="col-md-6">
+                                                {{-- <div class="col-md-6">
                                                     <div class="mb-10 fv-row">
                                                         <!--begin::Label-->
                                                         <label class="required form-label">Video </label>
@@ -288,7 +214,23 @@
                                                         <!--begin::Description-->
                                                         <!--end::Description-->
                                                     </div>
+                                                </div> --}}
+                                                <div class="col-md-6">
+                                                    <div class="mb-10 fv-row">
+                                                        <label class="required form-label">Video</label>
+                                                        <input type="file" name="video" id="videoInput"
+                                                            class="form-control mb-2 @error('video') is-invalid @enderror"
+                                                            accept="video/*" />
+                                                
+                                                        @error('video')
+                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        @enderror
+                                                
+                                                        <div id="videoSize" class="text-muted mt-2"></div>
+                                                        <video id="videoPreview" width="100%" height="auto" class="mt-2" controls style="display: none;"></video>
+                                                    </div>
                                                 </div>
+                                                
                                             </div>
 
                                         </div>
@@ -395,16 +337,39 @@
             // comma pan joye to use: delimiters: ", "
         });
 
+
+        let isImageSelected = false;
+
         function previewImages(event) {
             const files = event.target.files;
             const previewContainer = document.getElementById('image-preview-container');
             previewContainer.innerHTML = ''; // Clear previous previews
 
-            if (files.length > 3) {
-                alert('You can upload a maximum of 3 images.');
-                event.target.value = ''; // Reset file input
+            if (files.length === 0) {
+                isImageSelected = false;
                 return;
             }
+
+            if (files.length > 3) {
+                alert('You can upload a maximum of 3 images.');
+                event.target.value = '';
+                isImageSelected = false;
+                return;
+            }
+
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
+            for (let i = 0; i < files.length; i++) {
+                if (!allowedTypes.includes(files[i].type)) {
+                    alert('Only PNG, JPG, and JPEG images are allowed.');
+                    event.target.value = ''; // Reset input
+                    previewContainer.innerHTML = '';
+                    isImageSelected = false;
+                    return;
+                }
+            }
+
+            isImageSelected = true;
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -421,6 +386,7 @@
                 reader.readAsDataURL(file);
             });
         }
+
 
 
     $(document).ready(function () {
@@ -445,6 +411,102 @@
                 $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
             }
         });
+
+        $('#kt_ecommerce_add_product_form').on('submit', function (e) {
+            e.preventDefault();
+
+            if (!isImageSelected) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Image Required',
+                    text: 'Please upload at least one image.'
+                });
+                return;
+            }
+
+
+            $('.invalid-feedback').remove();
+            $('.is-invalid').removeClass('is-invalid');
+
+            let form = this;
+            let formData = new FormData(form);
+
+            // Store category before reset (optional)
+            let selectedCategory = $('[name="category_id"]').val();
+
+            $.ajax({
+                type: 'POST',
+                url: $(form).attr('action'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    // Show loader if needed
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Product added successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    // Reset inputs except category & preview
+                    $(form).trigger('reset');
+
+                    // Restore category (optional)
+                    $('[name="category_id"]').val(selectedCategory).trigger('change');
+
+                    // Clear preview areas
+                    $('#image-preview-container').empty();
+                    $('#videoPreview').attr('src', '').hide();
+                    $('#videoSize').text('');
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        $.each(xhr.responseJSON.errors, function (key, value) {
+                            let input = $('[name="' + key + '"]');
+                            input.addClass('is-invalid');
+                            input.after('<div class="invalid-feedback fs-7">' + value[0] + '</div>');
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Something went wrong!',
+                            text: 'Please try again later.'
+                        });
+                    }
+                }
+            });
+        });
+    });
+
+    document.getElementById('videoInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const sizeLimit = 1 * 1024 * 1024; // 1MB
+
+        const videoSizeDiv = document.getElementById('videoSize');
+        const videoPreview = document.getElementById('videoPreview');
+
+        if (file) {
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+            videoSizeDiv.innerHTML = `Video size: ${sizeInMB} MB`;
+
+            if (file.size > sizeLimit) {
+                videoSizeDiv.innerHTML += `<br><span class="text-danger">Video must be less than 1MB!</span>`;
+                this.value = ''; // Clear file input
+                videoPreview.style.display = 'none';
+                videoPreview.src = '';
+            } else {
+                // Preview
+                const videoUrl = URL.createObjectURL(file);
+                videoPreview.src = videoUrl;
+                videoPreview.style.display = 'block';
+            }
+        } else {
+            videoSizeDiv.innerHTML = '';
+            videoPreview.style.display = 'none';
+        }
     });
     </script>
 @endsection

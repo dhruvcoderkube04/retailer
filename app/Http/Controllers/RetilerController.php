@@ -191,26 +191,49 @@ class RetilerController extends Controller
     }
 
     // edit category margin store
-    // public function editCategoryMargin($wholesaler_id, $margin_id)
-    // {
-    //     dd('wholesaler_id = ' . $wholesaler_id, 'margin_id = ' . $margin_id);
-    // }
 
     public function editCategoryMargin(Request $request)
     {
-        $margin = RetailerProducts::where('wholesaler_id', $request->wholesaler_id)
-                    ->where('id', $request->margin_id)
-                    ->first();
+        $retailer = Auth::user();
+        $wholesaler_id = $request->wholesaler_id;
+        // 1. Get the margin record to edit
+
+        $margin = RetailerProducts::where('wholesaler_id', $wholesaler_id)
+            ->where('id', $request->margin_id)
+            ->first();
 
         if (!$margin) {
             return response()->json(['error' => 'Margin not found.'], 404);
         }
 
+        $addedCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
+            ->where('retailer_id', $retailer->id)
+            ->where('category_id', '!=', $margin->category_id)
+            ->pluck('category_id');
+
+
+
+        // 3. Get the list of categories - include the one already selected in this margin
+
+        $categories = Product::select('categories.id', 'categories.category_name')
+            ->join('categories', 'categories.id', '=', 'products.category_id')
+            ->where('products.wholesaler_id', $wholesaler_id)
+            ->where(function ($query) use ($addedCategories, $margin) {
+                $query->whereNotIn('categories.id', $addedCategories)
+                    ->orWhere('categories.id', $margin->category_id); // include selected
+            })
+            ->distinct()
+            ->get();
+
         return response()->json([
             'success' => true,
-            'data' => $margin
+            'data' => $margin,
+            'categories' => $categories
+
         ]);
+
     }
+
 
 
     // remove category margin store
@@ -234,6 +257,8 @@ class RetilerController extends Controller
 
     public function updateCategoryMargin(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'margin_id' => 'required|exists:retailer_products,id',
             'margin' => 'required|numeric|min:0',
@@ -251,7 +276,10 @@ class RetilerController extends Controller
             ], 404);
         }
 
+        // $margin->margin = $request->margin;
+        $margin->category_id = $request->category_id;
         $margin->margin = $request->margin;
+        $margin->payment_method = implode(',', $request->payment_method);
         $margin->save();
 
         return response()->json([
@@ -283,24 +311,89 @@ class RetilerController extends Controller
 
 
     // <--------------------- START : Retailer product (Added, Clone, Own) ---------------------->
+    // public function retailerProduct()
+    // {
+    //     try {
+    //         $retailer = Auth::user()->id;
+
+    //         $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
+    //             ->where('retailer_id', $retailer)
+    //             ->get();
+
+    //         $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
+    //             $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
+    //                 ->where('category_id', $retailerProduct->category_id)
+    //                 ->distinct('id')
+    //                 ->get();
+
+    //             $retailerProduct->setRelation('products', $products);
+    //             return $retailerProduct;
+    //         });
+
+    //         $retailerCloneProducts = RetailerCloneProduct::with('category')
+    //             ->where('retailer_id', $retailer)
+    //             ->get();
+
+    //         $clonedProducts = RetailerCloneProduct::where('retailer_id', $retailer)
+    //             ->pluck('product_id')
+    //             ->toArray();
+
+    //         // $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
+
+
+    //             // Get category_ids linked to this retailer
+    //             $category_ids = DB::table('retailer_categories')
+    //             ->where('retailer_id', $retailer)
+    //             ->pluck('category_id');
+
+    //             // Fetch only categories which are active and assigned to this retailer
+    //             $category_list = Category::select('category_name', 'id')
+    //             ->where('status', 1)
+    //             ->whereIn('id', $category_ids)
+    //             ->get();
+    //         // Pass the filtered data to the view.
+    //         return view('product.retailer-own-product', [
+    //             'retailerProducts' => $filteredRetailerProducts,
+    //             'retailerCloneProducts' => $retailerCloneProducts,
+    //             'clonedProducts' => $clonedProducts,
+    //             'category_list' => $category_list
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         // Log the error (optional)
+    //         Log::error('Error in retailerProduct: ' . $e->getMessage());
+    //         session()->flash('error', 'Something went wrong');
+    //         // return redirect()->route('retailer.dashboard');
+
+    //         // Return an error view or redirect with an error message
+    //         // return view('errors.retailer_product_error', ['error' => $e->getMessage()]); //create error.retailer_product_error.blade.php
+    //         //or
+    //         return redirect()->back()->with('error', 'An error occurred. Please try again.');
+    //     }
+    // }
+
     public function retailerProduct()
     {
         try {
             $retailer = Auth::user()->id;
+            $isAllWholesalerVisible = Auth::user()->is_all_wholesaler_visible;
 
-            $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
-                ->where('retailer_id', $retailer)
-                ->get();
+            $filteredRetailerProducts = collect(); // default to empty
 
-            $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
-                $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
-                    ->where('category_id', $retailerProduct->category_id)
-                    ->distinct('id')
+            if ($isAllWholesalerVisible == 1) {
+                $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
+                    ->where('retailer_id', $retailer)
                     ->get();
 
-                $retailerProduct->setRelation('products', $products);
-                return $retailerProduct;
-            });
+                $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
+                    $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
+                        ->where('category_id', $retailerProduct->category_id)
+                        ->distinct('id')
+                        ->get();
+
+                    $retailerProduct->setRelation('products', $products);
+                    return $retailerProduct;
+                });
+            }
 
             $retailerCloneProducts = RetailerCloneProduct::with('category')
                 ->where('retailer_id', $retailer)
@@ -310,20 +403,17 @@ class RetilerController extends Controller
                 ->pluck('product_id')
                 ->toArray();
 
-            // $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
-
-
-                // Get category_ids linked to this retailer
-                $category_ids = DB::table('retailer_categories')
+            // Get category_ids linked to this retailer
+            $category_ids = DB::table('retailer_categories')
                 ->where('retailer_id', $retailer)
                 ->pluck('category_id');
 
-                // Fetch only categories which are active and assigned to this retailer
-                $category_list = Category::select('category_name', 'id')
+            // Fetch only categories which are active and assigned to this retailer
+            $category_list = Category::select('category_name', 'id')
                 ->where('status', 1)
                 ->whereIn('id', $category_ids)
                 ->get();
-            // Pass the filtered data to the view.
+
             return view('product.retailer-own-product', [
                 'retailerProducts' => $filteredRetailerProducts,
                 'retailerCloneProducts' => $retailerCloneProducts,
@@ -331,14 +421,8 @@ class RetilerController extends Controller
                 'category_list' => $category_list
             ]);
         } catch (\Exception $e) {
-            // Log the error (optional)
             Log::error('Error in retailerProduct: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong');
-            // return redirect()->route('retailer.dashboard');
-
-            // Return an error view or redirect with an error message
-            // return view('errors.retailer_product_error', ['error' => $e->getMessage()]); //create error.retailer_product_error.blade.php
-            //or
             return redirect()->back()->with('error', 'An error occurred. Please try again.');
         }
     }
