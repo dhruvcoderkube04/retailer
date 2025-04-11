@@ -46,7 +46,11 @@ class RetailerWebManagement extends Model
         'hide_pickup_address',
         'request_offer',
         'favicon',
-        'banner'
+        'banner',
+        'offer_text',
+        'banner_title',
+        'banner_sub_title',
+        'banner_button_title'
     ];
 
     protected $casts = [

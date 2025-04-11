@@ -48,6 +48,10 @@ class Setting extends Controller
             'cart_limit' => 'nullable|integer|min:0',
             'favicon' => 'nullable|mimes:jpeg,jpg,png|max:1048',
             'banner' => 'nullable|mimes:jpeg,jpg,png|max:2048',
+            'offer_text'  => 'nullable|string',
+            'banner_title'   => 'nullable|string',
+            'banner_sub_title'   => 'nullable|string',
+            'banner_button_title'=> 'nullable|string',
         ]);
 
         // Find retailer by authenticated user ID

@@ -279,6 +279,117 @@
                                         </div>
                                     </div>
 
+                                     <!--begin::Input group-->
+                                     <div class="row mb-6">
+                                        <!--begin::Label-->
+                                        <div class="col-md-6">
+                                            <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                                                <span class="required"> Offer Text </span>
+                                                <span class="ms-1" data-bs-toggle="tooltip"
+                                                    title="">
+                                                    <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                    </i>
+                                                </span>
+                                            </label>
+                                            <!--end::Label-->
+                                            <!--begin::Col-->
+                                            <div class="col-lg-8 fv-row">
+                                                <input type="text" name="offer_text"
+                                                    value="{{ $store->offer_text }}"
+                                                    class="form-control form-control-lg form-control-solid"
+                                                    placeholder="" />
+                                            </div>
+                                            @error('offer_text')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                                                <span class="required"> Banner Title </span>
+                                                <span class="ms-1" data-bs-toggle="tooltip"
+                                                    title="">
+                                                    <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                    </i>
+                                                </span>
+                                            </label>
+                                            <!--end::Label-->
+                                            <!--begin::Col-->
+                                            <div class="col-lg-8 fv-row">
+                                                <input type="text" name="banner_title"
+                                                    value="{{ $store->banner_title  }}"
+                                                    class="form-control form-control-lg form-control-solid"
+                                                    placeholder="" />
+                                            </div>
+                                            @error('banner_title')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <!--end::Col-->
+                                    </div>
+                                    <!--end::Input group-->
+
+                                     <!--begin::Input group-->
+                                     <div class="row mb-6">
+                                        <!--begin::Label-->
+                                        <div class="col-md-6">
+                                            <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                                                <span class="required"> Banner Sub Title </span>
+                                                <span class="ms-1" data-bs-toggle="tooltip"
+                                                    title="">
+                                                    <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                    </i>
+                                                </span>
+                                            </label>
+                                            <!--end::Label-->
+                                            <!--begin::Col-->
+                                            <div class="col-lg-8 fv-row">
+                                                <input type="text" name="banner_sub_title"
+                                                    value="{{ $store->banner_sub_title }}"
+                                                    class="form-control form-control-lg form-control-solid"
+                                                    placeholder="" />
+                                            </div>
+                                            @error('banner_sub_title')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                                                <span class="required"> Banner Button Title</span>
+                                                <span class="ms-1" data-bs-toggle="tooltip"
+                                                    title="">
+                                                    <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                    </i>
+                                                </span>
+                                            </label>
+                                            <!--end::Label-->
+                                            <!--begin::Col-->
+                                            <div class="col-lg-8 fv-row">
+                                                <input type="text" name="banner_button_title"
+                                                    value="{{ $store->banner_button_title }}"
+                                                    class="form-control form-control-lg form-control-solid"
+                                                    placeholder="" />
+                                            </div>
+                                            @error('banner_button_title')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <!--end::Col-->
+                                    </div>
+                                    <!--end::Input group-->
+
+
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->
