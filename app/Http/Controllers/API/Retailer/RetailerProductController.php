@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class RetailerProductController extends Controller
 {
@@ -81,22 +82,46 @@ class RetailerProductController extends Controller
 
             // Group subcategories by category name
 
-            $categoryList = [];
+            // $categoryList = [];
 
-            foreach ($categories as $category) {
-                $subNames = $subCategories
-                    ->where('category_id', $category->id)
-                    ->pluck('sub_category_name')
-                    ->unique()
-                    ->values()
-                    ->toArray();
+            // foreach ($categories as $category) {
+            //     $subNames = $subCategories
+            //         ->where('category_id', $category->id)
+            //         ->pluck('sub_category_name')
+            //         ->unique()
+            //         ->values()
+            //         ->toArray();
 
-                // $categoryList[$category->category_name] = $subNames;
-                $categoryList[$category->id] = [
-                    'name' => $category->category_name,
-                    'subcategories' => $subNames,
-                ];
-            }
+            //     // $categoryList[$category->category_name] = $subNames;
+            //     $categoryList[$category->id] = [
+            //         'name' => $category->category_name,
+            //         'subcategories' => $subNames,
+            //     ];
+            // }
+
+            
+        $categoryList = [];
+
+        foreach ($categories as $category) {
+            $subList = $subCategories
+                ->where('category_id', $category->id)
+                ->map(function ($sub) {
+                    return [
+                        'id' => $sub->id,
+                        'name' => $sub->sub_category_name,
+                        'image' => $sub->image ?? null,
+                    ];
+                })
+                ->values()
+                ->toArray();
+
+            $categoryList[] = [
+                'id' => $category->id,
+                'name' => $category->category_name,
+                'image' => $category->image ?? null,
+                'sub_category_list' => $subList,
+            ];
+        }
 
             return response()->json([
                 'success' => true,
@@ -155,47 +180,102 @@ class RetailerProductController extends Controller
                 $productId = $request->product_id;
                 $allProducts = $allProducts->filter(fn($item) => $item->id == $productId);
             }
-            
-            $requestedCategoryId = $request->category_id;
-            $requestedSubCategoryId = $request->subcategory_id;
-            $products = $allProducts->flatMap(function ($item) use ($requestedCategoryId, $requestedSubCategoryId) {
+
+            $categoryName         = $request->category;
+            $subCategoryName      = $request->sub_category;
+            $color                = $request->color;
+            $size                 = $request->size;
+            $minPrice             = $request->min_price;
+            $maxPrice             = $request->max_price;
+
+            $products = $allProducts->flatMap(function ($item) use (
+                $categoryName, $subCategoryName, $color, $size, $minPrice, $maxPrice
+            ) {
                 if ($item instanceof RetailerProducts) {
                     if (!$item->wholesaler || !$item->wholesaler->products) {
                         return [];
                     }
             
-                    return $item->wholesaler->products->filter(function ($product) use ($requestedCategoryId, $requestedSubCategoryId) {
-                        // Filter only if category_id is passed in the request
-                        // if ($requestedCategoryId) {
-                        //     return $product->category_id == $requestedCategoryId;
-                        // }
-                        if ($requestedCategoryId && $product->category_id != $requestedCategoryId) {
+                    return $item->wholesaler->products->filter(function ($product) use (
+                        
+                        $categoryName, $subCategoryName, $color, $size, $minPrice, $maxPrice
+                        ) {
+                        
+                        if ($categoryName) {
+                            $cat = Category::find($product->category_id);
+                            // dd($cat);
+                            if (!$cat || !Str::contains(strtolower($cat->category_name), strtolower($categoryName))) {
+                                return false;
+                            }
+                        }
+            
+                        // SubCategory Match (Partial)
+                        if ($subCategoryName) {
+                            $sub = SubCategory::find($product->sub_category_id);
+                            if (!$sub || !Str::contains(strtolower($sub->sub_category_name), strtolower($subCategoryName))) {
+                                return false;
+                            }
+                        }
+
+                        if ($color && strtolower($product->color) !== strtolower($color)) {
                             return false;
                         }
             
-                        // Filter by sub_category_id if provided
-                        if ($requestedSubCategoryId && $product->sub_category_id != $requestedSubCategoryId) {
+                        if ($size && strtolower($product->size) !== strtolower($size)) {
                             return false;
                         }
-
-                        return true; // include all if no category filter
+            
+                        if ($minPrice && $product->new_price < $minPrice) {
+                            return false;
+                        }
+            
+                        if ($maxPrice && $product->new_price > $maxPrice) {
+                            return false;
+                        }
+            
+                        return true;
                     })->map(function ($product) use ($item) {
                         return $this->formatProductFromRetailerProduct($product, $item);
                     });
             
                 } else {
                     // RetailerCloneProduct
-                    if ($requestedCategoryId && $item->category_id != $requestedCategoryId) {
+                    if ($categoryName) {
+                        $cat = Category::find($item->category_id);
+                        if (!$cat || !Str::contains(strtolower($cat->category_name), strtolower($categoryName))) {
+                            return [];
+                        }
+                    }
+                
+                    // SubCategory Match
+                    if ($subCategoryName) {
+                        $sub = SubCategory::find($item->sub_category_id);
+                        if (!$sub || !Str::contains(strtolower($sub->sub_category_name), strtolower($subCategoryName))) {
+                            return [];
+                        }
+                    }
+                
+            
+                    if ($color && strtolower($item->color) !== strtolower($color)) {
                         return [];
                     }
-
-                    if ($requestedSubCategoryId && $item->sub_category_id != $requestedSubCategoryId) {
+            
+                    if ($size && strtolower($item->size) !== strtolower($size)) {
+                        return [];
+                    }
+            
+                    if ($minPrice && $item->price < $minPrice) {
+                        return [];
+                    }
+            
+                    if ($maxPrice && $item->price > $maxPrice) {
                         return [];
                     }
             
                     return [$this->formatProductFromClone($item)];
                 }
             })->values();
+            
 
             // Step 7: Extract unique categories
             $categoryIds = $products->pluck('category_id')->filter()->unique();
