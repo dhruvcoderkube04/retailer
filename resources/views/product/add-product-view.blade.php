@@ -328,6 +328,35 @@
     <script src="{{ asset('assets/plugins/custom/formrepeater/formrepeater.bundle.js') }}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+
+    <script>
+        $(document).on('change', '#category_select', function() {
+            let categoryId = $(this).val();
+
+            if (categoryId) {
+                $.ajax({
+                    url: "{{ route('retailer.getSubCategories') }}", // Create this route
+                    type: "GET",
+                    data: {
+                        category_id: categoryId
+                    },
+                    success: function(data) {
+                        $('#sub_category_select').empty().append(
+                            '<option value="">Select Sub Category</option>');
+                        $.each(data, function(key, value) {
+                            $('#sub_category_select').append('<option value="' +
+                                value.id + '">' + value.sub_category_name +
+                                '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#sub_category_select').empty().append(
+                    '<option value="">Select Sub Category</option>');
+            }
+        });
+    </script>
+
     <script>
         var input = document.querySelector('#tags');
         new Tagify(input, {
@@ -414,34 +443,7 @@
             });
         }
 
-
         $(document).ready(function() {
-            $('#category_select').on('change', function() {
-                let categoryId = $(this).val();
-
-                if (categoryId) {
-                    $.ajax({
-                        url: "{{ route('retailer.getSubCategories') }}", // Create this route
-                        type: "GET",
-                        data: {
-                            category_id: categoryId
-                        },
-                        success: function(data) {
-                            $('#sub_category_select').empty().append(
-                                '<option value="">Select Sub Category</option>');
-                            $.each(data, function(key, value) {
-                                $('#sub_category_select').append('<option value="' +
-                                    value.id + '">' + value.sub_category_name +
-                                    '</option>');
-                            });
-                        }
-                    });
-                } else {
-                    $('#sub_category_select').empty().append(
-                        '<option value="">Select Sub Category</option>');
-                }
-            });
-
             $('#kt_ecommerce_add_product_form').on('submit', function(e) {
                 e.preventDefault();
                 $('.invalid-feedback').remove();
