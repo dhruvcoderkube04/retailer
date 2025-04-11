@@ -503,7 +503,7 @@
                                 text: 'Please try again later.'
                             });
                         }
-                    }
+                    },
                     complete: function() {
                         // Enable fields again if needed
                         $('#kt_ecommerce_add_product_form')
