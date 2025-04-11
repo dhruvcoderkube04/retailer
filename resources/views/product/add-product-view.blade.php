@@ -437,7 +437,9 @@ function previewImages(event) {
                 processData: false,
                 contentType: false,
                 beforeSend: function () {
-                    // Show loader if needed
+                    $('#kt_ecommerce_add_product_form')
+                        .find('input, select, textarea, button')
+                        .prop('disabled', true);
                 },
                 success: function (response) {
                     Swal.fire({
@@ -472,6 +474,12 @@ function previewImages(event) {
                             text: 'Please try again later.'
                         });
                     }
+                },
+                complete: function () {
+                    // Enable fields again if needed
+                    $('#kt_ecommerce_add_product_form')
+                        .find('input, select, textarea, button')
+                        .prop('disabled', false);
                 }
             });
         });
