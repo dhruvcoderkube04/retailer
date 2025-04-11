@@ -91,7 +91,11 @@ class RetailerProductController extends Controller
                     ->values()
                     ->toArray();
 
-                $categoryList[$category->category_name] = $subNames;
+                // $categoryList[$category->category_name] = $subNames;
+                $categoryList[$category->id] = [
+                    'name' => $category->category_name,
+                    'subcategories' => $subNames,
+                ];
             }
 
             return response()->json([
@@ -151,18 +155,44 @@ class RetailerProductController extends Controller
                 $productId = $request->product_id;
                 $allProducts = $allProducts->filter(fn($item) => $item->id == $productId);
             }
-
-            // Step 6: Normalize all products to a consistent array
-            $products = $allProducts->flatMap(function ($item) {
+            
+            $requestedCategoryId = $request->category_id;
+            $requestedSubCategoryId = $request->subcategory_id;
+            $products = $allProducts->flatMap(function ($item) use ($requestedCategoryId, $requestedSubCategoryId) {
                 if ($item instanceof RetailerProducts) {
                     if (!$item->wholesaler || !$item->wholesaler->products) {
-                        return []; // skip if no wholesaler or products
+                        return [];
                     }
+            
+                    return $item->wholesaler->products->filter(function ($product) use ($requestedCategoryId, $requestedSubCategoryId) {
+                        // Filter only if category_id is passed in the request
+                        // if ($requestedCategoryId) {
+                        //     return $product->category_id == $requestedCategoryId;
+                        // }
+                        if ($requestedCategoryId && $product->category_id != $requestedCategoryId) {
+                            return false;
+                        }
+            
+                        // Filter by sub_category_id if provided
+                        if ($requestedSubCategoryId && $product->sub_category_id != $requestedSubCategoryId) {
+                            return false;
+                        }
 
-                    return $item->wholesaler->products->map(function ($product) use ($item) {
+                        return true; // include all if no category filter
+                    })->map(function ($product) use ($item) {
                         return $this->formatProductFromRetailerProduct($product, $item);
                     });
+            
                 } else {
+                    // RetailerCloneProduct
+                    if ($requestedCategoryId && $item->category_id != $requestedCategoryId) {
+                        return [];
+                    }
+
+                    if ($requestedSubCategoryId && $item->sub_category_id != $requestedSubCategoryId) {
+                        return [];
+                    }
+            
                     return [$this->formatProductFromClone($item)];
                 }
             })->values();
