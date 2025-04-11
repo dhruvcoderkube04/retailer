@@ -487,6 +487,8 @@ class RetilerController extends Controller
             'product_description' => 'required|min:5|max:100',
             'product_tags' => 'required|min:3|max:255',
             'categories' => 'required|numeric',
+            'categories' => 'required|numeric|exists:categories,id',
+            'sub_category' => 'required|numeric|exists:sub_categories,id',
             'new_price' => 'required|numeric|min:1',
             // 'discount_price' => 'nullable|numeric|min:0.01|max:100',
             // 'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
@@ -494,7 +496,7 @@ class RetilerController extends Controller
             // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'images' => 'required|array|max:3', // Limit to 3 images
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'mimes:mp4|max:3072',
+            'video' => 'required|mimes:mp4|max:3072',
             'sku' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);

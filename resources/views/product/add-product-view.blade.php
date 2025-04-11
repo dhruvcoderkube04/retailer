@@ -44,7 +44,8 @@
                     @endif
                     <!--begin::Form-->
                     <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row"
-                        action="{{ route('retailer.post.product') }}" method="post" onsubmit="return validateForm(event)" enctype="multipart/form-data">
+                        action="{{ route('retailer.post.product') }}" method="post" onsubmit="return validateForm(event)"
+                        enctype="multipart/form-data">
                         @csrf
                         <!--begin::Main column-->
                         <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
@@ -73,7 +74,8 @@
                                                         placeholder="Product name" value="{{ old('product_name') }}" />
                                                     <!--end::Input-->
                                                     @error('product_name')
-                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        <div class="invalid-feedback fs-7 error error_product_name">
+                                                            {{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -83,10 +85,12 @@
                                                     <label class="required form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                        placeholder="fashion,stylesh" id="tags" value="{{ old('product_tags') }}" />
+                                                        placeholder="fashion,stylesh" id="tags"
+                                                        value="{{ old('product_tags') }}" />
                                                     <!--end::Label-->
                                                     @error('product_tags')
-                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        <div class="invalid-feedback fs-7 error error_product_tags">
+                                                            {{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -102,25 +106,30 @@
                                                         data-placeholder="Select an option">
                                                         <option></option>
                                                         @foreach ($category_list as $category)
-                                                            <option value="{{ $category->id }}">
-                                                                {{ Str::upper($category->category_name) }}</option>
+                                                            <option value="{{ $category->id }}"
+                                                                {{ old('categories') == $category->id ? 'selected' : '' }}>
+                                                                {{ Str::upper($category->category_name) }}
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                     @error('categories')
-                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        <div class="invalid-feedback fs-7 error error_categories">
+                                                            {{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-10 fv-row">
                                                     <label class="required form-label">Sub Categories</label>
-                                                    <select class="form-select mb-2 @error('sub_category') is-invalid @enderror"
-                                                          data-control="select2" name="sub_category" id="sub_category_select"
-                                                            data-placeholder="Select a sub category">
+                                                    <select
+                                                        class="form-select mb-2 @error('sub_category') is-invalid @enderror"
+                                                        data-control="select2" name="sub_category" id="sub_category_select"
+                                                        data-placeholder="Select a sub category">
                                                         <option value="">Select Sub Category</option>
                                                     </select>
                                                     @error('sub_category')
-                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        <div class="invalid-feedback fs-7 error error_sub_category">
+                                                            {{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -140,7 +149,8 @@
                                                         placeholder="New Price" value="{{ old('new_price') }}" />
                                                     <!--end::Input-->
                                                     @error('new_price')
-                                                        <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                        <div class="invalid-feedback fs-7 error error_new_price">
+                                                            {{ $message }}</div>
                                                     @enderror
                                                     <!--begin::Description-->
                                                     <!--end::Description-->
@@ -153,7 +163,8 @@
                                                 <textarea name="product_description" id="" cols="30" rows="3"
                                                     class="form-control @error('product_description') is-invalid @enderror">{{ old('product_description') }}</textarea>
                                                 @error('product_description')
-                                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                    <div class="invalid-feedback fs-7 error error_product_description">
+                                                        {{ $message }}</div>
                                                 @enderror
                                                 <!--end::Description-->
                                             </div>
@@ -180,12 +191,16 @@
                                             <div class="row">
                                                 <div class="col-md-6">
 
-                                                     <div class="mb-3">
+                                                    <div class="mb-3">
                                                         <label class="required form-label">Images (Max: 3)</label>
-                                                        <input type="file" class="form-control @error('images') is-invalid @enderror" id="image" name="images[]" multiple accept="image/*" onchange="previewImages(event)">
-                                                            @error('images')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
+                                                        <input type="file"
+                                                            class="form-control @error('images') is-invalid @enderror"
+                                                            id="image" name="images[]" multiple accept="image/*"
+                                                            onchange="previewImages(event)">
+                                                        @error('images')
+                                                            <div class="invalid-feedback error error_images">
+                                                                {{ $message }}</div>
+                                                        @enderror
                                                         <small class="text-muted">You can upload up to 3 images.</small>
                                                         <div id="image-error" class="text-danger mt-1"></div>
                                                     </div>
@@ -205,11 +220,13 @@
                                                             accept="video/*" />
 
                                                         @error('video')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                            <div class="invalid-feedback fs-7 error error_video">
+                                                                {{ $message }}</div>
                                                         @enderror
 
                                                         <div id="videoSize" class="text-muted mt-2"></div>
-                                                        <video id="videoPreview" width="100%" height="auto" class="mt-2" controls style="display: none;"></video>
+                                                        <video id="videoPreview" width="100%" height="auto"
+                                                            class="mt-2" controls style="display: none;"></video>
                                                     </div>
                                                 </div>
 
@@ -247,7 +264,8 @@
                                                         <!--end::Input-->
                                                         <!--begin::Description-->
                                                         @error('sku')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                            <div class="invalid-feedback fs-7 error error_sku">
+                                                                {{ $message }}</div>
                                                         @enderror
                                                         <!--end::Description-->
                                                     </div>
@@ -263,7 +281,8 @@
                                                             placeholder="how many product have"
                                                             value="{{ old('quantity') }}" />
                                                         @error('quantity')
-                                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                            <div class="invalid-feedback fs-7 error error_quantity">
+                                                                {{ $message }}</div>
                                                         @enderror
                                                         <!--end::Input-->
                                                         <!--begin::Description-->
@@ -317,200 +336,208 @@
         });
 
         function validateForm(event) {
-    const imageInput = document.getElementById('image');
-    const imageError = document.getElementById('image-error');
+            const imageInput = document.getElementById('image');
+            const imageError = document.getElementById('image-error');
 
-    if (imageInput.files.length === 0) {
-        event.preventDefault(); // Stop form submission
-        imageInput.classList.add('is-invalid');
-        imageError.innerText = 'At least one image is required.';
-        return false;
-    } else {
-        imageInput.classList.remove('is-invalid');
-        imageError.innerText = '';
-        return true;
-    }
-}
+            if (imageInput.files.length === 0) {
+                event.preventDefault(); // Stop form submission
+                imageInput.classList.add('is-invalid');
+                imageError.innerText = 'At least one image is required.';
+                return false;
+            } else {
+                imageInput.classList.remove('is-invalid');
+                imageError.innerText = '';
+                return true;
+            }
+        }
         let isImageSelected = false;
 
-function previewImages(event) {
-    const files = event.target.files;
-    const previewContainer = document.getElementById('image-preview-container');
-    const errorContainer = document.getElementById('image-error');
+        function previewImages(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('image-preview-container');
+            const errorContainer = document.getElementById('image-error');
 
-    previewContainer.innerHTML = ''; // Clear previous previews
-    errorContainer.innerText = '';   // Clear previous errors
+            previewContainer.innerHTML = ''; // Clear previous previews
+            errorContainer.innerText = ''; // Clear previous errors
 
-    if (files.length === 0) {
-        isImageSelected = false;
-        errorContainer.innerText = 'At least one image is required.';
-        return;
-    }
-
-    if (files.length > 3) {
-        errorContainer.innerText = 'You can upload a maximum of 3 images.';
-        event.target.value = '';
-        isImageSelected = false;
-        return;
-    }
-
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-    const maxSizeInBytes = 5 * 1024 * 1024;
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-
-        if (!allowedTypes.includes(file.type)) {
-            errorContainer.innerText = 'Only PNG, JPG, and JPEG images are allowed.';
-            event.target.value = '';
-            previewContainer.innerHTML = '';
-            isImageSelected = false;
-            return;
-        }
-
-        if (file.size > maxSizeInBytes) {
-            errorContainer.innerText = `Image ${file.name} is larger than 5MB.`;
-            event.target.value = '';
-            previewContainer.innerHTML = '';
-            isImageSelected = false;
-            return;
-        }
-    }
-
-    isImageSelected = true;
-
-    Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.width = '100px';
-            img.style.height = '100px';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '8px';
-            img.style.border = '1px solid #ccc';
-            previewContainer.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-
-    $(document).ready(function () {
-        $('#category_select').on('change', function () {
-            let categoryId = $(this).val();
-
-            if (categoryId) {
-                $.ajax({
-                    url: "{{ route('retailer.getSubCategories') }}", // Create this route
-                    type: "GET",
-                    data: {
-                        category_id: categoryId
-                    },
-                    success: function (data) {
-                        $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
-                        $.each(data, function (key, value) {
-                            $('#sub_category_select').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
-                        });
-                    }
-                });
-            } else {
-                $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
+            if (files.length === 0) {
+                isImageSelected = false;
+                errorContainer.innerText = 'At least one image is required.';
+                return;
             }
-        });
 
-        $('#kt_ecommerce_add_product_form').on('submit', function (e) {
-            e.preventDefault();
-            $('.invalid-feedback').remove();
-            $('.is-invalid').removeClass('is-invalid');
+            if (files.length > 3) {
+                errorContainer.innerText = 'You can upload a maximum of 3 images.';
+                event.target.value = '';
+                isImageSelected = false;
+                return;
+            }
 
-            let form = this;
-            let formData = new FormData(form);
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            const maxSizeInBytes = 5 * 1024 * 1024;
 
-            // Store category before reset (optional)
-            let selectedCategory = $('[name="category_id"]').val();
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
 
-            $.ajax({
-                type: 'POST',
-                url: $(form).attr('action'),
-                data: formData,
-                processData: false,
-                contentType: false,
-                beforeSend: function () {
-                    $('#kt_ecommerce_add_product_form')
-                        .find('input, select, textarea, button')
-                        .prop('disabled', true);
-                },
-                success: function (response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Product added successfully!',
-                        showConfirmButton: false,
-                        timer: 1500
+                if (!allowedTypes.includes(file.type)) {
+                    errorContainer.innerText = 'Only PNG, JPG, and JPEG images are allowed.';
+                    event.target.value = '';
+                    previewContainer.innerHTML = '';
+                    isImageSelected = false;
+                    return;
+                }
+
+                if (file.size > maxSizeInBytes) {
+                    errorContainer.innerText = `Image ${file.name} is larger than 5MB.`;
+                    event.target.value = '';
+                    previewContainer.innerHTML = '';
+                    isImageSelected = false;
+                    return;
+                }
+            }
+
+            isImageSelected = true;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    img.style.border = '1px solid #ccc';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+
+        $(document).ready(function() {
+            $('#category_select').on('change', function() {
+                let categoryId = $(this).val();
+
+                if (categoryId) {
+                    $.ajax({
+                        url: "{{ route('retailer.getSubCategories') }}", // Create this route
+                        type: "GET",
+                        data: {
+                            category_id: categoryId
+                        },
+                        success: function(data) {
+                            $('#sub_category_select').empty().append(
+                                '<option value="">Select Sub Category</option>');
+                            $.each(data, function(key, value) {
+                                $('#sub_category_select').append('<option value="' +
+                                    value.id + '">' + value.sub_category_name +
+                                    '</option>');
+                            });
+                        }
                     });
-
-                    // Reset inputs except category & preview
-                    $(form).trigger('reset');
-
-                    // Restore category (optional)
-                    $('[name="category_id"]').val(selectedCategory).trigger('change');
-
-                    // Clear preview areas
-                    $('#image-preview-container').empty();
-                    $('#videoPreview').attr('src', '').hide();
-                    $('#videoSize').text('');
-                },
-                error: function (xhr) {
-                    if (xhr.status === 422) {
-                        $.each(xhr.responseJSON.errors, function (key, value) {
-                            let input = $('[name="' + key + '"]');
-                            input.addClass('is-invalid');
-                            input.after('<div class="invalid-feedback fs-7">' + value[0] + '</div>');
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Something went wrong!',
-                            text: 'Please try again later.'
-                        });
-                    }
-                },
-                complete: function () {
-                    // Enable fields again if needed
-                    $('#kt_ecommerce_add_product_form')
-                        .find('input, select, textarea, button')
-                        .prop('disabled', false);
+                } else {
+                    $('#sub_category_select').empty().append(
+                        '<option value="">Select Sub Category</option>');
                 }
             });
+
+            $('#kt_ecommerce_add_product_form').on('submit', function(e) {
+                e.preventDefault();
+                $('.invalid-feedback').remove();
+                $('.error').hide();
+                $('.is-invalid').removeClass('is-invalid');
+
+                let form = this;
+                let formData = new FormData(form);
+
+                // Store category before reset (optional)
+                let selectedCategory = $('[name="category_id"]').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(form).attr('action'),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function() {
+                        $('#kt_ecommerce_add_product_form')
+                            .find('input, select, textarea, button')
+                            .prop('disabled', true);
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Product added successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        // Reset inputs except category & preview
+                        $(form).trigger('reset');
+
+                        // Restore category (optional)
+                        $('[name="category_id"]').val(selectedCategory).trigger('change');
+
+                        // Clear preview areas
+                        $('#image-preview-container').empty();
+                        $('#videoPreview').attr('src', '').hide();
+                        $('#videoSize').text('');
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            $.each(xhr.responseJSON.errors, function(key, value) {
+                                input.addClass('is-invalid');
+
+                                let errorElement = $('.error_' + key);
+                                if (errorElement.length > 0) {
+                                    errorElement.text(value[0]).show();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Something went wrong!',
+                                text: 'Please try again later.'
+                            });
+                        }
+                    }
+                    complete: function() {
+                        // Enable fields again if needed
+                        $('#kt_ecommerce_add_product_form')
+                            .find('input, select, textarea, button')
+                            .prop('disabled', false);
+                    }
+                });
+            });
         });
-    });
 
-    document.getElementById('videoInput').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        const sizeLimit = 3 * 1024 * 1024; // 1MB
+        document.getElementById('videoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const sizeLimit = 3 * 1024 * 1024; // 1MB
 
-        const videoSizeDiv = document.getElementById('videoSize');
-        const videoPreview = document.getElementById('videoPreview');
+            const videoSizeDiv = document.getElementById('videoSize');
+            const videoPreview = document.getElementById('videoPreview');
 
-        if (file) {
-            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-            videoSizeDiv.innerHTML = `Video size: ${sizeInMB} MB`;
+            if (file) {
+                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                videoSizeDiv.innerHTML = `Video size: ${sizeInMB} MB`;
 
-            if (file.size > sizeLimit) {
-                videoSizeDiv.innerHTML += `<br><span class="text-danger">Video must be less than 1MB!</span>`;
-                this.value = ''; // Clear file input
-                videoPreview.style.display = 'none';
-                videoPreview.src = '';
+                if (file.size > sizeLimit) {
+                    videoSizeDiv.innerHTML += `<br><span class="text-danger">Video must be less than 1MB!</span>`;
+                    this.value = ''; // Clear file input
+                    videoPreview.style.display = 'none';
+                    videoPreview.src = '';
+                } else {
+                    // Preview
+                    const videoUrl = URL.createObjectURL(file);
+                    videoPreview.src = videoUrl;
+                    videoPreview.style.display = 'block';
+                }
             } else {
-                // Preview
-                const videoUrl = URL.createObjectURL(file);
-                videoPreview.src = videoUrl;
-                videoPreview.style.display = 'block';
+                videoSizeDiv.innerHTML = '';
+                videoPreview.style.display = 'none';
             }
-        } else {
-            videoSizeDiv.innerHTML = '';
-            videoPreview.style.display = 'none';
-        }
-    });
+        });
     </script>
 @endsection
