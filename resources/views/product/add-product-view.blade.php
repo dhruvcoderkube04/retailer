@@ -475,23 +475,61 @@
                             timer: 1500
                         });
 
-                        // Reset inputs except category & preview
-                        $(form).trigger('reset');
+                        const form = $('#kt_ecommerce_add_product_form')[0];
+                        form.reset();
 
-                        // Restore category (optional)
-                        $('[name="category_id"]').val(selectedCategory).trigger('change');
+                        // Reset Category & Subcategory completely
+                        $('#category_select').val('').trigger('change');
+                        $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
 
-                        // Clear preview areas
+                        //  Reset Select2 styles
+                        $('#category_select, #sub_category_select').next('.select2')
+                            .find('.select2-selection').removeClass('border border-danger');
+
+                        //  Remove Tagify error border and clear tags
+                        $('.tagify').removeClass('border border-danger');
+                        if (window.tagify) {
+                            window.tagify.removeAllTags();
+                        }
+
+                        // Clear image input and preview
+                        $('#image').val('');
+                        $('#image').removeClass('is-invalid');
                         $('#image-preview-container').empty();
+                        $('#image-error').text('');
+
+                        // Clear video
                         $('#videoPreview').attr('src', '').hide();
                         $('#videoSize').text('');
                     },
+
                     error: function(xhr) {
                         if (xhr.status === 422) {
                             $.each(xhr.responseJSON.errors, function(key, value) {
+                                const input = $('[name="' + key + '"]');
+
+                                // Mark regular input
                                 input.addClass('is-invalid');
 
-                                let errorElement = $('.error_' + key);
+                                // Special: Tagify field
+                                if (key === "product_tags") {
+                                    $('.tagify').addClass('border border-danger');
+                                }
+
+                                // Special: Select2 dropdowns
+                                if (key === "categories" || key === "sub_category") {
+                                    input.next('.select2').find('.select2-selection')
+                                        .addClass('border border-danger');
+                                }
+
+                                // Special: Image field
+                                if (key.startsWith('images')) {
+                                    $('#image').addClass('is-invalid');
+                                    $('#image-error').text(value[0]).show();
+                                }
+
+                                // Display message
+                                const errorElement = $('.error_' + key);
                                 if (errorElement.length > 0) {
                                     errorElement.text(value[0]).show();
                                 }
@@ -504,12 +542,13 @@
                             });
                         }
                     },
+
                     complete: function() {
-                        // Enable fields again if needed
                         $('#kt_ecommerce_add_product_form')
                             .find('input, select, textarea, button')
                             .prop('disabled', false);
                     }
+
                 });
             });
         });
