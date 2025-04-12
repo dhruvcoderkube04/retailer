@@ -139,7 +139,7 @@
 
                     <div class="row gy-5 gx-xl-10">
                         <!-- Earnings Card -->
-                        <div class="col-12 col-md-6 col-xl-6 col-xxl-3 mb-10">
+                        <div class="col-12 col-md-6 col-xl-6 col-xxl-6 mb-10">
                             <div class="card card-flush h-100">
                                 @php
                                     $total_products =

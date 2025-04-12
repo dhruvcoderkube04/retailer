@@ -325,7 +325,7 @@
                                         <div class="col-lg-8 fv-row">
                                             <input type="text" name="address"
                                                 class="form-control form-control-lg form-control-solid"
-                                                placeholder="Address" value="{{ $userprofile->address }}" />
+                                                placeholder="Address" value="{{  @$userprofile->userDetail->address }}" />
                                         </div>
                                         <!--end::Col-->
                                     </div>
@@ -340,7 +340,7 @@
                                         <div class="col-lg-8 fv-row">
                                             <input type="text" name="pincode"
                                                 class="form-control form-control-lg form-control-solid"
-                                                placeholder="Pin code" value="{{ $userprofile->postal_code }}" />
+                                                placeholder="Pin code" value="{{ @$userprofile->userDetail->postal_code }}" />
                                         </div>
                                         <!--end::Col-->
                                     </div>

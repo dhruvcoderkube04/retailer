@@ -1074,7 +1074,7 @@ class RetilerController extends Controller
             $updateData['lastname'] = $request->lastname;
         }
         if ($request->filled('phone')) {
-            $updateData['phone_number'] = $request->phone_number;
+            $updateData['phone_number'] = $request->phone;
         }
         // if ($request->filled('status')) {
         //     $updateData['status'] = $request->status;
@@ -1122,9 +1122,6 @@ class RetilerController extends Controller
             }
             if ($request->filled('city')) {
                 $userDetailUpdate['city'] = $request->city;
-            }
-            if ($request->filled('address')) {
-                $userDetailUpdate['address'] = $request->address;
             }
             if ($request->filled('pincode')) {
                 $userDetailUpdate['postal_code'] = $request->pincode;
