@@ -555,7 +555,7 @@
 
         document.getElementById('videoInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            const sizeLimit = 3 * 1024 * 1024; // 1MB
+            const sizeLimit = 6 * 1024 * 1024; // 6MB
 
             const videoSizeDiv = document.getElementById('videoSize');
             const videoPreview = document.getElementById('videoPreview');
@@ -565,7 +565,7 @@
                 videoSizeDiv.innerHTML = `Video size: ${sizeInMB} MB`;
 
                 if (file.size > sizeLimit) {
-                    videoSizeDiv.innerHTML += `<br><span class="text-danger">Video must be less than 1MB!</span>`;
+                    videoSizeDiv.innerHTML += `<br><span class="text-danger">Video must be less than 6MB!</span>`;
                     this.value = ''; // Clear file input
                     videoPreview.style.display = 'none';
                     videoPreview.src = '';

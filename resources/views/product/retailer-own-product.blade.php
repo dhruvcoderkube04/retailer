@@ -223,11 +223,10 @@
                                                         <div class="d-flex align-items-center">
                                                             <a href="#" class="symbol symbol-50px">
                                                                 @php
-                                                                    $get_image =
-                                                                        explode(',', @$cloneProduct->images)[0] ?? '';
+                                                                    $imageUrls = explode(',', @$cloneProduct->images);
+                                                                    $firstImageUrl = $imageUrls[0] ?? ''; // Get the first image URL
                                                                 @endphp
-                                                                <span class="symbol-label"
-                                                                    style="background-image: url('{{ asset('uploads/products/' . $get_image) }}');"></span>
+                                                                <span class="symbol-label" style="background-image: url('{{ $firstImageUrl }}');"></span>
                                                             </a>
                                                             <div class="ms-5">
                                                                 <a href="#"
@@ -509,272 +508,271 @@
         </div>
     @endsection
 
-    @section('script')
+@section('script')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-
-        <script>
-            var table1 = $("#kt_margin_added_products_table").DataTable({
-                order: [], // disables initial sorting completely
-                columnDefs: [{
-                        orderable: false,
-                        targets: 0
-                    } // disables sorting on first column
-                ]
-            });
-            var table2 = $("#kt_clone_products_table").DataTable({
-                order: [],
-                columnDefs: [{
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script>
+        var table1 = $("#kt_margin_added_products_table").DataTable({
+            order: [], // disables initial sorting completely
+            columnDefs: [{
                     orderable: false,
                     targets: 0
-                }]
-            });
+                } // disables sorting on first column
+            ]
+        });
+        var table2 = $("#kt_clone_products_table").DataTable({
+            order: [],
+            columnDefs: [{
+                orderable: false,
+                targets: 0
+            }]
+        });
 
-            // Custom search for first table
-            $("#search_field").on("keyup", function() {
-                table1.search(this.value).draw();
-            });
+        // Custom search for first table
+        $("#search_field").on("keyup", function() {
+            table1.search(this.value).draw();
+        });
 
-            // Custom search for second table (if needed)
-            $("#search_field").on("keyup", function() {
-                table2.search(this.value).draw();
-            });
-
-
-            $(document).ready(function() {
-
-
-            //     $('#categories').on('change', function () {
-            //         let categoryId = $(this).val();
-
-            //         if (categoryId) {
-            //     $.ajax({
-            //         url: "{{ route('retailer.getSubCategories') }}", // Create this route
-            //         type: "GET",
-            //         data: {
-            //             category_id: categoryId
-            //         },
-            //         success: function (data) {
-            //             $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
-            //             $.each(data, function (key, value) {
-            //                 $('#sub_category').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
-            //             });
-            //         }
-            //     });
-            // } else {
-            //     $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
-            // }
-            //     });
-                // Initialize Form Validation
-                $("#productUploadForm").submit(function(e) {
-                    e.preventDefault();
-
-                    var formData = new FormData(this);
-
-                    let stockfile = $("input[name='product_file']")[0].files[0];
-                    let categoryId = $("select[name='categories']").val(); // Correct selector
-                    let submitButton = $(this).find("button[type='submit']");
-
-                    if (!stockfile) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Please select an Excel (.xlsx) file!'
-                        });
-                        return;
-                    }
-
-                    if (stockfile.type !==
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid File Type!',
-                            text: 'Only .xlsx files are allowed.'
-                        });
-                        return;
-                    }
-
-                    // if (!stockfile) {
-                    //     Swal.fire({
-                    //         icon: 'error',
-                    //         title: 'Error',
-                    //         text: 'Please select a file to upload!'
-                    //     });
-                    //     return;
-                    // }
-
-                    // // Allowed MIME types for .xlsx and .csv
-                    // const allowedTypes = [
-                    //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-                    //     "text/csv", // .csv
-                    //     "application/vnd.ms-excel" // some browsers use this for .csv
-                    // ];
-
-                    // if (!allowedTypes.includes(stockfile.type)) {
-                    //     Swal.fire({
-                    //         icon: 'error',
-                    //         title: 'Invalid File Type!',
-                    //         text: 'Only .xlsx and .csv files are allowed.'
-                    //     });
-                    //     return;
-                    // }
+        // Custom search for second table (if needed)
+        $("#search_field").on("keyup", function() {
+            table2.search(this.value).draw();
+        });
 
 
-                    formData.append("categories", categoryId); // Append category to formdata.
+        $(document).ready(function() {
 
-                    submitButton.prop("disabled", true);
-                    submitButton.find(".indicator-label").hide();
-                    submitButton.find(".indicator-progress").show();
 
-                    $.ajax({
-                        url: "{{ url('upload-bulk-product') }}",
-                        type: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function(mydata) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Product Import Successful!'
-                            });
-                            $("#kt_margin_added_products_table").load(location.href +
-                                " #kt_margin_added_products_table");
-                            $("#kt_modal_add_product").modal('hide');
-                        },
-                        // error: function(mydata) {
-                        //     Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
-                        // }
+        //     $('#categories').on('change', function () {
+        //         let categoryId = $(this).val();
 
-                        error: function(mydata) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Product Import Failed!'
-                            });
-                            let errorMessage = "Product Import Failed!";
+        //         if (categoryId) {
+        //     $.ajax({
+        //         url: "{{ route('retailer.getSubCategories') }}", // Create this route
+        //         type: "GET",
+        //         data: {
+        //             category_id: categoryId
+        //         },
+        //         success: function (data) {
+        //             $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
+        //             $.each(data, function (key, value) {
+        //                 $('#sub_category').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
+        //             });
+        //         }
+        //     });
+        // } else {
+        //     $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
+        // }
+        //     });
+            // Initialize Form Validation
+            $("#productUploadForm").submit(function(e) {
+                e.preventDefault();
 
-                            if (mydata.responseJSON && mydata.responseJSON.error) {
-                                errorMessage = mydata.responseJSON
-                                    .error; // Show backend error message
-                            }
+                var formData = new FormData(this);
 
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: errorMessage
-                            });
-                        },
-                        complete: function() {
-                            // Enable submit button and reset loading indicator
-                            submitButton.prop("disabled", false);
-                            submitButton.find(".indicator-label").show();
-                            submitButton.find(".indicator-progress").hide();
-                        }
-                    });
-                });
+                let stockfile = $("input[name='product_file']")[0].files[0];
+                let categoryId = $("select[name='categories']").val(); // Correct selector
+                let submitButton = $(this).find("button[type='submit']");
 
-                $(".delete-product").click(function() {
-                    let productId = $(this).data("id");
-
+                if (!stockfile) {
                     Swal.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "Yes, delete it!"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: "{{ route('retailer.clone-product-remove', '') }}/" +
-                                    productId,
-                                type: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    _method: "DELETE"
-                                },
-                                success: function(response) {
-                                    Swal.fire("Deleted!", "Product has been removed.",
-                                        "success");
-                                    location
-                                        .reload(); // Reload the page or update the table dynamically
-                                    $("#kt_tab_pane_1").removeClass(
-                                        "active"); // Remove active from all tabs
-                                    $("#kt_tab_pane_2").addClass(
-                                        "active"); // Add active to Clone tab
-                                },
-                                error: function(xhr) {
-                                    Swal.fire("Error!",
-                                        "Something went wrong. Please try again.",
-                                        "error");
-                                }
-                            });
-                        }
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select an Excel (.xlsx) file!'
                     });
+                    return;
+                }
+
+                if (stockfile.type !==
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File Type!',
+                        text: 'Only .xlsx files are allowed.'
+                    });
+                    return;
+                }
+
+                // if (!stockfile) {
+                //     Swal.fire({
+                //         icon: 'error',
+                //         title: 'Error',
+                //         text: 'Please select a file to upload!'
+                //     });
+                //     return;
+                // }
+
+                // // Allowed MIME types for .xlsx and .csv
+                // const allowedTypes = [
+                //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+                //     "text/csv", // .csv
+                //     "application/vnd.ms-excel" // some browsers use this for .csv
+                // ];
+
+                // if (!allowedTypes.includes(stockfile.type)) {
+                //     Swal.fire({
+                //         icon: 'error',
+                //         title: 'Invalid File Type!',
+                //         text: 'Only .xlsx and .csv files are allowed.'
+                //     });
+                //     return;
+                // }
+
+
+                formData.append("categories", categoryId); // Append category to formdata.
+
+                submitButton.prop("disabled", true);
+                submitButton.find(".indicator-label").hide();
+                submitButton.find(".indicator-progress").show();
+
+                $.ajax({
+                    url: "{{ url('upload-bulk-product') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(mydata) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Product Import Successful!'
+                        });
+                        $("#kt_margin_added_products_table").load(location.href +
+                            " #kt_margin_added_products_table");
+                        $("#kt_modal_add_product").modal('hide');
+                    },
+                    // error: function(mydata) {
+                    //     Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
+                    // }
+
+                    error: function(mydata) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Product Import Failed!'
+                        });
+                        let errorMessage = "Product Import Failed!";
+
+                        if (mydata.responseJSON && mydata.responseJSON.error) {
+                            errorMessage = mydata.responseJSON
+                                .error; // Show backend error message
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: errorMessage
+                        });
+                    },
+                    complete: function() {
+                        // Enable submit button and reset loading indicator
+                        submitButton.prop("disabled", false);
+                        submitButton.find(".indicator-label").show();
+                        submitButton.find(".indicator-progress").hide();
+                    }
                 });
+            });
 
-                let tagInput = document.querySelector('#tags');
-                let tagify = new Tagify(tagInput);
+            $(".delete-product").click(function() {
+                let productId = $(this).data("id");
 
-
-                $(".edit-product").on("click", function() {
-                    let productId = $(this).data("id");
-                    let productName = $(this).data("name");
-                    let description = $(this).data("description");
-                    // let tags = $(this).data("tags");
-                    let tags = $(this).data("tags"); // "asd,sad"
-                    let tagArray = tags.split(',').map(tag => tag.trim());
-                    let category = $(this).data("category");
-                    let subCategory = $(this).data("sub_category");
-                    let price = $(this).data("price");
-                    let images = $(this).data("images");
-                    let videos = $(this).data("videos");
-                    let sku = $(this).data("sku");
-                    let quantity = $(this).data("quantity");
-                    tagify.removeAllTags();
-                    tagify.addTags(tagArray);
-
-                    $("#product_id").val(productId);
-                    $("#product_name").val(productName);
-                    $("#description").val(description);
-                    $("#tags").val(tags);
-                    $("#categories").val(category);
-                    $("#price").val(price);
-                    $("#sku").val(sku);
-                    $("#quantity").val(quantity);
-
-                    // **Clear Previous Preview**
-                    $("#image-preview").html("");
-                    $("#video-preview").html("");
-
-                    if (category) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('retailer.getSubCategories') }}",
-                            type: "GET",
-                            data: { category_id: category },
-                            success: function (data) {
-                                $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
-                                $.each(data, function (key, value) {
-                                    $('#sub_category').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
-                                });
-
-                                // Set the selected sub category after dropdown is populated
-                                $('#sub_category').val(subCategory);
+                            url: "{{ route('retailer.clone-product-remove', '') }}/" +
+                                productId,
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                _method: "DELETE"
+                            },
+                            success: function(response) {
+                                Swal.fire("Deleted!", "Product has been removed.",
+                                    "success");
+                                location
+                                    .reload(); // Reload the page or update the table dynamically
+                                $("#kt_tab_pane_1").removeClass(
+                                    "active"); // Remove active from all tabs
+                                $("#kt_tab_pane_2").addClass(
+                                    "active"); // Add active to Clone tab
+                            },
+                            error: function(xhr) {
+                                Swal.fire("Error!",
+                                    "Something went wrong. Please try again.",
+                                    "error");
                             }
                         });
                     }
+                });
+            });
 
-                    // **Handle Image Preview with Delete Option**
-                    if (images) {
-                        let imageList = images.split(",");
-                        let imagePreviewHtml = "";
-                        imageList.forEach((img, index) => {
-                            let imagePath = `/uploads/products/${img}`;
-                            imagePreviewHtml += `
+            let tagInput = document.querySelector('#tags');
+            let tagify = new Tagify(tagInput);
+
+
+            $(".edit-product").on("click", function() {
+                let productId = $(this).data("id");
+                let productName = $(this).data("name");
+                let description = $(this).data("description");
+                // let tags = $(this).data("tags");
+                let tags = $(this).data("tags"); // "asd,sad"
+                let tagArray = tags.split(',').map(tag => tag.trim());
+                let category = $(this).data("category");
+                let subCategory = $(this).data("sub_category");
+                let price = $(this).data("price");
+                let images = $(this).data("images");
+                let videos = $(this).data("videos");
+                let sku = $(this).data("sku");
+                let quantity = $(this).data("quantity");
+                tagify.removeAllTags();
+                tagify.addTags(tagArray);
+
+                $("#product_id").val(productId);
+                $("#product_name").val(productName);
+                $("#description").val(description);
+                $("#tags").val(tags);
+                $("#categories").val(category);
+                $("#price").val(price);
+                $("#sku").val(sku);
+                $("#quantity").val(quantity);
+
+                // **Clear Previous Preview**
+                $("#image-preview").html("");
+                $("#video-preview").html("");
+
+                if (category) {
+                    $.ajax({
+                        url: "{{ route('retailer.getSubCategories') }}",
+                        type: "GET",
+                        data: { category_id: category },
+                        success: function (data) {
+                            $('#sub_category').empty().append('<option value="">Select Sub Category</option>');
+                            $.each(data, function (key, value) {
+                                $('#sub_category').append('<option value="' + value.id + '">' + value.sub_category_name + '</option>');
+                            });
+
+                            // Set the selected sub category after dropdown is populated
+                            $('#sub_category').val(subCategory);
+                        }
+                    });
+                }
+
+                // **Handle Image Preview with Delete Option**
+                if (images) {
+                    let imageList = images.split(",");
+                    console.log(imageList,"test");
+                    let imagePreviewHtml = "";
+                    imageList.forEach((img, index) => {
+                        let imagePath = img ;
+                        imagePreviewHtml += `
                         <div class="col-4 d-flex flex-column align-items-center">
                             <div class="position-relative">
                                 <img src="${imagePath}" class="img-thumbnail m-1" style="width: 120px; height: 120px; object-fit: cover;">
-
                                 <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px position-absolute top-0 end-0 remove-image" data-image="${img}">
                                     <i class="ki-duotone ki-cross fs-3">
                                         <span class="path1"></span><span class="path2"></span><span class="path3"></span>
@@ -784,129 +782,127 @@
                             </div>
                         </div>`;
                         });
-                        $("#image-preview").html(imagePreviewHtml);
-                    }
-
-                    // **Handle Video Preview**
-                    if (videos) {
-                        let videoPath = `/uploads/videos/${videos}`;
-                        let videoPreviewHtml = `
-                        <video width="200" controls>
-                            <source src="${videoPath}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>`;
-                        $("#video-preview").html(videoPreviewHtml);
-                    }
-                });
-
-                // **Remove Image from Preview**
-                $(document).on("click", ".remove-image", function() {
-                    let imageToRemove = $(this).data("image");
-                    $(this).parent().remove();
-
-                    // Remove the image from hidden input field
-                    let remainingImages = [];
-                    $("#image-preview .image-container").each(function() {
-                        remainingImages.push($(this).data("image"));
-                    });
-                    $("#product_id").data("images", remainingImages.join(",")); // Update the stored images
-                });
-
-                // **Validate Image Upload Limit**
-                $("#image").on("change", function() {
-                    let existingImagesCount = $("#image-preview .image-container").length;
-                    let newImagesCount = this.files.length;
-                    if (existingImagesCount + newImagesCount > 3) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'You can upload a maximum of 3 images!',
-                        });
-                        this.value = "";
-                    }
-                });
-
-                // **Validate Video Upload Limit**
-                $("#video").on("change", function() {
-                    if (this.files.length > 1) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Only 1 video is allowed!',
-                        });
-                        this.value = "";
-                    }
-                });
-
-                // **Submit Form with AJAX**
-                $("#updateProductForm").on("submit", function(e) {
-                    e.preventDefault();
-                    let formData = new FormData(this);
-
-                    // Append remaining images to formData
-                    let remainingImages = [];
-                    $("#image-preview .image-container").each(function() {
-                        remainingImages.push($(this).data("image"));
-                    });
-                    formData.append("remaining_images", remainingImages.join(","));
-
-                    $.ajax({
-                        url: "/retailer-update-product",
-                        type: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Product updated successfully!'
-                            });
-                            $("#kt_modal_update_permission").modal("hide");
-                            location.reload();
-                        },
-                        error: function(xhr) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'ProSomething went wrong!'
-                            });
-                        }
-                    });
-                });
-
-
-                //<----------------- START : active-tab pass on url ---------------->
-                // Check if "active-tab" is in the URL, if not, redirect to ?active-tab=1
-                let urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.has("active-tab")) {
-                    let newUrl = window.location.pathname + "?active-tab=1";
-                    window.history.replaceState({}, "", newUrl);
-                    urlParams.set("active-tab", "1"); // Set default active tab
+                    $("#image-preview").html(imagePreviewHtml);
                 }
 
-                let activeTab = urlParams.get("active-tab");
-
-                // Set active tab on page load
-                $(".nav-link").removeClass("active");
-                $(`.nav-link[data-tab="${activeTab}"]`).addClass("active");
-
-                // Show corresponding tab content
-                $(".tab-pane").removeClass("show active");
-                $(`#kt_tab_pane_${activeTab}`).addClass("show active");
-
-                // Update URL on tab click
-                $(".nav-link").on("click", function() {
-                    let tabValue = $(this).data("tab");
-                    let newUrl = new URL(window.location.href);
-                    newUrl.searchParams.set("active-tab", tabValue);
-                    window.history.pushState({}, "", newUrl);
-                });
-                //<----------------- END : active-tab pass on url ---------------->
+                // **Handle Video Preview**
+                if (videos) {
+                    let videoPath = videos;
+                    let videoPreviewHtml = `
+                    <video width="200" controls>
+                        <source src="${videoPath}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>`;
+                    $("#video-preview").html(videoPreviewHtml);
+                }
             });
 
-            var input = document.querySelector('#tags');
-    new Tagify(input, {
-        delimiters: " ", // space thi tag split thase
-        // comma pan joye to use: delimiters: ", "
-    });
-        </script>
-    @endsection
+            // **Remove Image from Preview**
+            $(document).on("click", ".remove-image", function() {
+                let imageToRemove = $(this).data("image");
+                $(this).parent().remove();
+
+                // Remove the image from hidden input field
+                let remainingImages = [];
+                $("#image-preview .image-container").each(function() {
+                    remainingImages.push($(this).data("image"));
+                });
+                $("#product_id").data("images", remainingImages.join(",")); // Update the stored images
+            });
+
+            // **Validate Image Upload Limit**
+            $("#image").on("change", function() {
+                let existingImagesCount = $("#image-preview .image-container").length;
+                let newImagesCount = this.files.length;
+                if (existingImagesCount + newImagesCount > 3) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'You can upload a maximum of 3 images!',
+                    });
+                    this.value = "";
+                }
+            });
+
+            // **Validate Video Upload Limit**
+            $("#video").on("change", function() {
+                if (this.files.length > 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Only 1 video is allowed!',
+                    });
+                    this.value = "";
+                }
+            });
+
+            // **Submit Form with AJAX**
+            $("#updateProductForm").on("submit", function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                // Append remaining images to formData
+                let remainingImages = [];
+                $("#image-preview .image-container").each(function() {
+                    remainingImages.push($(this).data("image"));
+                });
+                formData.append("remaining_images", remainingImages.join(","));
+
+                $.ajax({
+                    url: "/retailer-update-product",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Product updated successfully!'
+                        });
+                        $("#kt_modal_update_permission").modal("hide");
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ProSomething went wrong!'
+                        });
+                    }
+                });
+            });
+
+            //<----------------- START : active-tab pass on url ---------------->
+            // Check if "active-tab" is in the URL, if not, redirect to ?active-tab=1
+            let urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has("active-tab")) {
+                let newUrl = window.location.pathname + "?active-tab=1";
+                window.history.replaceState({}, "", newUrl);
+                urlParams.set("active-tab", "1"); // Set default active tab
+            }
+
+            let activeTab = urlParams.get("active-tab");
+
+            // Set active tab on page load
+            $(".nav-link").removeClass("active");
+            $(`.nav-link[data-tab="${activeTab}"]`).addClass("active");
+
+            // Show corresponding tab content
+            $(".tab-pane").removeClass("show active");
+            $(`#kt_tab_pane_${activeTab}`).addClass("show active");
+
+            // Update URL on tab click
+            $(".nav-link").on("click", function() {
+                let tabValue = $(this).data("tab");
+                let newUrl = new URL(window.location.href);
+                newUrl.searchParams.set("active-tab", tabValue);
+                window.history.pushState({}, "", newUrl);
+            });
+        });
+
+        var input = document.querySelector('#tags');
+        new Tagify(input, {
+            delimiters: " ", // space thi tag split thase
+            // comma pan joye to use: delimiters: ", "
+        });
+    </script>
+@endsection

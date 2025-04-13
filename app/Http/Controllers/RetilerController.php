@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class RetilerController extends Controller
 {
@@ -478,78 +479,157 @@ class RetilerController extends Controller
         return response()->json($subCategories);
     }
 
+    // public function retailerPostProduct(Request $request)
+    // {
+    //     $request->validate([
+    //         'product_name' => 'required|min:3|max:100',
+    //         'product_description' => 'required|min:5|max:100',
+    //         'product_tags' => 'required|min:3|max:255',
+    //         'categories' => 'required|numeric',
+    //         'categories' => 'required|numeric|exists:categories,id',
+    //         'sub_category' => 'required|numeric|exists:sub_categories,id',
+    //         'new_price' => 'required|numeric|min:1',
+    //         // 'discount_price' => 'nullable|numeric|min:0.01|max:100',
+    //         // 'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
+    //         // 'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
+    //         // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
+    //         'images' => 'required|array|max:3', // Limit to 3 images
+    //         'images.*' => 'mimes:jpeg,png,jpg|max:4096',
+    //         'video' => 'mimes:mp4|max:3072',
+    //         'sku' => 'required|string',
+    //         'quantity' => 'required|integer|min:1',
+    //     ]);
+
+    //     try {
+
+    //         DB::beginTransaction();
+    //         $reatielr_id = Auth::user()->id;
+    //         // $category = Category::where('id', $request->category)->first();
+    //         $product = new RetailerCloneProduct();
+    //         $product->name = $request->product_name;
+
+    //         $product->description = $request->product_description;
+    //         // Generate a unique slug using product name and current timestamp
+    //         $slugBase = Str::slug($request->product_name);
+    //         $uniqueSuffix = now()->timestamp; // or use uniqid() for more uniqueness
+    //         $product->slug = $slugBase . '-' . $uniqueSuffix;
+
+    //         // $product->brand_name = $request->brand_name;
+    //         // $product->tags = $request->product_tags;
+    //         $tags = json_decode($request->product_tags, true); // decode JSON to array
+    //         $product->tags = collect($tags)->pluck('value')->implode(',');
+    //         // dd($product->tags);
+
+    //         $product->quantity = $request->quantity;
+    //         $product->sub_category_id = $request->sub_category;
+    //         $product->new_price = $request->new_price;
+    //         $product->old_price = 0;
+    //         // $product->images = $request->images ? implode(',', $request->images) : null;
+    //         $imagePaths = [];
+
+    //         if ($request->hasFile('images')) {
+    //             foreach ($request->file('images') as $index => $file) {
+    //                 if ($index >= 3) break; // Just in case someone bypasses validation
+
+    //                 $filename = time() . '_' . $file->getClientOriginalName();
+    //                 $file->move(public_path('uploads/products'), $filename);
+    //                 $imagePaths[] = $filename;
+    //             }
+    //             $product->images = implode(',', $imagePaths);
+    //         }
+
+    //         $product->videos = $request->videos ? $request->videos : null;
+    //         $product->sku = $request->sku;
+    //         $product->retailer_id = $reatielr_id;
+    //         $product->category_id = $request->categories;
+    //         $product->status = 'active';
+    //         $product->save();
+    //         DB::commit();
+    //         session()->flash('success', 'Product added successfully');
+    //         return redirect()->route('retailer.product');
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Error in retailerPostProduct: ' . $e->getMessage());
+    //         session()->flash('error', 'Something went wrong');
+    //         return redirect()->route('retailer.product');
+    //     }
+    // }
+
     public function retailerPostProduct(Request $request)
     {
-
-        // dd($request->all());
         $request->validate([
             'product_name' => 'required|min:3|max:100',
             'product_description' => 'required|min:5|max:100',
             'product_tags' => 'required|min:3|max:255',
-            'categories' => 'required|numeric',
             'categories' => 'required|numeric|exists:categories,id',
             'sub_category' => 'required|numeric|exists:sub_categories,id',
             'new_price' => 'required|numeric|min:1',
-            // 'discount_price' => 'nullable|numeric|min:0.01|max:100',
-            // 'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
-            // 'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
-            // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
-            'images' => 'required|array|max:3', // Limit to 3 images
+            'images' => 'required|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'mimes:mp4|max:3072',
+            'video' => 'nullable|mimes:mp4|max:6144',      // 6MB
+            // 'video' => 'nullable|mimes:mp4|max:8192', // Adjusted video size to 8MB
             'sku' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);
 
-
-
         try {
-
             DB::beginTransaction();
-            $reatielr_id = Auth::user()->id;
-            // $category = Category::where('id', $request->category)->first();
+            $retailer_id = Auth::user()->id;
+
             $product = new RetailerCloneProduct();
             $product->name = $request->product_name;
-
             $product->description = $request->product_description;
-            // Generate a unique slug using product name and current timestamp
+
             $slugBase = Str::slug($request->product_name);
-            $uniqueSuffix = now()->timestamp; // or use uniqid() for more uniqueness
+            $uniqueSuffix = now()->timestamp;
             $product->slug = $slugBase . '-' . $uniqueSuffix;
 
-            // $product->brand_name = $request->brand_name;
-            // $product->tags = $request->product_tags;
-            $tags = json_decode($request->product_tags, true); // decode JSON to array
+            $tags = json_decode($request->product_tags, true);
             $product->tags = collect($tags)->pluck('value')->implode(',');
-            // dd($product->tags);
 
             $product->quantity = $request->quantity;
             $product->sub_category_id = $request->sub_category;
             $product->new_price = $request->new_price;
             $product->old_price = 0;
-            // $product->images = $request->images ? implode(',', $request->images) : null;
-            $imagePaths = [];
 
+            $imagePaths = [];
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $file) {
-                    if ($index >= 3) break; // Just in case someone bypasses validation
+                    if ($index >= 3) break;
+                    $originalExtension = $file->getClientOriginalExtension();
+                    $filename = 'product_image_' . now()->timestamp . '_' . $index . '.' . $originalExtension;
+                    $directory = 'products/images/';
+                    $path = $directory . $filename;
 
-                    $filename = time() . '_' . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/products'), $filename);
-                    $imagePaths[] = $filename;
+                    Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+                    $imagePaths[] = Storage::disk('spaces')->url($path);
                 }
                 $product->images = implode(',', $imagePaths);
             }
 
-            $product->videos = $request->videos ? $request->videos : null;
+            if ($request->hasFile('video')) {
+                $videoFile = $request->file('video');
+                $videoOriginalExtension = $videoFile->getClientOriginalExtension();
+                $videoFilename = 'product_video_' . now()->timestamp . '.' . $videoOriginalExtension;
+                $videoDirectory = 'products/videos/';
+                $videoPath = $videoDirectory . $videoFilename;
+
+                Storage::disk('spaces')->putFileAs($videoDirectory, $videoFile, $videoFilename, 'public');
+                $product->videos = Storage::disk('spaces')->url($videoPath);
+            } else {
+                $product->videos = null;
+            }
+
             $product->sku = $request->sku;
-            $product->retailer_id = $reatielr_id;
+            $product->retailer_id = $retailer_id;
             $product->category_id = $request->categories;
             $product->status = 'active';
             $product->save();
+
             DB::commit();
             session()->flash('success', 'Product added successfully');
             return redirect()->route('retailer.product');
+
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());
@@ -1224,7 +1304,6 @@ class RetilerController extends Controller
 
     public function uploadBulkProduct(Request $request)
     {
-
         // dd($request->all());
         $request->validate([
             'product_file' => 'required|mimes:xlsx',
@@ -1295,7 +1374,34 @@ class RetilerController extends Controller
         $product->sku = $request->sku;
         $product->quantity = $request->quantity;
 
+        // old code
         // Handle images (limit to 3)
+        // if ($request->hasFile('images')) {
+        //     $files = $request->file('images');
+        //     $imagePaths = [];
+
+        //     foreach ($files as $index => $file) {
+        //         if ($index >= 3) break; // Allow only 3 images
+
+        //         $filename = time() . '_' . $file->getClientOriginalName();
+        //         $file->move(public_path('uploads/products'), $filename);
+        //         $imagePaths[] = $filename;
+        //     }
+
+        //     // Store images as a comma-separated string in the 'images' field
+        //     $product->images = implode(',', $imagePaths);
+        // }
+
+        // // Handle video upload
+        // if ($request->hasFile('video')) {
+        //     $video = $request->file('video');
+        //     $videoName = time() . '_' . $video->getClientOriginalName();
+        //     $video->move(public_path('uploads/videos'), $videoName);
+        //     $product->videos = $videoName;
+        // }
+
+
+        // upload in  digital ocean code
         if ($request->hasFile('images')) {
             $files = $request->file('images');
             $imagePaths = [];
@@ -1303,21 +1409,35 @@ class RetilerController extends Controller
             foreach ($files as $index => $file) {
                 if ($index >= 3) break; // Allow only 3 images
 
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/products'), $filename);
-                $imagePaths[] = $filename;
+                $originalExtension = $file->getClientOriginalExtension();
+                $filename = 'product_image_' . now()->timestamp . '_' . $index . '.' . $originalExtension;
+                $directory = 'products/images/'; // Directory in DigitalOcean Spaces
+                $path = $directory . $filename;
+
+                // Upload to DigitalOcean Spaces
+                Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+
+                // Store the public URL
+                $imagePaths[] = Storage::disk('spaces')->url($path);
             }
 
-            // Store images as a comma-separated string in the 'images' field
+            // Store image URLs as a comma-separated string
             $product->images = implode(',', $imagePaths);
         }
 
         // Handle video upload
         if ($request->hasFile('video')) {
             $video = $request->file('video');
-            $videoName = time() . '_' . $video->getClientOriginalName();
-            $video->move(public_path('uploads/videos'), $videoName);
-            $product->videos = $videoName;
+            $originalExtension = $video->getClientOriginalExtension();
+            $videoName = 'product_video_' . now()->timestamp . '.' . $originalExtension;
+            $videoDirectory = 'products/videos/'; // Directory in DigitalOcean Spaces
+            $videoPath = $videoDirectory . $videoName;
+
+            // Upload to DigitalOcean Spaces
+            Storage::disk('spaces')->putFileAs($videoDirectory, $video, $videoName, 'public');
+
+            // Store the public URL
+            $product->videos = Storage::disk('spaces')->url($videoPath);
         }
 
         $product->save();
