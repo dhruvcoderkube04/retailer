@@ -99,7 +99,7 @@ class RetailerProductController extends Controller
             //     ];
             // }
 
-            
+
         $categoryList = [];
 
         foreach ($categories as $category) {
@@ -137,7 +137,6 @@ class RetailerProductController extends Controller
 
     public function getProducts(Request $request)
     {
-
         try {
             // Step 1: Validate API Key
             $apiKey = $request->header('API-KEY');
@@ -167,6 +166,15 @@ class RetailerProductController extends Controller
                 $retailerProducts = RetailerProducts::with(['wholesaler.products'])
                     ->where('retailer_id', $retailerId)
                     ->get();
+
+                    // Filter each wholesaler's products by the category_id of the current RetailerProduct
+                    $retailerProducts = $retailerProducts->map(function ($retailerProduct) {
+                        if ($retailerProduct->wholesaler && $retailerProduct->wholesaler->products) {
+                            $filtered = $retailerProduct->wholesaler->products->where('category_id', $retailerProduct->category_id);
+                            $retailerProduct->wholesaler->setRelation('products', $filtered);
+                        }
+                        return $retailerProduct;
+                    });
             }
 
 
@@ -195,12 +203,12 @@ class RetailerProductController extends Controller
                     if (!$item->wholesaler || !$item->wholesaler->products) {
                         return [];
                     }
-            
+
                     return $item->wholesaler->products->filter(function ($product) use (
-                        
+
                         $categoryName, $subCategoryName, $color, $size, $minPrice, $maxPrice
                         ) {
-                        
+
                         if ($categoryName) {
                             $cat = Category::find($product->category_id);
                             // dd($cat);
@@ -208,7 +216,7 @@ class RetailerProductController extends Controller
                                 return false;
                             }
                         }
-            
+
                         // SubCategory Match (Partial)
                         if ($subCategoryName) {
                             $sub = SubCategory::find($product->sub_category_id);
@@ -220,24 +228,24 @@ class RetailerProductController extends Controller
                         if ($color && strtolower($product->color) !== strtolower($color)) {
                             return false;
                         }
-            
+
                         if ($size && strtolower($product->size) !== strtolower($size)) {
                             return false;
                         }
-            
+
                         if ($minPrice && $product->new_price < $minPrice) {
                             return false;
                         }
-            
+
                         if ($maxPrice && $product->new_price > $maxPrice) {
                             return false;
                         }
-            
+
                         return true;
                     })->map(function ($product) use ($item) {
                         return $this->formatProductFromRetailerProduct($product, $item);
                     });
-            
+
                 } else {
                     // RetailerCloneProduct
                     if ($categoryName) {
@@ -246,7 +254,7 @@ class RetailerProductController extends Controller
                             return [];
                         }
                     }
-                
+
                     // SubCategory Match
                     if ($subCategoryName) {
                         $sub = SubCategory::find($item->sub_category_id);
@@ -254,28 +262,28 @@ class RetailerProductController extends Controller
                             return [];
                         }
                     }
-                
-            
+
+
                     if ($color && strtolower($item->color) !== strtolower($color)) {
                         return [];
                     }
-            
+
                     if ($size && strtolower($item->size) !== strtolower($size)) {
                         return [];
                     }
-            
+
                     if ($minPrice && $item->price < $minPrice) {
                         return [];
                     }
-            
+
                     if ($maxPrice && $item->price > $maxPrice) {
                         return [];
                     }
-            
+
                     return [$this->formatProductFromClone($item)];
                 }
             })->values();
-            
+
 
             // Step 7: Extract unique categories
             $categoryIds = $products->pluck('category_id')->filter()->unique();
@@ -549,246 +557,4 @@ class RetailerProductController extends Controller
             'retailer_id'     => $cloneProduct->retailer_id ?? null,
         ];
     }
-
-    // public function sendOtp(Request $request)
-    // {
-    //     $request->validate([
-    //         'phone_number' => 'required|numeric|digits:10'
-    //     ]);
-
-    //     $otpCode = rand(100000, 999999);
-
-    //     Otp::updateOrCreate(
-    //         ['phone_number' => $request->phone_number],
-    //         ['otp' => $otpCode, 'verified' => false]
-    //     );
-
-    //     // Send OTP using SMS service (example implementation)
-    //     // SmsService::sendOtp($request->phone_number, $otpCode);
-
-    //     return response()->json(['message' => 'OTP sent successfully!', 'otp' => $otpCode]);
-    // }
-
-    /**
-     * Verify OTP
-     */
-    // public function verifyOtp(Request $request)
-    // {
-    //     $request->validate([
-    //         'phone_number' => 'required|numeric|digits:10',
-    //         'otp' => 'required|numeric|digits:6'
-    //     ]);
-
-    //     $otpRecord = Otp::where('phone_number', $request->phone_number)
-    //                     ->where('otp', $request->otp)
-    //                     ->first();
-
-    //     if (!$otpRecord) {
-    //         return response()->json(['error' => 'Invalid OTP!'], 400);
-    //     }
-
-    //     $otpRecord->update(['verified' => true]);
-
-    //     return response()->json(['message' => 'OTP verified successfully!']);
-    // }
-
-
-    // public function checkout(Request $request)
-    // {
-    //     // Validate input data
-    //     $validator = Validator::make($request->all(), [
-    //         'firstname' => 'required|max:30',
-    //         'lastname' => 'required|max:30',
-    //         'phone_number' => 'required|numeric|digits:10',
-    //         'email' => 'required|email',
-    //         'address' => 'required|max:250',
-    //         'payment_method' => 'required|in:cod,upi',
-    //         'final_amount' => 'required|numeric|min:0',
-    //         'products' => 'required|array|min:1',
-    //         'products.*.product_id' => 'nullable',
-    //         'products.*.retailer_clone_product_id' => 'nullable',
-    //         'products.*.wholesaler_id' => 'nullable',
-    //         'products.*.retailer_id' => 'required',
-    //         'products.*.quantity' => 'required|integer|min:1'
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'message' => 'Validation failed',
-    //             'errors' => $validator->errors()
-    //         ], 422);
-    //     }
-
-    //     // Validate API key
-    //     $apiKey = $request->header('API-KEY');
-    //     if (!$apiKey) {
-    //         return response()->json(['error' => 'API Key is required.'], 401);
-    //     }
-
-    //     // Validate retailer based on API key
-    //     $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-    //     if (!$retailer) {
-    //         return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-    //     }
-
-    //     // $otpRecord = Otp::where('phone_number', $request->phone_number)
-    //     // ->where('verified', true)
-    //     // ->first();
-
-
-    //     // if (!$otpRecord) {
-    //     // return response()->json(['error' => 'OTP verification required!'], 403);
-    //     // }
-
-    //     DB::beginTransaction();
-    //     try {
-    //         // Store customer details
-    //         $customerDetail = CustomerDetails::create([
-    //             'firstname' => $request->firstname,
-    //             'lastname' => $request->lastname,
-    //             'phone_number' => $request->phone_number,
-    //             'email' => $request->email ?? null,
-    //             'address' => $request->address,
-    //             'state' => $request->state,
-    //             'city' => $request->city,
-    //             'pincode' => $request->pincode
-    //         ]);
-
-    //         // Generate a unique order ID
-    //         $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
-
-    //         // Prepare order items
-    //         $orderItems = collect($request->products)->map(function ($product) use ($orderID, $customerDetail, $retailer) {
-
-    //             $wholesalerId = $product['wholesaler_id'] ?? null;
-    //             $retailerId = $product['retailer_id'] ?? $retailer->retailer_id;
-    //             $productId = $product['product_id'] ?? null;
-    //             $retailercloneproductId = $product['retailer_clone_product_id'] ?? null;
-
-    //             return [
-    //                 'order_id' => $orderID,
-    //                 'customer_id' => $customerDetail->id,
-    //                 'product_id' =>  $productId ?? null,
-    //                 'retailer_clone_product_id' =>  !is_null($retailercloneproductId) ? $retailercloneproductId : null,
-    //                 'retailer_id' => !is_null($retailerId) ? $retailerId : null,
-    //                 'wholesaler_id' => !is_null($wholesalerId) ? $wholesalerId : null,
-    //                 'quantity' => $product['quantity'],
-    //                 'final_amount' => request()->final_amount,
-    //                 'payment_method' => request()->payment_method,
-    //                 'created_at' => now(),
-    //                 'updated_at' => now()
-    //             ];
-    //         })->toArray();
-
-    //         foreach ($request->products as $product) {
-    //             $quantity = $product['quantity'];
-
-    //             if (!empty($product['wholesaler_id'])) {
-    //                 // Wholesaler product stock update
-    //                 $productModel = Product::find($product['product_id']);
-    //                 if ($productModel) {
-    //                     if ($productModel->quantity < $quantity) {
-    //                         throw new \Exception('Insufficient stock for product ID ' . $product['product_id']);
-    //                     }
-    //                     $productModel->quantity -= $quantity;
-    //                     $productModel->save();
-    //                 }
-    //             } else {
-    //                 // Retailer clone product stock update
-    //                 $retailerProduct = RetailerCloneProduct::where('retailer_id', $product['retailer_id'])
-    //                     ->where('id', $product['retailer_clone_product_id']) // or use product_id if id not available
-    //                     ->first();
-
-    //                 if ($retailerProduct) {
-    //                     if ($retailerProduct->quantity < $quantity) {
-    //                         throw new \Exception('Insufficient stock for retailer product ID ' . $product['retailer_clone_product_id']);
-    //                     }
-    //                     $retailerProduct->quantity -= $quantity;
-    //                     $retailerProduct->save();
-    //                 }
-    //             }
-    //         }
-
-    //         // Bulk insert orders
-    //         CustomerOrders::insert($orderItems);
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'order_id' => $orderID,
-    //             'message' => 'Your order has been placed successfully!'
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         Log::error('Checkout Error:', ['error' => $e->getMessage()]);
-    //         return response()->json(['error' => 'Something went wrong! Please try again.'], 500);
-    //     }
-    // }
-
-     // public function getRetailerProducts(Request $request)
-    // {
-    //     try {
-    //         $apiKey = $request->header('API-KEY');
-    //         if (!$apiKey) {
-    //             return response()->json(['error' => 'API Key is required.'], 401);
-    //         }
-
-    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-    //         if (!$retailer) {
-    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-    //         }
-
-    //         // Fetch retailer products with wholesaler relation
-    //         $retailerProducts = RetailerProducts::with(['wholesaler.products'])
-    //             ->where('retailer_id', $retailer->retailer_id)
-    //             ->get();
-
-    //         // Fetch retailer clone products
-    //         $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
-    //             ->get();
-
-    //         // Merge both collections
-    //         $allProducts = $retailerProducts->merge($retailerCloneProducts);
-
-    //         // Process each record differently based on its source.
-    //         $products = $allProducts->flatMap(function ($item) {
-    //             if ($item instanceof RetailerProducts) {
-    //                 if (!$item->wholesaler) {
-    //                     return [];
-    //                 }
-    //                 return $item->wholesaler->products->map(function ($product) use ($item) {
-    //                     return $this->formatProductFromRetailerProduct($product, $item);
-    //                 });
-    //             } else {
-    //                 return [$this->formatProductFromClone($item)];
-    //             }
-    //         })->values();
-
-    //         // Extract categories separately
-    //         $categoryIds = $products->pluck('category_id')->filter()->unique()->toArray();
-    //         $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
-
-    //         // Implement pagination (8 products per page)
-    //         $perPage = 8;
-    //         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-    //         $productsCollection = new Collection($products);
-    //         $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
-    //         $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
-    //         $paginatedProducts->setPath(url()->current());
-
-    //         return response()->json([
-    //             'success'    => true,
-    //             'products'   => $paginatedProducts,
-    //             'categories' => $categories,
-    //         ]);
-
-    //     } catch (\Exception $e) {
-    //         \Log::error('Error fetching retailer products: ' . $e->getMessage());
-    //         return response()->json(['error' => 'An unexpected error occurred.'], 500);
-    //     }
-    // }
-
-
-
 }

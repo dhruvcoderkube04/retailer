@@ -118,7 +118,7 @@
                                                                                 '';
                                                                         @endphp
                                                                         <span class="symbol-label"
-                                                                            style="background-image: url('{{ 'https://wholesale.lghosts.com/uploads/' . $get_image }}');"></span>
+                                                                            style="background-image: url('{{ $get_image }}');"></span>
                                                                     </a>
                                                                     <div class="ms-5">
                                                                         <a href="#"
@@ -239,7 +239,7 @@
                                                         <span class="fw-bold">{{ $cloneProduct->sku }}</span>
                                                     </td>
                                                     <td class="text-center pe-0" data-order="22">
-                                                        {{ $cloneProduct->category->category_name }}
+                                                        {{ @$cloneProduct->category->category_name }}
                                                     </td>
                                                     <td class="text-center" data-order="22">
                                                         <div class="badge badge-light-primary">

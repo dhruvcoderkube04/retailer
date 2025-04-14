@@ -223,7 +223,7 @@
                                         <div class="col-lg-8 fv-row">
                                             <input type="tel" name="phone"
                                                 class="form-control form-control-lg form-control-solid 	@error('phone') is-invalid @enderror"
-                                                placeholder="Phone number" value="{{ $userprofile->phone_number }}" />
+                                                placeholder="Phone number" value="{{ $userprofile->phone_number }}" disabled />
                                             @error('phone')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
