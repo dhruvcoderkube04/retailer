@@ -809,8 +809,11 @@ class RetilerController extends Controller
             SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
             SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
             SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
-            SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer
+            SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
+            SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
         ")->first()->toArray();
+
+        // dd($count);
         // customer orders
         $sql = CustomerOrders::with([
             'customer',
@@ -833,6 +836,8 @@ class RetilerController extends Controller
             $sql->where('status', 'cancelled_by_retailer');
         } else if ($type == 'cancelled-by-customer') {
             $sql->where('status', 'cancelled_by_customer');
+        } else if ($type == 'inactive') {
+            $sql->where('status', 'inactive');
         } else {
             return redirect()->route('retailer.order.list');
         }

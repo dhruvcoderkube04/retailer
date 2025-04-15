@@ -38,7 +38,8 @@ class CustomerOrders extends Model
         'expected_delivery',
 
         'payment_status',
-        'payment_method'
+        'payment_method',
+        'inactive'
     ];
 
     public function customer()

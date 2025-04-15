@@ -87,40 +87,42 @@
                                         <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             New
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                                {{ $count['new'] ?? 0 }}
-                                            </span>
-                                            {{-- <span class="badge badge-light ms-2">{{ $count['new'] ?? 0 }}</span> --}}
+                                            <span class="badge badge-light ms-2">{{ $count['new'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-info px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'confirmed-by-retailer']) }}">
-                                            Confirmed <span class="badge badge-light ms-2">{{ $count['confirmed_by_retailer'] ?? 0 }}</span>
+                                            Confirmed <span class="badge badge-light ms-2">
+                                                {{ $count['confirmed_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'transfered-retailer-to-wholesaler' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'transfered-retailer-to-wholesaler']) }}">
-                                            Transfered to Wholesaler <span class="badge badge-light ms-2">{{ $count['transfered_retailer_to_wholesaler'] ?? 0 }}</span>
+                                            Transfered to Wholesaler
+                                            <span class="badge badge-light ms-2">{{ $count['transfered_retailer_to_wholesaler'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'ready-to-ship' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'ready-to-ship']) }}">
-                                            Ready To Ship <span class="badge badge-light ms-2">{{ $count['ready_to_ship'] ?? 0 }}</span>
+                                            Ready To Ship
+                                            <span class="badge badge-light ms-2">{{ $count['ready_to_ship'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'delivered-by-retailer']) }}">
-                                            Delivered <span class="badge badge-light ms-2">{{ $count['delivered_by_retailer'] ?? 0 }}</span>
+                                            Delivered
+                                            <span class="badge badge-light ms-2">{{ $count['delivered_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancelled-by-retailer']) }}">
-                                            Cancelled <span class="badge badge-light ms-2">{{ $count['cancelled_by_retailer'] ?? 0 }}</span>
+                                            Cancelled
+                                            <span class="badge badge-light ms-2">{{ $count['cancelled_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
