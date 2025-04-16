@@ -18,13 +18,9 @@
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
             <a href="#" class="d-lg-none">
                 @php
-                    $logoPath = 'uploads/company_profile/' . (Auth::user()->userDetail->company_logo ?? '');
-                    $logoUrl =
-                        file_exists(public_path($logoPath)) &&
-                        Auth::user()->userDetail &&
-                        Auth::user()->userDetail->company_logo
-                            ? asset($logoPath)
-                            : asset('assets/media/avatars/no-profile.png'); // Default image path
+                    $logoUrl = Auth::user()->userDetail && Auth::user()->userDetail->company_logo
+                        ? Auth::user()->userDetail->company_logo // Use URL directly
+                        : asset('assets/media/avatars/no-profile.png'); // Default image path
                 @endphp
                 <img src="{{ $logoUrl }}" class="rounded-3" alt="user" height="20" />
                 <br />

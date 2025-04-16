@@ -87,7 +87,7 @@
                                                     <div class="symbol symbol-65px symbol-circle mb-5">
                                                         <!-- {{ $wholesaler->userDetail->company_logo }} -->
                                                         <img src="{{ $wholesaler->userDetail->company_logo
-                                                            ? 'https://wholesale.lghosts.com/uploads/company_profile/' . $wholesaler->userDetail->company_logo
+                                                            ?  $wholesaler->userDetail->company_logo
                                                             : asset('assets/media/avatars/no-profile.png') }}"
                                                             alt="image" />
                                                         <div

@@ -6,17 +6,17 @@
         <!--begin::Logo image-->
         <a href="{{ route('retailer.dashboard') }}">
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
-                ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
+                ? Auth::user()->userDetail->company_logo // Use URL directly from Spaces
                 : asset('assets/media/logos/big_mart_nepal_cover.jpg') }}"
                 class="h-55px text-center app-sidebar-logo-default"
                 alt="{{ Auth::user()->firstname }}"
                 style="border-radius: 10px; justify-content: space-evenly;" />
 
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
-                ? asset('uploads/company_profile/' . Auth::user()->userDetail->company_logo)
+                ? Auth::user()->userDetail->company_logo // Use URL directly from Spaces
                 : asset('assets/media/logos/bigmart.jpg') }}"
                 class="h-25px app-sidebar-logo-minimize"
-                alt="{{Auth::user()->firstname}}"
+                alt="{{ Auth::user()->firstname }}"
                 style="border-radius: 5px; justify-content: space-evenly;" />
         </a>
 

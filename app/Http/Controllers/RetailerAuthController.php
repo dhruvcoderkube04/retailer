@@ -25,15 +25,35 @@ class RetailerAuthController extends Controller
         return view('auth.register');
     }
 
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'companyname' => 'required|string|max:255',
-            'phonenumber' => 'required|string|max:20',
+            'phonenumber' => [
+                'required',
+                'regex:/^[0-9]{10}$/',
+                function ($attribute, $value, $fail) {
+                    $exists = \App\Models\User::where('phone_number', $value)
+                        ->where('user_type', 3)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail('The phone number is already in use.');
+                    }
+                }
+            ],
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
             'password_confirmation' => 'required',
             'toc' => 'required|accepted',
         ]);
@@ -43,6 +63,8 @@ class RetailerAuthController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
+
+        // Debug only if validation passes
 
         try {
             // Create User

@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class RetailerCategoryController extends Controller
 {
@@ -149,27 +151,67 @@ class RetailerCategoryController extends Controller
         try {
             $retailerCategory = RetailerCategory::findOrFail($id);
 
+            // old store
+            // if ($request->hasFile('category_image')) {
+            //     $file = $request->file('category_image');
+            //     $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+            //     $uploadPath = public_path('uploads/retailer_category/');
+
+            //     // Ensure directory exists
+            //     if (!File::exists($uploadPath)) {
+            //         File::makeDirectory($uploadPath, 0777, true, true);
+            //     }
+
+            //     // Delete old image if it exists
+            //     if (!empty($retailerCategory->category_image)) {
+            //         $oldImagePath = public_path('uploads/' . $retailerCategory->category_image);
+            //         if (File::exists($oldImagePath)) {
+            //             File::delete($oldImagePath);
+            //         }
+            //     }
+
+            //     // Move new image to directory
+            //     $file->move($uploadPath, $fileName);
+            //     $retailerCategory->category_image = "retailer_category/" . $fileName;
+            // }
+
+            // store in digital ocean
             if ($request->hasFile('category_image')) {
-                $file = $request->file('category_image');
-                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $uploadPath = public_path('uploads/retailer_category/');
+                try {
+                    $file = $request->file('category_image');
+                    $originalExtension = $file->getClientOriginalExtension();
+                    $fileName = 'category_image_' . now()->timestamp . '_' . uniqid() . '.' . $originalExtension;
+                    $directory = 'retailer_category/'; // Directory in DigitalOcean Spaces
 
-                // Ensure directory exists
-                if (!File::exists($uploadPath)) {
-                    File::makeDirectory($uploadPath, 0777, true, true);
-                }
+                    $path = $directory . $fileName;
 
-                // Delete old image if it exists
-                if (!empty($retailerCategory->category_image)) {
-                    $oldImagePath = public_path('uploads/' . $retailerCategory->category_image);
-                    if (File::exists($oldImagePath)) {
-                        File::delete($oldImagePath);
+                    // Delete old image if it exists
+                    if (!empty($retailerCategory->category_image)) {
+                        try {
+                            // Extract path from stored url.
+                            $oldPath = str_replace(Storage::disk('spaces')->url(''), '', $retailerCategory->category_image);
+                            Storage::disk('spaces')->delete($oldPath);
+                            Log::info('Old Category Image Removed: ' . $oldPath);
+                        } catch (\Exception $deleteException) {
+                            Log::error('Failed to Remove Old Category Image: ' . $deleteException->getMessage());
+                        }
                     }
-                }
 
-                // Move new image to directory
-                $file->move($uploadPath, $fileName);
-                $retailerCategory->category_image = "retailer_category/" . $fileName;
+                    // Upload new image to DigitalOcean Spaces
+                    Storage::disk('spaces')->putFileAs($directory, $file, $fileName, 'public');
+
+                    // Store the URL of the uploaded file
+                    $fileUrl = Storage::disk('spaces')->url($path);
+                    $retailerCategory->category_image = $fileUrl; // Store URL, not relative path.
+
+                } catch (\Illuminate\Validation\ValidationException $validationException) {
+                    // Handle validation errors
+                    Log::error('Category Image Validation Failed: ' . $validationException->getMessage());
+                    return back()->withErrors($validationException->errors())->withInput();
+                } catch (\Exception $e) {
+                    Log::error('Category Image Upload Failed: ' . $e->getMessage());
+                    return back()->with('error', 'Category image upload failed.');
+                }
             }
             $retailerCategory->save();
 

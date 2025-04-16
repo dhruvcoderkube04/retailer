@@ -81,7 +81,7 @@
                                                 <tr class="data-load" data-id="{{ $category->id }}">
                                                     <td class="ps-9">
                                                         <img id="sub-category-image"
-                                                            src="{{ $category->category_image ? asset('uploads/' . $category->category_image) : asset('assets/media/images/no_image.jpg') }}"
+                                                            src="{{ $category->category_image ? $category->category_image : asset('assets/media/images/no_image.jpg') }}"
                                                             class="w-40px me-3" alt="">
                                                     </td>
                                                     <td class="ps-9">{{ strtoupper($category->category->category_name) }}
@@ -247,7 +247,7 @@
                 $("#retailer_category_id").val(categoryId);
 
                 if (imageUrl) {
-                    $("#image-preview").attr("src", 'uploads/'+imageUrl).show();
+                    $("#image-preview").attr("src",imageUrl).show();
                 } else {
                     $("#image-preview").attr("src", 'assets/media/images/no_image.jpg').show();
                 }

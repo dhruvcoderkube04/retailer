@@ -79,10 +79,10 @@
                     @endif
 
                     <div class="card card-flush">
-                        <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-                            <!-- tabs (stages tabs) -->
-                            <div class="card-toolbar d-flex justify-content-center">
-                                <ul class="nav nav-pills d-flex justify-content-center flex-wrap gap-3">
+                        <div class="card-header d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between py-5 gap-3">
+                            <!-- Tabs -->
+                            <div class="card-toolbar flex-grow-1">
+                                <ul class="nav nav-pills d-flex flex-nowrap overflow-auto gap-2">
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
@@ -91,19 +91,17 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'transfered-retailer-to-wholesaler' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'transfered-retailer-to-wholesaler']) }}">
-                                            Transfered to Wholesaler
-                                            <span
-                                                class="badge badge-light ms-2">{{ $count['transfered_retailer_to_wholesaler'] ?? 0 }}</span>
+                                        <a class="nav-link btn btn-light-info px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'confirmed-by-retailer']) }}">
+                                            Confirmed <span class="badge badge-light ms-2">
+                                                {{ $count['confirmed_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link btn btn-light-info px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'confirmed-by-retailer']) }}">
-                                            Confirmed
-                                            <span
-                                                class="badge badge-light ms-2">{{ $count['confirmed_by_retailer'] ?? 0 }}</span>
+                                        <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'transfered-retailer-to-wholesaler' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'transfered-retailer-to-wholesaler']) }}">
+                                            Transfered to Wholesaler
+                                            <span class="badge badge-light ms-2">{{ $count['transfered_retailer_to_wholesaler'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
@@ -117,30 +115,32 @@
                                         <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'delivered-by-retailer']) }}">
                                             Delivered
-                                            <span
-                                                class="badge badge-light ms-2">{{ $count['delivered_by_retailer'] ?? 0 }}</span>
+                                            <span class="badge badge-light ms-2">{{ $count['delivered_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancelled-by-retailer']) }}">
                                             Cancelled
-                                            <span
-                                                class="badge badge-light ms-2">{{ $count['cancelled_by_retailer'] ?? 0 }}</span>
+                                            <span class="badge badge-light ms-2">{{ $count['cancelled_by_retailer'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-customer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancelled-by-customer']) }}">
-                                            Cancelled By Customer
-                                            <span
-                                                class="badge badge-light ms-2">{{ $count['cancelled_by_customer'] ?? 0 }}</span>
+                                            Cancelled By Customer <span class="badge badge-light ms-2">{{ $count['cancelled_by_customer'] ?? 0 }}</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'inactive' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'inactive']) }}">
+                                            Inactive <span class="badge badge-light ms-2">{{ @$count['inactive'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
 
-                            <!-- search -->
+                            <!-- Search -->
                             <div class="card-title">
                                 <div class="d-flex align-items-center position-relative my-1">
                                     <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
@@ -153,6 +153,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         <div class="card-body pt-0">
 
@@ -214,13 +215,9 @@
                                                 <div class="mt-2">
                                                     @php
                                                         if (!empty($detail?->product?->images)) {
-                                                            $imagePath =
-                                                                'https://wholesale.lghosts.com/uploads/' .
-                                                                explode(',', $detail->product->images)[0];
+                                                            $imagePath = explode(',', $detail->product->images)[0];
                                                         } elseif (!empty($detail?->retailerCloneProduct?->images)) {
-                                                            $imagePath =
-                                                                'https://wholesale.lghosts.com/uploads/' .
-                                                                explode(',', $detail->retailerCloneProduct->images)[0];
+                                                            $imagePath = explode(',', $detail->retailerCloneProduct->images)[0];
                                                         } else {
                                                             $imagePath = null;
                                                         }
@@ -357,12 +354,12 @@
                                     <span>Confirm Order</span>
                                 </label>
 
-                                <label class="list-group-item d-flex align-items-center gap-3 mt-2">
+                                {{-- <label class="list-group-item d-flex align-items-center gap-3 mt-2">
                                     <input class="form-check-input mt-0" type="radio" name="status"
                                         id="transfered_retailer_to_wholesaler" value="transfered_retailer_to_wholesaler">
                                     <i class="bi bi-box-arrow-right text-primary fs-5"></i>
                                     <span>Transfer to Wholesaler</span>
-                                </label>
+                                </label> --}}
 
                                 <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
                                     <input class="form-check-input mt-0" type="radio" name="status"
