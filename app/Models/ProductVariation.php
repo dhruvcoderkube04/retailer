@@ -8,8 +8,8 @@ class ProductVariation extends Model
 {
     protected $fillable = [
         'product_id',
-        'size',
-        'color',
+        'product_variation',
+        'variation_type',
         'price',
         'stock',
         'sku',

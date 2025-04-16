@@ -18,7 +18,15 @@ class RetailerCategoryController extends Controller
     public function categoryList()
     {
         $user = Auth::user();
-        $categories = Category::with('subCategory')->orderBy('id', 'desc')->get();
+        $categories = Category::with(['subCategory' => function ($q) {
+            $q->where('status', 1);
+        }])
+            ->whereHas('subCategory', function ($q) {
+                $q->where('status', 1);
+            })
+            ->where('status', 1)
+            ->orderBy('id', 'desc')
+            ->get();
         $addedCategories = RetailerCategory::where('retailer_id', $user->id)->pluck('sub_category_id')->toArray();
         $retailerCateogries = RetailerCategory::with([
             'retailer',
@@ -61,7 +69,15 @@ class RetailerCategoryController extends Controller
                 $retailerCategory->delete();
             }
 
-            $categories = Category::with('subCategory')->orderBy('id', 'desc')->get();
+            $categories = Category::with(['subCategory' => function ($q) {
+                $q->where('status', 1);
+            }])
+                ->whereHas('subCategory', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where('status', 1)
+                ->orderBy('id', 'desc')
+                ->get();
             $addedCategories = RetailerCategory::where('retailer_id', $user->id)->pluck('sub_category_id')->toArray();
             $retailerCateogries = RetailerCategory::with([
                 'retailer',
@@ -201,14 +217,12 @@ class RetailerCategoryController extends Controller
                 'status' => true,
                 'success' => 'Suggestion submitted successfully'
             ], 200);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'status' => false,
                 'error' => 'Validation Error',
                 'messages' => $e->errors()
             ], 422);
-
         } catch (Exception $e) {
             // Rollback Transaction on Error
             DB::rollBack();
@@ -219,7 +233,6 @@ class RetailerCategoryController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-
     }
     public function deleteCategorySuggestion(Request $request)
     {
@@ -251,7 +264,6 @@ class RetailerCategoryController extends Controller
                 'status' => false,
                 'error' => 'Record not found or unauthorized action!'
             ], 404);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Validation Error Handling
             return response()->json([
@@ -259,7 +271,6 @@ class RetailerCategoryController extends Controller
                 'error' => 'Validation Error',
                 'messages' => $e->errors()
             ], 422);
-
         } catch (\Exception $e) {
             // General Error Handling
             DB::rollBack();

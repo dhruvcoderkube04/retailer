@@ -72,6 +72,17 @@ return [
             'report' => false,
         ],
 
+        'spaces' => [
+            'driver' => 's3',
+            'key' => env('SPACES_ACCESS_KEY_ID'),
+            'secret' => env('SPACES_SECRET_ACCESS_KEY'),
+            'region' => env('SPACES_DEFAULT_REGION'),
+            'bucket' => env('SPACES_BUCKET'),
+            'url' => env('SPACES_URL'),
+            'endpoint' => env('SPACES_ENDPOINT'),
+            'bucket_endpoint' => true,
+            'visibility' => 'public',
+        ],
     ],
 
     /*

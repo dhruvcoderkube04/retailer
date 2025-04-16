@@ -14,6 +14,8 @@ use App\Models\RetailerProducts;
 use App\Models\RTOAddress;
 use App\Models\Ticket;
 use App\Models\COrders;
+use App\Models\ProductVariation;
+use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
 use Carbon\Carbon;
@@ -81,11 +83,11 @@ class RetilerController extends Controller
             'retailerCloneProduct',
             'wholesaler.userDetail',
         ])
-        ->where('retailer_id', $user->id)
-        ->where('status', 'pending')
-        ->orderBy('id', 'DESC')
-        ->take(5)
-        ->get();
+            ->where('retailer_id', $user->id)
+            ->where('status', 'pending')
+            ->orderBy('id', 'DESC')
+            ->take(5)
+            ->get();
 
         return view('dashboard', compact('data', 'user', 'retailerOrders'));
     }
@@ -232,7 +234,6 @@ class RetilerController extends Controller
             'categories' => $categories
 
         ]);
-
     }
 
 
@@ -267,8 +268,8 @@ class RetilerController extends Controller
         ]);
 
         $margin = RetailerProducts::where('id', $request->margin_id)
-                    ->where('wholesaler_id', $request->wholesaler_id)
-                    ->first();
+            ->where('wholesaler_id', $request->wholesaler_id)
+            ->first();
 
         if (!$margin) {
             return response()->json([
@@ -311,7 +312,7 @@ class RetilerController extends Controller
     // <--------------------- END : Add category margin ---------------------->
 
 
-    // <--------------------- START : Retailer product (Added, Clone, Own) ---------------------->
+    // <------------------- START : Retailer product (Added, Clone, Own) ------------------->
     // public function retailerProduct()
     // {
     //     try {
@@ -396,7 +397,7 @@ class RetilerController extends Controller
                 });
             }
 
-            $retailerCloneProducts = RetailerCloneProduct::with('category')
+            $retailerCloneProducts = RetailerCloneProduct::with('category', 'productVariations')
                 ->where('retailer_id', $retailer)
                 ->get();
 
@@ -555,6 +556,7 @@ class RetilerController extends Controller
     //     }
     // }
 
+    // store retailer product
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
@@ -572,8 +574,8 @@ class RetilerController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $retailer_id = Auth::user()->id;
 
             $product = new RetailerCloneProduct();
@@ -626,19 +628,167 @@ class RetilerController extends Controller
             $product->status = 'active';
             $product->save();
 
+            // Store variations
+            if (!empty($request->variation)) {
+                foreach ($request->variation as $index => $variation) {
+                    ProductVariation::create([
+                        'product_id' => $product->id,
+                        'product_variation' => $variation,
+                        'price' => $request->variation_price[$index],
+                    ]);
+                }
+            }
+
             DB::commit();
+
             session()->flash('success', 'Product added successfully');
             return redirect()->route('retailer.product');
-
         } catch (Exception $e) {
-            DB::rollBack();
+            // DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong');
             return redirect()->route('retailer.product');
         }
     }
 
-    // clone product store
+    // update retailer product
+    public function retailerUpdateProduct(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|integer',
+            'product_name' => 'required|min:3|max:100',
+            'description' => 'required|min:5|max:100',
+            'tags' => 'required|min:3|max:255',
+            'categories' => 'required|numeric|exists:categories,id',
+            'sub_category' => 'required|numeric|exists:sub_categories,id',
+            'price' => 'required|numeric|min:1',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'mimes:jpeg,png,jpg|max:4096',
+            'video' => 'nullable|mimes:mp4|max:6144', // 6MB
+            'sku' => 'required|string',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $product = RetailerCloneProduct::findOrFail($request->product_id);
+            $product->name = $request->product_name;
+            $product->description = $request->description;
+            $tags = json_decode($request->tags, true); // decode JSON to array
+            $product->tags = collect($tags)->pluck('value')->implode(',');
+            $product->category_id = $request->categories;
+            $product->sub_category_id = $request->sub_category;
+            $product->new_price = $request->price;
+            $product->sku = $request->sku;
+            $product->quantity = $request->quantity;
+
+            // upload in  digital ocean code
+            if ($request->hasFile('images')) {
+                $files = $request->file('images');
+                $imagePaths = [];
+
+                foreach ($files as $index => $file) {
+                    if ($index >= 3) break; // Allow only 3 images
+
+                    $originalExtension = $file->getClientOriginalExtension();
+                    $filename = 'product_image_' . now()->timestamp . '_' . $index . '.' . $originalExtension;
+                    $directory = 'products/images/'; // Directory in DigitalOcean Spaces
+                    $path = $directory . $filename;
+
+                    // Upload to DigitalOcean Spaces
+                    Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+
+                    // Store the public URL
+                    $imagePaths[] = Storage::disk('spaces')->url($path);
+                }
+
+                // Store image URLs as a comma-separated string
+                $product->images = implode(',', $imagePaths);
+            }
+
+            // Handle video upload
+            if ($request->hasFile('video')) {
+                $video = $request->file('video');
+                $originalExtension = $video->getClientOriginalExtension();
+                $videoName = 'product_video_' . now()->timestamp . '.' . $originalExtension;
+                $videoDirectory = 'products/videos/'; // Directory in DigitalOcean Spaces
+                $videoPath = $videoDirectory . $videoName;
+
+                // Upload to DigitalOcean Spaces
+                Storage::disk('spaces')->putFileAs($videoDirectory, $video, $videoName, 'public');
+
+                // Store the public URL
+                $product->videos = Storage::disk('spaces')->url($videoPath);
+            }
+
+            $product->save();
+
+            // Store variations: update, create, and delete
+            if (!empty($request->variation)) {
+                $incomingVariations = $request->variation;
+
+                // 1. Get existing variation values from DB
+                $existingVariations = ProductVariation::where('product_id', $product->id)
+                    ->pluck('product_variation')
+                    ->toArray();
+
+                // 2. Find variations to delete (existing - incoming)
+                $variationsToDelete = array_diff($existingVariations, $incomingVariations);
+
+                // 3. Delete removed variations
+                if (!empty($variationsToDelete)) {
+                    ProductVariation::where('product_id', $product->id)
+                        ->whereIn('product_variation', $variationsToDelete)
+                        ->delete();
+                }
+
+                // 4. Update or create current variations
+                foreach ($incomingVariations as $index => $variation) {
+                    ProductVariation::updateOrCreate(
+                        [
+                            'product_id' => $product->id,
+                            'product_variation' => $variation,
+                        ],
+                        [
+                            'price' => $request->variation_price[$index],
+                        ]
+                    );
+                }
+            } else {
+                ProductVariation::where('product_id', $product->id)->delete();
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Product updated successfully!']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Something went wrong!']);
+        }
+    }
+
+    // delete retailer product / clone product
+    public function cloneProductRemove(Request $request, $clone_product_id)
+    {
+        DB::beginTransaction();
+        try {
+            $cloneProduct = RetailerCloneProduct::where('id', $clone_product_id)->first();
+
+            if ($cloneProduct) {
+                $cloneProduct->delete();
+
+                ProductVariation::where('product_id', $clone_product_id)->delete();
+            }
+
+            DB::commit();
+            return redirect()->route('retailer.product')->with('success', 'Product removed from clone successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Something went wrong');
+            return redirect()->route('retailer.product');
+        }
+    }
+
+    // store clone product
     public function cloneProductStore(Request $request, $product_id)
     {
 
@@ -695,25 +845,7 @@ class RetilerController extends Controller
         }
     }
 
-    //
-    public function cloneProductRemove(Request $request, $clone_product_id)
-    {
-        DB::beginTransaction();
-        try {
-            $cloneProduct = RetailerCloneProduct::where('id', $clone_product_id)->first();
-
-            if ($cloneProduct) {
-                $cloneProduct->delete();
-            }
-
-            DB::commit();
-            return redirect()->route('retailer.product')->with('success', 'Product removed from clone successfully');
-        } catch (Exception $e) {
-            DB::rollBack();
-            session()->flash('error', 'Something went wrong');
-            return redirect()->route('retailer.product');
-        }
-    }
+    
     // <--------------------- START : Retailer product (Added, Clone, Own) ---------------------->
 
 
@@ -1359,90 +1491,37 @@ class RetilerController extends Controller
         }
     }
 
-
-    public function updateCloneProduct(Request $request)
+    // get list of variations of selected sub-category
+    public function getSubCategoryVariations(Request $request)
     {
-        $product = RetailerCloneProduct::findOrFail($request->product_id);
-        $product->name = $request->product_name;
-        $product->description = $request->description;
-        // $product->tags = $request->tags;
-        $tags = json_decode($request->tags, true); // decode JSON to array
-        $product->tags = collect($tags)->pluck('value')->implode(',');
-        $product->category_id = $request->categories;
-        $product->sub_category_id = $request->sub_category;
-        $product->new_price = $request->price;
-        $product->sku = $request->sku;
-        $product->quantity = $request->quantity;
+        $request->validate([
+            'sub_category_id' => 'required|exists:sub_categories,id'
+        ]);
 
-        // old code
-        // Handle images (limit to 3)
-        // if ($request->hasFile('images')) {
-        //     $files = $request->file('images');
-        //     $imagePaths = [];
+        try {
+            $subCategory = SubCategory::select('sub_category_variation')
+                ->where('id', $request->sub_category_id)
+                ->where('status', 1)
+                ->first();
 
-        //     foreach ($files as $index => $file) {
-        //         if ($index >= 3) break; // Allow only 3 images
-
-        //         $filename = time() . '_' . $file->getClientOriginalName();
-        //         $file->move(public_path('uploads/products'), $filename);
-        //         $imagePaths[] = $filename;
-        //     }
-
-        //     // Store images as a comma-separated string in the 'images' field
-        //     $product->images = implode(',', $imagePaths);
-        // }
-
-        // // Handle video upload
-        // if ($request->hasFile('video')) {
-        //     $video = $request->file('video');
-        //     $videoName = time() . '_' . $video->getClientOriginalName();
-        //     $video->move(public_path('uploads/videos'), $videoName);
-        //     $product->videos = $videoName;
-        // }
-
-
-        // upload in  digital ocean code
-        if ($request->hasFile('images')) {
-            $files = $request->file('images');
-            $imagePaths = [];
-
-            foreach ($files as $index => $file) {
-                if ($index >= 3) break; // Allow only 3 images
-
-                $originalExtension = $file->getClientOriginalExtension();
-                $filename = 'product_image_' . now()->timestamp . '_' . $index . '.' . $originalExtension;
-                $directory = 'products/images/'; // Directory in DigitalOcean Spaces
-                $path = $directory . $filename;
-
-                // Upload to DigitalOcean Spaces
-                Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
-
-                // Store the public URL
-                $imagePaths[] = Storage::disk('spaces')->url($path);
+            if (!$subCategory) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Not found',
+                ]);
             }
 
-            // Store image URLs as a comma-separated string
-            $product->images = implode(',', $imagePaths);
+            return response()->json([
+                'status' => true,
+                'msg' => 'Success',
+                'sub_category_variation' => $subCategory->sub_category_variation
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => $e
+            ]);
         }
-
-        // Handle video upload
-        if ($request->hasFile('video')) {
-            $video = $request->file('video');
-            $originalExtension = $video->getClientOriginalExtension();
-            $videoName = 'product_video_' . now()->timestamp . '.' . $originalExtension;
-            $videoDirectory = 'products/videos/'; // Directory in DigitalOcean Spaces
-            $videoPath = $videoDirectory . $videoName;
-
-            // Upload to DigitalOcean Spaces
-            Storage::disk('spaces')->putFileAs($videoDirectory, $video, $videoName, 'public');
-
-            // Store the public URL
-            $product->videos = Storage::disk('spaces')->url($videoPath);
-        }
-
-        $product->save();
-
-        return response()->json(['success' => true, 'message' => 'Product updated successfully!']);
     }
 
     public function prohibitedItem()

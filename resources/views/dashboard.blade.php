@@ -142,13 +142,17 @@
                         <div class="col-12 col-md-6 col-xl-6 col-xxl-6 mb-10">
                             <div class="card card-flush h-100">
                                 @php
-                                    $total_products =
-                                        ($data['wholesaler_product_count'] ?? 0) +
-                                        ($data['retailer_product_count'] ?? 0);
+                                    $wholesaler_count = $data['wholesaler_product_count'] ?? 0;
+                                    $retailer_count = $data['retailer_product_count'] ?? 0;
+                                    $total_products = $wholesaler_count + $retailer_count;
 
-                                    $wholesaler_ratio =
-                                        (($data['wholesaler_product_count'] ?? 0) * 100) / $total_products;
-                                    $retailer_ratio = (($data['retailer_product_count'] ?? 0) * 100) / $total_products;
+                                    if ($total_products > 0) {
+                                        $wholesaler_ratio = ($wholesaler_count * 100) / $total_products;
+                                        $retailer_ratio = ($retailer_count * 100) / $total_products;
+                                    } else {
+                                        $wholesaler_ratio = 0;
+                                        $retailer_ratio = 0;
+                                    }
                                 @endphp
                                 <a href="{{ url('retailer-product?active-tab=2') }}">
                                     <div class="card-header pt-5">

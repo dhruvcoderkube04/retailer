@@ -73,10 +73,7 @@
                                                         class="form-control mb-2 @error('product_name') is-invalid @enderror"
                                                         placeholder="Product name" value="{{ old('product_name') }}" />
                                                     <!--end::Input-->
-                                                    @error('product_name')
-                                                        <div class="invalid-feedback fs-7 error error_product_name">
-                                                            {{ $message }}</div>
-                                                    @enderror
+                                                    <div class="invalid-feedback fs-7 error error_product_name"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-5">
@@ -88,10 +85,7 @@
                                                         placeholder="fashion,stylesh" id="tags"
                                                         value="{{ old('product_tags') }}" />
                                                     <!--end::Label-->
-                                                    @error('product_tags')
-                                                        <div class="invalid-feedback fs-7 error error_product_tags">
-                                                            {{ $message }}</div>
-                                                    @enderror
+                                                    <div class="invalid-feedback fs-7 error error_product_tags"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -112,10 +106,7 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error('categories')
-                                                        <div class="invalid-feedback fs-7 error error_categories">
-                                                            {{ $message }}</div>
-                                                    @enderror
+                                                    <div class="invalid-feedback fs-7 error error_categories"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
@@ -127,15 +118,18 @@
                                                         data-placeholder="Select a sub category">
                                                         <option value="">Select Sub Category</option>
                                                     </select>
-                                                    @error('sub_category')
-                                                        <div class="invalid-feedback fs-7 error error_sub_category">
-                                                            {{ $message }}</div>
-                                                    @enderror
+                                                    <div class="invalid-feedback fs-7 error error_sub_category"></div>
                                                 </div>
                                             </div>
                                         </div>
 
+                                        <div class="row product-variation-section" style="display: none;">
+                                            <div class="col-md-8">
+                                                <div class="mb-10 fv-row" id="add_variation_input">
 
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <div class="row">
                                             <div class="col-md-6">
@@ -148,10 +142,7 @@
                                                         class="form-control mb-2 @error('new_price') is-invalid @enderror"
                                                         placeholder="New Price" value="{{ old('new_price') }}" />
                                                     <!--end::Input-->
-                                                    @error('new_price')
-                                                        <div class="invalid-feedback fs-7 error error_new_price">
-                                                            {{ $message }}</div>
-                                                    @enderror
+                                                    <div class="invalid-feedback fs-7 error error_new_price"></div>
                                                     <!--begin::Description-->
                                                     <!--end::Description-->
                                                 </div>
@@ -162,10 +153,7 @@
                                                 <label class="required form-label">Product Description</label>
                                                 <textarea name="product_description" id="" cols="30" rows="3"
                                                     class="form-control @error('product_description') is-invalid @enderror">{{ old('product_description') }}</textarea>
-                                                @error('product_description')
-                                                    <div class="invalid-feedback fs-7 error error_product_description">
-                                                        {{ $message }}</div>
-                                                @enderror
+                                                <div class="invalid-feedback fs-7 error error_product_description"></div>
                                                 <!--end::Description-->
                                             </div>
                                             <!--end::Input group-->
@@ -197,12 +185,8 @@
                                                             class="form-control @error('images') is-invalid @enderror"
                                                             id="image" name="images[]" multiple accept="image/*"
                                                             onchange="previewImages(event)">
-                                                        @error('images')
-                                                            <div class="invalid-feedback error error_images">
-                                                                {{ $message }}</div>
-                                                        @enderror
+                                                        <div class="invalid-feedback error error_images"></div>
                                                         <small class="text-muted">You can upload up to 3 images.</small>
-                                                        <div id="image-error" class="text-danger mt-1"></div>
                                                     </div>
 
                                                     <!-- Preview container -->
@@ -214,15 +198,11 @@
 
                                                 <div class="col-md-6">
                                                     <div class="mb-10 fv-row">
-                                                        <label class="required form-label">Video</label>
+                                                        <label class="form-label">Video</label>
                                                         <input type="file" name="video" id="videoInput"
                                                             class="form-control mb-2 @error('video') is-invalid @enderror"
                                                             accept="video/*" />
-
-                                                        @error('video')
-                                                            <div class="invalid-feedback fs-7 error error_video">
-                                                                {{ $message }}</div>
-                                                        @enderror
+                                                        <div class="invalid-feedback fs-7 error error_video"></div>
 
                                                         <div id="videoSize" class="text-muted mt-2"></div>
                                                         <video id="videoPreview" width="100%" height="auto"
@@ -262,12 +242,7 @@
                                                             class="form-control mb-2 @error('sku') is-invalid @enderror"
                                                             placeholder="SKU Number" value="{{ old('sku') }}" />
                                                         <!--end::Input-->
-                                                        <!--begin::Description-->
-                                                        @error('sku')
-                                                            <div class="invalid-feedback fs-7 error error_sku">
-                                                                {{ $message }}</div>
-                                                        @enderror
-                                                        <!--end::Description-->
+                                                        <div class="invalid-feedback fs-7 error error_sku"></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -280,13 +255,8 @@
                                                             class="form-control mb-2 @error('quantity') is-invalid @enderror"
                                                             placeholder="how many product have"
                                                             value="{{ old('quantity') }}" />
-                                                        @error('quantity')
-                                                            <div class="invalid-feedback fs-7 error error_quantity">
-                                                                {{ $message }}</div>
-                                                        @enderror
+                                                        <div class="invalid-feedback fs-7 error error_quantity"></div>
                                                         <!--end::Input-->
-                                                        <!--begin::Description-->
-                                                        <!--end::Description-->
                                                     </div>
                                                 </div>
                                             </div>
@@ -330,30 +300,99 @@
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 
     <script>
-        $(document).on('change', '#category_select', function() {
-            let categoryId = $(this).val();
+        $(document).ready(function() {
+            $(document).on('change', '#category_select', function() {
+                let categoryId = $(this).val();
 
-            if (categoryId) {
-                $.ajax({
-                    url: "{{ route('retailer.getSubCategories') }}", // Create this route
-                    type: "GET",
-                    data: {
-                        category_id: categoryId
-                    },
-                    success: function(data) {
-                        $('#sub_category_select').empty().append(
-                            '<option value="">Select Sub Category</option>');
-                        $.each(data, function(key, value) {
-                            $('#sub_category_select').append('<option value="' +
-                                value.id + '">' + value.sub_category_name +
-                                '</option>');
-                        });
-                    }
-                });
-            } else {
-                $('#sub_category_select').empty().append(
-                    '<option value="">Select Sub Category</option>');
-            }
+                if (categoryId) {
+                    $.ajax({
+                        url: "{{ route('retailer.getSubCategories') }}", // Create this route
+                        type: "GET",
+                        data: {
+                            category_id: categoryId
+                        },
+                        success: function(data) {
+                            $('#sub_category_select').empty().append(
+                                '<option value="">Select Sub Category</option>');
+                            $.each(data, function(key, value) {
+                                $('#sub_category_select').append('<option value="' +
+                                    value.id + '">' + value.sub_category_name +
+                                    '</option>');
+                            });
+                        }
+                    });
+                } else {
+                    $('#sub_category_select').empty().append(
+                        '<option value="">Select Sub Category</option>');
+                }
+            });
+
+
+            $(document).on('change', '#sub_category_select', function() {
+                let subCategoryId = $(this).val();
+
+                if (subCategoryId) {
+                    $.ajax({
+                        url: '{{ route('retailer.products.get-sub-category-variations') }}',
+                        type: 'GET',
+                        data: {
+                            sub_category_id: subCategoryId
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            $('.product-variation-section').hide();
+                            if (response.status) {
+                                let variations = response.sub_category_variation;
+                                let inputHtml =
+                                    '<label class="required form-label">Product Variations</label>';
+
+                                if (variations) {
+                                    let variationArray = variations.split(',');
+
+                                    variationArray.forEach(function(variation, index) {
+                                        let trimmedVariation = variation.trim();
+                                        inputHtml += `<div class="row mb-3 align-items-center gap-3">
+                                            <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
+                                            <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" required /></div>
+                                        </div>`;
+                                    });
+
+                                    $('.product-variation-section').show();
+                                    $('#add_variation_input').html(inputHtml);
+                                } else {
+                                    $('#add_variation_input').html(
+                                        '<p class="text-muted">No product variations available.</p>'
+                                    );
+                                    $('.product-variation-section').show();
+                                }
+
+                            } else {
+                                if (response.msg == 'Not found') {
+                                    $('#add_variation_input').html(
+                                        '<p class="text-muted">No product variations available.</p>'
+                                    );
+                                    $('.product-variation-section').show();
+                                }
+                                $('.product-variation-section').hide();
+                                console.error('AJAX Error:', response.msg);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            $('.product-variation-section').hide();
+                            console.error('AJAX Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Something went wrong! Please try again.'
+                            });
+                        }
+                    });
+                } else {
+                    $('#add_variation_input').html('');
+                }
+            });
         });
     </script>
 
@@ -446,7 +485,7 @@
         $(document).ready(function() {
             $('#kt_ecommerce_add_product_form').on('submit', function(e) {
                 e.preventDefault();
-                $('.invalid-feedback').remove();
+                // $('.invalid-feedback').remove();
                 $('.error').hide();
                 $('.is-invalid').removeClass('is-invalid');
 
@@ -480,7 +519,8 @@
 
                         // Reset Category & Subcategory completely
                         $('#category_select').val('').trigger('change');
-                        $('#sub_category_select').empty().append('<option value="">Select Sub Category</option>');
+                        $('#sub_category_select').empty().append(
+                            '<option value="">Select Sub Category</option>');
 
                         //  Reset Select2 styles
                         $('#category_select, #sub_category_select').next('.select2')
@@ -502,34 +542,35 @@
                         $('#videoPreview').attr('src', '').hide();
                         $('#videoSize').text('');
                     },
-
                     error: function(xhr) {
                         if (xhr.status === 422) {
                             $.each(xhr.responseJSON.errors, function(key, value) {
+                                const baseKey = key.split('.')[0];
                                 const input = $('[name="' + key + '"]');
 
                                 // Mark regular input
                                 input.addClass('is-invalid');
 
                                 // Special: Tagify field
-                                if (key === "product_tags") {
+                                if (baseKey === "product_tags") {
                                     $('.tagify').addClass('border border-danger');
                                 }
 
                                 // Special: Select2 dropdowns
-                                if (key === "categories" || key === "sub_category") {
+                                if (baseKey === "categories" || baseKey ===
+                                    "sub_category") {
                                     input.next('.select2').find('.select2-selection')
                                         .addClass('border border-danger');
                                 }
 
                                 // Special: Image field
-                                if (key.startsWith('images')) {
+                                if (baseKey.startsWith('images')) {
                                     $('#image').addClass('is-invalid');
                                     $('#image-error').text(value[0]).show();
                                 }
 
                                 // Display message
-                                const errorElement = $('.error_' + key);
+                                const errorElement = $('.error_' + baseKey);
                                 if (errorElement.length > 0) {
                                     errorElement.text(value[0]).show();
                                 }
