@@ -566,6 +566,7 @@ class RetilerController extends Controller
             'product_tags' => 'required|min:3|max:255',
             'categories' => 'required|numeric|exists:categories,id',
             'sub_category' => 'required|numeric|exists:sub_categories,id',
+            'old_price' => 'required|numeric|min:1',
             'new_price' => 'required|numeric|min:1',
             'images' => 'required|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
@@ -592,8 +593,8 @@ class RetilerController extends Controller
 
             $product->quantity = $request->quantity;
             $product->sub_category_id = $request->sub_category;
+            $product->old_price = $request->old_price;
             $product->new_price = $request->new_price;
-            $product->old_price = 0;
 
             $imagePaths = [];
             if ($request->hasFile('images')) {
@@ -662,6 +663,7 @@ class RetilerController extends Controller
             'tags' => 'required|min:3|max:255',
             'categories' => 'required|numeric|exists:categories,id',
             'sub_category' => 'required|numeric|exists:sub_categories,id',
+            'old_price' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:1',
             'images' => 'nullable|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
@@ -679,6 +681,7 @@ class RetilerController extends Controller
             $product->tags = collect($tags)->pluck('value')->implode(',');
             $product->category_id = $request->categories;
             $product->sub_category_id = $request->sub_category;
+            $product->old_price = $request->old_price;
             $product->new_price = $request->price;
             $product->sku = $request->sku;
             $product->quantity = $request->quantity;

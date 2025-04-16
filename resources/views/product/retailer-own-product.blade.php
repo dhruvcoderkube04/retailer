@@ -209,6 +209,7 @@
                                                             data-tags="{{ $cloneProduct->tags }}"
                                                             data-category="{{ $cloneProduct->category_id }}"
                                                             data-sub_category="{{ $cloneProduct->sub_category_id }}"
+                                                            data-old-price="{{ $cloneProduct->old_price }}"
                                                             data-price="{{ $cloneProduct->new_price }}"
                                                             data-images="{{ $cloneProduct->images }}"
                                                             data-videos="{{ $cloneProduct->videos }}"
@@ -277,32 +278,32 @@
                                 <i class="ki-duotone ki-cross fs-1"></i>
                             </div>
                         </div>
-                        <div class="modal-body scroll-y my-2">
+                        <div class="modal-body scroll-y my-2 mx-3">
                             <form id="updateProductForm">
                                 @csrf
                                 <input type="hidden" id="product_id" name="product_id">
                                 <input type="hidden" id="sub_category_id" name="sub_category_id">
                                 <input type="hidden" id="product_variations" name="product_variations">
 
-                                <div class="mb-5">
+                                <div class="mb-6">
                                     <label class="required form-label">Product Name</label>
                                     <input type="text" class="form-control" id="product_name" name="product_name">
                                     <div class="fs-7 text-danger mt-2 error error_product_name"></div>
                                 </div>
 
-                                <div class="mb-5">
+                                <div class="mb-6">
                                     <label class="required form-label">Description</label>
                                     <textarea class="form-control" id="description" name="description"></textarea>
                                     <div class="fs-7 text-danger mt-2 error error_description"></div>
                                 </div>
 
-                                <div class="mb-5">
+                                <div class="mb-6">
                                     <label class="required form-label">Tags</label>
                                     <input type="text" class="form-control" id="tags" name="tags">
                                     <div class="fs-7 text-danger mt-2 error error_tags"></div>
                                 </div>
 
-                                <div class="row mb-5">
+                                <div class="row mb-6">
                                     <div class="col-md-6">
                                         <label class="required form-label">Categories</label>
                                         <select class="form-select" id="categories" data-control="select2"
@@ -325,19 +326,26 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-5">
+                                <div class="mb-6">
                                     <div class="product-variation-section" style="display: none;">
                                         <div class="fv-row" id="add_variation_input"></div>
                                     </div>
                                 </div>
 
-                                <div class="mb-5">
-                                    <label class="required form-label">Price</label>
-                                    <input type="number" class="form-control" id="price" name="price">
-                                    <div class="fs-7 text-danger mt-2 error error_price"></div>
+                                <div class="row mb-6">
+                                    <div class="col-md-6">
+                                        <label class="required form-label">Old Price</label>
+                                        <input type="number" class="form-control" id="old_price" name="old_price">
+                                        <div class="fs-7 text-danger mt-2 error error_old_price"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="required form-label">New Price</label>
+                                        <input type="number" class="form-control" id="price" name="price">
+                                        <div class="fs-7 text-danger mt-2 error error_price"></div>
+                                    </div>
                                 </div>
 
-                                <div class="row mb-5">
+                                <div class="row mb-6">
                                     <div class="col-md-6">
                                         <label class="form-label">Images (Max: 3)</label>
                                         <input type="file" class="form-control" id="image" name="images[]"
@@ -354,7 +362,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-5">
+                                <div class="row mb-6">
                                     <div class="col-md-6">
                                         <label class="form-label">Images Preview</label>
                                         <div class="row g-2" id="image-preview"></div>
@@ -365,7 +373,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-5">
+                                <div class="row mb-6">
                                     <div class="col-md-6">
                                         <label class="required form-label">SKU</label>
                                         <input type="text" class="form-control" id="sku" name="sku">
@@ -430,7 +438,7 @@
                                                     class="path2"></span><span class="path3"></span></i>
                                         </span>
                                     </label>
-                                    <div class="mb-5 fv-row">
+                                    <div class="mb-6 fv-row">
                                         <select class="form-select mb-2 @error('categories') is-invalid @enderror"
                                             data-control="select2" name="categories" data-placeholder="Select an option">
                                             @foreach ($category_list as $category)
@@ -837,6 +845,7 @@
                     let category = $(this).data("category");
                     let subCategory = $(this).data("sub_category");
                     let productVariations = $(this).data('product-variations');
+                    let oldPrice = $(this).data("old-price");
                     let price = $(this).data("price");
                     let images = $(this).data("images");
                     let videos = $(this).data("videos");
@@ -853,6 +862,7 @@
                     $("#categories").val(category);
                     $("#sub_category_id").val(subCategory);
                     $("#product_variations").val(JSON.stringify(productVariations));
+                    $("#old_price").val(oldPrice);
                     $("#price").val(price);
                     $("#sku").val(sku);
                     $("#quantity").val(quantity);
@@ -892,14 +902,20 @@
                             <div class="col-4 d-flex flex-column align-items-center">
                                 <div class="position-relative">
                                     <img src="${imagePath}" class="img-thumbnail m-1" style="width: 120px; height: 120px; object-fit: cover;">
-                                    <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px position-absolute top-0 end-0 remove-image" data-image="${img}">
-                                        <i class="ki-duotone ki-cross fs-3">
-                                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                            <span class="path4"></span><span class="path5"></span>
-                                        </i>
-                                    </button>
                                 </div>
                             </div>`;
+                            // imagePreviewHtml += `
+                            // <div class="col-4 d-flex flex-column align-items-center">
+                            //     <div class="position-relative">
+                            //         <img src="${imagePath}" class="img-thumbnail m-1" style="width: 120px; height: 120px; object-fit: cover;">
+                            //         <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px position-absolute top-0 end-0 remove-image" data-image="${img}">
+                            //             <i class="ki-duotone ki-cross fs-3">
+                            //                 <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            //                 <span class="path4"></span><span class="path5"></span>
+                            //             </i>
+                            //         </button>
+                            //     </div>
+                            // </div>`;
                         });
                         $("#image-preview").html(imagePreviewHtml);
                     }

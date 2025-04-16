@@ -91,7 +91,7 @@
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                                 <div class="mb-10 fv-row">
                                                     <label class="required form-label">Categories</label>
                                                     <select
@@ -109,7 +109,7 @@
                                                     <div class="invalid-feedback fs-7 error error_categories"></div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                                 <div class="mb-10 fv-row">
                                                     <label class="required form-label">Sub Categories</label>
                                                     <select
@@ -135,7 +135,23 @@
                                             <div class="col-md-6">
                                                 <div class="mb-10 fv-row">
                                                     <!--begin::Label-->
-                                                    <label class="required form-label">Price</label>
+                                                    <label class="required form-label">Old Price</label>
+                                                    <!--end::Label-->
+                                                    <!--begin::Input-->
+                                                    <input type="number" name="old_price"
+                                                        class="form-control mb-2 @error('old_price') is-invalid @enderror"
+                                                        placeholder="Old Price" value="{{ old('old_price') }}" />
+                                                    <!--end::Input-->
+                                                    <div class="invalid-feedback fs-7 error error_old_price"></div>
+                                                    <!--begin::Description-->
+                                                    <!--end::Description-->
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="mb-10 fv-row">
+                                                    <!--begin::Label-->
+                                                    <label class="required form-label">New Price</label>
                                                     <!--end::Label-->
                                                     <!--begin::Input-->
                                                     <input type="number" name="new_price"
@@ -516,6 +532,7 @@
 
                         const form = $('#kt_ecommerce_add_product_form')[0];
                         form.reset();
+                        $('.product-variation-section').hide();
 
                         // Reset Category & Subcategory completely
                         $('#category_select').val('').trigger('change');
