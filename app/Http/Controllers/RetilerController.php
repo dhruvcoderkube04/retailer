@@ -475,6 +475,7 @@ class RetilerController extends Controller
 
         $subCategories = DB::table('sub_categories')
             ->whereIn('id', $subCategoryIds)
+            ->where('status', 1)
             ->get(['id', 'sub_category_name']);
 
         return response()->json($subCategories);
