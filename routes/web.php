@@ -75,9 +75,9 @@ Route::middleware(['retailer'])->group(function () {
     Route::post('/clone-product/{product_id}', [RetilerController::class, 'cloneProductStore'])->name('retailer.clone-product-store'); // clone product store
     Route::delete('/clone-product/{product_id}', [RetilerController::class, 'cloneProductRemove'])->name('retailer.clone-product-remove'); // clone product remove
 
-    // Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');
-    // Route::post('/add-product/{id}', [RetilerController::class, 'addProduct'])->name('retailer.add-product');
-    // Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
+    Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');
+    Route::post('/add-product/{id}', [RetilerController::class, 'addProduct'])->name('retailer.add-product');
+    Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
 
     // place order
     Route::get('/place-order', [RetilerController::class, 'placeOrderView'])->name('retailer.place-order-view');

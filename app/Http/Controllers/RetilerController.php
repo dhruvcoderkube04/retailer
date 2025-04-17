@@ -633,11 +633,16 @@ class RetilerController extends Controller
             // Store variations
             if (!empty($request->variation)) {
                 foreach ($request->variation as $index => $variation) {
-                    ProductVariation::create([
-                        'product_id' => $product->id,
-                        'product_variation' => $variation,
-                        'price' => $request->variation_price[$index],
-                    ]);
+                    $price = $request->variation_price[$index] ?? null;
+
+                    // Only save if price is provided
+                    if (!empty($price)) {
+                        ProductVariation::create([
+                            'product_id' => $product->id,
+                            'product_variation' => $variation,
+                            'price' => $price,
+                        ]);
+                    }
                 }
             }
 
@@ -848,11 +853,6 @@ class RetilerController extends Controller
             return redirect()->route('retailer.product');
         }
     }
-
-    
-    // <--------------------- START : Retailer product (Added, Clone, Own) ---------------------->
-
-
 
     // place-order page view
     public function placeOrderView(Request $request)
