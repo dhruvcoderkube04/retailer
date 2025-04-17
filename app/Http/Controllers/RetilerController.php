@@ -1270,8 +1270,8 @@ class RetilerController extends Controller
             'status' => 'required',
         ]);
 
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
             $retailer = Auth::user();
             $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
             $productName = $customerOrder->retailerCloneProduct->name  ?? $customerOrder->product->name ?? 'N/A';
@@ -1410,10 +1410,10 @@ class RetilerController extends Controller
             } else {
                 return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
             }
-        // } catch (Exception $e) {
-        //     DB::rollBack();
-        //     return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
-        // }
+         } catch (Exception $e) {
+             DB::rollBack();
+             return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
+        }
     }
 
     public function Profile()
