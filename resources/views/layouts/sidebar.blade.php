@@ -212,7 +212,7 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges','pincode-serviceable','track-order']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -287,14 +287,14 @@
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
-                                    <span class="menu-title">Add PickUp Address</span>
+                                    <span class="menu-title">Add Warehouse </span>
                                 </a>
                                 <!--end:Menu link-->
                             </div>
                             <!--end:Menu item-->
 
                             <!--begin:Menu item-->
-                            <div class="menu-item">
+                            {{-- <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is('rto-address') ? 'active' : '' }}"
                                     href="{{ route('retailer.rto.address') }}">
@@ -302,6 +302,33 @@
                                         <span class="bullet bullet-dot"></span>
                                     </span>
                                     <span class="menu-title">Add RTO Address</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div> --}}
+                            <!--end:Menu item-->
+
+                              <!--begin:Menu item-->
+                              <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is('pincode-serviceable') ? 'active' : '' }}"
+                                    href="{{ route('retailer.pincode.serviceable') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Check Service Available</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                              <!--begin:Menu item-->
+                              <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is('track-order') ? 'active' : '' }}"
+                                    href="{{ route('retailer.track.order') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Track Order </span>
                                 </a>
                                 <!--end:Menu link-->
                             </div>
