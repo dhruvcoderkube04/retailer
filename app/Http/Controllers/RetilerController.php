@@ -481,6 +481,40 @@ class RetilerController extends Controller
         return response()->json($subCategories);
     }
 
+    
+    // get list of variations of selected sub-category
+    public function getSubCategoryVariations(Request $request)
+    {
+        $request->validate([
+            'sub_category_id' => 'required|exists:sub_categories,id'
+        ]);
+
+        try {
+            $subCategory = SubCategory::select('sub_category_variation')
+                ->where('id', $request->sub_category_id)
+                ->where('status', 1)
+                ->first();
+
+            if (!$subCategory) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Not found',
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Success',
+                'sub_category_variation' => $subCategory->sub_category_variation
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => $e
+            ]);
+        }
+    }
+
     // public function retailerPostProduct(Request $request)
     // {
     //     $request->validate([
@@ -1497,39 +1531,6 @@ class RetilerController extends Controller
         } catch (\Exception $e) {
             // return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
             return response()->json(['error' => 'An error occurred during file processing check product name and slug is unique'], 500);
-        }
-    }
-
-    // get list of variations of selected sub-category
-    public function getSubCategoryVariations(Request $request)
-    {
-        $request->validate([
-            'sub_category_id' => 'required|exists:sub_categories,id'
-        ]);
-
-        try {
-            $subCategory = SubCategory::select('sub_category_variation')
-                ->where('id', $request->sub_category_id)
-                ->where('status', 1)
-                ->first();
-
-            if (!$subCategory) {
-                return response()->json([
-                    'status' => false,
-                    'msg' => 'Not found',
-                ]);
-            }
-
-            return response()->json([
-                'status' => true,
-                'msg' => 'Success',
-                'sub_category_variation' => $subCategory->sub_category_variation
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'msg' => $e
-            ]);
         }
     }
 
