@@ -34,6 +34,7 @@ class CustomerOrders extends Model
         'product_weight',
 
         'tracking_number',
+        'api_order_id',
         'courier_service',
         'expected_delivery',
 

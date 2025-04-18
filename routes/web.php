@@ -75,9 +75,9 @@ Route::middleware(['retailer'])->group(function () {
     Route::post('/clone-product/{product_id}', [RetilerController::class, 'cloneProductStore'])->name('retailer.clone-product-store'); // clone product store
     Route::delete('/clone-product/{product_id}', [RetilerController::class, 'cloneProductRemove'])->name('retailer.clone-product-remove'); // clone product remove
 
-    // Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');
-    // Route::post('/add-product/{id}', [RetilerController::class, 'addProduct'])->name('retailer.add-product');
-    // Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
+    Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');
+    Route::post('/add-product/{id}', [RetilerController::class, 'addProduct'])->name('retailer.add-product');
+    Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
 
     // place order
     Route::get('/place-order', [RetilerController::class, 'placeOrderView'])->name('retailer.place-order-view');
@@ -139,6 +139,7 @@ Route::middleware(['retailer'])->group(function () {
 
     // rate calculation
     Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');
+    Route::post('/rate-calculation', [RetilerController::class, 'ratecCalculationPost'])->name('retailer.rate.calculation.post');
 
     // v3builder
     Route::get('/v3builder-page', [VBuilder::class, 'index'])->name('retailer.v3builder.index');
@@ -154,11 +155,19 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/report-page', [ShippingController::class, 'reportPage'])->name('retailer.report.page');
     Route::get('/shipping-charges', [ShippingController::class, 'shippingCharges'])->name('retailer.shipping.charges');
 
+    // delivery check availblity
+    Route::get('/pincode-serviceable', [ShippingController::class, 'pincodeServiceable'])->name('retailer.pincode.serviceable');
+    Route::post('/check-availability', [ShippingController::class, 'pincodeCheckAvailability'])->name('retailer.pincode.check.availability');
+
+    // track order
+    Route::get('/track-order', [ShippingController::class, 'trackOrder'])->name('retailer.track.order');
+    Route::post('/track-order', [ShippingController::class, 'trackOrderStatus'])->name('retailer.track.order.status');
+
+
     Route::post('/pick-address/store', [ShippingController::class, 'pickAddressStore'])->name('retailer.pickaddress.pickAddressStore');
     Route::get('/pick-address/edit/{id}', [ShippingController::class, 'pickAddressedit']);
     Route::put('/pick-address/update/{id}', [ShippingController::class, 'pickAddressupdate']);
     Route::delete('/pick-addresses/{id}', [ShippingController::class, 'pickAddressdestroy'])->name('pickAddresses.destroy');
-
 
     Route::post('/rto-address/store', [ShippingController::class, 'RTOAddressStore'])->name('retailer.rtoaddress.rtoAddressStore');
     Route::get('/rto-address/edit/{id}', [ShippingController::class, 'RTOAddressedit']);

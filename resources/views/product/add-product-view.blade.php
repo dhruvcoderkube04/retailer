@@ -370,8 +370,12 @@
                                     variationArray.forEach(function(variation, index) {
                                         let trimmedVariation = variation.trim();
                                         inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                            <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
-                                            <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" required /></div>
+                                            <div class="col">
+                                                <input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} />
+                                            </div>
                                         </div>`;
                                     });
 

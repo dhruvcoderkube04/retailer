@@ -278,7 +278,8 @@
                                                     <button type="button" class="btn btn-primary btn-sm newOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}">
+                                                        data-order-id="{{ $detail->id }}"
+                                                        data-c-order-id="{{$detail->order_id}}">
                                                         Action
                                                     </button>
                                                 @elseif ($detail->status == 'confirmed_by_retailer')
@@ -286,7 +287,8 @@
                                                         class="btn btn-primary btn-sm confirmedOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}">
+                                                        data-order-id="{{ $detail->id }}"
+                                                        data-c-order-id="{{$detail->order_id}}">
                                                         Action
                                                     </button>
                                                 @elseif ($detail->status == 'shipped_by_retailer')
@@ -294,7 +296,8 @@
                                                         class="btn btn-primary btn-sm readyToShipOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}">
+                                                        data-order-id="{{ $detail->id }}"
+                                                        data-c-order-id="{{$detail->order_id}}">
                                                         Action
                                                     </button>
                                                 @else
@@ -302,7 +305,8 @@
                                                         style="white-space: nowrap; opacity: 0.4"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}" disabled>
+                                                        data-order-id="{{ $detail->id }}"
+                                                        data-c-order-id="{{$detail->order_id}}" disabled>
                                                         Action
                                                     </button>
                                                 @endif
@@ -493,7 +497,7 @@
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <label class="form-label fw-semibold text-gray-700">Choose a location:</label>
+                                            {{-- <label class="form-label fw-semibold text-gray-700">Choose a location:</label> --}}
                                             <select name="pickup_address_id" class="form-select form-select-lg"
                                                 id="pickup_address_id" data-control="select2">
                                                 <option value="" disabled selected>-- Select Pickup Location --
@@ -516,47 +520,61 @@
                                 </div>
                             </div>
 
-                            {{-- RTO Address --}}
-                            <div class="col-md-6">
-                                <div class="mt-5 mx-7" id="rtoAddressContainer" style="display: none;">
+                             {{-- product weight --}}
+                             <div class="col-md-6">
+                                <div class="mt-5 mx-7" id="productWeightContainer" style="display: none;">
                                     <h5 class="fw-bold text-gray-800 mb-3">
-                                        <i class="bi bi-geo-alt text-primary me-2 fs-4"></i> Select RTO Address
+                                        <i class="bi bi-box text-primary me-2 fs-4"></i> Enter Product Weight (in grams)
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <label class="form-label fw-semibold text-gray-700">Choose a address:</label>
-                                            <select name="rto_address_id" class="form-select form-select-lg"
-                                                id="rto_address_id" data-control="select2">
-                                                <option value="" disabled selected>-- Select RTO Address --
-                                                </option>
-                                                @foreach ($rtoAddress as $address)
-                                                    <option value="{{ $address->id }}">
-                                                        📍 {{ $address->first_name }} {{ $address->last_name }} -
-                                                        {{ $address->address }}, {{ $address->state }},
-                                                        {{ $address->city }} -
-                                                        {{ $address->pincode }}</option>
-                                                @endforeach
+                                            {{-- <label for="product_weight"
+                                                class="form-label fw-semibold text-gray-700">Product
+                                                Weight:</label> --}}
+                                            <select name="product_weight" class="form-select form-select-lg" id="product_weight" data-control="select2">
+                                                <option value="" disabled selected>-- Select Product Weight --</option>
+                                                <option value="0.5">500 GM</option>
+                                                <option value="1">1KG</option> <!-- 1KG -->
+                                                <option value="1.5">1.5KG</option> <!-- 1.5KG -->
+                                                <option value="2">2KG</option> <!-- 2KG -->
+                                                <option value="2.5">2.5KG</option> <!-- 2.5KG -->
                                             </select>
-                                            <span class="text-danger mt-5 rto-address-error-section"
+                                            {{-- <input type="number" class="form-control" name="product_weight"
+                                                id="product_weight" min="1" placeholder="Enter weight in grams"> --}}
+
+                                            <span class="text-danger mt-5 product-weight-error-section"
                                                 style="display: none;">
                                                 <i class="bi bi-exclamation-triangle"></i>
-                                                <span class="rto-address-error"></span>
+                                                <span class="product-weight-error"></span>
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Courier Service --}}
-                            <div class="col-md-6">
+                               {{-- Courier Service --}}
+                               <div class="col-md-6">
                                 <div class="mt-5 mx-7" id="courierServicesContainer" style="display: none;">
                                     <h5 class="fw-bold text-gray-800 mb-3">
                                         <i class="bi bi-truck text-primary me-2 fs-4"></i> Select Courier Services
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <label class="form-label fw-semibold text-gray-700">Choose a location:</label>
-                                            <select name="courier_service" class="form-select form-select-lg"
+                                            {{-- <label class="form-label fw-semibold text-gray-700">Choose a location:</label> --}}
+                                            <select name="courier_service" class="form-select form-select-lg" id="courier_service" data-control="select2">
+                                                <option value="" disabled selected>-- Select Courier Service --</option>
+
+                                                @foreach ($courierServices as $courier)
+                                                    <option
+                                                        value="{{ $courier['courierName'] }}"
+                                                        data-id="{{ $courier['courierId'] }}"
+                                                        data-image="{{ $courier['logoUrl'] }}"> <!-- Image from API -->
+                                                        {{ $courier['courierName'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+
+                                            {{-- <select name="courier_service" class="form-select form-select-lg"
                                                 id="courier_service" data-control="select2">
                                                 <option value="" disabled selected>-- Select Courier Service --
                                                 </option>
@@ -565,7 +583,7 @@
                                                         data-id="{{ $courier['courierId'] }}">
                                                         {{ $courier['courierName'] }}</option>
                                                 @endforeach
-                                            </select>
+                                            </select> --}}
                                             <span class="text-danger mt-5 courier-service-error-section"
                                                 style="display: none;">
                                                 <i class="bi bi-exclamation-triangle"></i>
@@ -576,25 +594,17 @@
                                 </div>
                             </div>
 
-                            {{-- product weight --}}
+                            {{-- RTO Address --}}
                             <div class="col-md-6">
-                                <div class="mt-5 mx-7" id="productWeightContainer" style="display: none;">
-                                    <h5 class="fw-bold text-gray-800 mb-3">
-                                        <i class="bi bi-box text-primary me-2 fs-4"></i> Enter Product Weight (in grams)
-                                    </h5>
+                                <div class="mt-5 mx-7" id="rtoAddressContainer" style="display: none;">
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <label for="product_weight"
-                                                class="form-label fw-semibold text-gray-700">Product
-                                                Weight:</label>
-                                            <input type="number" class="form-control" name="product_weight"
-                                                id="product_weight" min="1" placeholder="Enter weight in grams">
-
-                                            <span class="text-danger mt-5 product-weight-error-section"
-                                                style="display: none;">
-                                                <i class="bi bi-exclamation-triangle"></i>
-                                                <span class="product-weight-error"></span>
-                                            </span>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="checkbox" id="sameAsRTO">
+                                                <label class="form-check-label" for="sameAsRTO">
+                                                    Same as RTO Address
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -610,9 +620,9 @@
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <label for="rejectReasonSelectConfirmed"
+                                            {{-- <label for="rejectReasonSelectConfirmed"
                                                 class="form-label fw-semibold text-gray-700">Choose
-                                                a reject reason:</label>
+                                                a reject reason:</label> --}}
                                             <select name="reject_reason_select_confirmed"
                                                 class="form-select form-select-lg reject_reason_select_confirmed"
                                                 id="rejectReasonSelectConfirmed" data-control="select2">
@@ -662,13 +672,15 @@
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
                         <input type="hidden" name="order_id" class="order_id">
+                        <input type="hidden" class="corder_id" name="c_order_id">
+                        <input type="hidden" name="courier_service_id" id="courier_service_id">
                     </div>
 
                     <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle"></i> Close
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submitButton">
                             <i class="bi bi-send"></i> Submit Action
                         </button>
                     </div>
@@ -740,15 +752,6 @@
 @endsection
 
 @section('script')
-    <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/apps/ecommerce/catalog/products.js') }}"></script>
-    <script src="{{ asset('assets/js/widgets.bundle.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/widgets.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/apps/chat/chat.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/upgrade-plan.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/create-app.js') }}"></script>
-    <script src="{{ asset('assets/js/custom/utilities/modals/users-search.js') }}"></script>
-
     <script>
         $(document).ready(function() {
 
@@ -792,16 +795,29 @@
                 }
             });
 
+
+            $('#courier_service').on('change', function () {
+                const selectedOption = $('#courier_service option:selected');
+                const courierName = selectedOption.val(); // Gets value (courier name)
+                const courierId = selectedOption.data('id'); // Gets data-id
+                const imageUrl = selectedOption.data('image');
+                $('#courier_service_id').val(courierId);
+            });
+
             $(document).on('click', '.newOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_id = $(this).attr('data-order-id');
+                let c_order_id = $(this).attr('data-c-order-id');
+
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
                 $('.order_id').val(order_id);
+                $('.corder_id').val(c_order_id);
 
                 $('#new-order-action-modal').modal('show');
             });
+
 
             $(document).on('submit', '#newOrderForm', function(e) {
                 e.preventDefault();
@@ -869,6 +885,10 @@
 
                 Swal.fire(swalConfig).then((result) => {
                     if (result.isConfirmed) {
+                        document.getElementById('submitButton').addEventListener('click', function () {
+                            const btn = this;
+                            btn.disabled = true;
+                        });
                         $.ajax({
                             url: "{{ route('retailer.order.action.new-order') }}",
                             type: "POST",
@@ -896,6 +916,10 @@
                                         text: response.msg,
                                         icon: "error",
                                         confirmButtonText: "OK"
+                                    });
+                                    document.getElementById('submitButton').addEventListener('click', function () {
+                                        const btn = this;
+                                        btn.disabled = false;
                                     });
                                 }
                             },
@@ -966,11 +990,12 @@
                 e.preventDefault();
 
                 let form = new FormData(this);
+                console.log(form,"form dadata");
 
                 // START: validation
                 let status = form.get("status");
                 let pickup_address_id = $('#pickup_address_id').val();
-                let rto_address_id = $('#rto_address_id').val();
+                let rto_address_id = $('#pickup_address_id').val();
                 let courier_service = $('#courier_service').val();
                 let product_weight = $('#product_weight').val();
                 let reject_reason_select_confirmed = $('.reject_reason_select_confirmed').val();
@@ -1097,6 +1122,8 @@
                     }
                 });
             });
+
+
             //<-------------- END: Confirmed Order --------------->
 
             // ready-to-ship order action
