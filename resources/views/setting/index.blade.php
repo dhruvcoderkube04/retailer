@@ -173,6 +173,29 @@
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Input group-->
+
+                                     <!--begin::Input group-->
+                                     <div class="row mb-6">
+                                        <!--begin::Label-->
+                                        <label class="col-lg-4 col-form-label required fw-semibold fs-6">Web Token</label>
+                                        <!--end::Label-->
+                                        <!--begin::Col-->
+                                        <div class="col-lg-8">
+                                            <!--begin::Row-->
+                                            <div class="row">
+                                                <!--begin::Col-->
+                                                <div class="col-lg-12 fv-row">
+                                                    <input type="text"  value="{{ $store->product_listing_key }}"
+                                                        class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
+                                                         disabled />
+                                                </div>
+                                                <!--end::Col-->
+                                            </div>
+                                            <!--end::Row-->
+                                        </div>
+                                        <!--end::Col-->
+                                    </div>
+                                    <!--end::Input group-->
                                     <!--begin::Input group-->
                                     <div class="row mb-6">
                                         <!--begin::Label-->

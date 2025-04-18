@@ -481,116 +481,6 @@ class RetilerController extends Controller
         return response()->json($subCategories);
     }
 
-    
-    // get list of variations of selected sub-category
-    public function getSubCategoryVariations(Request $request)
-    {
-        $request->validate([
-            'sub_category_id' => 'required|exists:sub_categories,id'
-        ]);
-
-        try {
-            $subCategory = SubCategory::select('sub_category_variation')
-                ->where('id', $request->sub_category_id)
-                ->where('status', 1)
-                ->first();
-
-            if (!$subCategory) {
-                return response()->json([
-                    'status' => false,
-                    'msg' => 'Not found',
-                ]);
-            }
-
-            return response()->json([
-                'status' => true,
-                'msg' => 'Success',
-                'sub_category_variation' => $subCategory->sub_category_variation
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'msg' => $e
-            ]);
-        }
-    }
-
-    // public function retailerPostProduct(Request $request)
-    // {
-    //     $request->validate([
-    //         'product_name' => 'required|min:3|max:100',
-    //         'product_description' => 'required|min:5|max:100',
-    //         'product_tags' => 'required|min:3|max:255',
-    //         'categories' => 'required|numeric',
-    //         'categories' => 'required|numeric|exists:categories,id',
-    //         'sub_category' => 'required|numeric|exists:sub_categories,id',
-    //         'new_price' => 'required|numeric|min:1',
-    //         // 'discount_price' => 'nullable|numeric|min:0.01|max:100',
-    //         // 'image_1' => 'required|mimes:jpeg,png,jpg|max:4096',
-    //         // 'image_2' => 'nullable|mimes:jpeg,png,jpg|max:4096',
-    //         // 'image_3' => 'nullable|mimes:jpeg,png,jpg|max:4096',
-    //         'images' => 'required|array|max:3', // Limit to 3 images
-    //         'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-    //         'video' => 'mimes:mp4|max:3072',
-    //         'sku' => 'required|string',
-    //         'quantity' => 'required|integer|min:1',
-    //     ]);
-
-    //     try {
-
-    //         DB::beginTransaction();
-    //         $reatielr_id = Auth::user()->id;
-    //         // $category = Category::where('id', $request->category)->first();
-    //         $product = new RetailerCloneProduct();
-    //         $product->name = $request->product_name;
-
-    //         $product->description = $request->product_description;
-    //         // Generate a unique slug using product name and current timestamp
-    //         $slugBase = Str::slug($request->product_name);
-    //         $uniqueSuffix = now()->timestamp; // or use uniqid() for more uniqueness
-    //         $product->slug = $slugBase . '-' . $uniqueSuffix;
-
-    //         // $product->brand_name = $request->brand_name;
-    //         // $product->tags = $request->product_tags;
-    //         $tags = json_decode($request->product_tags, true); // decode JSON to array
-    //         $product->tags = collect($tags)->pluck('value')->implode(',');
-    //         // dd($product->tags);
-
-    //         $product->quantity = $request->quantity;
-    //         $product->sub_category_id = $request->sub_category;
-    //         $product->new_price = $request->new_price;
-    //         $product->old_price = 0;
-    //         // $product->images = $request->images ? implode(',', $request->images) : null;
-    //         $imagePaths = [];
-
-    //         if ($request->hasFile('images')) {
-    //             foreach ($request->file('images') as $index => $file) {
-    //                 if ($index >= 3) break; // Just in case someone bypasses validation
-
-    //                 $filename = time() . '_' . $file->getClientOriginalName();
-    //                 $file->move(public_path('uploads/products'), $filename);
-    //                 $imagePaths[] = $filename;
-    //             }
-    //             $product->images = implode(',', $imagePaths);
-    //         }
-
-    //         $product->videos = $request->videos ? $request->videos : null;
-    //         $product->sku = $request->sku;
-    //         $product->retailer_id = $reatielr_id;
-    //         $product->category_id = $request->categories;
-    //         $product->status = 'active';
-    //         $product->save();
-    //         DB::commit();
-    //         session()->flash('success', 'Product added successfully');
-    //         return redirect()->route('retailer.product');
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         Log::error('Error in retailerPostProduct: ' . $e->getMessage());
-    //         session()->flash('error', 'Something went wrong');
-    //         return redirect()->route('retailer.product');
-    //     }
-    // }
-
     // store retailer product
     public function retailerPostProduct(Request $request)
     {
@@ -982,8 +872,6 @@ class RetilerController extends Controller
             SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
             SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
         ")->first()->toArray();
-
-        // dd($count);
         // customer orders
         $sql = CustomerOrders::with([
             'customer',
@@ -1859,6 +1747,39 @@ class RetilerController extends Controller
                 'message' => 'Error communicating with rate calculator API.',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    // get list of variations of selected sub-category
+    public function getSubCategoryVariations(Request $request)
+    {
+        $request->validate([
+            'sub_category_id' => 'required|exists:sub_categories,id'
+        ]);
+
+        try {
+            $subCategory = SubCategory::select('sub_category_variation')
+                ->where('id', $request->sub_category_id)
+                ->where('status', 1)
+                ->first();
+
+            if (!$subCategory) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Not found',
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Success',
+                'sub_category_variation' => $subCategory->sub_category_variation
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => $e
+            ]);
         }
     }
 }

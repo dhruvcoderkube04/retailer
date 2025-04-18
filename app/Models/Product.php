@@ -27,4 +27,10 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'wholesaler_id')->where('user_type', 2);
     }
+
+    public function productVariations()
+    {
+        return $this->hasMany(ProductVariation::class, 'product_id');
+    }
+
 }

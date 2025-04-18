@@ -207,6 +207,10 @@
                                                             {{ order_status($detail->status) }}
                                                         </span>
                                                     </div>
+                                                    <div class="my-2">
+                                                        <strong>Tracking Id:</strong> {{ @$detail->tracking_number }} <br/>
+                                                        <strong>API Oroder Id:</strong> {{ @$detail->api_order_id }}
+                                                    </div>
                                                 </div>
                                             </td>
 

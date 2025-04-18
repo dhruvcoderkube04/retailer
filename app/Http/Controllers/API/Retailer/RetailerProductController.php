@@ -109,7 +109,7 @@ class RetailerProductController extends Controller
                     return [
                         'id' => $sub->id,
                         'name' => $sub->sub_category_name,
-                        'image' => $sub->image ?? null,
+                        'image' => $sub->sub_category_image ?? null,
                     ];
                 })
                 ->values()
@@ -118,7 +118,7 @@ class RetailerProductController extends Controller
             $categoryList[] = [
                 'id' => $category->id,
                 'name' => $category->category_name,
-                'image' => $category->image ?? null,
+                'image' => $category->category_image ?? null,
                 'sub_category_list' => $subList,
             ];
         }
@@ -327,6 +327,65 @@ class RetailerProductController extends Controller
         }
     }
 
+    // public function getSingalProductDetails(Request $request)
+    // {
+
+    //     try {
+    //         $apiKey = $request->header('API-KEY');
+    //         if (!$apiKey) {
+    //             return response()->json(['error' => 'API Key is required.'], 401);
+    //         }
+
+    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+    //         if (!$retailer) {
+    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+    //         }
+
+
+    //         $w_productId = $request->w_product_id;   // for wholesaler product id
+    //         $r_productId = $request->r_product_id; // for retailer product id
+
+    //         if (!$w_productId && !$r_productId) {
+    //             return response()->json(['error' => 'Either w_product_id or r_product_id is required.'], 422);
+    //         }
+
+    //         if ($w_productId) {
+    //             $retailerProduct = RetailerProducts::with(['wholesaler.products'])->where('retailer_id', $retailer->retailer_id)->first();
+
+    //             // if (!$retailerProduct || !$retailerProduct->wholesaler) {
+    //             //     return response()->json(['error' => 'Retailer product not found or missing wholesaler.'], 404);
+    //             // }
+
+    //             $product = $retailerProduct->wholesaler->products->where('id', $w_productId)->first();
+    //             if (!$product) {
+    //                 return response()->json(['error' => 'Product not found.'], 404);
+    //             }
+
+    //             $formatted = $this->formatProductFromRetailerProduct($product, $retailerProduct);
+    //         } else {
+    //             $cloneProduct = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
+    //                 ->where('id', $r_productId)
+    //                 ->first();
+
+    //             if (!$cloneProduct) {
+    //                 return response()->json(['error' => 'Clone product not found.'], 404);
+    //             }
+
+    //             $formatted = $this->formatProductFromClone($cloneProduct);
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'product' => $formatted
+    //         ], 200);
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Get product detail error: ' . $e->getMessage());
+    //         return response()->json(['error' => 'Something went wrong.'], 500);
+    //     }
+    // }
+
+    // new versrion of productget with  variation
     public function getSingalProductDetails(Request $request)
     {
 
@@ -341,29 +400,32 @@ class RetailerProductController extends Controller
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
 
-
-            $w_productId = $request->w_product_id;   // for wholesaler product id
-            $r_productId = $request->r_product_id; // for retailer product id
+            $w_productId = $request->w_product_id;
+            $r_productId = $request->r_product_id;
 
             if (!$w_productId && !$r_productId) {
                 return response()->json(['error' => 'Either w_product_id or r_product_id is required.'], 422);
             }
 
             if ($w_productId) {
-                $retailerProduct = RetailerProducts::with(['wholesaler.products'])->where('retailer_id', $retailer->retailer_id)->first();
+                $retailerProduct = RetailerProducts::with(['wholesaler.products.productVariations'])
+                    ->where('retailer_id', $retailer->retailer_id)
+                    ->first();
 
-                // if (!$retailerProduct || !$retailerProduct->wholesaler) {
-                //     return response()->json(['error' => 'Retailer product not found or missing wholesaler.'], 404);
-                // }
+                if (!$retailerProduct || !$retailerProduct->wholesaler) {
+                    return response()->json(['error' => 'Retailer product or wholesaler not found.'], 404);
+                }
 
                 $product = $retailerProduct->wholesaler->products->where('id', $w_productId)->first();
+
                 if (!$product) {
                     return response()->json(['error' => 'Product not found.'], 404);
                 }
 
-                $formatted = $this->formatProductFromRetailerProduct($product, $retailerProduct);
+                $formatted = $this->singleFormatRetailerProduct($product, $retailerProduct);
             } else {
-                $cloneProduct = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
+                $cloneProduct = RetailerCloneProduct::with('productVariations')
+                    ->where('retailer_id', $retailer->retailer_id)
                     ->where('id', $r_productId)
                     ->first();
 
@@ -371,7 +433,7 @@ class RetailerProductController extends Controller
                     return response()->json(['error' => 'Clone product not found.'], 404);
                 }
 
-                $formatted = $this->formatProductFromClone($cloneProduct);
+                $formatted = $this->singleFormatCloneProduct($cloneProduct);
             }
 
             return response()->json([
@@ -519,14 +581,15 @@ class RetailerProductController extends Controller
             'description'     => $product->description,
             'category_id'     => $product->category_id,
             'wholesaler_id'   => $product->wholesaler_id,
+            'old_price'       => $product->old_price,
             'new_price'       => $product->new_price,
             'final_price'     => $finalPrice,
             'quantity'        => $product->quantity,
             'product_images'  => $product->images ?? null,
             'product_video'   => $product->videos ?? null,
             'product_url'     => $product->url,
-            'color'           => $product->color ?? null,
-            'size'            => $product->size,
+            // 'color'           => $product->color ?? null,
+            // 'size'            => $product->size,
             'specifications'  => $product->specifications,
             'retailer_id'     => $product->retailer_id ?? null,
         ];
@@ -545,16 +608,80 @@ class RetailerProductController extends Controller
             // If RetailerCloneProduct does not store category, this can be null or a default value.
             'category_id'     => $cloneProduct->category_id ?? null,
             'wholesaler_id'   => null, // No wholesaler relation here.
+            'old_price'       => $cloneProduct->old_price,
             'new_price'       => $cloneProduct->new_price,
             'final_price'     => $finalPrice,
             'quantity'        => $cloneProduct->quantity,
             'product_images'  => $cloneProduct->images ?? null,
             'product_video'   => $cloneProduct->videos ?? null,
             'product_url'     => $cloneProduct->url,
-            'color'           => $cloneProduct->color ?? null,
-            'size'            => $cloneProduct->size,
+            // 'color'           => $cloneProduct->color ?? null,
+            // 'size'            => $cloneProduct->size,
             'specifications'  => $cloneProduct->specifications,
             'retailer_id'     => $cloneProduct->retailer_id ?? null,
         ];
     }
+
+
+
+    // format for signle product
+    private function singleFormatRetailerProduct($product, $retailerProduct)
+    {
+        $finalPrice = $product->new_price + $retailerProduct->margin;
+
+        return [
+            'id'              => $product->id,
+            'sku'             => $product->sku,
+            'name'            => $product->name,
+            'slug'            => $product->slug,
+            'description'     => $product->description,
+            'category_id'     => $product->category_id,
+            'wholesaler_id'   => $product->wholesaler_id,
+            'old_price'       => $product->old_price,
+            'new_price'       => $product->new_price,
+            'final_price'     => $finalPrice,
+            'quantity'        => $product->quantity,
+            'product_images'  => $product->images ?? null,
+            'product_video'   => $product->videos ?? null,
+            'product_url'     => $product->url,
+            'specifications'  => $product->specifications,
+            'retailer_id'     => $product->retailer_id ?? null,
+            'variations'      => $product->productVariations->map(function ($var) {
+                return [
+                    'variation' => $var->product_variation,
+                    'price'     => $var->price,
+                ];
+            })->values()
+        ];
+    }
+    private function singleFormatCloneProduct($cloneProduct)
+    {
+        $finalPrice = $cloneProduct->new_price + $cloneProduct->margin;
+
+        return [
+            'id'              => $cloneProduct->id,
+            'sku'             => $cloneProduct->sku,
+            'name'            => $cloneProduct->name,
+            'slug'            => $cloneProduct->slug,
+            'description'     => $cloneProduct->description,
+            'category_id'     => $cloneProduct->category_id ?? null,
+            'wholesaler_id'   => null,
+            'old_price'       => $cloneProduct->old_price,
+            'new_price'       => $cloneProduct->new_price,
+            'final_price'     => $finalPrice,
+            'quantity'        => $cloneProduct->quantity,
+            'product_images'  => $cloneProduct->images ?? null,
+            'product_video'   => $cloneProduct->videos ?? null,
+            'product_url'     => $cloneProduct->url,
+            'specifications'  => $cloneProduct->specifications,
+            'retailer_id'     => $cloneProduct->retailer_id ?? null,
+            'variations'      => $cloneProduct->productVariations->map(function ($var) {
+                return [
+                    'variation' => $var->product_variation,
+                    'price'     => $var->price,
+                ];
+            })->values()
+        ];
+    }
+
 }
