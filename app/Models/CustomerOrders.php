@@ -40,7 +40,8 @@ class CustomerOrders extends Model
 
         'payment_status',
         'payment_method',
-        'inactive'
+        'inactive',
+        'variation_id'
     ];
 
     public function customer()
