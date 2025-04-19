@@ -91,13 +91,6 @@ Route::middleware(['retailer'])->group(function () {
         Route::post('/action/confirmed-order', [RetilerController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
     });
 
-    // Route::prefix('new-orders-list')->group(function () {
-    //     Route::get('/{type?}', [RetilerController::class, 'newOrderList'])->name('retailer.new-order.list');
-    //     Route::post('/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
-    //     Route::post('/action/new-order', [RetilerController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
-    //     Route::post('/action/confirmed-order', [RetilerController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
-    // });
-
     // mange Profile
     Route::get('/profile', [RetilerController::class, 'Profile'])->name('retailer.profile');
     Route::post('/profile-update', [RetilerController::class, 'profileUpdate'])->name('retailer.profile.update');
