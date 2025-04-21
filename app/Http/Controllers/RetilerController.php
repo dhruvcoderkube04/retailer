@@ -856,66 +856,128 @@ class RetilerController extends Controller
     }
 
     // order list page
+    // public function orderList($type = 'new')
+    // {
+    //     $retailer = Auth::user();
+
+    //     // count
+    //     $count = CustomerOrders::where('retailer_id', $retailer->id)
+    //         ->selectRaw("
+    //         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
+    //         SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
+    //         SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
+    //         SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
+    //         SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
+    //         SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
+    //         SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
+    //         SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
+    //     ")->first()->toArray();
+    //     // customer orders
+    //     $sql = CustomerOrders::with([
+    //         'customer',
+    //         'product',
+    //         'retailerCloneProduct',
+    //         'wholesaler.userDetail',
+    //     ])
+    //     ->where('retailer_id', $retailer->id);
+
+    //     if ($type == 'new') {
+    //         $sql->where('status', 'pending');
+    //     } else if ($type == 'transfered-retailer-to-wholesaler') {
+    //         $sql->where('status', 'transfered_retailer_to_wholesaler');
+    //     } else if ($type == 'confirmed-by-retailer') {
+    //         $sql->where('status', 'confirmed_by_retailer');
+    //     } else if ($type == 'ready-to-ship') {
+    //         $sql->where('status', 'shipped_by_retailer');
+    //     } else if ($type == 'delivered-by-retailer') {
+    //         $sql->where('status', 'delivered_by_retailer');
+    //     } else if ($type == 'cancelled-by-retailer') {
+    //         $sql->where('status', 'cancelled_by_retailer');
+    //     } else if ($type == 'cancelled-by-customer') {
+    //         $sql->where('status', 'cancelled_by_customer');
+    //     } else if ($type == 'inactive') {
+    //         $sql->where('status', 'inactive');
+    //     } else {
+    //         return redirect()->route('retailer.order.list');
+    //     }
+    //     $retailerOrders = $sql->orderBy('id', 'DESC')
+    //         ->get();
+
+    //     // pickup address
+    //     $pickupAddress = PickAddress::where('user_id', $retailer->id)->get();
+
+    //     // rto address
+    //     // $rtoAddress = RTOAddress::where('retailer_id', $retailer->id)->get();
+
+    //     // courier list from API
+    //     $response = Http::withHeaders([
+    //         'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb'
+    //     ])->get('https://capi-qc.fship.in/api/getallcourier');
+    //     $courierServices = $response->json();
+    //     // $courierServices = [];
+
+    //     return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'courierServices'));
+    // }
+
+    // use courierservicemanager
     public function orderList($type = 'new')
     {
         $retailer = Auth::user();
 
-        // count
+        // Order status count
         $count = CustomerOrders::where('retailer_id', $retailer->id)
             ->selectRaw("
-            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
-            SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
-            SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
-            SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
-            SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
-            SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
-            SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
-            SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
-        ")->first()->toArray();
-        // customer orders
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
+                SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
+                SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
+                SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
+                SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
+                SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
+                SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
+                SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
+            ")->first()->toArray();
+
+        // Orders query
         $sql = CustomerOrders::with([
             'customer',
             'product',
             'retailerCloneProduct',
             'wholesaler.userDetail',
-        ])
-            ->where('retailer_id', $retailer->id);
-        if ($type == 'new') {
-            $sql->where('status', 'pending');
-        } else if ($type == 'transfered-retailer-to-wholesaler') {
-            $sql->where('status', 'transfered_retailer_to_wholesaler');
-        } else if ($type == 'confirmed-by-retailer') {
-            $sql->where('status', 'confirmed_by_retailer');
-        } else if ($type == 'ready-to-ship') {
-            $sql->where('status', 'shipped_by_retailer');
-        } else if ($type == 'delivered-by-retailer') {
-            $sql->where('status', 'delivered_by_retailer');
-        } else if ($type == 'cancelled-by-retailer') {
-            $sql->where('status', 'cancelled_by_retailer');
-        } else if ($type == 'cancelled-by-customer') {
-            $sql->where('status', 'cancelled_by_customer');
-        } else if ($type == 'inactive') {
-            $sql->where('status', 'inactive');
-        } else {
+        ])->where('retailer_id', $retailer->id);
+
+        // Filter by type
+        $statusMap = [
+            'new' => 'pending',
+            'transfered-retailer-to-wholesaler' => 'transfered_retailer_to_wholesaler',
+            'confirmed-by-retailer' => 'confirmed_by_retailer',
+            'ready-to-ship' => 'shipped_by_retailer',
+            'delivered-by-retailer' => 'delivered_by_retailer',
+            'cancelled-by-retailer' => 'cancelled_by_retailer',
+            'cancelled-by-customer' => 'cancelled_by_customer',
+            'inactive' => 'inactive',
+        ];
+
+        if (!array_key_exists($type, $statusMap)) {
             return redirect()->route('retailer.order.list');
         }
-        $retailerOrders = $sql->orderBy('id', 'DESC')
-            ->get();
 
-        // pickup address
+        $sql->where('status', $statusMap[$type]);
+
+        $retailerOrders = $sql->orderBy('id', 'DESC')->get();
+
+        // Pickup address
         $pickupAddress = PickAddress::where('user_id', $retailer->id)->get();
 
-        // rto address
-        // $rtoAddress = RTOAddress::where('retailer_id', $retailer->id)->get();
+        // Courier list via service manager
+        try {
+            $courierService = \App\Services\CourierServiceManager::getService();
 
-        // courier list from API
-        $response = Http::withHeaders([
-            'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb'
-        ])->get('https://capi-qc.fship.in/api/getallcourier');
-        $courierServices = $response->json();
-        // $courierServices = [];
-
-
+            $courierServices = $courierService->courierList();
+            // dd($courierServices);
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch courier list: ' . $e->getMessage());
+            $courierServices = [];
+        }
 
         return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'courierServices'));
     }
@@ -982,7 +1044,6 @@ class RetilerController extends Controller
 
         return view('orders.new-order-list', compact('retailerOrders', 'count', 'pickupAddress', 'rtoAddress', 'courierServices'));
     }
-
 
     // order action
     // public function orderAction(Request $request)
@@ -1186,6 +1247,159 @@ class RetilerController extends Controller
     // }
 
     // add Fship order place
+    // public function confirmedOrderAction(Request $request)
+    // {
+    //     $request->validate([
+    //         'status' => 'required',
+    //     ]);
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $retailer = Auth::user();
+    //         $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
+    //         $productName = $customerOrder->retailerCloneProduct->name  ?? $customerOrder->product->name ?? 'N/A';
+    //         $productSku = $customerOrder->retailerCloneProduct->sku  ?? $customerOrder->product->sku ?? 'N/A';
+    //         $pickup_address = PickAddress::where('id',$request->pickup_address_id)->first();
+
+    //         if (!$customerOrder) {
+    //             return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
+    //         }
+
+    //         $updateData = [];
+    //         $message = '';
+    //         $type = '';
+    //         if ($request->status == 'shipped_by_retailer') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'shipped_by_retailer_at' => now(),
+    //                 'pickup_address_id' => $request->pickup_address_id,
+    //                 'product_weight' => $request->product_weight,
+    //             ];
+    //             $message = 'Order has been ready to ship (by supplier)';
+    //             $type = 'ready-to-ship';
+
+    //             // Prepare Payload
+    //             $payload = [
+    //                 "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+    //                 "customer_Mobile" => $customerOrder->customer->phone_number,
+    //                 "customer_Emailid" => $customerOrder->customer->email,
+    //                 "customer_Address" => $customerOrder->customer->address,
+    //                 "landMark" => "",
+    //                 "customer_Address_Type" => "Home",
+    //                 "customer_PinCode" =>$customerOrder->customer->pincode,
+    //                 "customer_City" => $customerOrder->customer->city,
+    //                 "orderId" => $customerOrder->order_id,
+    //                 "invoice_Number" => '',
+    //                 "payment_Mode" => 1, // COD
+    //                 "express_Type" => "surface",
+    //                 "is_Ndd" => 0,
+    //                 "order_Amount" =>  $customerOrder->final_amount,
+    //                 "tax_Amount" => 0,
+    //                 "extra_Charges" => 0,
+    //                 "total_Amount" =>  $customerOrder->final_amount,
+    //                 "cod_Amount" => $customerOrder->final_amount ?? 0,
+    //                 "shipment_Weight" => $request->product_weight,
+    //                 "shipment_Length" => 12,
+    //                 "shipment_Width" => 12,
+    //                 "shipment_Height" => 12,
+    //                 "volumetric_Weight" => 1,
+    //                 "latitude" => 0,
+    //                 "longitude" => 0,
+    //                 "pick_Address_ID" => $pickup_address->warehouse_id,
+    //                 "return_Address_ID" => $pickup_address->warehouse_id,
+    //                 "products" => [
+    //                     [
+    //                         "productId" => "121212",
+    //                         "productName" => $productName,
+    //                         "unitPrice" => $customerOrder->final_amount,
+    //                         "quantity" => $customerOrder->quantity,
+    //                         "productCategory" => "",
+    //                         "hsnCode" => "",
+    //                         "sku" => $productSku,
+    //                         "taxRate" => 0,
+    //                         "productDiscount" => 0
+    //                     ]
+    //                 ],
+    //                 "courierId" => $request->courier_service_id,
+    //             ];
+
+    //             // Send request
+    //             $response = Http::withHeaders([
+    //                 'Content-Type' => 'application/json',
+    //                 'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
+    //             ])->post('https://capi-qc.fship.in/api/createforwardorder', $payload);
+
+    //             Log::info('Shipping API Payload:', $payload);
+    //             Log::info('Shipping API Response:', [
+    //                 'status' => $response->status(),
+    //                 'body' => $response->body()
+    //             ]);
+
+    //             if ($response->successful()) {
+    //                 $data = $response->json();
+
+    //                 if (!empty($data['waybill']) && !empty($data['apiorderid'])) {
+    //                     // Only update if waybill and apiorderid are available
+    //                     $updateData = [
+    //                         'status' => $request->status,
+    //                         'shipped_by_retailer_at' => now(),
+    //                         'pickup_address_id' => $request->pickup_address_id,
+    //                         'product_weight' => $request->product_weight,
+    //                         'tracking_number' => $data['waybill'],
+    //                         'api_order_id' => $data['apiorderid'],
+    //                     ];
+
+    //                     $message = 'Order has been marked ready to ship';
+    //                     $type = 'ready-to-ship';
+    //                 } else {
+    //                     DB::rollBack();
+    //                     return response()->json(['status' => false, 'msg' => $data['response']]);
+    //                 }
+    //             } else {
+    //                 Log::error('Shipping API Error:', [
+    //                     'status' => $response->status(),
+    //                     'error' => $response->json() ?? $response->body()
+    //                 ]);
+    //                 DB::rollBack();
+    //                 return response()->json(['status' => false, 'msg' => 'Failed to generate shipping order. Please try again.']);
+    //             }
+    //         }
+    //         else if ($request->status == 'transfered_retailer_to_wholesaler') {
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'transfered_retailer_to_wholesaler_at' => now()
+    //             ];
+    //             $message = 'Wholesaler will ship this product';
+    //             $type = 'transfered-retailer-to-wholesaler';
+    //         } else if ($request->status == 'cancelled_by_retailer') {
+    //             $cancelled_reason = $request->reject_reason_select_confirmed == 'Other'
+    //                 ? $request->reject_reason_input_confirmed
+    //                 : $request->reject_reason_select_confirmed;
+
+    //             $updateData = [
+    //                 'status' => $request->status,
+    //                 'cancelled_by_retailer_at' => now(),
+    //                 'cancelled_by' => $retailer->id,
+    //                 'cancelled_reason' => $cancelled_reason
+    //             ];
+    //             $message = 'Order has been cancelled by retailer';
+    //             $type = 'cancelled-by-retailer';
+    //         }
+
+    //         if (!empty($updateData)) {
+    //             $customerOrder->update($updateData);
+    //             DB::commit();
+    //             return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
+    //         } else {
+    //             return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
+    //         }
+    //      } catch (Exception $e) {
+    //          DB::rollBack();
+    //          return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
+    //     }
+    // }
+
+    // use Courier service manager and Fship order place
     public function confirmedOrderAction(Request $request)
     {
         $request->validate([
@@ -1196,18 +1410,20 @@ class RetilerController extends Controller
         try {
             $retailer = Auth::user();
             $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
-            $productName = $customerOrder->retailerCloneProduct->name  ?? $customerOrder->product->name ?? 'N/A';
-            $productSku = $customerOrder->retailerCloneProduct->sku  ?? $customerOrder->product->sku ?? 'N/A';
-            $pickup_address = PickAddress::where('id',$request->pickup_address_id)->first();
 
             if (!$customerOrder) {
                 return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
             }
 
+            $productName = $customerOrder->retailerCloneProduct->name ?? $customerOrder->product->name ?? 'N/A';
+            $productSku = $customerOrder->retailerCloneProduct->sku ?? $customerOrder->product->sku ?? 'N/A';
+            $pickup_address = PickAddress::where('id', $request->pickup_address_id)->first();
+
             $updateData = [];
             $message = '';
             $type = '';
-            if ($request->status == 'shipped_by_retailer') {
+
+            if ($request->status === 'shipped_by_retailer') {
                 $updateData = [
                     'status' => $request->status,
                     'shipped_by_retailer_at' => now(),
@@ -1225,17 +1441,17 @@ class RetilerController extends Controller
                     "customer_Address" => $customerOrder->customer->address,
                     "landMark" => "",
                     "customer_Address_Type" => "Home",
-                    "customer_PinCode" =>$customerOrder->customer->pincode,
+                    "customer_PinCode" => $customerOrder->customer->pincode,
                     "customer_City" => $customerOrder->customer->city,
                     "orderId" => $customerOrder->order_id,
                     "invoice_Number" => '',
-                    "payment_Mode" => 1, // COD
+                    "payment_Mode" => 1,
                     "express_Type" => "surface",
                     "is_Ndd" => 0,
-                    "order_Amount" =>  $customerOrder->final_amount,
+                    "order_Amount" => $customerOrder->final_amount,
                     "tax_Amount" => 0,
                     "extra_Charges" => 0,
-                    "total_Amount" =>  $customerOrder->final_amount,
+                    "total_Amount" => $customerOrder->final_amount,
                     "cod_Amount" => $customerOrder->final_amount ?? 0,
                     "shipment_Weight" => $request->product_weight,
                     "shipment_Length" => 12,
@@ -1262,56 +1478,28 @@ class RetilerController extends Controller
                     "courierId" => $request->courier_service_id,
                 ];
 
-                // Send request
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-                ])->post('https://capi-qc.fship.in/api/createforwardorder', $payload);
+                // Send request via CourierServiceManager
+                $courierService = \App\Services\CourierServiceManager::getService();
+                $response = $courierService->createOrder($payload);
 
-                Log::info('Shipping API Payload:', $payload);
-                Log::info('Shipping API Response:', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-
-                if ($response->successful()) {
-                    $data = $response->json();
-
-                    if (!empty($data['waybill']) && !empty($data['apiorderid'])) {
-                        // Only update if waybill and apiorderid are available
-                        $updateData = [
-                            'status' => $request->status,
-                            'shipped_by_retailer_at' => now(),
-                            'pickup_address_id' => $request->pickup_address_id,
-                            'product_weight' => $request->product_weight,
-                            'tracking_number' => $data['waybill'],
-                            'api_order_id' => $data['apiorderid'],
-                        ];
-
-                        $message = 'Order has been marked ready to ship';
-                        $type = 'ready-to-ship';
-                    } else {
-                        DB::rollBack();
-                        return response()->json(['status' => false, 'msg' => $data['response']]);
-                    }
+                if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
+                    $updateData['tracking_number'] = $response['waybill'];
+                    $updateData['api_order_id'] = $response['apiorderid'];
+                    $message = 'Order has been marked ready to ship';
+                    $type = 'ready-to-ship';
                 } else {
-                    Log::error('Shipping API Error:', [
-                        'status' => $response->status(),
-                        'error' => $response->json() ?? $response->body()
-                    ]);
                     DB::rollBack();
-                    return response()->json(['status' => false, 'msg' => 'Failed to generate shipping order. Please try again.']);
+                    return response()->json(['status' => false, 'msg' => $response['response'] ?? 'Failed to create shipping order']);
                 }
-            }
-            else if ($request->status == 'transfered_retailer_to_wholesaler') {
+            } elseif ($request->status === 'transfered_retailer_to_wholesaler') {
                 $updateData = [
                     'status' => $request->status,
                     'transfered_retailer_to_wholesaler_at' => now()
                 ];
                 $message = 'Wholesaler will ship this product';
                 $type = 'transfered-retailer-to-wholesaler';
-            } else if ($request->status == 'cancelled_by_retailer') {
-                $cancelled_reason = $request->reject_reason_select_confirmed == 'Other'
+            } elseif ($request->status === 'cancelled_by_retailer') {
+                $cancelled_reason = $request->reject_reason_select_confirmed === 'Other'
                     ? $request->reject_reason_input_confirmed
                     : $request->reject_reason_select_confirmed;
 
@@ -1329,12 +1517,13 @@ class RetilerController extends Controller
                 $customerOrder->update($updateData);
                 DB::commit();
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
-            } else {
-                return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
             }
-         } catch (Exception $e) {
-             DB::rollBack();
-             return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
+
+            return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Order Confirmation Error: ' . $e->getMessage());
+            return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
         }
     }
 
@@ -1712,6 +1901,45 @@ class RetilerController extends Controller
         return back()->with('success-account-info', 'Account information saved successfully!');
     }
 
+    // public function ratecCalculationPost(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'source_Pincode' => 'required|digits:6',
+    //         'destination_Pincode' => 'required|digits:6',
+    //         'payment_Mode' => 'required|string',
+    //         'amount' => 'required|numeric',
+    //         'shipment_Weight' => 'required|numeric',
+    //         'shipment_Length' => 'nullable|numeric',
+    //         'shipment_Width' => 'nullable|numeric',
+    //         'shipment_Height' => 'nullable|numeric',
+    //         'volumetric_Weight' => 'nullable|numeric',
+    //     ]);
+
+    //     try {
+    //         $response = Http::withHeaders([
+    //             'Content-Type' => 'application/json',
+    //             'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
+    //         ])->post('https://capi-qc.fship.in/api/ratecalculator',$data);
+
+    //         if ($response->successful()) {
+    //             return response()->json($response->json());
+    //         } else {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Failed to fetch rates from external API.',
+    //                 'details' => $response->body(),
+    //             ], $response->status());
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Error communicating with rate calculator API.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+    // use couire service manager
     public function ratecCalculationPost(Request $request)
     {
         $data = $request->validate([
@@ -1727,24 +1955,23 @@ class RetilerController extends Controller
         ]);
 
         try {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-            ])->post('https://capi-qc.fship.in/api/ratecalculator',$data);
+            $courierService = \App\Services\CourierServiceManager::getService();
+            $response = $courierService->calculateRate($data);
 
-            if ($response->successful()) {
-                return response()->json($response->json());
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to fetch rates from external API.',
-                    'details' => $response->body(),
-                ], $response->status());
+            if (!empty($response['status']) && $response['status'] === true) {
+                return response()->json($response);
             }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch rates from courier service.',
+                'details' => $response,
+            ], 400);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error communicating with rate calculator API.',
+                'message' => 'Error communicating with courier service.',
                 'error' => $e->getMessage(),
             ], 500);
         }

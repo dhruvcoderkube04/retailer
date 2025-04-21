@@ -17,10 +17,16 @@
                     </div>
                     <!--end::Title-->
 
+
                 </div>
                 <!--end::Card header-->
                 <!--begin::Tab content-->
                 <div id="kt_billing_payment_tab_content" class="card-body">
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
                     <div class="row gx-9 gy-6">
                         @foreach ($addresses as $address)

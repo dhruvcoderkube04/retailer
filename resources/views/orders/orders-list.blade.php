@@ -328,7 +328,6 @@
         </div>
         @include('layouts.footer')
     </div>
-
     <!-- New Order Modal -->
     <div class="modal fade" id="new-order-action-modal" tabindex="-1" aria-labelledby="new-order-action-modal-label"
         aria-hidden="true">
@@ -568,15 +567,20 @@
                                             <select name="courier_service" class="form-select form-select-lg" id="courier_service" data-control="select2">
                                                 <option value="" disabled selected>-- Select Courier Service --</option>
 
-                                                @foreach ($courierServices as $courier)
-                                                    <option
-                                                        value="{{ $courier['courierName'] }}"
-                                                        data-id="{{ $courier['courierId'] }}"
-                                                        data-image="{{ $courier['logoUrl'] }}"> <!-- Image from API -->
-                                                        {{ $courier['courierName'] }}
-                                                    </option>
-                                                @endforeach
+                                                @if (!empty($courierServices))
+                                                    @foreach ($courierServices as $courier)
+                                                        <option
+                                                            value="{{ $courier['courierName'] ?? '' }}"
+                                                            data-id="{{ $courier['courierId'] ?? ''}}"
+                                                            data-image="{{ $courier['logoUrl'] ?? '' }}"> <!-- Image from API -->
+                                                            {{ $courier['courierName'] ?? '' }}
+                                                        </option>
+                                                    @endforeach
+                                                @else
+                                                    <option disabled>No courier services available</option>
+                                                @endif
                                             </select>
+
 
                                             {{-- <select name="courier_service" class="form-select form-select-lg"
                                                 id="courier_service" data-control="select2">
@@ -1017,12 +1021,12 @@
                         errors.push("pickup_address_id");
                     }
                     if (!rto_address_id) {
-                        $(".rto-address-error").text("Please enter product weight (in grams)");
+                        $(".rto-address-error").text("Please Select RTO Address");
                         $(".rto-address-error-section").show();
                         errors.push("product_weight");
                     }
                     if (!courier_service) {
-                        $(".courier-service-error").text("Please enter product weight (in grams)");
+                        $(".courier-service-error").text("Please select Courier Partner");
                         $(".courier-service-error-section").show();
                         errors.push("product_weight");
                     }

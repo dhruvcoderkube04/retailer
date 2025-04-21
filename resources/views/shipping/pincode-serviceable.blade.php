@@ -115,8 +115,11 @@
                 resultBox.style.display = "block";
                 })
             .catch(error => {
-                console.error(error);
-                alert("Something went wrong while checking serviceability.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong while check pincode serviceable.',
+                });
             });
         });
     });

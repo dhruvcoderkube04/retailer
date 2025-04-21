@@ -130,8 +130,11 @@
             }
         })
         .catch(err => {
-            console.error(err);
-            alert("Something went wrong while calculating rates.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong while calculating rates.',
+            });
         });
     });
     </script>
