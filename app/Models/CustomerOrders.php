@@ -36,12 +36,17 @@ class CustomerOrders extends Model
         'tracking_number',
         'api_order_id',
         'courier_service',
+        'service_mode',
+        'shipping_charge',
+        'cod_charge',
+        'rto_charge',
         'expected_delivery',
 
         'payment_status',
         'payment_method',
         'inactive',
         'variation_id'
+
     ];
 
     public function customer()

@@ -1182,69 +1182,6 @@ class RetilerController extends Controller
         }
     }
 
-    // public function confirmedOrderAction(Request $request)
-    // {
-    //     dd($request->all());
-    //     $request->validate([
-    //         'status' => 'required',
-    //     ]);
-
-    //     DB::beginTransaction();
-    //     try {
-    //         $retailer = Auth::user();
-    //         $customerOrder = CustomerOrders::find($request->order_id);
-
-    //         if (!$customerOrder) {
-    //             return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
-    //         }
-
-    //         $updateData = [];
-    //         $message = '';
-    //         $type = '';
-    //         if ($request->status == 'shipped_by_retailer') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'shipped_by_retailer_at' => Carbon::now(),
-    //                 'pickup_address_id' => $request->pickup_address_id,
-    //                 'product_weight' => $request->product_weight
-    //             ];
-    //             $message = 'Order has been ready to ship (by supplier)';
-    //             $type = 'ready-to-ship';
-    //         } else if ($request->status == 'transfered_retailer_to_wholesaler') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'transfered_retailer_to_wholesaler_at' => Carbon::now()
-    //             ];
-    //             $message = 'Wholesaler will ship this product';
-    //             $type = 'transfered-retailer-to-wholesaler';
-    //         } else if ($request->status == 'cancelled_by_retailer') {
-    //             if ($request->reject_reason_select_confirmed == 'Other') {
-    //                 $cancelled_reason = $request->reject_reason_input_confirmed;
-    //             } else {
-    //                 $cancelled_reason = $request->reject_reason_select_confirmed;
-    //             }
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'cancelled_by_retailer_at' => Carbon::now(),
-    //                 'cancelled_by' => $retailer->id,
-    //                 'cancelled_reason' => $cancelled_reason
-    //             ];
-    //             $message = 'Order has been cancelled by retailer';
-    //             $type = 'cancelled-by-retailer';
-    //         }
-
-    //         if (!empty($updateData)) {
-    //             $customerOrder->update($updateData);
-    //             DB::commit();
-    //             return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
-    //         } else {
-    //             return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
-    //         }
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         return response()->json(['status' => false, 'msg' => 'Something went wrong, Plase try later!']);
-    //     }
-    // }
 
     // add Fship order place
     // public function confirmedOrderAction(Request $request)
@@ -1429,6 +1366,10 @@ class RetilerController extends Controller
                     'shipped_by_retailer_at' => now(),
                     'pickup_address_id' => $request->pickup_address_id,
                     'product_weight' => $request->product_weight,
+                    'service_mode' => $request->service_mode,
+                    'shipping_charge' => $request->shipping_charge,
+                    'cod_charge' => $request->cod_charge,
+                    'rto_charge' => $request->rto_charge,
                 ];
                 $message = 'Order has been ready to ship (by supplier)';
                 $type = 'ready-to-ship';
@@ -1477,7 +1418,6 @@ class RetilerController extends Controller
                     ],
                     "courierId" => $request->courier_service_id,
                 ];
-
                 // Send request via CourierServiceManager
                 $courierService = \App\Services\CourierServiceManager::getService();
                 $response = $courierService->createOrder($payload);
@@ -1583,11 +1523,29 @@ class RetilerController extends Controller
 
         // Handle profile image upload
         if ($request->hasFile('profile')) {
-            $file = $request->file('profile');  // Get file
-            $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
-            $file->move(public_path('uploads/company_profile'), $filename); // Save to public/uploads/company_logos
+            try {
+                $file = $request->file('profile');  // Get file
+                $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
+                $directory = 'uploads/company_profile/'; // Directory in DigitalOcean Spaces
+                $path = $directory . $filename;
+
+                // Upload to DigitalOcean Spaces
+                Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+
+                // Store the public URL
+                $profilePath = Storage::disk('spaces')->url($path);
+
+                // You would typically store $profilePath in your database column
+                // instead of just $filename.
+                // Example: $company->profile_url = $profilePath;
+
+            } catch (\Exception $e) {
+                // Handle upload errors
+                Log::error('Profile Upload to Spaces Failed: ' . $e->getMessage());
+                return back()->with('error', 'Profile upload to DigitalOcean Spaces failed.');
+            }
         } else {
-            $filename = null; // No file uploaded
+            $profilePath = null; // No file uploaded
         }
 
         // Update userDetail fields only if they are filled
@@ -1613,7 +1571,7 @@ class RetilerController extends Controller
                 $userDetailUpdate['postal_code'] = $request->pincode;
             }
             if ($request->hasFile('profile')) {
-                $userDetailUpdate['company_logo'] = $filename;
+                $userDetailUpdate['company_logo'] = $profilePath ;
             }
 
             if (!empty($userDetailUpdate)) {
@@ -1900,44 +1858,6 @@ class RetilerController extends Controller
         }
         return back()->with('success-account-info', 'Account information saved successfully!');
     }
-
-    // public function ratecCalculationPost(Request $request)
-    // {
-    //     $data = $request->validate([
-    //         'source_Pincode' => 'required|digits:6',
-    //         'destination_Pincode' => 'required|digits:6',
-    //         'payment_Mode' => 'required|string',
-    //         'amount' => 'required|numeric',
-    //         'shipment_Weight' => 'required|numeric',
-    //         'shipment_Length' => 'nullable|numeric',
-    //         'shipment_Width' => 'nullable|numeric',
-    //         'shipment_Height' => 'nullable|numeric',
-    //         'volumetric_Weight' => 'nullable|numeric',
-    //     ]);
-
-    //     try {
-    //         $response = Http::withHeaders([
-    //             'Content-Type' => 'application/json',
-    //             'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-    //         ])->post('https://capi-qc.fship.in/api/ratecalculator',$data);
-
-    //         if ($response->successful()) {
-    //             return response()->json($response->json());
-    //         } else {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Failed to fetch rates from external API.',
-    //                 'details' => $response->body(),
-    //             ], $response->status());
-    //         }
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'Error communicating with rate calculator API.',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
 
     // use couire service manager
     public function ratecCalculationPost(Request $request)

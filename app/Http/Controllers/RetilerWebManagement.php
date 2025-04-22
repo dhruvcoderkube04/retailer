@@ -26,10 +26,9 @@ class RetilerWebManagement extends Controller
 
         $company_name = !empty(@$reatiler_details->userDetail->company_name) ? @$reatiler_details->userDetail->company_name : '';
         $clean_name = strtolower(trim(str_replace(' ', '', $company_name))); // make lowercase and remove spaces
-        $retailer_subdomain = 'https://' . $clean_name . '.trendmart.com';
-
 
         $product_list_key = Str::uuid();
+        $retailer_subdomain = 'http://trendmart-retailer-website-v2.vercel.app/?token=' . $product_list_key;
 
         if (!empty($company_name))
         {

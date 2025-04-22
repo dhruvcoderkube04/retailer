@@ -84,7 +84,7 @@
                                                 style="background-image: url('assets/media/svg/avatars/blank.svg')">
                                                 <!--begin::Preview existing avatar-->
                                                 <div class="image-input-wrapper w-125px h-125px"
-                                                    style="background-image: url('{{ asset('uploads/company_profile/' . @$userprofile->userDetail->company_logo) }}')">
+                                                    style="background-image: url('{{ @$userprofile->userDetail->company_logo }}')">
                                                 </div>
                                                 {{-- <div class="image-input-wrapper w-125px h-125px" style="background-image: url(assets/media/avatars/300-1.jpg)"></div> --}}
                                                 <!--end::Preview existing avatar-->

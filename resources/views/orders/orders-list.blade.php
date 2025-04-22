@@ -24,6 +24,19 @@
         return $statuses[$value] ?? 'Unknown Status';
     }
 @endphp
+@section('styles')
+    <style>
+        #selected-courier-display {
+            color: #17a2b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+        #selected-courier-display strong {
+            color: #333;
+        }
+    </style>
+@endsection
 
 @section('content')
     <!--begin::Main-->
@@ -283,6 +296,8 @@
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
+                                                        data-product-amount="{{ $detail?->final_amount }}"
+                                                        data-product-pincode="{{ $detail->customer->pincode }}"
                                                         data-c-order-id="{{$detail->order_id}}">
                                                         Action
                                                     </button>
@@ -290,6 +305,8 @@
                                                     <button type="button"
                                                         class="btn btn-primary btn-sm confirmedOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
+                                                        data-product-amount="{{ $detail?->final_amount }}"
+                                                        data-product-pincode="{{ $detail->customer->pincode }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
                                                         data-c-order-id="{{$detail->order_id}}">
@@ -301,6 +318,8 @@
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
+                                                        data-product-amount="{{ $detail?->final_amount }}"
+                                                        data-product-pincode="{{ $detail->customer->pincode }}"
                                                         data-c-order-id="{{$detail->order_id}}">
                                                         Action
                                                     </button>
@@ -310,6 +329,8 @@
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
+                                                        data-product-amount="{{ $detail?->final_amount }}"
+                                                        data-product-pincode="{{ $detail->customer->pincode }}"
                                                         data-c-order-id="{{$detail->order_id}}" disabled>
                                                         Action
                                                     </button>
@@ -320,8 +341,6 @@
                                 </tbody>
                             </table>
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -506,7 +525,8 @@
                                                 <option value="" disabled selected>-- Select Pickup Location --
                                                 </option>
                                                 @foreach ($pickupAddress as $address)
-                                                    <option value="{{ $address->id }}">
+                                                    <option value="{{ $address->id }}" data-pincode="{{ $address->pincode }}"
+                                                        data-warehouse-id="{{ $address->warehouse_id }}">
                                                         📍 {{ $address->first_name }} {{ $address->last_name }} -
                                                         {{ $address->address }}, {{ $address->state }},
                                                         {{ $address->city }} -
@@ -531,9 +551,6 @@
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            {{-- <label for="product_weight"
-                                                class="form-label fw-semibold text-gray-700">Product
-                                                Weight:</label> --}}
                                             <select name="product_weight" class="form-select form-select-lg" id="product_weight" data-control="select2">
                                                 <option value="" disabled selected>-- Select Product Weight --</option>
                                                 <option value="0.5">500 GM</option>
@@ -555,45 +572,24 @@
                                 </div>
                             </div>
 
-                               {{-- Courier Service --}}
-                               <div class="col-md-6">
+                            {{-- Courier Service --}}
+                            <div class="col-md-6">
                                 <div class="mt-5 mx-7" id="courierServicesContainer" style="display: none;">
                                     <h5 class="fw-bold text-gray-800 mb-3">
                                         <i class="bi bi-truck text-primary me-2 fs-4"></i> Select Courier Services
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            {{-- <label class="form-label fw-semibold text-gray-700">Choose a location:</label> --}}
-                                            <select name="courier_service" class="form-select form-select-lg" id="courier_service" data-control="select2">
-                                                <option value="" disabled selected>-- Select Courier Service --</option>
-
-                                                @if (!empty($courierServices))
-                                                    @foreach ($courierServices as $courier)
-                                                        <option
-                                                            value="{{ $courier['courierName'] ?? '' }}"
-                                                            data-id="{{ $courier['courierId'] ?? ''}}"
-                                                            data-image="{{ $courier['logoUrl'] ?? '' }}"> <!-- Image from API -->
-                                                            {{ $courier['courierName'] ?? '' }}
-                                                        </option>
-                                                    @endforeach
-                                                @else
-                                                    <option disabled>No courier services available</option>
-                                                @endif
-                                            </select>
-
-
-                                            {{-- <select name="courier_service" class="form-select form-select-lg"
-                                                id="courier_service" data-control="select2">
-                                                <option value="" disabled selected>-- Select Courier Service --
-                                                </option>
-                                                @foreach ($courierServices as $courier)
-                                                    <option value="{{ $courier['courierName'] }}"
-                                                        data-id="{{ $courier['courierId'] }}">
-                                                        {{ $courier['courierName'] }}</option>
-                                                @endforeach
-                                            </select> --}}
-                                            <span class="text-danger mt-5 courier-service-error-section"
-                                                style="display: none;">
+                                            <!-- Button to trigger the modal -->
+                                            <button type="button" class="btn btn-primary" id="selectCourierBtn" style="display: none;">
+                                                Select Courier Service
+                                            </button>
+                                            <!-- Display selected courier -->
+                                            <div id="selected-courier-display" class="mt-2 text-info"></div>
+                                            <!-- Hidden input to store selected courier -->
+                                            <input type="hidden" name="courier_service" id="courier_service" value="">
+                                            <input type="hidden" name="courier_service_id" id="courier_service_id">
+                                            <span class="text-danger mt-5 courier-service-error-section" style="display: none;">
                                                 <i class="bi bi-exclamation-triangle"></i>
                                                 <span class="courier-service-error"></span>
                                             </span>
@@ -681,7 +677,13 @@
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
                         <input type="hidden" name="order_id" class="order_id">
                         <input type="hidden" class="corder_id" name="c_order_id">
-                        <input type="hidden" name="courier_service_id" id="courier_service_id">
+                        {{-- <input type="hidden" name="courier_service_id" class="courier_service_id"> --}}
+                        <input type="hidden" name="customer_pincode" class="customer_pincode" id="customer_pincode">
+                        <input type="hidden" name="product_amount" class="product_amount" id="product_amount">
+                        <input type="hidden" name="service_mode" class="service_mode" id="service_mode">
+                        <input type="hidden" name="rto_charge" class="rto_charge" id="rto_charge">
+                        <input type="hidden" name="cod_charge" class="cod_charge" id="cod_charge">
+                        <input type="hidden" name="shipping_charge" class="shipping_charge" id="shipping_charge">
                     </div>
 
                     <div class="modal-footer bg-light">
@@ -697,92 +699,261 @@
         </div>
     </div>
 
-    <!-- Bootstrap Modal -->
-    {{-- <div class="modal fade @if ($errors->any()) show d-block @endif" id="order-action-modal" tabindex="-1"
-        aria-labelledby="order-action-modal-label" aria-hidden="true">
-        <div class="modal-dialog">
+    {{-- Bootstrap Modal for Courier Details --}}
+    <div class="modal fade" id="courierDetailsModal" tabindex="-1" aria-labelledby="courierDetailsModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="order-action-modal-label">Order Action</h1>
+                    <h5 class="modal-title" id="courierDetailsModalLabel">Courier Service Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <form id="customerForm" method="POST" action="{{ route('retailer.order.action') }}">
-                    <div class="modal-body">
-                        @csrf
-
-                        <!-- Order Action Radio Buttons -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold d-none">Order Action:</label>
-                            <div class="form-check mt-2 d-none" id="confirmed">
-                                <input class="form-check-input" type="radio" name="status" id="confirmed_by_retailer"
-                                    value="confirmed_by_retailer">
-                                <label class="form-check-label" for="confirmed_by_retailer">Confirmed</label>
-                            </div>
-                            <div class="form-check mt-3 d-none" id="ready_to_ship">
-                                <input class="form-check-input" type="radio" name="status" id="shipped_by_retailer"
-                                    value="shipped_by_retailer">
-                                <label class="form-check-label" for="shipped_by_retailer">Ready To Ship</label>
-                            </div>
-                            <div class="form-check mt-3 d-none" id="delivered">
-                                <input class="form-check-input" type="radio" name="status" id="delivered_by_retailer"
-                                    value="delivered_by_retailer">
-                                <label class="form-check-label" for="delivered_by_retailer">Delivered</label>
-                            </div>
-                            <div class="form-check mt-3 d-none" id="shift">
-                                <input class="form-check-input" type="radio" name="status"
-                                    id="transfered_retailer_to_wholesaler" value="transfered_retailer_to_wholesaler">
-                                <label class="form-check-label" for="transfered_retailer_to_wholesaler">Shift</label>
-                            </div>
-                            <div class="form-check mt-3 d-none" id="cancelled">
-                                <input class="form-check-input" type="radio" name="status" id="cancelled_by_retailer"
-                                    value="cancelled_by_retailer">
-                                <label class="form-check-label" for="cancelled_by_retailer">Reject</label>
-                            </div>
-
-                        </div>
-                        @error('status')
-                            <span class="text-danger mt-4">{{ $message }}</span>
-                        @enderror
-
-                        <input type="hidden" name="product_id" id="product_id">
-                        <input type="hidden" name="order_id" id="order_id">
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" form="customerForm">Action</button>
-                    </div>
-                </form>
+                <div class="modal-body">
+                    <table class="table table-bordered" id="courierDetailsTable">
+                        <thead>
+                            <tr>
+                                <th>Courier Name</th>
+                                <th>Shipping Charge</th>
+                                <th>COD Charge</th>
+                                <th>RTO Charge</th>
+                                <th>Service Mode</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courierDetailsBody">
+                            <!-- Dynamic rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 @endsection
+
 
 @section('script')
     <script>
-        $(document).ready(function() {
-
+        $(document).ready(function () {
             // for datatable load and table's data search
             var table1 = $("#kt_order_list_table").DataTable();
-            $("#search_field").on("keyup", function() {
+            $("#search_field").on("keyup", function () {
                 table1.search(this.value).draw();
             });
 
             // for search inside select option on modal show
-            $('#new-order-action-modal').on('shown.bs.modal', function() {
+            $('#new-order-action-modal').on('shown.bs.modal', function () {
                 $('.reject_reason_select_new').select2({
                     dropdownParent: $('#new-order-action-modal')
                 });
             });
-            $('#confirmed-order-action-modal').on('shown.bs.modal', function() {
-                $('#pickup_address_id, #rto_address_id, #courier_service, .reject_reason_select_confirmed').select2({
+            $('#confirmed-order-action-modal').on('shown.bs.modal', function () {
+                $('#pickup_address_id, #rto_address_id, #courier_service, #product_weight, .reject_reason_select_confirmed').select2({
                     dropdownParent: $('#confirmed-order-action-modal')
                 });
+                // Initialize Select Courier button visibility
+                toggleSelectCourierButton();
+            });
+
+            // Courier services from controller (passed as JSON)
+            const courierServices = @json($courierServices);
+
+            // Initial payload for the API
+            let payload = {
+                source_Pincode: "",
+                destination_Pincode: "",
+                payment_Mode: "",
+                amount: 0,
+                shipment_Weight: 0
+            };
+
+            // Function to update payload
+            function updatePayload(newData) {
+                payload = { ...payload, ...newData };
+            }
+
+            // Function to validate payload
+            function validatePayload() {
+                const errors = [];
+                if (!payload.source_Pincode || !/^\d{6}$/.test(payload.source_Pincode)) errors.push("Valid source pincode is required.");
+                if (!payload.destination_Pincode || !/^\d{6}$/.test(payload.destination_Pincode)) errors.push("Valid destination pincode is required.");
+                if (!payload.payment_Mode) errors.push("Payment mode is required.");
+                if (payload.amount <= 0) errors.push("Amount must be greater than zero.");
+                if (payload.shipment_Weight <= 0) errors.push("Shipment weight must be greater than zero.");
+                return errors;
+            }
+
+            // Function to fetch courier rates from the API
+            function fetchCourierRates() {
+                const payloadErrors = validatePayload();
+                if (payloadErrors.length > 0) {
+                    alert('Please fix the following errors:\n- ' + payloadErrors.join('\n- '));
+                    $('#courierDetailsBody').html('<tr><td colspan="6">Invalid payload data</td></tr>');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('retailer.rate.calculation.post') }}",
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        console.log(response, "response shipping info");
+                        if (response.status && response.shipment_rates && response.shipment_rates.length > 0) {
+                            populateModalTable(response.shipment_rates);
+                        } else {
+                            $('#courierDetailsBody').html('<tr><td colspan="6">No courier services available</td></tr>');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error fetching courier rates:', xhr.responseText);
+                        let errorMessage = 'Error fetching courier rates';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage += ': ' + xhr.responseJSON.message;
+                        }
+                        $('#courierDetailsBody').html(`<tr><td colspan="6">${errorMessage}</td></tr>`);
+                    }
+                });
+            }
+
+            // Function to populate the courier modal table
+            function populateModalTable(shipmentRates) {
+                let tableBody = '';
+                shipmentRates.forEach(function (courier) {
+                    const matchingCourier = courierServices.find(cs => cs.courierName === courier.courier_name) || {};
+                    tableBody += `
+                        <tr>
+                            <td>
+                                ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
+                                ${courier.courier_name}
+                            </td>
+                            <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+                            <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+                            <td>₹${(courier.rto_charge || 0).toFixed(2)}</td>
+                            <td>${courier.service_mode || 'N/A'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary select-courier"
+                                        data-courier="${courier.courier_name}"
+                                        data-courier-id="${matchingCourier.courierId || ''}"
+                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+                                        data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+                                        data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                                        data-service-mode="${courier.service_mode || 'N/A'}">
+                                    Select
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+                $('#courierDetailsBody').html(tableBody);
+            }
+
+            // Function to toggle Select Courier button visibility
+            function toggleSelectCourierButton() {
+                const productWeight = $('#product_weight').val();
+                const pickupAddress = $('#pickup_address_id').val();
+
+                if (productWeight && pickupAddress) {
+                    $('#selectCourierBtn').show();
+                } else {
+                    $('#selectCourierBtn').hide();
+                }
+            }
+
+            // Handle "Select Courier" button click
+            $(document).on('click', '#selectCourierBtn', function () {
+                // Hide the previous modal to prevent overlap
+                $('#confirmed-order-action-modal').modal('hide');
+
+                const productWeight = $('#product_weight').val();
+                const pickupAddress = $('#pickup_address_id').val();
+                const selectedOption = $('#pickup_address_id option:selected');
+                const pincode = selectedOption.data('pincode') || '';
+                selectedWarehouseId = selectedOption.data('warehouse-id') || ''; // Store warehouse_id
+                const productamount =  $('#product_amount').val();
+                const cpincode =  $('#customer_pincode').val();
+                console.log(productamount,cpincode);
+
+                updatePayload({
+                    source_Pincode: pincode,
+                    destination_Pincode:cpincode ,
+                    payment_Mode: "COD",
+                    amount: productamount,
+                    shipment_Weight: productWeight
+                });
+
+                // Fetch courier rates and show modal with static backdrop
+                fetchCourierRates();
+                $('#courierDetailsModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $('#courierDetailsModal').modal('show');
+            });
+
+            // Handle courier selection from modal
+            $(document).on('click', '.select-courier', function () {
+                const courierName = $(this).data('courier') || 'Unknown';
+                const courierId = $(this).data('courier-id') || '';
+                const shippingCharge = $(this).data('shipping-charge') || '0.00';
+                const codCharge = $(this).data('cod-charge') || '0.00';
+                const rtoCharge = $(this).data('rto-charge') || '0.00';
+                const serviceMode = $(this).data('service-mode') || 'N/A';
+                console.log(courierId,courierName,"courier Info");
+
+                // Store selected courier in hidden inputs
+                $('#rto_charge').val(rtoCharge);
+                $('#cod_charge').val(codCharge);
+                $('#shipping_charge').val(shippingCharge);
+                $('#service_mode').val(serviceMode);
+
+                $('#courier_service').val(courierName);
+                $('#courier_service_id').val(courierId);
+
+                // Display all courier details below the Select Courier button
+                $('#selected-courier-display').html(`
+                    <strong>Selected Courier:</strong> ${courierName}<br>
+                    <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
+                    <strong>COD Charge:</strong> ₹${codCharge}<br>
+                    <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
+                    <strong>Service Mode:</strong> ${serviceMode}
+                `);
+
+                // Validate courier match
+                const matchedCourier = courierServices.find(cs => cs.courierName === courierName);
+                if (!matchedCourier || matchedCourier.courierId !== courierId) {
+                    $('.courier-service-error').text('Selected courier does not match available services.');
+                    $('.courier-service-error-section').show();
+                    return;
+                } else {
+                    $('.courier-service-error-section').hide();
+                }
+
+                // Close courier modal and show previous modal
+                $('#courierDetailsModal').modal('hide');
+                $('#confirmed-order-action-modal').modal('show');
+            });
+
+            // Handle close button to restore previous modal and clear selection if no courier selected
+            $('#courierDetailsModal').on('hidden.bs.modal', function () {
+                // Show the previous modal when courier modal closes
+                $('#confirmed-order-action-modal').modal('show');
+                // Clear selected courier display if no courier is selected
+                if (!$('#courier_service').val()) {
+                    $('#selected-courier-display').html('');
+                }
+            });
+
+            // Handle changes to product weight and pickup address to toggle Select Courier button
+            $(document).on('change', '#product_weight, #pickup_address_id', function () {
+                toggleSelectCourierButton();
             });
 
             //<-------------- START: New Order --------------->
-            $('.reject_reason_select_new').change(function() { // for reject reason
+            $('.reject_reason_select_new').change(function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -791,7 +962,7 @@
                 }
             });
 
-            $(document).on('change', '#new-order-action-modal input[name="status"]', function() {
+            $(document).on('change', '#new-order-action-modal input[name="status"]', function () {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -803,20 +974,23 @@
                 }
             });
 
-
             $('#courier_service').on('change', function () {
                 const selectedOption = $('#courier_service option:selected');
-                const courierName = selectedOption.val(); // Gets value (courier name)
-                const courierId = selectedOption.data('id'); // Gets data-id
+                const courierName = selectedOption.val();
+                const courierId = selectedOption.data('id');
                 const imageUrl = selectedOption.data('image');
                 $('#courier_service_id').val(courierId);
             });
 
-            $(document).on('click', '.newOrderAction', function() {
+            $(document).on('click', '.newOrderAction', function () {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_id = $(this).attr('data-order-id');
                 let c_order_id = $(this).attr('data-c-order-id');
+
+
+                // <input type="hidden" name="customer_pin_code" id="customer_pin_code_id">
+                // <input type="hidden" name="product_amount" id="product_amount_id">
 
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
@@ -826,10 +1000,9 @@
                 $('#new-order-action-modal').modal('show');
             });
 
-
-            $(document).on('submit', '#newOrderForm', function(e) {
+            $(document).on('submit', '#newOrderForm', function (e) {
                 e.preventDefault();
-
+                $('#new-order-action-modal').modal('hide');
                 let form = new FormData(this);
 
                 // START: validation
@@ -893,17 +1066,25 @@
 
                 Swal.fire(swalConfig).then((result) => {
                     if (result.isConfirmed) {
-                        document.getElementById('submitButton').addEventListener('click', function () {
-                            const btn = this;
-                            btn.disabled = true;
+                        const submitBtn = document.getElementById('submitButton');
+                        if (submitBtn) submitBtn.disabled = true;
+
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we process your request.",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
+
                         $.ajax({
                             url: "{{ route('retailer.order.action.new-order') }}",
                             type: "POST",
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -911,12 +1092,8 @@
                                         icon: "success",
                                         confirmButtonText: "OK",
                                     }).then(() => {
-                                        window.location.href =
-                                            `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(
-                                                ":type",
-                                                response.type
-                                            );
+                                        window.location.href = `{{ route('retailer.order.list', ':type') }}`
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -925,28 +1102,25 @@
                                         icon: "error",
                                         confirmButtonText: "OK"
                                     });
-                                    document.getElementById('submitButton').addEventListener('click', function () {
-                                        const btn = this;
-                                        btn.disabled = false;
-                                    });
+                                    if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
                                     icon: "error",
                                     confirmButtonText: "OK"
                                 });
+                                if (submitBtn) submitBtn.disabled = false;
                             }
                         });
                     }
                 });
             });
-            //<-------------- END: New Order --------------->
 
             //<-------------- START: Confirmed Order --------------->
-            $('.reject_reason_select_confirmed').change(function() { // for reject reason
+            $('.reject_reason_select_confirmed').change(function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -955,8 +1129,9 @@
                 }
             });
 
-            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function() {
+            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function () {
                 const status = $(this).val();
+
                 $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
                 if (status == 'shipped_by_retailer') {
@@ -964,11 +1139,14 @@
                     $('#rtoAddressContainer').show();
                     $('#productWeightContainer').show();
                     $('#courierServicesContainer').show();
+                    // Check if Select Courier button should be shown
+                    toggleSelectCourierButton();
                 } else {
                     $('#pickupLocationContainer').hide();
                     $('#rtoAddressContainer').hide();
                     $('#productWeightContainer').hide();
                     $('#courierServicesContainer').hide();
+                    $('#selectCourierBtn').hide(); // Ensure button is hidden for non-shipped status
                 }
 
                 if (status == 'cancelled_by_retailer') {
@@ -979,10 +1157,18 @@
                 }
             });
 
-            $(document).on('click', '.confirmedOrderAction', function() {
+            $(document).on('click', '.confirmedOrderAction', function () {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_id = $(this).attr('data-order-id');
+                let customer_pincode = $(this).attr('data-product-pincode');
+                let product_amount = $(this).attr('data-product-amount');
+
+                console.log(order_id,customer_pincode,product_amount, "order detail ");
+
+                $('.customer_pincode').val(customer_pincode);
+                $('.product_amount').val(product_amount);
+
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
                 $('.order_id').val(order_id);
@@ -990,22 +1176,27 @@
                 $('#confirmed-order-action-modal').modal('show');
             });
 
-            $('#rejectReasonInputConfirm').on('click', function() {
+            $('#rejectReasonInputConfirm').on('click', function () {
                 $('#new-order-action-modal').modal('show');
             });
 
-            $(document).on('submit', '#confirmedOrderForm', function(e) {
+            $(document).on('submit', '#confirmedOrderForm', function (e) {
                 e.preventDefault();
 
                 let form = new FormData(this);
-                console.log(form,"form dadata");
+                console.log(form,'form data');
 
                 // START: validation
                 let status = form.get("status");
                 let pickup_address_id = $('#pickup_address_id').val();
-                let rto_address_id = $('#pickup_address_id').val();
+                let rto_address_id = $('#rto_address_id').val();
                 let courier_service = $('#courier_service').val();
                 let product_weight = $('#product_weight').val();
+                let shipping_charge = $('#shipping_charge').val();
+                let cod_charge = $('#cod_charge').val();
+                let rto_charge = $('#rto_charge').val();
+
+
                 let reject_reason_select_confirmed = $('.reject_reason_select_confirmed').val();
                 let reject_reason_input_confirmed = $('.reject_reason_input_confirmed').val();
 
@@ -1020,18 +1211,18 @@
                         $(".pickup-address-error-section").show();
                         errors.push("pickup_address_id");
                     }
-                    if (!rto_address_id) {
-                        $(".rto-address-error").text("Please Select RTO Address");
-                        $(".rto-address-error-section").show();
-                        errors.push("product_weight");
-                    }
+                    // if (!rto_address_id) {
+                    //     $(".rto-address-error").text("Please select RTO address");
+                    //     $(".rto-address-error-section").show();
+                    //     errors.push("rto_address_id");
+                    // }
                     if (!courier_service) {
-                        $(".courier-service-error").text("Please select Courier Partner");
+                        $(".courier-service-error").text("Please select a courier partner");
                         $(".courier-service-error-section").show();
-                        errors.push("product_weight");
+                        errors.push("courier_service");
                     }
                     if (!product_weight) {
-                        $(".product-weight-error").text("Please enter product weight (in grams)");
+                        $(".product-weight-error").text("Please select product weight");
                         $(".product-weight-error-section").show();
                         errors.push("product_weight");
                     }
@@ -1052,9 +1243,12 @@
                         }
                     }
                 }
+                console.log(errors.length,"error");
 
                 if (errors.length) return;
                 // END: validation
+
+                $('#confirmed-order-action-modal').modal('hide');
 
                 let swalConfig = {
                     title: "Are you sure?",
@@ -1088,26 +1282,32 @@
 
                 Swal.fire(swalConfig).then((result) => {
                     if (result.isConfirmed) {
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we confirm your order.",
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
                         $.ajax({
                             url: "{{ route('retailer.order.action.confirmed-order') }}",
                             type: "POST",
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
+                                Swal.close();
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
                                         text: response.msg,
                                         icon: "success",
-                                        confirmButtonText: "OK",
+                                        confirmButtonText: "OK"
                                     }).then(() => {
-                                        window.location.href =
-                                            `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(
-                                                ":type",
-                                                response.type
-                                            );
+                                        window.location.href = `{{ route('retailer.order.list', ':type') }}`.replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -1118,10 +1318,11 @@
                                     });
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
+                                Swal.close();
                                 Swal.fire({
                                     title: "Error!",
-                                    text: "Something went wrong, Please try later!",
+                                    text: "Something went wrong, please try again later!",
                                     icon: "error",
                                     confirmButtonText: "OK"
                                 });
@@ -1130,24 +1331,7 @@
                     }
                 });
             });
-
-
             //<-------------- END: Confirmed Order --------------->
-
-            // ready-to-ship order action
-            // $(document).on('click', '.readyToShipOrderAction', function() {
-            //     let product_id = $(this).attr('data-product-id');
-            //     let order_id = $(this).attr('data-order-id');
-            //     $('#product_id').val(product_id);
-            //     $('#order_id').val(order_id);
-
-            //     $('#delivered').removeClass('d-none');
-            //     $('#cancelled').removeClass('d-none');
-
-            //     $('#delivered_by_retailer').attr('checked', true);
-
-            //     $('#order-action-modal').modal('show');
-            // });
         });
     </script>
 @endsection
