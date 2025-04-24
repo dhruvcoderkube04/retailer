@@ -5,6 +5,7 @@ use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
 use App\Http\Controllers\Coupan;
 use App\Http\Controllers\CoupanController;
+use App\Http\Controllers\RetailerAccountTransactionController;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\RetilerController;;
@@ -179,6 +180,12 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/category-suggestion', [RetailerCategoryController::class, 'categorySuggestion'])->name('retailer.category-suggestion');
     Route::post('/category-suggestion-create', [RetailerCategoryController::class, 'createCategorySuggestion'])->name('retailer.category-suggestion-create');
     Route::post('/category-suggestion-delete', [RetailerCategoryController::class, 'deleteCategorySuggestion'])->name('retailer.category-suggestion-delete');
+
+    // accounts
+    Route::prefix('accounts')->group(function () {
+        Route::get('/', [RetailerAccountTransactionController::class, 'indexAccounts'])->name('retailer.accounts.index');
+        Route::get('/date-filter', [RetailerAccountTransactionController::class, 'dateFilterAccounts'])->name('retailer.accounts.date-filter'); // ajax
+    });
 });
 
 Route::get('/cc', function() {

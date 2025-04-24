@@ -566,6 +566,21 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <!--begin:Menu link-->
+                        <a class="menu-link {{ request()->is(['accounts']) ? 'active' : '' }}"
+                            href="{{ route('retailer.accounts.index') }}">
+                            <span class="menu-icon fs-1">
+                                <i class="ki-solid ki-finance-calculator fs-1"></i>
+                            </span>
+                            <span class="menu-title">Accounts</span>
+                        </a>
+                        <!--end:Menu link-->
+                    </div>
+                    <!--end:Menu item-->
+
                 </div>
                 <!--end::Menu-->
             </div>
