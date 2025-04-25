@@ -58,14 +58,17 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/retailer-web-setting', [RetilerWebManagement::class, 'webSetting'])->name('retailer.web.setting');
     Route::post('/retailer-websetting-setup', [RetilerWebManagement::class, 'webSettingSetup'])->name('retailer.web.setting.setup');
 
-    // retailer product
-    Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product'); // retailer (added, clone, own) product view page
+    //<-------------------- START : retailer product -------------------->
+    Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product'); // product list view
+    Route::get('/retailer-add-product', [RetilerController::class, 'retailerAddProduct'])->name('retailer.add.product'); // product add view
+    Route::post('/retailer-store-product', [RetilerController::class, 'retailerPostProduct'])->name('retailer.post.product'); // product store
+    Route::get('/retailer-edit-product/{product_id}', [RetilerController::class, 'retailerEditProduct'])->name('retailer.edit.product'); // product edit view
+    Route::post('/retailer-update-product/{product_id}', [RetilerController::class, 'retailerUpdateProduct'])->name('retailer.update.products'); // product update
 
-    Route::get('/retailer-add-product', [RetilerController::class, 'retailerAddProduct'])->name('retailer.add.product'); // retailer (added, clone, own) product view page
-    Route::post('/retailer-add-product', [RetilerController::class, 'retailerPostProduct'])->name('retailer.post.product'); // retailer (added, clone, own) product view page
-
-    Route::post('/retailer-update-product', [RetilerController::class, 'retailerUpdateProduct'])->name('retailer.products.update');
-    Route::get('/get-sub-category-variations', [RetilerController::class, 'getSubCategoryVariations'])->name('retailer.products.get-sub-category-variations'); // get list of variations of selected sub-category
+    Route::get('/get-sub-category-variations', [RetilerController::class, 'getSubCategoryVariations'])->name('retailer.products.get-sub-category-variations'); // ajax
+    Route::get('/product-unique-slug-check', [RetilerController::class, 'productUniqueSlugCheck'])->name('retailer.products.unique-slug-check'); // ajax
+    Route::get('/retailer/get-subcategories', [RetilerController::class, 'getSubCategories'])->name('retailer.getSubCategories'); // ajax
+    //<-------------------- END : retailer product -------------------->
 
 
     // Bulk product upload
@@ -128,8 +131,6 @@ Route::middleware(['retailer'])->group(function () {
     Route::post('/delete-ticket', [RetilerController::class, 'deleteTicket'])->name('retailer.ticket.delete');
     Route::get('/edit-ticket/{ticket_id}', [RetilerController::class, 'editTicket'])->name('retailer.ticket.edit');
     Route::post('/update-ticket/{id}', [RetilerController::class, 'updateTicket'])->name('retailer.ticket.update');
-
-    Route::get('/retailer/get-subcategories', [RetilerController::class, 'getSubCategories'])->name('retailer.getSubCategories');
 
     // rate calculation
     Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');
