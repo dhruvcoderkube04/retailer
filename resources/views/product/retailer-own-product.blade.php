@@ -199,29 +199,15 @@
                                                                 <span class="path4"></span><span class="path5"></span>
                                                             </i>
                                                         </button>
-                                                        <button
-                                                            class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px edit-product"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#kt_modal_update_permission"
-                                                            data-id="{{ $cloneProduct->id }}"
-                                                            data-name="{{ $cloneProduct->name }}"
-                                                            data-description="{{ $cloneProduct->description }}"
-                                                            data-tags="{{ $cloneProduct->tags }}"
-                                                            data-category="{{ $cloneProduct->category_id }}"
-                                                            data-sub_category="{{ $cloneProduct->sub_category_id }}"
-                                                            data-old-price="{{ $cloneProduct->old_price }}"
-                                                            data-price="{{ $cloneProduct->new_price }}"
-                                                            data-images="{{ $cloneProduct->images }}"
-                                                            data-videos="{{ $cloneProduct->videos }}"
-                                                            data-sku="{{ $cloneProduct->sku }}"
-                                                            data-quantity="{{ $cloneProduct->quantity }}"
-                                                            data-product-variations="{{ $cloneProduct->productVariations }}">
-                                                            <i class="ki-duotone ki-pencil fs-3">
+                                                        <a href="{{ route('retailer.edit.product', $cloneProduct->id) }}"
+                                                            title="Edit"
+                                                            class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
+                                                            <i class="ki-duotone ki-pencil fs-4">
                                                                 <span class="path1"></span><span
                                                                     class="path2"></span><span class="path3"></span>
                                                                 <span class="path4"></span><span class="path5"></span>
                                                             </i>
-                                                        </button>
+                                                        </a>
                                                     </td>
                                                     <td>
                                                         <div class="d-flex align-items-center">
@@ -244,7 +230,7 @@
                                                         <span class="fw-bold">{{ $cloneProduct->sku }}</span>
                                                     </td>
                                                     <td class="text-center pe-0" data-order="22">
-                                                        {{ @$cloneProduct->category->category_name }}
+                                                        {{ @$cloneProduct->sub_category->sub_category_name }}
                                                     </td>
                                                     <td class="text-center" data-order="22">
                                                         <div class="badge badge-light-primary">
@@ -267,136 +253,6 @@
                     </div>
                 </div>
             </div>
-
-
-            <div class="modal fade" id="kt_modal_update_permission" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered mw-850px">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 class="fw-bold">Edit Product</h2>
-                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                                <i class="ki-duotone ki-cross fs-1"></i>
-                            </div>
-                        </div>
-                        <div class="modal-body scroll-y my-2 mx-3">
-                            <form id="updateProductForm">
-                                @csrf
-                                <input type="hidden" id="product_id" name="product_id">
-                                <input type="hidden" id="sub_category_id" name="sub_category_id">
-                                <input type="hidden" id="product_variations" name="product_variations">
-
-                                <div class="mb-6">
-                                    <label class="required form-label">Product Name</label>
-                                    <input type="text" class="form-control" id="product_name" name="product_name">
-                                    <div class="fs-7 text-danger mt-2 error error_product_name"></div>
-                                </div>
-
-                                <div class="mb-6">
-                                    <label class="required form-label">Description</label>
-                                    <textarea class="form-control" id="description" name="description"></textarea>
-                                    <div class="fs-7 text-danger mt-2 error error_description"></div>
-                                </div>
-
-                                <div class="mb-6">
-                                    <label class="required form-label">Tags</label>
-                                    <input type="text" class="form-control" id="tags" name="tags">
-                                    <div class="fs-7 text-danger mt-2 error error_tags"></div>
-                                </div>
-
-                                <div class="row mb-6">
-                                    <div class="col-md-6">
-                                        <label class="required form-label">Categories</label>
-                                        <select class="form-select" id="categories" data-control="select2"
-                                            name="categories">
-                                            @foreach ($category_list as $category)
-                                                <option value="{{ $category->id }}">{{ $category->category_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <div class="fs-7 text-danger mt-2 error error_categories"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="required form-label">Sub Category</label>
-                                        <select class="form-select" id="sub_category" data-control="select2"
-                                            name="sub_category">
-                                            <option value="">Select Sub Category</option>
-                                            <!-- Options will be loaded dynamically -->
-                                        </select>
-                                        <div class="fs-7 text-danger mt-2 error error_sub_category"></div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-6">
-                                    <div class="product-variation-section" style="display: none;">
-                                        <div class="fv-row" id="add_variation_input"></div>
-                                    </div>
-                                </div>
-
-                                <div class="row mb-6">
-                                    <div class="col-md-6">
-                                        <label class="required form-label">Old Price</label>
-                                        <input type="number" class="form-control" id="old_price" name="old_price">
-                                        <div class="fs-7 text-danger mt-2 error error_old_price"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="required form-label">New Price</label>
-                                        <input type="number" class="form-control" id="price" name="price">
-                                        <div class="fs-7 text-danger mt-2 error error_price"></div>
-                                    </div>
-                                </div>
-
-                                <div class="row mb-6">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Images (Max: 3)</label>
-                                        <input type="file" class="form-control" id="image" name="images[]"
-                                            multiple accept="image/*">
-                                        <small class="text-muted">You can upload up to 3 images.</small>
-                                        <div class="fs-7 text-danger mt-2 error error_images"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Video (Max: 1)</label>
-                                        <input type="file" class="form-control" id="video" name="video"
-                                            accept="video/*">
-                                        <small class="text-muted">Only 1 video file is allowed.</small>
-                                        <div class="fs-7 text-danger mt-2 error error_video"></div>
-                                    </div>
-                                </div>
-
-                                <div class="row mb-6">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Images Preview</label>
-                                        <div class="row g-2" id="image-preview"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Video Preview</label>
-                                        <div id="video-preview"></div>
-                                    </div>
-                                </div>
-
-                                <div class="row mb-6">
-                                    <div class="col-md-6">
-                                        <label class="required form-label">SKU</label>
-                                        <input type="text" class="form-control" id="sku" name="sku">
-                                        <div class="fs-7 text-danger mt-2 error error_sku"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="required form-label">Quantity</label>
-                                        <input type="number" class="form-control" id="quantity" name="quantity">
-                                        <div class="fs-7 text-danger mt-2 error error_quantity"></div>
-                                    </div>
-                                </div>
-
-                                <div class="text-center mt-7">
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                                </div>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
 
             <div class="modal fade" id="kt_modal_add_product" tabindex="-1" style="display: none;" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered mw-650px">
@@ -575,115 +431,7 @@
 
 
             $(document).ready(function() {
-                // change category
-                $(document).on('change', '#categories', function() {
-                    let categoryId = $(this).val();
-
-                    if (categoryId) {
-                        $.ajax({
-                            url: "{{ route('retailer.getSubCategories') }}", // Create this route
-                            type: "GET",
-                            data: {
-                                category_id: categoryId
-                            },
-                            success: function(data) {
-                                $('#sub_category').empty().append(
-                                    '<option value="">Select Sub Category</option>');
-                                $.each(data, function(key, value) {
-                                    $('#sub_category').append('<option value="' +
-                                        value.id + '">' + value.sub_category_name +
-                                        '</option>');
-                                });
-                            }
-                        });
-                    } else {
-                        $('#sub_category').empty().append(
-                            '<option value="">Select Sub Category</option>');
-                    }
-                });
-
-                // change sub-category
-                $(document).on('change', '#sub_category', function() {
-                    let subCategoryId = $(this).val();
-
-                    // selected data (for edit)
-                    let selectedSubCategory = $('#sub_category_id').val();
-                    let selectedProductVariations = JSON.parse($("#product_variations").val());
-
-                    if (subCategoryId) {
-                        $.ajax({
-                            url: '{{ route('retailer.products.get-sub-category-variations') }}',
-                            type: 'GET',
-                            data: {
-                                sub_category_id: subCategoryId
-                            },
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                $('.product-variation-section').hide();
-                                if (response.status) {
-                                    let variations = response.sub_category_variation;
-                                    let inputHtml =
-                                        '<label class="required form-label">Product Variations</label>';
-
-                                    if (variations) {
-                                        let variationArray = variations.split(',');
-
-                                        variationArray.forEach(function(variation, index) {
-                                            let trimmedVariation = variation.trim();
-
-                                            if (subCategoryId == selectedSubCategory) {
-                                                inputHtml += `
-                                                    <div class="row mb-3 align-items-center gap-3">
-                                                        <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
-                                                        <div class="col"><input type="text" name="variation_price[${index}]" value="${selectedProductVariations[index].price}" class="form-control" placeholder="Enter price" required /></div>
-                                                    </div>`;
-                                            } else {
-                                                inputHtml += `
-                                                    <div class="row mb-3 align-items-center gap-3">
-                                                        <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
-                                                        <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" required /></div>
-                                                    </div>`;
-                                            }
-                                        });
-
-                                        $('.product-variation-section').show();
-                                        $('#add_variation_input').html(inputHtml);
-                                    } else {
-                                        $('#add_variation_input').html(
-                                            '<p class="text-muted">No product variations available.</p>'
-                                        );
-                                        $('.product-variation-section').show();
-                                    }
-
-                                } else {
-                                    if (response.msg == 'Not found') {
-                                        $('#add_variation_input').html(
-                                            '<p class="text-muted">No product variations available.</p>'
-                                        );
-                                        $('.product-variation-section').show();
-                                    }
-                                    $('.product-variation-section').hide();
-                                    console.error('AJAX Error:', response.msg);
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                $('.product-variation-section').hide();
-                                console.error('AJAX Error:', error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Something went wrong! Please try again.'
-                                });
-                            }
-                        });
-                    } else {
-                        $('#add_variation_input').html('');
-                    }
-                });
-
-                // Initialize Form Validation
+                //<----------------- START : product upload form submit ---------------->
                 $("#productUploadForm").submit(function(e) {
                     e.preventDefault();
 
@@ -789,8 +537,9 @@
                         }
                     });
                 });
+                //<----------------- END : product upload form submit ---------------->
 
-                // delete product
+                //<----------------- START : delete product ---------------->
                 $(".delete-product").click(function() {
                     let productId = $(this).data("id");
 
@@ -831,196 +580,7 @@
                         }
                     });
                 });
-
-                let tagInput = document.querySelector('#tags');
-                let tagify = new Tagify(tagInput);
-
-                // edit product
-                $(".edit-product").on("click", function() {
-                    let productId = $(this).data("id");
-                    let productName = $(this).data("name");
-                    let description = $(this).data("description");
-                    let tags = $(this).data("tags");
-                    let tagArray = tags.split(',').map(tag => tag.trim());
-                    let category = $(this).data("category");
-                    let subCategory = $(this).data("sub_category");
-                    let productVariations = $(this).data('product-variations');
-                    let oldPrice = $(this).data("old-price");
-                    let price = $(this).data("price");
-                    let images = $(this).data("images");
-                    let videos = $(this).data("videos");
-                    let sku = $(this).data("sku");
-                    let quantity = $(this).data("quantity");
-
-                    tagify.removeAllTags();
-                    tagify.addTags(tagArray);
-
-                    $("#product_id").val(productId);
-                    $("#product_name").val(productName);
-                    $("#description").val(description);
-                    $("#tags").val(tags);
-                    $("#categories").val(category);
-                    $("#sub_category_id").val(subCategory);
-                    $("#product_variations").val(JSON.stringify(productVariations));
-                    $("#old_price").val(oldPrice);
-                    $("#price").val(price);
-                    $("#sku").val(sku);
-                    $("#quantity").val(quantity);
-
-                    // **Select sub-category from selected category**
-                    if (category) {
-                        $.ajax({
-                            url: "{{ route('retailer.getSubCategories') }}",
-                            type: "GET",
-                            data: {
-                                category_id: category
-                            },
-                            success: function(data) {
-                                $('#sub_category').empty().append(
-                                    '<option value="">Select Sub Category</option>');
-                                $.each(data, function(key, value) {
-                                    $('#sub_category').append('<option value="' + value.id +
-                                        '">' + value.sub_category_name + '</option>');
-                                });
-                                $('#sub_category').val(subCategory);
-                            }
-                        });
-                    }
-                    setTimeout(() => {
-                        $('#sub_category').trigger('change');
-                    }, 500);
-
-                    // **Handle Image Preview with Delete Option**
-                    $("#image-preview").html("");
-                    if (images) {
-                        let imageList = images.split(",");
-                        console.log(imageList, "test");
-                        let imagePreviewHtml = "";
-                        imageList.forEach((img, index) => {
-                            let imagePath = img;
-                            imagePreviewHtml += `
-                            <div class="col-4 d-flex flex-column align-items-center">
-                                <div class="position-relative">
-                                    <img src="${imagePath}" class="img-thumbnail m-1" style="width: 120px; height: 120px; object-fit: cover;">
-                                </div>
-                            </div>`;
-                            // imagePreviewHtml += `
-                            // <div class="col-4 d-flex flex-column align-items-center">
-                            //     <div class="position-relative">
-                            //         <img src="${imagePath}" class="img-thumbnail m-1" style="width: 120px; height: 120px; object-fit: cover;">
-                            //         <button type="button" class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px position-absolute top-0 end-0 remove-image" data-image="${img}">
-                            //             <i class="ki-duotone ki-cross fs-3">
-                            //                 <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                            //                 <span class="path4"></span><span class="path5"></span>
-                            //             </i>
-                            //         </button>
-                            //     </div>
-                            // </div>`;
-                        });
-                        $("#image-preview").html(imagePreviewHtml);
-                    }
-
-                    // **Handle Video Preview**
-                    $("#video-preview").html("");
-                    if (videos) {
-                        let videoPath = videos;
-                        let videoPreviewHtml = `
-                            <video width="200" controls>
-                                <source src="${videoPath}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>`;
-                        $("#video-preview").html(videoPreviewHtml);
-                    }
-                });
-
-                // **Remove Image from Preview**
-                $(document).on("click", ".remove-image", function() {
-                    let imageToRemove = $(this).data("image");
-                    $(this).parent().remove();
-
-                    // Remove the image from hidden input field
-                    let remainingImages = [];
-                    $("#image-preview .image-container").each(function() {
-                        remainingImages.push($(this).data("image"));
-                    });
-                    $("#product_id").data("images", remainingImages.join(",")); // Update the stored images
-                });
-
-                // **Validate Image Upload Limit**
-                $("#image").on("change", function() {
-                    let existingImagesCount = $("#image-preview .image-container").length;
-                    let newImagesCount = this.files.length;
-                    if (existingImagesCount + newImagesCount > 3) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'You can upload a maximum of 3 images!',
-                        });
-                        this.value = "";
-                    }
-                });
-
-                // **Validate Video Upload Limit**
-                $("#video").on("change", function() {
-                    if (this.files.length > 1) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Only 1 video is allowed!',
-                        });
-                        this.value = "";
-                    }
-                });
-
-                // **Submit Form with AJAX**
-                $("#updateProductForm").on("submit", function(e) {
-                    e.preventDefault();
-                    let formData = new FormData(this);
-
-                    // Append remaining images to formData
-                    let remainingImages = [];
-                    $("#image-preview .image-container").each(function() {
-                        remainingImages.push($(this).data("image"));
-                    });
-                    formData.append("remaining_images", remainingImages.join(","));
-
-                    $.ajax({
-                        url: "/retailer-update-product",
-                        type: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Product updated successfully!'
-                            });
-                            $("#kt_modal_update_permission").modal("hide");
-                            location.reload();
-                        },
-                        error: function(xhr) {
-                            if (xhr.status === 422) {
-                                $.each(xhr.responseJSON.errors, function(key, value) {
-                                    const baseKey = key.split('.')[0];
-                                    const input = $('[name="' + key + '"]');
-
-                                    // Display message
-                                    const errorElement = $('.error_' + baseKey);
-                                    if (errorElement.length > 0) {
-                                        errorElement.text(value[0]).show();
-                                    }
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Something went wrong!',
-                                    text: 'Please try again later.'
-                                });
-                            }
-                        }
-                    });
-                });
-
+                //<----------------- END : delete product ---------------->
 
                 //<----------------- START : active-tab pass on url ---------------->
                 // Check if "active-tab" is in the URL, if not, redirect to ?active-tab=1
@@ -1048,12 +608,7 @@
                     newUrl.searchParams.set("active-tab", tabValue);
                     window.history.pushState({}, "", newUrl);
                 });
-            });
-
-            var input = document.querySelector('#tags');
-            new Tagify(input, {
-                delimiters: " ", // space thi tag split thase
-                // comma pan joye to use: delimiters: ", "
+                //<----------------- END : active-tab pass on url ---------------->
             });
         </script>
     @endsection

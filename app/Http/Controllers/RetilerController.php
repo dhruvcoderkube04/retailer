@@ -15,6 +15,7 @@ use App\Models\RTOAddress;
 use App\Models\Ticket;
 use App\Models\COrders;
 use App\Models\ProductVariation;
+use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -313,66 +314,7 @@ class RetilerController extends Controller
 
 
     // <------------------- START : Retailer product (Added, Clone, Own) ------------------->
-    // public function retailerProduct()
-    // {
-    //     try {
-    //         $retailer = Auth::user()->id;
-
-    //         $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
-    //             ->where('retailer_id', $retailer)
-    //             ->get();
-
-    //         $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
-    //             $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
-    //                 ->where('category_id', $retailerProduct->category_id)
-    //                 ->distinct('id')
-    //                 ->get();
-
-    //             $retailerProduct->setRelation('products', $products);
-    //             return $retailerProduct;
-    //         });
-
-    //         $retailerCloneProducts = RetailerCloneProduct::with('category')
-    //             ->where('retailer_id', $retailer)
-    //             ->get();
-
-    //         $clonedProducts = RetailerCloneProduct::where('retailer_id', $retailer)
-    //             ->pluck('product_id')
-    //             ->toArray();
-
-    //         // $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
-
-
-    //             // Get category_ids linked to this retailer
-    //             $category_ids = DB::table('retailer_categories')
-    //             ->where('retailer_id', $retailer)
-    //             ->pluck('category_id');
-
-    //             // Fetch only categories which are active and assigned to this retailer
-    //             $category_list = Category::select('category_name', 'id')
-    //             ->where('status', 1)
-    //             ->whereIn('id', $category_ids)
-    //             ->get();
-    //         // Pass the filtered data to the view.
-    //         return view('product.retailer-own-product', [
-    //             'retailerProducts' => $filteredRetailerProducts,
-    //             'retailerCloneProducts' => $retailerCloneProducts,
-    //             'clonedProducts' => $clonedProducts,
-    //             'category_list' => $category_list
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         // Log the error (optional)
-    //         Log::error('Error in retailerProduct: ' . $e->getMessage());
-    //         session()->flash('error', 'Something went wrong');
-    //         // return redirect()->route('retailer.dashboard');
-
-    //         // Return an error view or redirect with an error message
-    //         // return view('errors.retailer_product_error', ['error' => $e->getMessage()]); //create error.retailer_product_error.blade.php
-    //         //or
-    //         return redirect()->back()->with('error', 'An error occurred. Please try again.');
-    //     }
-    // }
-
+    // product list view
     public function retailerProduct()
     {
         try {
@@ -405,21 +347,27 @@ class RetilerController extends Controller
                 ->pluck('product_id')
                 ->toArray();
 
-            // Get category_ids linked to this retailer
-            $category_ids = DB::table('retailer_categories')
-                ->where('retailer_id', $retailer)
+            // category_list
+            $category_ids = RetailerCategory::where('retailer_id', $retailer)
                 ->pluck('category_id');
-
-            // Fetch only categories which are active and assigned to this retailer
             $category_list = Category::select('category_name', 'id')
                 ->where('status', 1)
                 ->whereIn('id', $category_ids)
+                ->get();
+
+            // sub_category_list
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
+                ->pluck('sub_category_id');
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
                 ->get();
 
             return view('product.retailer-own-product', [
                 'retailerProducts' => $filteredRetailerProducts,
                 'retailerCloneProducts' => $retailerCloneProducts,
                 'clonedProducts' => $clonedProducts,
+                'sub_category_list' => $sub_category_list,
                 'category_list' => $category_list
             ]);
         } catch (\Exception $e) {
@@ -429,75 +377,47 @@ class RetilerController extends Controller
         }
     }
 
-    // clone product view
-    public function cloneProductView(Request $request, $product_id)
-    {
-        try {
-            $product = Product::where('id', $product_id)->first();
-
-            return view('product.clone-product-view', compact('product'));
-        } catch (Exception $e) {
-            Log::error('Error in cloneProductView: ' . $e->getMessage());
-            session()->flash('error', $e->getMessage());
-            return redirect()->route('retailer.product');
-        }
-    }
-
-    // Add Product
+    // product add view
     public function retailerAddProduct(Request $request)
     {
-        // $category_list = Category::select('category_name', 'id')->where('status', 1)->get();
-
-        $retailer_id = auth()->id(); // Assume retailer is logged in
+        $retailer = Auth::user(); // Assume retailer is logged in
 
         // Get category_ids linked to this retailer
-        $category_ids = DB::table('retailer_categories')
-            ->where('retailer_id', $retailer_id)
-            ->pluck('category_id');
-
-        // Fetch only categories which are active and assigned to this retailer
-        $category_list = Category::select('category_name', 'id')
-            ->where('status', 1)
-            ->whereIn('id', $category_ids)
-            ->get();
-
-        return view('product.add-product-view', ['category_list' => $category_list]);
-    }
-
-    public function getSubCategories(Request $request)
-    {
-        $retailer_id = auth()->id(); // Or pass retailer id from frontend
-
-        $subCategoryIds = DB::table('retailer_categories')
-            ->where('retailer_id', $retailer_id)
-            ->where('category_id', $request->category_id)
+        $sub_category_ids = RetailerCategory::where('retailer_id', $retailer->id)
             ->pluck('sub_category_id');
 
-        $subCategories = DB::table('sub_categories')
-            ->whereIn('id', $subCategoryIds)
+        // Fetch only categories which are active and assigned to this retailer
+        $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
             ->where('status', 1)
-            ->get(['id', 'sub_category_name']);
+            ->whereIn('id', $sub_category_ids)
+            ->get();
 
-        return response()->json($subCategories);
+        return view('product.add-product-view', ['sub_category_list' => $sub_category_list]);
     }
 
-    // store retailer product
+    // product store
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
             'product_name' => 'required|min:3|max:100',
-            'product_description' => 'required|min:5|max:100',
-            'product_tags' => 'required|min:3|max:255',
-            'categories' => 'required|numeric|exists:categories,id',
-            'sub_category' => 'required|numeric|exists:sub_categories,id',
+            'slug' => 'required|string|unique:products,slug',
+            // 'categories' => 'required|numeric|exists:categories,id',
+            'sub_category_id' => 'required|numeric|exists:sub_categories,id',
+            'product_tags' => 'required|string|max:1000',
+            'status' => 'required|string|in:active,inactive',
             'old_price' => 'required|numeric|min:1',
             'new_price' => 'required|numeric|min:1',
+            'product_description' => 'required|string',
             'images' => 'required|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'nullable|mimes:mp4|max:6144',      // 6MB
-            // 'video' => 'nullable|mimes:mp4|max:8192', // Adjusted video size to 8MB
-            'sku' => 'required|string',
+            'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
+            'sku' => 'nullable|string|unique:products,sku',
             'quantity' => 'required|integer|min:1',
+            'meta_title' => 'nullable|string|max:255',
+            'product_meta_keywords' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:2000',
+            'variation' => 'array',
+            'variation_price' => 'array'
         ]);
 
         DB::beginTransaction();
@@ -505,21 +425,9 @@ class RetilerController extends Controller
             $retailer_id = Auth::user()->id;
 
             $product = new RetailerCloneProduct();
-            $product->name = $request->product_name;
-            $product->description = $request->product_description;
 
-            $slugBase = Str::slug($request->product_name);
-            $uniqueSuffix = now()->timestamp;
-            $product->slug = $slugBase . '-' . $uniqueSuffix;
-
-            $tags = json_decode($request->product_tags, true);
-            $product->tags = collect($tags)->pluck('value')->implode(',');
-
-            $product->quantity = $request->quantity;
-            $product->sub_category_id = $request->sub_category;
-            $product->old_price = $request->old_price;
-            $product->new_price = $request->new_price;
-
+            // digital ocean
+            // IMAGE
             $imagePaths = [];
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $file) {
@@ -535,6 +443,7 @@ class RetilerController extends Controller
                 $product->images = implode(',', $imagePaths);
             }
 
+            // VIDEO
             if ($request->hasFile('video')) {
                 $videoFile = $request->file('video');
                 $videoOriginalExtension = $videoFile->getClientOriginalExtension();
@@ -548,10 +457,34 @@ class RetilerController extends Controller
                 $product->videos = null;
             }
 
-            $product->sku = $request->sku;
+            // sub-category & category
+            $subCategory = SubCategory::find($request->sub_category_id);
+
+            // SKU number check else generated unique
+            if ($request->sku) {
+                $sku = $request->sku;
+            } else {
+                do {
+                    // Generate a 14-digit random number (padded if needed)
+                    $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+                } while (Product::where('sku', $sku)->exists());
+            }
+
             $product->retailer_id = $retailer_id;
-            $product->category_id = $request->categories;
-            $product->status = 'active';
+            $product->name = $request->product_name;
+            $product->slug = $request->slug;
+            $product->category_id = $subCategory->category_id;
+            $product->sub_category_id = $request->sub_category_id;
+            $product->tags = $request->product_tags;
+            $product->status = $request->status;
+            $product->old_price = $request->old_price;
+            $product->new_price = $request->new_price;
+            $product->description = $request->product_description;
+            $product->sku = $sku;
+            $product->quantity = $request->quantity;
+            $product->meta_title = $request->meta_title;
+            $product->meta_description = $request->meta_description;
+            $product->meta_keywords = $request->product_meta_keywords;
             $product->save();
 
             // Store variations
@@ -571,131 +504,305 @@ class RetilerController extends Controller
             }
 
             DB::commit();
-
-            session()->flash('success', 'Product added successfully');
-            return redirect()->route('retailer.product');
+            return redirect()->back()->with('success', 'Product added successfully!');
         } catch (Exception $e) {
-            // DB::rollBack();
+            DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());
-            session()->flash('error', 'Something went wrong');
-            return redirect()->route('retailer.product');
+            return redirect()->back()->with('error', 'Something went wrong!');
+        }
+    }
+
+    // product edit view
+    public function retailerEditProduct(Request $request, $product_id)
+    {
+        try {
+            $retailer = Auth::user();
+
+            $product_detail = RetailerCloneProduct::with('productVariations')
+                ->where('retailer_id', $retailer->id)
+                ->where('id', $product_id)
+                ->first();
+
+            // Get category_ids linked to this retailer
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer->id)
+                ->pluck('sub_category_id');
+
+            // Fetch only categories which are active and assigned to this retailer
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
+                ->get();
+
+            return view('product.edit-product-view', compact('product_detail', 'sub_category_list'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error in retailerEditProduct: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong!');
         }
     }
 
     // update retailer product
-    public function retailerUpdateProduct(Request $request)
+    public function retailerUpdateProduct(Request $request, $product_id)
     {
         $request->validate([
-            'product_id' => 'required|integer',
-            'product_name' => 'required|min:3|max:100',
-            'description' => 'required|min:5|max:100',
-            'tags' => 'required|min:3|max:255',
-            'categories' => 'required|numeric|exists:categories,id',
-            'sub_category' => 'required|numeric|exists:sub_categories,id',
-            'old_price' => 'required|numeric|min:1',
-            'price' => 'required|numeric|min:1',
+            'product_name' => 'nullable|string|max:255',
+            // 'categories' => 'required|exists:categories,id',
+            'sub_category_id' => 'required|exists:sub_categories,id',
+            'product_tags' => 'required|string|max:255',
+            'status' => 'required|string|in:active,inactive',
+            'old_price' => 'nullable|numeric|min:1',
+            'new_price' => 'nullable|numeric|min:1',
+            'product_description' => 'nullable|string|min:10|max:255',
             'images' => 'nullable|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'nullable|mimes:mp4|max:6144', // 6MB
-            'sku' => 'required|string',
-            'quantity' => 'required|integer|min:1',
+            'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
+            'sku' => 'nullable|string|unique:products,sku,' . $product_id,
+            'quantity' => 'nullable|integer|min:1',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:255',
+            'product_meta_keywords' => 'nullable|string|max:255',
+            'variation' => 'array',
+            'variation_price' => 'array'
         ]);
 
         DB::beginTransaction();
         try {
             $product = RetailerCloneProduct::findOrFail($request->product_id);
-            $product->name = $request->product_name;
-            $product->description = $request->description;
-            $tags = json_decode($request->tags, true); // decode JSON to array
-            $product->tags = collect($tags)->pluck('value')->implode(',');
-            $product->category_id = $request->categories;
-            $product->sub_category_id = $request->sub_category;
-            $product->old_price = $request->old_price;
-            $product->new_price = $request->price;
-            $product->sku = $request->sku;
-            $product->quantity = $request->quantity;
 
-            // upload in  digital ocean code
-            if ($request->hasFile('images')) {
-                $files = $request->file('images');
-                $imagePaths = [];
+            // digital ocean
+            // IMAGE
+            $existingImages = explode(',', $product->images);
+            $imagePaths = [];
+            if ($request->hasFile('images')) { // Check if the 'images' field has files
+                $files = $request->file('images'); // Get the array of uploaded files
 
-                foreach ($files as $index => $file) {
-                    if ($index >= 3) break; // Allow only 3 images
+                foreach ($files as $file) { // Iterate through each uploaded file
+                    try {
+                        $originalExtension = $file->getClientOriginalExtension();
+                        $imageFileName = 'product_image_' . now()->timestamp . '_' . uniqid() . '.' . $originalExtension;
+                        $imageDirectory = 'products/images/'; // Directory in DigitalOcean Spaces for images
+                        $imagePathInSpaces = $imageDirectory . $imageFileName;
 
-                    $originalExtension = $file->getClientOriginalExtension();
-                    $filename = 'product_image_' . now()->timestamp . '_' . $index . '.' . $originalExtension;
-                    $directory = 'products/images/'; // Directory in DigitalOcean Spaces
-                    $path = $directory . $filename;
+                        // Upload image to DigitalOcean Spaces
+                        Storage::disk('spaces')->putFileAs($imageDirectory, $file, $imageFileName, 'public');
 
-                    // Upload to DigitalOcean Spaces
-                    Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+                        // Store the public URL for the image
+                        $imagePaths[] = Storage::disk('spaces')->url($imagePathInSpaces); // Use array_push or direct assignment with []
 
-                    // Store the public URL
-                    $imagePaths[] = Storage::disk('spaces')->url($path);
+                    } catch (\Exception $e) {
+                        Log::error('Image Upload Failed to Spaces: ' . $e->getMessage());
+                        return back()->with('error', 'One or more image uploads failed.')->withInput();
+                    }
                 }
 
-                // Store image URLs as a comma-separated string
-                $product->images = implode(',', $imagePaths);
+                // Delete old images from Spaces
+                foreach ($existingImages as $image) {
+                    if (!empty($image)) {
+                        try {
+                            $oldImagePath = str_replace(Storage::disk('spaces')->url(''), '', $image);
+                            Storage::disk('spaces')->delete($oldImagePath);
+                            Log::info('Old Image Removed: ' . $oldImagePath);
+                        } catch (\Exception $deleteException) {
+                            Log::error('Failed to Remove Old Image: ' . $deleteException->getMessage());
+                        }
+                    }
+                }
+            } else {
+                $imagePaths = $existingImages;
             }
+            $imagePathsString = implode(',', $imagePaths);
 
-            // Handle video upload
+            // VIDEO
+            $videoPath = $product->videos ?? null;
             if ($request->hasFile('video')) {
-                $video = $request->file('video');
-                $originalExtension = $video->getClientOriginalExtension();
-                $videoName = 'product_video_' . now()->timestamp . '.' . $originalExtension;
-                $videoDirectory = 'products/videos/'; // Directory in DigitalOcean Spaces
-                $videoPath = $videoDirectory . $videoName;
+                try {
+                    $file = $request->file('video');
+                    $originalExtension = $file->getClientOriginalExtension();
+                    $fileName = 'product_video_' . now()->timestamp . '_' . uniqid() . '.' . $originalExtension;
+                    $directory = 'products/videos/'; // Directory in DigitalOcean Spaces
+                    $path = $directory . $fileName;
 
-                // Upload to DigitalOcean Spaces
-                Storage::disk('spaces')->putFileAs($videoDirectory, $video, $videoName, 'public');
+                    // Upload to DigitalOcean Spaces
+                    Storage::disk('spaces')->putFileAs($directory, $file, $fileName, 'public');
 
-                // Store the public URL
-                $product->videos = Storage::disk('spaces')->url($videoPath);
+                    // Store the public URL
+                    $videoPath = Storage::disk('spaces')->url($path);
+
+                    // Delete old video if exists
+                    if (!empty($product->video)) {
+                        try {
+                            $oldVideoPath = str_replace(Storage::disk('spaces')->url(''), '', $product->video);
+                            Storage::disk('spaces')->delete($oldVideoPath);
+                            Log::info('Old video deleted: ' . $oldVideoPath);
+                        } catch (\Exception $deleteEx) {
+                            Log::error('Failed to delete old video: ' . $deleteEx->getMessage());
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Video Upload Failed: ' . $e->getMessage());
+                    return back()->with('error', 'Video upload failed.')->withInput();
+                }
             }
 
+            // sub-category & category
+            $subCategory = SubCategory::find($request->sub_category_id);
+
+            // SKU number check else generated unique
+            if ($request->sku) {
+                $sku = $request->sku;
+            } else {
+                do {
+                    // Generate a 14-digit random number (padded if needed)
+                    $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+                } while (Product::where('sku', $sku)->exists());
+            }
+
+            // Update product details
+            $product->name = $request->product_name;
+            $product->sku = $sku;
+            $product->category_id = $subCategory->category_id ?? null;
+            $product->sub_category_id = $request->sub_category_id;
+            $product->description = $request->product_description;
+            $product->old_price = $request->old_price;
+            $product->new_price = $request->new_price;
+            $product->quantity = $request->quantity;
+            $product->status = $request->status;
+            $product->meta_title = $request->meta_title;
+            $product->meta_description = $request->meta_description;
+            $product->meta_keywords = $request->product_meta_keywords;
+            $product->tags = $request->product_tags;
+            $product->images = $imagePathsString;
+            $product->videos = $videoPath;
             $product->save();
 
-            // Store variations: update, create, and delete
+            // Handle Variations
             if (!empty($request->variation)) {
                 $incomingVariations = $request->variation;
+                $variationPrices = $request->variation_price;
 
-                // 1. Get existing variation values from DB
                 $existingVariations = ProductVariation::where('product_id', $product->id)
                     ->pluck('product_variation')
                     ->toArray();
 
-                // 2. Find variations to delete (existing - incoming)
+                // Delete removed variations
                 $variationsToDelete = array_diff($existingVariations, $incomingVariations);
-
-                // 3. Delete removed variations
                 if (!empty($variationsToDelete)) {
                     ProductVariation::where('product_id', $product->id)
                         ->whereIn('product_variation', $variationsToDelete)
                         ->delete();
                 }
 
-                // 4. Update or create current variations
                 foreach ($incomingVariations as $index => $variation) {
-                    ProductVariation::updateOrCreate(
-                        [
-                            'product_id' => $product->id,
-                            'product_variation' => $variation,
-                        ],
-                        [
-                            'price' => $request->variation_price[$index],
-                        ]
-                    );
+                    $price = $variationPrices[$index] ?? null;
+
+                    if (!empty($variation) && !is_null($price)) {
+                        ProductVariation::updateOrCreate(
+                            [
+                                'product_id' => $product->id,
+                                'product_variation' => $variation,
+                            ],
+                            [
+                                'price' => $price,
+                            ]
+                        );
+                    } elseif (!is_null($variation)) {
+                        // Delete if price is missing for this variation
+                        ProductVariation::where('product_id', $product->id)
+                            ->where('product_variation', $variation)
+                            ->delete();
+                    }
                 }
             } else {
+                // No variation sent, remove all existing
                 ProductVariation::where('product_id', $product->id)->delete();
             }
 
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'Product updated successfully!']);
+            return redirect()->back()->with('success', 'Product updated successfully!');
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Something went wrong!']);
+        }
+    }
+
+    // AJAX : get list of variations of selected sub-category
+    public function getSubCategoryVariations(Request $request)
+    {
+        $request->validate([
+            'sub_category_id' => 'required|exists:sub_categories,id'
+        ]);
+
+        try {
+            $subCategory = SubCategory::select('sub_category_variation')
+                ->where('id', $request->sub_category_id)
+                ->where('status', 1)
+                ->first();
+
+            if (!$subCategory) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Not found',
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Success',
+                'sub_category_variation' => $subCategory->sub_category_variation
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => $e
+            ]);
+        }
+    }
+
+    // AJAX : product slug unique check
+    public function productUniqueSlugCheck(Request $request)
+    {
+        $slug = Str::slug($request->slug);
+
+        $exists = Product::where('slug', $slug)->exists()
+            || RetailerCloneProduct::where('slug', $slug)->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug,
+        ]);
+    }
+
+    // AJAX : get sub-category from selected category_id
+    public function getSubCategories(Request $request)
+    {
+        $retailer_id = auth()->id(); // Or pass retailer id from frontend
+
+        $subCategoryIds = DB::table('retailer_categories')
+            ->where('retailer_id', $retailer_id)
+            ->where('category_id', $request->category_id)
+            ->pluck('sub_category_id');
+
+        $subCategories = DB::table('sub_categories')
+            ->whereIn('id', $subCategoryIds)
+            ->where('status', 1)
+            ->get(['id', 'sub_category_name']);
+
+        return response()->json($subCategories);
+    }
+
+    //------------------------
+
+    // clone product view
+    public function cloneProductView(Request $request, $product_id)
+    {
+        try {
+            $product = Product::where('id', $product_id)->first();
+
+            return view('product.clone-product-view', compact('product'));
+        } catch (Exception $e) {
+            Log::error('Error in cloneProductView: ' . $e->getMessage());
+            session()->flash('error', $e->getMessage());
+            return redirect()->route('retailer.product');
         }
     }
 
@@ -1894,39 +2001,6 @@ class RetilerController extends Controller
                 'message' => 'Error communicating with courier service.',
                 'error' => $e->getMessage(),
             ], 500);
-        }
-    }
-
-    // get list of variations of selected sub-category
-    public function getSubCategoryVariations(Request $request)
-    {
-        $request->validate([
-            'sub_category_id' => 'required|exists:sub_categories,id'
-        ]);
-
-        try {
-            $subCategory = SubCategory::select('sub_category_variation')
-                ->where('id', $request->sub_category_id)
-                ->where('status', 1)
-                ->first();
-
-            if (!$subCategory) {
-                return response()->json([
-                    'status' => false,
-                    'msg' => 'Not found',
-                ]);
-            }
-
-            return response()->json([
-                'status' => true,
-                'msg' => 'Success',
-                'sub_category_variation' => $subCategory->sub_category_variation
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'msg' => $e
-            ]);
         }
     }
 }

@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class CustomerOrders extends Model
 {
     protected $fillable = [
+        'order_id',
         'customer_id',
         'product_id',
+        'retailer_clone_product_id',
         'retailer_id',
         'wholesaler_id',
         'quantity',
-        'order_id',
+        'final_amount',
         'status',
         'confirmed_by_retailer_at',
         'transfered_retailer_to_wholesaler_at',
@@ -28,6 +30,7 @@ class CustomerOrders extends Model
 
         'delivered_by',
         'cancelled_by',
+        'inactive',
         'cancelled_reason',
 
         'pickup_address_id',
@@ -44,9 +47,12 @@ class CustomerOrders extends Model
 
         'payment_status',
         'payment_method',
-        'inactive',
         'variation_id'
 
+    ];
+
+    protected $casts = [
+        'charges' => 'array',
     ];
 
     public function customer()

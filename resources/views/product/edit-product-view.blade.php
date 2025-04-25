@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Add Product | TrendMart
+    Edit Product | TrendMart
 @endsection
 @section('content')
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -11,7 +11,7 @@
                 <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                            Add Product</h1>
+                            Edit Product</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Product</a>
@@ -19,7 +19,7 @@
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
                             </li>
-                            <li class="breadcrumb-item text-muted">Add Product</li>
+                            <li class="breadcrumb-item text-muted">Edit Product</li>
                         </ul>
                     </div>
 
@@ -56,7 +56,8 @@
 
                     {{-- <------------------- START : form ---------------> --}}
                     <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row"
-                        action="{{ route('retailer.post.product') }}" method="post" enctype="multipart/form-data">
+                        action="{{ route('retailer.update.products', $product_detail->id) }}" method="post"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="d-flex flex-column flex-row-fluid gap-2 gap-lg-5">
                             <div class="d-flex flex-column gap-4 gap-lg-7">
@@ -74,7 +75,7 @@
                                                     <label class="required form-label">Product Name</label>
                                                     <input type="text" name="product_name"
                                                         class="form-control mb-2 @error('product_name') is-invalid @enderror"
-                                                        placeholder="Product Name" value="{{ old('product_name') }}" />
+                                                        placeholder="Product Name" value="{{ $product_detail->name }}" />
                                                     @error('product_name')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -88,7 +89,7 @@
                                                     <input type="text" name="slug"
                                                         class="form-control mb-2 @error('slug') is-invalid @enderror"
                                                         placeholder="Auto generated as per product name"
-                                                        value="{{ old('slug') }}" readonly />
+                                                        value="{{ $product_detail->slug }}" disabled />
                                                     @error('slug')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -108,7 +109,7 @@
                                                         <option></option>
                                                         @foreach ($category_list as $category)
                                                             <option value="{{ $category->id }}"
-                                                                {{ old('categories') == $category->id ? 'selected' : '' }}>
+                                                                {{ old('categories', $product_detail->category_id) == $category->id ? 'selected' : '' }}>
                                                                 {{ Str::upper($category->category_name) }}</option>
                                                         @endforeach
                                                     </select>
@@ -130,7 +131,7 @@
                                                         @foreach ($sub_category_list as $sub_category)
                                                             <option data-category-id="{{ $sub_category->category_id }}"
                                                                 value="{{ $sub_category->id }}"
-                                                                {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
+                                                                {{ old('sub_category_id', $product_detail->sub_category_id) == $sub_category->id ? 'selected' : '' }}>
                                                                 {{ Str::upper($sub_category->sub_category_name) }}</option>
                                                         @endforeach
                                                     </select>
@@ -157,7 +158,7 @@
                                                     <label class="required form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                        id="product_tags" value="{{ old('product_tags') }}"
+                                                        id="product_tags" value="{{ $product_detail->tags }}"
                                                         placeholder="Fashion, Style, Electric" />
                                                     @error('product_tags')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
@@ -173,10 +174,15 @@
                                                         data-control="select2" name="status" data-hide-search="true"
                                                         data-placeholder="Select an option"
                                                         id="kt_ecommerce_add_product_status_select">
-                                                        <option></option>
-                                                        <option value="active" selected="selected">Published</option>
-                                                        <option value="inactive">Draft</option>
+                                                        <option value="" disabled>Select an option</option>
+                                                        <option value="active"
+                                                            {{ $product_detail->status == 'active' ? 'selected' : '' }}>
+                                                            Published</option>
+                                                        <option value="inactive"
+                                                            {{ $product_detail->status == 'inactive' ? 'selected' : '' }}>
+                                                            Draft</option>
                                                     </select>
+
                                                     @error('status')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -191,7 +197,8 @@
                                                     <label class="required form-label">Old Price</label>
                                                     <input type="number" name="old_price"
                                                         class="form-control mb-2 @error('old_price') is-invalid @enderror"
-                                                        placeholder="Old Price" value="{{ old('old_price') }}" />
+                                                        placeholder="Old Price"
+                                                        value="{{ $product_detail->old_price }}" />
                                                     @error('old_price')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -204,7 +211,8 @@
                                                     <label class="required form-label">New Price</label>
                                                     <input type="number" name="new_price"
                                                         class="form-control mb-2 @error('new_price') is-invalid @enderror"
-                                                        placeholder="New Price" value="{{ old('new_price') }}" />
+                                                        placeholder="New Price"
+                                                        value="{{ $product_detail->new_price }}" />
                                                     @error('new_price')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -216,7 +224,7 @@
                                         <div class="fv-row">
                                             <label class="required form-label">Description</label>
                                             <textarea name="product_description" cols="30" rows="3"
-                                                class="form-control @error('product_description') is-invalid @enderror" placeholder="Product Description">{{ old('product_description') }}</textarea>
+                                                class="form-control @error('product_description') is-invalid @enderror">{{ $product_detail->description }}</textarea>
                                             @error('product_description')
                                                 <div class="invalid-feedback fs-7">{{ $message }}</div>
                                             @enderror
@@ -237,7 +245,7 @@
                                             {{-- images --}}
                                             <div class="col-md-6">
                                                 <div class="mb-3 fv-row">
-                                                    <label class="required form-label">Images (Max: 3)</label>
+                                                    <label class="form-label">Images (Max: 3)</label>
                                                     <input type="file" class="form-control" id="image"
                                                         name="images[]" multiple accept="image/*"
                                                         onchange="previewImages(event)">
@@ -254,11 +262,12 @@
 
                                             {{-- video --}}
                                             <div class="col-md-6">
-                                                <div class="mb-3 fv-row">
+                                                <div class="mb-6 fv-row">
                                                     <label class="form-label">Video </label>
-                                                    <input type="file" name="video" id="videoInput"
-                                                        class="form-control @error('video') is-invalid @enderror"
+                                                    <input type="file" name="video"
+                                                        class="form-control mb-2 @error('video') is-invalid @enderror"
                                                         placeholder="video" value="{{ old('video') }}"
+                                                        id="videoInput" 
                                                         accept="video/*" />
                                                     <small class="text-muted">You can upload 1 video within 10 MB.</small>
                                                     @error('video')
@@ -277,6 +286,67 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    {{-- Images & Video Preview --}}
+                                    <div class="card-body pt-0">
+                                        <div class="row g-6">
+                                            {{-- Uploaded Images --}}
+                                            <div class="col-md-6">
+                                                <div class="mb-6 fv-row">
+                                                    @php
+                                                        $images = explode(',', $product_detail->images);
+                                                    @endphp
+                                                    <div class="card-title mb-3">
+                                                        <h4>Uploaded Images :</h4>
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-3">
+                                                        @foreach ($images as $key => $image)
+                                                            @if ($image)
+                                                                <div class="card shadow-sm border border-dark-subtle"
+                                                                    style="width: 11rem;">
+                                                                    <div class="card-body p-2 text-center">
+                                                                        <img src="{{ $image }}"
+                                                                            class="img-fluid rounded" alt="Product Image"
+                                                                            style="height: 100px; object-fit: cover;" />
+                                                                        <div class="text-muted fs-8 mt-2">
+                                                                            Image {{ $key + 1 }}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Uploaded Video --}}
+                                            <div class="col-md-6">
+                                                <div class="mb-6 fv-row">
+                                                    <div class="card-title mb-3">
+                                                        <h4>Uploaded Video :</h4>
+                                                    </div>
+                                                    @if ($product_detail->videos)
+                                                        <div class="card shadow-sm border border-dark-subtle"
+                                                            style="width: 100%; max-width: 300px;">
+                                                            <div class="card-body p-2 text-center">
+                                                                <video width="100%" height="150" controls
+                                                                    style="object-fit: cover;" muted autoplay>
+                                                                    <source src="{{ $product_detail->videos }}"
+                                                                        type="video/mp4">
+                                                                    Your browser does not support the video tag.
+                                                                </video>
+                                                                <div class="text-muted fs-8 mt-2">
+                                                                    Product Info Through Short Video
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-muted fs-7">No video uploaded.</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -291,11 +361,11 @@
                                         <div class="row">
                                             {{-- sku --}}
                                             <div class="col-md-6">
-                                                <div class="mb-3 fv-row">
+                                                <div class="mb-6 fv-row">
                                                     <label class="form-label">SKU</label>
                                                     <input type="text" name="sku"
                                                         class="form-control mb-2 @error('sku') is-invalid @enderror"
-                                                        placeholder="SKU Number" value="{{ old('sku') }}" />
+                                                        placeholder="SKU Number" value="{{ $product_detail->sku }}" />
                                                     @error('sku')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -304,12 +374,12 @@
 
                                             {{-- quantity --}}
                                             <div class="col-md-6">
-                                                <div class="mb-3 fv-row">
+                                                <div class="mb-6 fv-row">
                                                     <label class="required form-label">Quantity</label>
                                                     <input type="number" name="quantity"
                                                         class="form-control mb-2 @error('quantity') is-invalid @enderror"
                                                         placeholder="How many products have?"
-                                                        value="{{ old('quantity') }}" />
+                                                        value="{{ $product_detail->quantity }}" />
                                                     @error('quantity')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -335,7 +405,7 @@
                                                 <input type="text"
                                                     class="form-control mb-2 @error('meta_title') is-invalid @enderror"
                                                     name="meta_title" placeholder="Meta Tag Title"
-                                                    value="{{ old('meta_title') }}" />
+                                                    value="{{ $product_detail->meta_title }}" />
                                                 @error('meta_title')
                                                     <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                 @enderror
@@ -346,7 +416,7 @@
                                                 <label class="form-label">Meta Tag Keywords</label>
                                                 <input id="kt_ecommerce_add_product_meta_keywords"
                                                     name="product_meta_keywords"
-                                                    value="{{ old('product_meta_keywords') }}"
+                                                    value="{{ $product_detail->meta_keywords }}"
                                                     class="form-control mb-2 @error('product_meta_keywords') is-invalid @enderror"
                                                     placeholder="Meta Tag Keywords" />
                                                 @error('product_meta_keywords')
@@ -359,7 +429,7 @@
                                         <div class="mb-5 fv-row">
                                             <label class="form-label">Meta Tag Description</label>
                                             <textarea name="meta_description" id="" cols="30" rows="3"
-                                                class="form-control @error('meta_description') is-invalid @enderror" placeholder="Meta Tag Description">{{ old('meta_description') }}</textarea>
+                                                class="form-control @error('meta_description') is-invalid @enderror" placeholder="Meta Tag Description">{{ $product_detail->meta_description }}</textarea>
                                             @error('meta_description')
                                                 <div class="invalid-feedback fs-7">{{ $message }}</div>
                                             @enderror
@@ -370,9 +440,9 @@
 
                             <div class="d-flex justify-content-center">
                                 <a href="{{ route('retailer.product') }}" id="kt_ecommerce_add_product_cancel"
-                                    class="btn btn-danger me-5">Cancel</a>
+                                    class="btn btn-danger me-3">Cancel</a>
                                 <button type="submit" id="kt_ecommerce_add_product_submit" class="btn btn-primary">
-                                    <span class="indicator-label">Add Product</span>
+                                    <span class="indicator-label">Update Product</span>
                                     <span class="indicator-progress">Please wait...
                                         <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                                 </button>
@@ -389,6 +459,7 @@
 
 @section('script')
     <script src="{{ asset('assets/plugins/custom/formrepeater/formrepeater.bundle.js') }}"></script>
+
     <script>
         //<----------------- START : Image Preview --------------->
         function previewImages(event) {
@@ -532,23 +603,25 @@
                     case 'images[]':
                         if (input.attr('multiple') && input.attr('type') === 'file') {
                             const files = input[0]?.files;
-                            if (!files || files.length === 0) {
-                                showError(input, `Images are required`);
-                            } else if (files.length > 3) {
-                                showError(input, `Only a maximum of 3 images are allowed`);
-                            } else {
-                                let hasError = false;
-                                Array.from(files).forEach((file, index) => {
-                                    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-                                        showError(input, `Image ${index + 1} must be JPEG or PNG`);
-                                        hasError = true;
-                                    } else if (file.size > 4096 * 1024) {
-                                        showError(input, `Image ${index + 1} must be less than 4MB`);
-                                        hasError = true;
+                            if (files) {
+                                if (files.length > 3) {
+                                    showError(input, `Only a maximum of 3 images are allowed`);
+                                } else {
+                                    let hasError = false;
+                                    Array.from(files).forEach((file, index) => {
+                                        if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file
+                                                .type)) {
+                                            showError(input, `Image ${index + 1} must be JPEG or PNG`);
+                                            hasError = true;
+                                        } else if (file.size > 4096 * 1024) {
+                                            showError(input,
+                                                `Image ${index + 1} must be less than 4MB`);
+                                            hasError = true;
+                                        }
+                                    });
+                                    if (!hasError) {
+                                        clearError(input);
                                     }
-                                });
-                                if (!hasError) {
-                                    clearError(input);
                                 }
                             }
                         }
@@ -582,7 +655,7 @@
                 const allFields = [
                     'product_tags', 'status', 'product_name', 'product_description',
                     'sub_category_id',
-                    'new_price', 'old_price', 'quantity', 'images[]'
+                    'new_price', 'old_price', 'quantity'
                 ];
 
                 allFields.forEach(name => validateField($(`[name="${name}"]`)));
@@ -606,7 +679,7 @@
                 const allRequiredFilled = [
                     'product_tags', 'status', 'product_name', 'product_description',
                     'sub_category_id',
-                    'new_price', 'old_price', 'quantity', 'images[]'
+                    'new_price', 'old_price', 'quantity'
                 ].every(name => {
                     const input = $(`[name="${name}"]`);
                     const value = input.val();
@@ -616,14 +689,9 @@
                     return !isEmpty(value);
                 });
 
-                const imagesInput = $('[name="images[]"]')[0];
-                const imagesValid = imagesInput && imagesInput.files && imagesInput.files.length > 0;
-
-                $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled || !
-                    imagesValid);
+                $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled);
             }
 
-            // On form submit
             $('#kt_ecommerce_add_product_form').submit(function(e) {
                 e.preventDefault();
                 if (validateForm()) {
@@ -643,36 +711,59 @@
             $(document).on('change', '[name="images[]"]', function() {
                 validateField($(this));
             });
-        });
-    </script>
 
-    <script>
-        $(document).ready(function() {
+            let productVariations = @json($product_detail->productVariations);
+            let product_detail = @json($product_detail);
+
             // get sub-categories on change of category
-            // $(document).on('change', '#category_select', function() {
+            // $('#categorySelect').on('change', function() {
             //     let categoryId = $(this).val();
+            //     var selected_sub_category = false;
+
             //     if (categoryId) {
             //         $.ajax({
-            //             url: "{{ route('retailer.getSubCategories') }}", // Create this route
-            //             type: "GET",
+            //             url: '{{ route('retailer.getSubCategories') }}',
+            //             type: 'GET',
             //             data: {
             //                 category_id: categoryId
             //             },
-            //             success: function(data) {
-            //                 $('#sub_category_select').empty().append(
-            //                     '<option value="">Select Sub Category</option>');
-            //                 $.each(data, function(key, value) {
-            //                     $('#sub_category_select').append('<option value="' +
-            //                         value.id + '">' + value.sub_category_name +
-            //                         '</option>');
-            //                 });
+            //             headers: {
+            //                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            //             },
+            //             success: function(response) {
+            //                 // FOR SUB-CATEGORY
+            //                 if (response.subCategories) {
+            //                     let options = '<option value="">Select an option</option>';
+            //                     $.each(response.subCategories, function(key, data) {
+            //                         let selected = data.sub_category.id ==
+            //                             product_detail.sub_category_id ? 'selected' :
+            //                             '';
+            //                         options +=
+            //                             `<option value="${data.sub_category.id}" ${selected}>$   {data.sub_category.sub_category_name.toUpperCase()}</option>`;
+
+            //                         if (data.sub_category.id ==
+            //                             product_detail.sub_category_id) {
+            //                             selected_sub_category = true;
+            //                         }
+            //                     });
+
+            //                     $('#subCategory').html(options); // Update subCategory dropdown
+            //                 }
+            //                 if (selected_sub_category) {
+            //                     setTimeout(() => {
+            //                         $('#subCategory').trigger('change');
+            //                     }, 500);
+            //                 }
+            //             },
+            //             error: function(xhr, status, error) {
+            //                 console.error('AJAX Error:', error);
             //             }
             //         });
             //     } else {
-            //         $('#sub_category_select').empty().append(
-            //             '<option value="">Select Sub Category</option>');
+            //         $('#add_variation_input').html('');
             //     }
             // });
+            // $('#categorySelect').trigger('change');
 
             // change sub-category
             $('#subCategory').on('change', function() {
@@ -700,14 +791,31 @@
 
                                     variationArray.forEach(function(variation, index) {
                                         let trimmedVariation = variation.trim();
-                                        inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                        <div class="col">
-                                            <input type="text" name="variation[${index}]" value="${trimmedVariation}" ${index === 0 ? 'required' : ''} readonly class="form-control" />
-                                        </div>
-                                        <div class="col">
-                                            <input type="number" step="0.01" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} />
-                                        </div>
-                                    </div>`;
+
+                                        if (subCategoryId == product_detail
+                                            .sub_category_id) {
+
+                                            let price = '';
+                                            let matchedVariation = productVariations
+                                                .find(item =>
+                                                    item.product_variation && item
+                                                    .product_variation.trim() ===
+                                                    trimmedVariation
+                                                );
+                                            if (matchedVariation) {
+                                                price = matchedVariation.price;
+                                            }
+
+                                            inputHtml += `<div class="row mb-3 align-items-center gap-3">
+                                                <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
+                                                <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" value="${price}" ${index === 0 ? 'required' : ''} /></div>
+                                            </div>`;
+                                        } else {
+                                            inputHtml += `<div class="row mb-3 align-items-center gap-3">
+                                                <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
+                                                <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} /></div>
+                                            </div>`;
+                                        }
                                     });
 
                                     $('.product-variation-section').show();
@@ -744,43 +852,15 @@
                     $('#add_variation_input').html('');
                 }
             });
+            $('#subCategory').trigger('change');
 
-            // <---------------- START : Auto generate unique slug --------------->
-            $('input[name="product_name"]').on('change', function() {
-                let productName = $(this).val().trim();
 
-                if (productName !== '') {
-                    let baseSlug = productName
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-') // replace non-alphanumeric with -
-                        .replace(/^-+|-+$/g, ''); // trim - from start/end
-
-                    checkUniqueSlug(baseSlug, baseSlug);
-                }
-            });
-
-            function checkUniqueSlug(baseSlug, attemptSlug) {
-                $.ajax({
-                    url: '{{ route('retailer.products.unique-slug-check') }}',
-                    type: 'GET',
-                    data: {
-                        slug: attemptSlug
-                    },
-                    success: function(response) {
-                        if (response.exists) {
-                            // Try again with a new number
-                            let randomNum = Math.floor(10000 + Math.random() *
-                                89999); // 5-digit random number
-                            let newSlug = `${baseSlug}-${randomNum}`;
-                            checkUniqueSlug(baseSlug, newSlug);
-                        } else {
-                            // Found unique slug
-                            $('input[name="slug"]').val(attemptSlug);
-                        }
-                    }
+            document.getElementById("kt_ecommerce_add_product_form").addEventListener("submit", function() {
+                // Enable all disabled inputs before submitting
+                document.querySelectorAll("input[disabled]").forEach(input => {
+                    input.removeAttribute("disabled");
                 });
-            }
-            // <---------------- END : Auto generate unique slug --------------->
+            });
         });
     </script>
 @endsection

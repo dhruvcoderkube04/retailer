@@ -498,6 +498,7 @@ class RetailerProductController extends Controller
             $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
 
             $orderItems = [];
+
             foreach ($request->products as $product) {
                 $wholesalerId = $product['wholesaler_id'] ?? null;
                 $retailerId = $product['retailer_id'] ?? $retailer->retailer_id;
@@ -544,7 +545,6 @@ class RetailerProductController extends Controller
                     'quantity' => $quantity,
                     'final_amount' => $request->final_amount,
                     'payment_method' => $request->payment_method,
-                    'variation_id' => @$product['variant_id'],
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
@@ -571,8 +571,7 @@ class RetailerProductController extends Controller
 
     private function formatProductFromRetailerProduct($product, $retailerProduct)
     {
-        $newfinalPrice = $product->new_price + $retailerProduct->margin;
-        $oldfinalPrice = $product->old_price + $retailerProduct->margin;
+        $finalPrice = $product->new_price + $retailerProduct->margin;
 
         return [
             'id'              => $product->id,
@@ -582,9 +581,9 @@ class RetailerProductController extends Controller
             'description'     => $product->description,
             'category_id'     => $product->category_id,
             'wholesaler_id'   => $product->wholesaler_id,
-            'old_price'       => $oldfinalPrice,
+            'old_price'       => $product->old_price,
             'new_price'       => $product->new_price,
-            'final_price'     => $newfinalPrice,
+            'final_price'     => $finalPrice,
             'quantity'        => $product->quantity,
             'product_images'  => $product->images ?? null,
             'product_video'   => $product->videos ?? null,
@@ -598,8 +597,7 @@ class RetailerProductController extends Controller
 
     private function formatProductFromClone($cloneProduct)
     {
-        $newfinalPrice = $cloneProduct->new_price + $cloneProduct->margin;
-        $oldfinalPrice = $cloneProduct->old_price + $cloneProduct->margin;
+        $finalPrice = $cloneProduct->new_price + $cloneProduct->margin;
 
         return [
             'id'              => $cloneProduct->id,
@@ -610,9 +608,9 @@ class RetailerProductController extends Controller
             // If RetailerCloneProduct does not store category, this can be null or a default value.
             'category_id'     => $cloneProduct->category_id ?? null,
             'wholesaler_id'   => null, // No wholesaler relation here.
-            'old_price'       => $oldfinalPrice,
+            'old_price'       => $cloneProduct->old_price,
             'new_price'       => $cloneProduct->new_price,
-            'final_price'     => $newfinalPrice,
+            'final_price'     => $finalPrice,
             'quantity'        => $cloneProduct->quantity,
             'product_images'  => $cloneProduct->images ?? null,
             'product_video'   => $cloneProduct->videos ?? null,
@@ -624,11 +622,12 @@ class RetailerProductController extends Controller
         ];
     }
 
+
+
     // format for signle product
     private function singleFormatRetailerProduct($product, $retailerProduct)
     {
-        $newfinalPrice = $product->new_price + $retailerProduct->margin;
-        $oldfinalPrice = $product->old_price + $retailerProduct->margin;
+        $finalPrice = $product->new_price + $retailerProduct->margin;
 
         return [
             'id'              => $product->id,
@@ -638,9 +637,9 @@ class RetailerProductController extends Controller
             'description'     => $product->description,
             'category_id'     => $product->category_id,
             'wholesaler_id'   => $product->wholesaler_id,
-            'old_price'       => $oldfinalPrice,
+            'old_price'       => $product->old_price,
             'new_price'       => $product->new_price,
-            'final_price'     => $newfinalPrice,
+            'final_price'     => $finalPrice,
             'quantity'        => $product->quantity,
             'product_images'  => $product->images ?? null,
             'product_video'   => $product->videos ?? null,
@@ -649,7 +648,6 @@ class RetailerProductController extends Controller
             'retailer_id'     => $product->retailer_id ?? null,
             'variations'      => $product->productVariations->map(function ($var) {
                 return [
-                    'id'=> $var->id,
                     'variation' => $var->product_variation,
                     'price'     => $var->price,
                 ];
@@ -658,8 +656,7 @@ class RetailerProductController extends Controller
     }
     private function singleFormatCloneProduct($cloneProduct)
     {
-        $newfinalPrice = $cloneProduct->new_price + $cloneProduct->margin;
-        $oldfinalPrice = $cloneProduct->old_price + $cloneProduct->margin;
+        $finalPrice = $cloneProduct->new_price + $cloneProduct->margin;
 
         return [
             'id'              => $cloneProduct->id,
@@ -669,9 +666,9 @@ class RetailerProductController extends Controller
             'description'     => $cloneProduct->description,
             'category_id'     => $cloneProduct->category_id ?? null,
             'wholesaler_id'   => null,
-            'old_price'       => $oldfinalPrice,
+            'old_price'       => $cloneProduct->old_price,
             'new_price'       => $cloneProduct->new_price,
-            'final_price'     => $newfinalPrice,
+            'final_price'     => $finalPrice,
             'quantity'        => $cloneProduct->quantity,
             'product_images'  => $cloneProduct->images ?? null,
             'product_video'   => $cloneProduct->videos ?? null,
@@ -680,7 +677,6 @@ class RetailerProductController extends Controller
             'retailer_id'     => $cloneProduct->retailer_id ?? null,
             'variations'      => $cloneProduct->productVariations->map(function ($var) {
                 return [
-                    'id'=> $var->id,
                     'variation' => $var->product_variation,
                     'price'     => $var->price,
                 ];
