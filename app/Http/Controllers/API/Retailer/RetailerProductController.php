@@ -82,25 +82,7 @@ class RetailerProductController extends Controller
 
             // Group subcategories by category name
 
-            // $categoryList = [];
-
-            // foreach ($categories as $category) {
-            //     $subNames = $subCategories
-            //         ->where('category_id', $category->id)
-            //         ->pluck('sub_category_name')
-            //         ->unique()
-            //         ->values()
-            //         ->toArray();
-
-            //     // $categoryList[$category->category_name] = $subNames;
-            //     $categoryList[$category->id] = [
-            //         'name' => $category->category_name,
-            //         'subcategories' => $subNames,
-            //     ];
-            // }
-
-
-        $categoryList = [];
+            $categoryList = [];
 
         foreach ($categories as $category) {
             $subList = $subCategories
@@ -326,64 +308,6 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
-
-    // public function getSingalProductDetails(Request $request)
-    // {
-
-    //     try {
-    //         $apiKey = $request->header('API-KEY');
-    //         if (!$apiKey) {
-    //             return response()->json(['error' => 'API Key is required.'], 401);
-    //         }
-
-    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
-    //         if (!$retailer) {
-    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
-    //         }
-
-
-    //         $w_productId = $request->w_product_id;   // for wholesaler product id
-    //         $r_productId = $request->r_product_id; // for retailer product id
-
-    //         if (!$w_productId && !$r_productId) {
-    //             return response()->json(['error' => 'Either w_product_id or r_product_id is required.'], 422);
-    //         }
-
-    //         if ($w_productId) {
-    //             $retailerProduct = RetailerProducts::with(['wholesaler.products'])->where('retailer_id', $retailer->retailer_id)->first();
-
-    //             // if (!$retailerProduct || !$retailerProduct->wholesaler) {
-    //             //     return response()->json(['error' => 'Retailer product not found or missing wholesaler.'], 404);
-    //             // }
-
-    //             $product = $retailerProduct->wholesaler->products->where('id', $w_productId)->first();
-    //             if (!$product) {
-    //                 return response()->json(['error' => 'Product not found.'], 404);
-    //             }
-
-    //             $formatted = $this->formatProductFromRetailerProduct($product, $retailerProduct);
-    //         } else {
-    //             $cloneProduct = RetailerCloneProduct::where('retailer_id', $retailer->retailer_id)
-    //                 ->where('id', $r_productId)
-    //                 ->first();
-
-    //             if (!$cloneProduct) {
-    //                 return response()->json(['error' => 'Clone product not found.'], 404);
-    //             }
-
-    //             $formatted = $this->formatProductFromClone($cloneProduct);
-    //         }
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'product' => $formatted
-    //         ], 200);
-
-    //     } catch (\Exception $e) {
-    //         \Log::error('Get product detail error: ' . $e->getMessage());
-    //         return response()->json(['error' => 'Something went wrong.'], 500);
-    //     }
-    // }
 
     // new versrion of productget with  variation
     public function getSingalProductDetails(Request $request)
