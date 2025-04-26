@@ -297,7 +297,7 @@ class RetilerController extends Controller
 
 
 
- 
+
 
     public function retailerProduct()
     {
@@ -387,15 +387,31 @@ class RetilerController extends Controller
             'slug' => 'required|string|unique:products,slug',
             // 'categories' => 'required|numeric|exists:categories,id',
             'sub_category_id' => 'required|numeric|exists:sub_categories,id',
-            'product_tags' => 'required|string|max:1000',
+            'product_tags' => 'nullable|string|max:1000',
             'status' => 'required|string|in:active,inactive',
             'old_price' => 'required|numeric|min:1',
             'new_price' => 'required|numeric|min:1',
-            'product_description' => 'required|string',
+            'product_description' => 'nullable|string',
             'images' => 'required|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
             'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
-            'sku' => 'nullable|string|unique:products,sku',
+            'sku' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
+                        ->where('sku', $value)
+                        ->exists();
+
+                    $existsInProducts = DB::table('products')
+                        ->where('sku', $value)
+                        ->exists();
+
+                    if ($existsInRetailerCloneProduct || $existsInProducts) {
+                        $fail('The SKU must be unique across all products.');
+                    }
+                },
+            ],
             'quantity' => 'required|integer|min:1',
             'meta_title' => 'nullable|string|max:255',
             'product_meta_keywords' => 'nullable|string|max:255',
@@ -474,14 +490,13 @@ class RetilerController extends Controller
             // Store variations
             if (!empty($request->variation)) {
                 foreach ($request->variation as $index => $variation) {
-                    $price = $request->variation_price[$index] ?? null;
-
                     // Only save if price is provided
-                    if (!empty($price)) {
+                    if (!empty($request->variation_price[$index])) {
                         ProductVariation::create([
                             'product_id' => $product->id,
                             'product_variation' => $variation,
-                            'price' => $price,
+                            'price' => $request->variation_price[$index],
+                            'stock' => $request->variation_stock[$index],
                         ]);
                     }
                 }
@@ -492,7 +507,7 @@ class RetilerController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Something went wrong!');
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -532,7 +547,7 @@ class RetilerController extends Controller
             'product_name' => 'nullable|string|max:255',
             // 'categories' => 'required|exists:categories,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
-            'product_tags' => 'required|string|max:255',
+            'product_tags' => 'nullable|string|max:255',
             'status' => 'required|string|in:active,inactive',
             'old_price' => 'nullable|numeric|min:1',
             'new_price' => 'nullable|numeric|min:1',
@@ -540,7 +555,25 @@ class RetilerController extends Controller
             'images' => 'nullable|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
             'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
-            'sku' => 'nullable|string|unique:products,sku,' . $product_id,
+            'sku' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) use ($product_id) {
+                    $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
+                        ->where('sku', $value)
+                        ->where('id', '!=', $product_id)
+                        ->exists();
+
+                    $existsInProducts = DB::table('products')
+                        ->where('sku', $value)
+                        ->where('id', '!=', $product_id)
+                        ->exists();
+
+                    if ($existsInRetailerCloneProduct || $existsInProducts) {
+                        $fail('The SKU must be unique across all products.');
+                    }
+                },
+            ],
             'quantity' => 'nullable|integer|min:1',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
@@ -663,6 +696,7 @@ class RetilerController extends Controller
             if (!empty($request->variation)) {
                 $incomingVariations = $request->variation;
                 $variationPrices = $request->variation_price;
+                $variationStocks = $request->variation_stock;
 
                 $existingVariations = ProductVariation::where('product_id', $product->id)
                     ->pluck('product_variation')
@@ -678,6 +712,7 @@ class RetilerController extends Controller
 
                 foreach ($incomingVariations as $index => $variation) {
                     $price = $variationPrices[$index] ?? null;
+                    $stock = $variationStocks[$index] ?? null;
 
                     if (!empty($variation) && !is_null($price)) {
                         ProductVariation::updateOrCreate(
@@ -687,6 +722,7 @@ class RetilerController extends Controller
                             ],
                             [
                                 'price' => $price,
+                                'stock' => $stock
                             ]
                         );
                     } elseif (!is_null($variation)) {
@@ -1447,7 +1483,7 @@ class RetilerController extends Controller
                 $userDetailUpdate['postal_code'] = $request->pincode;
             }
             if ($request->hasFile('profile')) {
-                $userDetailUpdate['company_logo'] = $profilePath ;
+                $userDetailUpdate['company_logo'] = $profilePath;
             }
 
             if (!empty($userDetailUpdate)) {
@@ -1691,7 +1727,6 @@ class RetilerController extends Controller
                 'message' => 'Failed to fetch rates from courier service.',
                 'details' => $response,
             ], 400);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

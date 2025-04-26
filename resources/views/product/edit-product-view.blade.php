@@ -75,7 +75,7 @@
                                                     <label class="required form-label">Product Name</label>
                                                     <input type="text" name="product_name"
                                                         class="form-control mb-2 @error('product_name') is-invalid @enderror"
-                                                        placeholder="Product Name" value="{{ $product_detail->name }}" />
+                                                        placeholder="Product Name" value="{{ old('product_name', $product_detail->name) }}" />
                                                     @error('product_name')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -89,7 +89,7 @@
                                                     <input type="text" name="slug"
                                                         class="form-control mb-2 @error('slug') is-invalid @enderror"
                                                         placeholder="Auto generated as per product name"
-                                                        value="{{ $product_detail->slug }}" disabled />
+                                                        value="{{ old('slug', $product_detail->slug) }}" disabled />
                                                     @error('slug')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -143,7 +143,7 @@
 
                                             {{-- product_variation --}}
                                             <div class="row product-variation-section" style="display: none;">
-                                                <div class="col-md-8">
+                                                <div class="col-lg-10 col-md-12">
                                                     <div class="mb-10 fv-row" id="add_variation_input">
 
                                                     </div>
@@ -155,10 +155,10 @@
                                             {{-- product_tags --}}
                                             <div class="col-md-6">
                                                 <div class="mb-6 fv-row">
-                                                    <label class="required form-label">Tags</label>
+                                                    <label class="form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                        id="product_tags" value="{{ $product_detail->tags }}"
+                                                        id="product_tags" value="{{ old('product_tags', $product_detail->tags) }}"
                                                         placeholder="Fashion, Style, Electric" />
                                                     @error('product_tags')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
@@ -198,7 +198,7 @@
                                                     <input type="number" name="old_price"
                                                         class="form-control mb-2 @error('old_price') is-invalid @enderror"
                                                         placeholder="Old Price"
-                                                        value="{{ $product_detail->old_price }}" />
+                                                        value="{{ old('old_price', $product_detail->old_price) }}" />
                                                     @error('old_price')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -212,7 +212,7 @@
                                                     <input type="number" name="new_price"
                                                         class="form-control mb-2 @error('new_price') is-invalid @enderror"
                                                         placeholder="New Price"
-                                                        value="{{ $product_detail->new_price }}" />
+                                                        value="{{ old('new_price', $product_detail->new_price) }}" />
                                                     @error('new_price')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -222,9 +222,9 @@
 
                                         {{-- product_description --}}
                                         <div class="fv-row">
-                                            <label class="required form-label">Description</label>
+                                            <label class="form-label">Description</label>
                                             <textarea name="product_description" cols="30" rows="3"
-                                                class="form-control @error('product_description') is-invalid @enderror">{{ $product_detail->description }}</textarea>
+                                                class="form-control @error('product_description') is-invalid @enderror" placeholder="Product Description">{{ old('product_description', $product_detail->description) }}</textarea>
                                             @error('product_description')
                                                 <div class="invalid-feedback fs-7">{{ $message }}</div>
                                             @enderror
@@ -365,7 +365,7 @@
                                                     <label class="form-label">SKU</label>
                                                     <input type="text" name="sku"
                                                         class="form-control mb-2 @error('sku') is-invalid @enderror"
-                                                        placeholder="SKU Number" value="{{ $product_detail->sku }}" />
+                                                        placeholder="SKU Number" value="{{ old('sku', $product_detail->sku) }}" />
                                                     @error('sku')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -379,7 +379,7 @@
                                                     <input type="number" name="quantity"
                                                         class="form-control mb-2 @error('quantity') is-invalid @enderror"
                                                         placeholder="How many products have?"
-                                                        value="{{ $product_detail->quantity }}" />
+                                                        value="{{ old('quantity', $product_detail->quantity) }}" />
                                                     @error('quantity')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -405,7 +405,7 @@
                                                 <input type="text"
                                                     class="form-control mb-2 @error('meta_title') is-invalid @enderror"
                                                     name="meta_title" placeholder="Meta Tag Title"
-                                                    value="{{ $product_detail->meta_title }}" />
+                                                    value="{{ old('meta_title', $product_detail->meta_title) }}" />
                                                 @error('meta_title')
                                                     <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                 @enderror
@@ -416,7 +416,7 @@
                                                 <label class="form-label">Meta Tag Keywords</label>
                                                 <input id="kt_ecommerce_add_product_meta_keywords"
                                                     name="product_meta_keywords"
-                                                    value="{{ $product_detail->meta_keywords }}"
+                                                    value="{{ old('product_meta_keywords', $product_detail->meta_keywords) }}"
                                                     class="form-control mb-2 @error('product_meta_keywords') is-invalid @enderror"
                                                     placeholder="Meta Tag Keywords" />
                                                 @error('product_meta_keywords')
@@ -429,7 +429,7 @@
                                         <div class="mb-5 fv-row">
                                             <label class="form-label">Meta Tag Description</label>
                                             <textarea name="meta_description" id="" cols="30" rows="3"
-                                                class="form-control @error('meta_description') is-invalid @enderror" placeholder="Meta Tag Description">{{ $product_detail->meta_description }}</textarea>
+                                                class="form-control @error('meta_description') is-invalid @enderror" placeholder="Meta Tag Description">{{ old('meta_description', $product_detail->meta_description) }}</textarea>
                                             @error('meta_description')
                                                 <div class="invalid-feedback fs-7">{{ $message }}</div>
                                             @enderror
@@ -567,9 +567,9 @@
                     // case 'slug':
                     case 'status':
                     case 'product_name':
-                    case 'product_description':
-                    case 'product_tags':
-                        // case 'meta_title':
+                    // case 'product_description':
+                    // case 'product_tags':
+                    // case 'meta_title':
                     case 'meta_description':
                         if (isEmpty(value)) {
                             showError(input, `${formatFieldName(name)} field is required`);
@@ -653,9 +653,7 @@
                 $('.invalid-feedback').remove();
 
                 const allFields = [
-                    'product_tags', 'status', 'product_name', 'product_description',
-                    'sub_category_id',
-                    'new_price', 'old_price', 'quantity'
+                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'quantity'
                 ];
 
                 allFields.forEach(name => validateField($(`[name="${name}"]`)));
@@ -677,9 +675,7 @@
             function toggleSubmitButton() {
                 const hasErrors = $('.is-invalid').length > 0;
                 const allRequiredFilled = [
-                    'product_tags', 'status', 'product_name', 'product_description',
-                    'sub_category_id',
-                    'new_price', 'old_price', 'quantity'
+                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'quantity'
                 ].every(name => {
                     const input = $(`[name="${name}"]`);
                     const value = input.val();
@@ -689,7 +685,7 @@
                     return !isEmpty(value);
                 });
 
-                $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled);
+                // $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled);
             }
 
             $('#kt_ecommerce_add_product_form').submit(function(e) {
@@ -796,6 +792,7 @@
                                             .sub_category_id) {
 
                                             let price = '';
+                                            let stock = '';
                                             let matchedVariation = productVariations
                                                 .find(item =>
                                                     item.product_variation && item
@@ -803,17 +800,32 @@
                                                     trimmedVariation
                                                 );
                                             if (matchedVariation) {
-                                                price = matchedVariation.price;
+                                                price = matchedVariation.price ?? '';
+                                                stock = matchedVariation.stock ?? '';
                                             }
 
                                             inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                                <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
-                                                <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" value="${price}" ${index === 0 ? 'required' : ''} /></div>
+                                                <div class="col">
+                                                    <input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" value="${price}" ${index === 0 ? 'required' : ''} />
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="variation_stock[${index}]" class="form-control" placeholder="Enter stock" value="${stock}" ${index === 0 ? 'required' : ''} />
+                                                </div>
                                             </div>`;
                                         } else {
                                             inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                                <div class="col"><input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control"></div>
-                                                <div class="col"><input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} /></div>
+                                                <div class="col">
+                                                    <input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} />
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="variation_stock[${index}]" class="form-control" placeholder="Enter stock" ${index === 0 ? 'required' : ''} />
+                                                </div>
                                             </div>`;
                                         }
                                     });

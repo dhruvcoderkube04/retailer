@@ -14,7 +14,8 @@
                             Add Product</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Product</a>
+                                <a href="{{ route('retailer.dashboard') }}"
+                                    class="text-muted text-hover-primary">Product</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -142,7 +143,7 @@
 
                                             {{-- product_variation --}}
                                             <div class="row product-variation-section" style="display: none;">
-                                                <div class="col-md-8">
+                                                <div class="col-lg-10 col-md-12">
                                                     <div class="mb-10 fv-row" id="add_variation_input">
 
                                                     </div>
@@ -154,7 +155,7 @@
                                             {{-- product_tags --}}
                                             <div class="col-md-6">
                                                 <div class="mb-6 fv-row">
-                                                    <label class="required form-label">Tags</label>
+                                                    <label class="form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
                                                         id="product_tags" value="{{ old('product_tags') }}"
@@ -214,7 +215,7 @@
 
                                         {{-- product_description --}}
                                         <div class="fv-row">
-                                            <label class="required form-label">Description</label>
+                                            <label class="form-label">Description</label>
                                             <textarea name="product_description" cols="30" rows="3"
                                                 class="form-control @error('product_description') is-invalid @enderror" placeholder="Product Description">{{ old('product_description') }}</textarea>
                                             @error('product_description')
@@ -496,8 +497,8 @@
                     // case 'slug':
                     case 'status':
                     case 'product_name':
-                    case 'product_description':
-                    case 'product_tags':
+                        // case 'product_description':
+                        // case 'product_tags':
                         // case 'meta_title':
                     case 'meta_description':
                         if (isEmpty(value)) {
@@ -580,9 +581,8 @@
                 $('.invalid-feedback').remove();
 
                 const allFields = [
-                    'product_tags', 'status', 'product_name', 'product_description',
-                    'sub_category_id',
-                    'new_price', 'old_price', 'quantity', 'images[]'
+                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'quantity',
+                    'images[]'
                 ];
 
                 allFields.forEach(name => validateField($(`[name="${name}"]`)));
@@ -604,9 +604,8 @@
             function toggleSubmitButton() {
                 const hasErrors = $('.is-invalid').length > 0;
                 const allRequiredFilled = [
-                    'product_tags', 'status', 'product_name', 'product_description',
-                    'sub_category_id',
-                    'new_price', 'old_price', 'quantity', 'images[]'
+                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'quantity',
+                    'images[]'
                 ].every(name => {
                     const input = $(`[name="${name}"]`);
                     const value = input.val();
@@ -619,8 +618,7 @@
                 const imagesInput = $('[name="images[]"]')[0];
                 const imagesValid = imagesInput && imagesInput.files && imagesInput.files.length > 0;
 
-                $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled || !
-                    imagesValid);
+                // $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled || !imagesValid);
             }
 
             // On form submit
@@ -633,7 +631,7 @@
 
             // Live field validation
             const selector =
-                '[name="product_tags"], [name="status"], [name="product_name"], [name="product_description"], [name="sub_category_id"], [name="new_price"], [name="old_price"], [name="quantity"]';
+                '[name="product_name"], [name="slug"], [name="sub_category_id"], [name="product_tags"], [name="status"], [name="old_price"], [name="new_price"], [name="product_description"], [name="video"], [name="sku"], [name="quantity"], [name="meta_title"], [name="product_meta_keywords"], [name="meta_description"]';
 
             $(document).on('input change', selector, function() {
                 validateField($(this));
@@ -700,12 +698,15 @@
 
                                     variationArray.forEach(function(variation, index) {
                                         let trimmedVariation = variation.trim();
-                                        inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                        <div class="col">
+                                        inputHtml += `<div class="row mb-3 align-items-center">
+                                        <div class="col-12 col-sm-12 col-md-6 mb-1">
                                             <input type="text" name="variation[${index}]" value="${trimmedVariation}" ${index === 0 ? 'required' : ''} readonly class="form-control" />
                                         </div>
-                                        <div class="col">
+                                        <div class="col-6 col-sm-6 col-md-3">
                                             <input type="number" step="0.01" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} />
+                                        </div>
+                                        <div class="col-6 col-sm-6 col-md-3">
+                                            <input type="number" name="variation_stock[${index}]" class="form-control" placeholder="Enter stock" ${index === 0 ? 'required' : ''} />
                                         </div>
                                     </div>`;
                                     });
@@ -744,6 +745,10 @@
                     $('#add_variation_input').html('');
                 }
             });
+            const oldSubCategoryId = '{{ old('sub_category_id') }}';
+            if (oldSubCategoryId) {
+                $('#subCategory').val(oldSubCategoryId).trigger('change');
+            }
 
             // <---------------- START : Auto generate unique slug --------------->
             $('input[name="product_name"]').on('change', function() {

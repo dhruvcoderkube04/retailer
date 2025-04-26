@@ -47,8 +47,8 @@ class RetailerProductController extends Controller
             'google_analytics_id',
             'facebook_pixel_id',
             'app_store_url',
-            'apple_store_id',
-            'play_store_url',
+            // 'apple_store_id',
+            // 'play_store_url',
             'meta_title',
             'meta_keywords',
             'meta_description',
@@ -505,8 +505,11 @@ class RetailerProductController extends Controller
             'name'            => $product->name,
             'slug'            => $product->slug,
             'description'     => $product->description,
+            'tags'             => $product->tags,
             'category_id'     => $product->category_id,
+            'sub_category_id'     => $product->sub_category_id,
             'wholesaler_id'   => $product->wholesaler_id,
+            'retailer_id'   => $product->retailer_id ?? null,
             'old_price'       => $oldfinalPrice,
             'new_price'       => $product->new_price,
             'final_price'     => $newfinalPrice,
@@ -514,10 +517,13 @@ class RetailerProductController extends Controller
             'product_images'  => $product->images ?? null,
             'product_video'   => $product->videos ?? null,
             'product_url'     => $product->url,
+            'status'            => $product->status,
             // 'color'           => $product->color ?? null,
             // 'size'            => $product->size,
             'specifications'  => $product->specifications,
-            'retailer_id'     => $product->retailer_id ?? null,
+            'meta_title'    => $product->meta_title,
+            'meta_description'    => $product->meta_description,
+            'meta_keywords'    => $product->meta_keywords,
         ];
     }
 
@@ -532,9 +538,12 @@ class RetailerProductController extends Controller
             'name'            => $cloneProduct->name,
             'slug'            => $cloneProduct->slug,
             'description'     => $cloneProduct->description,
+            'tags'             => $cloneProduct->tags,
             // If RetailerCloneProduct does not store category, this can be null or a default value.
             'category_id'     => $cloneProduct->category_id ?? null,
+            'sub_category_id'     => $cloneProduct->sub_category_id,
             'wholesaler_id'   => null, // No wholesaler relation here.
+            'retailer_id'   => $cloneProduct->retailer_id ?? null,
             'old_price'       => $oldfinalPrice,
             'new_price'       => $cloneProduct->new_price,
             'final_price'     => $newfinalPrice,
@@ -542,10 +551,13 @@ class RetailerProductController extends Controller
             'product_images'  => $cloneProduct->images ?? null,
             'product_video'   => $cloneProduct->videos ?? null,
             'product_url'     => $cloneProduct->url,
+            'status'            => $cloneProduct->status,
             // 'color'           => $cloneProduct->color ?? null,
             // 'size'            => $cloneProduct->size,
             'specifications'  => $cloneProduct->specifications,
-            'retailer_id'     => $cloneProduct->retailer_id ?? null,
+            'meta_title'    => $cloneProduct->meta_title,
+            'meta_description'    => $cloneProduct->meta_description,
+            'meta_keywords'    => $cloneProduct->meta_keywords,
         ];
     }
 
@@ -563,7 +575,9 @@ class RetailerProductController extends Controller
             'name'            => $product->name,
             'slug'            => $product->slug,
             'description'     => $product->description,
+            'tags'     => $product->tags,
             'category_id'     => $product->category_id,
+            'sub_category_id'     => $product->sub_category_id,
             'wholesaler_id'   => $product->wholesaler_id,
             'old_price'       => $oldfinalPrice,
             'final_price'     => $newfinalPrice,
@@ -573,6 +587,7 @@ class RetailerProductController extends Controller
             'product_images'  => $product->images ?? null,
             'product_video'   => $product->videos ?? null,
             'product_url'     => $product->url,
+            'status'     => $product->status,
             'specifications'  => $product->specifications,
             'retailer_id'     => $product->retailer_id ?? null,
             'variations'      => $product->productVariations->map(function ($var) {
@@ -580,6 +595,7 @@ class RetailerProductController extends Controller
                     'id'=> $var->id,
                     'variation' => $var->product_variation,
                     'price'     => $var->price,
+                    'stock'     => $var->stock,
                 ];
             })->values()
         ];
@@ -595,7 +611,9 @@ class RetailerProductController extends Controller
             'name'            => $cloneProduct->name,
             'slug'            => $cloneProduct->slug,
             'description'     => $cloneProduct->description,
+            'tags'     => $cloneProduct->tags,
             'category_id'     => $cloneProduct->category_id ?? null,
+            'sub_category_id'     => $cloneProduct->sub_category_id ?? null,
             'wholesaler_id'   => null,
             'old_price'       => $oldfinalPrice,
             'new_price'       => $cloneProduct->new_price,
@@ -604,6 +622,7 @@ class RetailerProductController extends Controller
             'product_images'  => $cloneProduct->images ?? null,
             'product_video'   => $cloneProduct->videos ?? null,
             'product_url'     => $cloneProduct->url,
+            'status'     => $cloneProduct->status,
             'specifications'  => $cloneProduct->specifications,
             'retailer_id'     => $cloneProduct->retailer_id ?? null,
             'variations'      => $cloneProduct->productVariations->map(function ($var) {
@@ -611,6 +630,7 @@ class RetailerProductController extends Controller
                     'id'=> $var->id,
                     'variation' => $var->product_variation,
                     'price'     => $var->price,
+                    'stock'     => $var->stock,
                 ];
             })->values()
         ];
