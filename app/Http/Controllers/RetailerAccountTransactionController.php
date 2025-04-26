@@ -15,6 +15,26 @@ class RetailerAccountTransactionController extends Controller
     // index
     public function indexAccounts(Request $request)
     {
+
+        // AccountTransaction::create([
+        //     'customer_order_id' => 1,
+        //     'user_id' => 7,
+        //     'user_type' => 'retailer',
+        //     'description' => 'Charges',
+        //     'amount_type' => 'minus',
+        //     'product_amount' => 0,
+        //     'charges' => [
+        //         // 'RTO charges' => 200,
+        //         // 'Shipping charges' => 50,
+        //         // 'COD charges' => 150,
+        //         'Account Charges' => 109
+        //     ],
+        //     'total_amount' => 109,
+        //     'current_balance' => 100491,
+        //     'order_type' => 'other',
+        //     'status' => 1
+        // ]);
+
         $user = Auth::user();
         if (!$user->user_type == 3) { // retailer            
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
@@ -56,7 +76,8 @@ class RetailerAccountTransactionController extends Controller
 
             return response()->json([
                 'status' => true,
-                'html' => view('accounts.ajax.date-filter', compact('transactions'))->render()
+                'html' => view('accounts.ajax.date-filter', compact('transactions'))->render(),
+                'transactions' => $transactions
             ]);
         } catch (\Exception $e) {
             return response()->json([

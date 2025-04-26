@@ -12,12 +12,16 @@ class AccountTransaction extends Model
         'user_type',
         'description',
         'amount_type',
-        'total_amount',
+        'product_amount',
         'charges',
-        'net_amount',
+        'total_amount',
         'current_balance',
         'order_type',
         'status'
+    ];
+
+    protected $casts = [
+        'charges' => 'array',
     ];
 
     public function customer_order()
