@@ -297,24 +297,8 @@ class RetilerController extends Controller
 
 
 
-    // get category wise product
-    // public function getCategoryWiseProducts(Request $request)
-    // {
-    //     try {
-    //         $products = Product::where('wholesaler_id', $request->wholesale_id)
-    //             ->where('category_id', $request->category_id)
-    //             ->get(['id', 'name']);
+ 
 
-    //         return response()->json(['status' => true, 'msg' => 'Success', 'data' => $products]);
-    //     } catch (Exception $e) {
-    //         return response()->json(['status' => false, 'msg' => $e->getMessage()]);
-    //     }
-    // }
-    // <--------------------- END : Add category margin ---------------------->
-
-
-    // <------------------- START : Retailer product (Added, Clone, Own) ------------------->
-    // product list view
     public function retailerProduct()
     {
         try {
@@ -963,69 +947,6 @@ class RetilerController extends Controller
     }
 
     // order list page
-    // public function orderList($type = 'new')
-    // {
-    //     $retailer = Auth::user();
-
-    //     // count
-    //     $count = CustomerOrders::where('retailer_id', $retailer->id)
-    //         ->selectRaw("
-    //         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
-    //         SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
-    //         SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
-    //         SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
-    //         SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
-    //         SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
-    //         SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
-    //         SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
-    //     ")->first()->toArray();
-    //     // customer orders
-    //     $sql = CustomerOrders::with([
-    //         'customer',
-    //         'product',
-    //         'retailerCloneProduct',
-    //         'wholesaler.userDetail',
-    //     ])
-    //     ->where('retailer_id', $retailer->id);
-
-    //     if ($type == 'new') {
-    //         $sql->where('status', 'pending');
-    //     } else if ($type == 'transfered-retailer-to-wholesaler') {
-    //         $sql->where('status', 'transfered_retailer_to_wholesaler');
-    //     } else if ($type == 'confirmed-by-retailer') {
-    //         $sql->where('status', 'confirmed_by_retailer');
-    //     } else if ($type == 'ready-to-ship') {
-    //         $sql->where('status', 'shipped_by_retailer');
-    //     } else if ($type == 'delivered-by-retailer') {
-    //         $sql->where('status', 'delivered_by_retailer');
-    //     } else if ($type == 'cancelled-by-retailer') {
-    //         $sql->where('status', 'cancelled_by_retailer');
-    //     } else if ($type == 'cancelled-by-customer') {
-    //         $sql->where('status', 'cancelled_by_customer');
-    //     } else if ($type == 'inactive') {
-    //         $sql->where('status', 'inactive');
-    //     } else {
-    //         return redirect()->route('retailer.order.list');
-    //     }
-    //     $retailerOrders = $sql->orderBy('id', 'DESC')
-    //         ->get();
-
-    //     // pickup address
-    //     $pickupAddress = PickAddress::where('user_id', $retailer->id)->get();
-
-    //     // rto address
-    //     // $rtoAddress = RTOAddress::where('retailer_id', $retailer->id)->get();
-
-    //     // courier list from API
-    //     $response = Http::withHeaders([
-    //         'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb'
-    //     ])->get('https://capi-qc.fship.in/api/getallcourier');
-    //     $courierServices = $response->json();
-    //     // $courierServices = [];
-
-    //     return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'courierServices'));
-    // }
-
     // use courierservicemanager
     public function orderList($type = 'new')
     {
@@ -1291,158 +1212,6 @@ class RetilerController extends Controller
 
 
     // add Fship order place
-    // public function confirmedOrderAction(Request $request)
-    // {
-    //     $request->validate([
-    //         'status' => 'required',
-    //     ]);
-
-    //     DB::beginTransaction();
-    //     try {
-    //         $retailer = Auth::user();
-    //         $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
-    //         $productName = $customerOrder->retailerCloneProduct->name  ?? $customerOrder->product->name ?? 'N/A';
-    //         $productSku = $customerOrder->retailerCloneProduct->sku  ?? $customerOrder->product->sku ?? 'N/A';
-    //         $pickup_address = PickAddress::where('id',$request->pickup_address_id)->first();
-
-    //         if (!$customerOrder) {
-    //             return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
-    //         }
-
-    //         $updateData = [];
-    //         $message = '';
-    //         $type = '';
-    //         if ($request->status == 'shipped_by_retailer') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'shipped_by_retailer_at' => now(),
-    //                 'pickup_address_id' => $request->pickup_address_id,
-    //                 'product_weight' => $request->product_weight,
-    //             ];
-    //             $message = 'Order has been ready to ship (by supplier)';
-    //             $type = 'ready-to-ship';
-
-    //             // Prepare Payload
-    //             $payload = [
-    //                 "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
-    //                 "customer_Mobile" => $customerOrder->customer->phone_number,
-    //                 "customer_Emailid" => $customerOrder->customer->email,
-    //                 "customer_Address" => $customerOrder->customer->address,
-    //                 "landMark" => "",
-    //                 "customer_Address_Type" => "Home",
-    //                 "customer_PinCode" =>$customerOrder->customer->pincode,
-    //                 "customer_City" => $customerOrder->customer->city,
-    //                 "orderId" => $customerOrder->order_id,
-    //                 "invoice_Number" => '',
-    //                 "payment_Mode" => 1, // COD
-    //                 "express_Type" => "surface",
-    //                 "is_Ndd" => 0,
-    //                 "order_Amount" =>  $customerOrder->final_amount,
-    //                 "tax_Amount" => 0,
-    //                 "extra_Charges" => 0,
-    //                 "total_Amount" =>  $customerOrder->final_amount,
-    //                 "cod_Amount" => $customerOrder->final_amount ?? 0,
-    //                 "shipment_Weight" => $request->product_weight,
-    //                 "shipment_Length" => 12,
-    //                 "shipment_Width" => 12,
-    //                 "shipment_Height" => 12,
-    //                 "volumetric_Weight" => 1,
-    //                 "latitude" => 0,
-    //                 "longitude" => 0,
-    //                 "pick_Address_ID" => $pickup_address->warehouse_id,
-    //                 "return_Address_ID" => $pickup_address->warehouse_id,
-    //                 "products" => [
-    //                     [
-    //                         "productId" => "121212",
-    //                         "productName" => $productName,
-    //                         "unitPrice" => $customerOrder->final_amount,
-    //                         "quantity" => $customerOrder->quantity,
-    //                         "productCategory" => "",
-    //                         "hsnCode" => "",
-    //                         "sku" => $productSku,
-    //                         "taxRate" => 0,
-    //                         "productDiscount" => 0
-    //                     ]
-    //                 ],
-    //                 "courierId" => $request->courier_service_id,
-    //             ];
-
-    //             // Send request
-    //             $response = Http::withHeaders([
-    //                 'Content-Type' => 'application/json',
-    //                 'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-    //             ])->post('https://capi-qc.fship.in/api/createforwardorder', $payload);
-
-    //             Log::info('Shipping API Payload:', $payload);
-    //             Log::info('Shipping API Response:', [
-    //                 'status' => $response->status(),
-    //                 'body' => $response->body()
-    //             ]);
-
-    //             if ($response->successful()) {
-    //                 $data = $response->json();
-
-    //                 if (!empty($data['waybill']) && !empty($data['apiorderid'])) {
-    //                     // Only update if waybill and apiorderid are available
-    //                     $updateData = [
-    //                         'status' => $request->status,
-    //                         'shipped_by_retailer_at' => now(),
-    //                         'pickup_address_id' => $request->pickup_address_id,
-    //                         'product_weight' => $request->product_weight,
-    //                         'tracking_number' => $data['waybill'],
-    //                         'api_order_id' => $data['apiorderid'],
-    //                     ];
-
-    //                     $message = 'Order has been marked ready to ship';
-    //                     $type = 'ready-to-ship';
-    //                 } else {
-    //                     DB::rollBack();
-    //                     return response()->json(['status' => false, 'msg' => $data['response']]);
-    //                 }
-    //             } else {
-    //                 Log::error('Shipping API Error:', [
-    //                     'status' => $response->status(),
-    //                     'error' => $response->json() ?? $response->body()
-    //                 ]);
-    //                 DB::rollBack();
-    //                 return response()->json(['status' => false, 'msg' => 'Failed to generate shipping order. Please try again.']);
-    //             }
-    //         }
-    //         else if ($request->status == 'transfered_retailer_to_wholesaler') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'transfered_retailer_to_wholesaler_at' => now()
-    //             ];
-    //             $message = 'Wholesaler will ship this product';
-    //             $type = 'transfered-retailer-to-wholesaler';
-    //         } else if ($request->status == 'cancelled_by_retailer') {
-    //             $cancelled_reason = $request->reject_reason_select_confirmed == 'Other'
-    //                 ? $request->reject_reason_input_confirmed
-    //                 : $request->reject_reason_select_confirmed;
-
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'cancelled_by_retailer_at' => now(),
-    //                 'cancelled_by' => $retailer->id,
-    //                 'cancelled_reason' => $cancelled_reason
-    //             ];
-    //             $message = 'Order has been cancelled by retailer';
-    //             $type = 'cancelled-by-retailer';
-    //         }
-
-    //         if (!empty($updateData)) {
-    //             $customerOrder->update($updateData);
-    //             DB::commit();
-    //             return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
-    //         } else {
-    //             return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
-    //         }
-    //      } catch (Exception $e) {
-    //          DB::rollBack();
-    //          return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
-    //     }
-    // }
-
     // use Courier service manager and Fship order place
     public function confirmedOrderAction(Request $request)
     {
@@ -1493,7 +1262,7 @@ class RetilerController extends Controller
                     "customer_City" => $customerOrder->customer->city,
                     "orderId" => $customerOrder->order_id,
                     "invoice_Number" => '',
-                    "payment_Mode" => 1,
+                    "payment_Mode" => 1, // COD
                     "express_Type" => "surface",
                     "is_Ndd" => 0,
                     "order_Amount" => $customerOrder->final_amount,
@@ -1688,78 +1457,6 @@ class RetilerController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
-
-
-    //<---------------------- START : NOTE IN USE ------------------------>
-    // // Product details view (while retailer add the product)
-    // public function addProductView(Request $request, $product_id)
-    // {
-    //     try {
-    //         $retailer = Auth::user();
-
-    //         $product = Product::where('id', $product_id)->first();
-    //         $retailer_product = RetailerProducts::where('retailer_id', $retailer->id)
-    //             ->where('product_id', $product_id)
-    //             ->first();
-
-    //         return view('retailers.product.add-product-view', compact('product', 'retailer_product'));
-    //     } catch (Exception $e) {
-    //         return redirect()->route('retailer.dashboard');
-    //     }
-    // }
-    // // add product (by retailer in his wishlist)
-    // public function addProduct(Request $request, $product_id)
-    // {
-    //     $request->validate([
-    //         'margin' => 'required|integer|max:100'
-    //     ]);
-
-    //     DB::beginTransaction();
-    //     try {
-    //         $retailer = Auth::user();
-
-    //         RetailerProducts::updateOrCreate([
-    //             'retailer_id' => $retailer->id,
-    //             'wholesaler_id' => $request->wholesaler_id,
-    //             'product_id' => $request->product_id,
-    //         ], [
-    //             'margin' => $request->margin
-    //         ]);
-    //         DB::commit();
-
-    //         return redirect()->route('retailer.view-category-margin', $request->wholesaler_id)
-    //             ->with('success', 'Product added/updated successfully');
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         session()->flash('error', 'Something went wrong');
-    //         return redirect()->route('retailer.add-product', $product_id);
-    //     }
-    // }
-    // // remove product (by retailer from his wishlist)
-    // public function removeProduct(Request $request, $retailer_product_id)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-    //         $retailer_product = RetailerProducts::where('id', $retailer_product_id)->first();
-
-    //         if (!$retailer_product) {
-    //             session()->flash('error', 'Product not exist or already deleted');
-    //             return redirect()->back();
-    //         }
-
-    //         $retailer_product->delete();
-
-    //         DB::commit();
-
-    //         return redirect()->route('retailer.view-category-margin', $retailer_product->wholesaler_id)
-    //             ->with('success', 'Product removed successfully');
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         session()->flash('error', 'Something went wrong');
-    //         return redirect()->back();
-    //     }
-    // }
-    //<---------------------- END : NOTE IN USE ------------------------>
 
 
     public function downloadStockSample()
