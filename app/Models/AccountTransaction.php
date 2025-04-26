@@ -12,9 +12,9 @@ class AccountTransaction extends Model
         'user_type',
         'description',
         'amount_type',
-        'product_amount',
+        'transaction_amount',
         'charges',
-        'total_amount',
+        'final_transaction_amount',
         'current_balance',
         'order_type',
         'status'

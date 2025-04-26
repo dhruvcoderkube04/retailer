@@ -22,14 +22,14 @@ class RetailerAccountTransactionController extends Controller
         //     'user_type' => 'retailer',
         //     'description' => 'Charges',
         //     'amount_type' => 'minus',
-        //     'product_amount' => 0,
+        //     'transaction_amount' => 0,
         //     'charges' => [
         //         // 'RTO charges' => 200,
         //         // 'Shipping charges' => 50,
         //         // 'COD charges' => 150,
         //         'Account Charges' => 109
         //     ],
-        //     'total_amount' => 109,
+        //     'final_transaction_amount' => 109,
         //     'current_balance' => 100491,
         //     'order_type' => 'other',
         //     'status' => 1
@@ -84,6 +84,37 @@ class RetailerAccountTransactionController extends Controller
                 'status' => false,
                 'msg' => 'Something went wrong!',
                 'error' => $e->getMessage(), // Optional: for debugging
+            ]);
+        }
+    }
+
+    // AJAX - transaction info
+    public function transactionInfo(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if ($user->user_type != 3) { // Must be retailer
+                return response()->json(['status' => false, 'msg' => 'Invalid user!']);
+            }
+
+            // Basic validation
+            if (!$request->transaction_id) {
+                return response()->json(['status' => false, 'msg' => 'Invalid transaction details.']);
+            }
+
+            $transactionDetail = AccountTransaction::with('customer_order', 'user')
+                ->where('id', $request->transaction_id)
+                ->first();
+
+            return response()->json([
+                'status' => true,
+                'html' => view('accounts.ajax.transaction-info', compact('transactionDetail'))->render()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Something went wrong!',
+                'error' => $e->getMessage(),
             ]);
         }
     }

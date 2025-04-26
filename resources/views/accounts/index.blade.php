@@ -31,15 +31,15 @@
             @endphp
             @foreach ($transactions as $transaction)
                 @php
-                    if ($transaction->amount_type == 'add') {
-                        $total_credit += $transaction->total_amount;
-                    } elseif ($transaction->amount_type == 'minus') {
-                        $total_debit += $transaction->total_amount;
+                    if ($transaction->final_transaction_amount > 0) {
+                        $total_credit += $transaction->final_transaction_amount;
+                    } elseif ($transaction->final_transaction_amount < 0) {
+                        $total_debit += $transaction->final_transaction_amount;
                     }
+                    $total_income += $transaction->final_transaction_amount;
                 @endphp
             @endforeach
             @php
-                $total_income = $total_credit - $total_debit;
             @endphp
 
             <div id="kt_app_content" class="app-content flex-column-fluid">
@@ -95,21 +95,6 @@
 
                                     <!-- Credit, Debit & Income Stats -->
                                     <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-                                        <!-- Debit -->
-                                        <div
-                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                                <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                </i>
-                                                <div class="fs-4 fw-bold" id="total_debit_section">
-                                                    <span class="fs-7">₹ </span>{{ $total_debit }}
-                                                </div>
-                                            </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Debit</div>
-                                        </div>
-
                                         <!-- Credit -->
                                         <div
                                             class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
@@ -123,6 +108,21 @@
                                                 </div>
                                             </div>
                                             <div class="fw-semibold fs-6 text-gray-500">Credit</div>
+                                        </div>
+
+                                        <!-- Debit -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                                <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                <div class="fs-4 fw-bold" id="total_debit_section">
+                                                    <span class="fs-7">₹ </span>{{ $total_debit }}
+                                                </div>
+                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Debit</div>
                                         </div>
 
                                         <!-- Income -->
@@ -162,14 +162,25 @@
                                             <span class="fs-5">₹ </span>{{ $webManagement->wallet }}
                                         </div>
                                         <div class="d-flex justify-content-center align-items-center mt-2">
-                                            <i class="ki-duotone ki-wallet fs-2 text-info me-2">
+                                            <i class="ki-duotone ki-wallet fs-1 text-info me-2">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
                                                 <span class="path3"></span>
                                                 <span class="path4"></span>
                                             </i>
-                                            <div class="fw-semibold fs-6 text-gray-500">Wallet</div>
+                                            <div class="fw-semibold fs-3 text-gray-500">Wallet</div>
                                         </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-sm btn-flex btn-light-success"
+                                            data-bs-toggle="modal" data-bs-target="#withdrawRequestModal">
+                                            <i class="ki-duotone ki-bank fs-5">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                            </i>
+                                            Withdraw Request
+                                        </button>
                                     </div>
                                 </div>
 
@@ -254,12 +265,12 @@
                                             @foreach ($transactions as $transaction)
                                                 <tr>
                                                     <td class="text-center">
-                                                        @if ($transaction->amount_type == 'add')
+                                                        @if ($transaction->final_transaction_amount > 0)
                                                             <i class="ki-duotone ki-arrow-up fs-1 text-success me-2">
                                                                 <span class="path1"></span>
                                                                 <span class="path2"></span>
                                                             </i>
-                                                        @elseif ($transaction->amount_type == 'minus')
+                                                        @elseif ($transaction->final_transaction_amount < 0)
                                                             <i class="ki-duotone ki-arrow-down fs-1 text-danger me-2">
                                                                 <span class="path1"></span>
                                                                 <span class="path2"></span>
@@ -272,13 +283,13 @@
                                                         {{ $transaction->customer_order?->order_id ?? '-' }}
                                                     </td>
                                                     <td class="text-end">
-                                                        @if ($transaction->amount_type == 'add')
+                                                        @if ($transaction->final_transaction_amount > 0)
                                                             <div class="badge badge-light-success fs-6">
-                                                                + {{ $transaction->total_amount }}
+                                                                + {{ $transaction->final_transaction_amount }}
                                                             </div>
-                                                        @elseif ($transaction->amount_type == 'minus')
+                                                        @elseif ($transaction->final_transaction_amount <= 0)
                                                             <div class="badge badge-light-danger fs-6">
-                                                                - {{ $transaction->total_amount }}
+                                                                {{ $transaction->final_transaction_amount }}
                                                             </div>
                                                         @endif
                                                     </td>
@@ -314,7 +325,7 @@
                 <div class="modal-dialog modal-dialog-centered mw-450px">
                     <div class="modal-content">
                         <div class="modal-header bg-white border-bottom">
-                            <h2 class="fw-bold mb-0">Wallet Receipt</h2>
+                            <h2 class="fw-bold mb-0">Transaction Summary</h2>
                             <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
                                 <i class="ki-duotone ki-cross fs-2">
                                     <span class="path1"></span>
@@ -323,62 +334,42 @@
                             </div>
                         </div>
 
-                        <div class="modal-body p-5">
+                        <div class="modal-body p-5" id="transaction-info-section">
                             <div class="d-flex flex-column gap-2 fs-6 fw-semibold text-gray-700">
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
                                     <span>Product Name :</span>
-                                    <span>Shoes</span>
+                                    <span>N/A</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
                                     <span>Tracking ID :</span>
-                                    <span>80680717762</span>
+                                    <span>N/A</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
                                     <span>Remark :</span>
-                                    <span>80680717762-Delivered</span>
+                                    <span>N/A</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
                                     <span>Date :</span>
-                                    <span>27-Dec-2024 01:21 PM</span>
+                                    <span>N/A</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
                                     <span>Order ID :</span>
-                                    <a href="#" class="text-primary text-hover-underline">23247183</a>
+                                    <span class="text-primary text-hover-underline">N/A</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
-                                    <span>Order Amount :</span>
-                                    <span>9500</span>
+                                    <span>Transaction Amount :</span>
+                                    <span>N/A</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between py-1 border-bottom">
-                                    <span>Amount :</span>
-                                    <span>9500</span>
-                                </div>
-
-                                <div class="d-flex justify-content-between py-1 border-bottom">
-                                    <span>Courier Charge :</span>
-                                    <span>600</span>
-                                </div>
-
-                                <div class="d-flex justify-content-between py-1 border-bottom">
-                                    <span>COD Charge :</span>
-                                    <span>190</span>
-                                </div>
-
-                                <div class="d-flex justify-content-between py-1 border-bottom">
-                                    <span>GST :</span>
-                                    <span>143</span>
-                                </div>
-
-                                <div class="d-flex justify-content-between py-1 border-bottom">
-                                    <span>Charge :</span>
-                                    <span>933</span>
+                                    <span>Charges :</span>
+                                    <span>N/A</span>
                                 </div>
 
                             </div>
@@ -387,14 +378,75 @@
                             <div class="border-top pt-4 mt-5">
                                 <div class="d-flex justify-content-between align-items-center fs-2 fw-bold">
                                     <span>Total</span>
-                                    <span class="text-success">8567</span>
+                                    <span class="text-success">0.00</span>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
+
+            {{-- withdraw-request-modal --}}
+            <div class="modal fade" id="withdrawRequestModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-550px">
+                    <div class="modal-content">
+                        {{-- Header --}}
+                        <div class="modal-header bg-white border-bottom">
+                            <h2 class="fw-bold mb-0">Withdraw Request</h2>
+                            <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2 text-dark"></span>
+                                </i>
+                            </div>
+                        </div>
+
+                        {{-- Body --}}
+                        <div class="modal-body p-5">
+                            {{-- Wallet and Bank Details --}}
+                            <div class="mb-5">
+                                <div class="bg-light-primary p-4 rounded">
+                                    <div class="text-gray-700 fs-6">
+                                        <div class="mb-2"><strong>Current Balance:</strong>
+                                            ₹{{ number_format($webManagement->wallet, 2) }}</div>
+                                        <div class="mb-2"><strong>Account Number:</strong>
+                                            {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
+                                        <div class="mb-2"><strong>IFSC Code:</strong>
+                                            {{ Auth::user()->userDetail->ifsc_code ?? 'N/A' }}</div>
+                                        <div><strong>Account Holder Name:</strong>
+                                            {{ Auth::user()->userDetail->account_holder_name ?? 'N/A' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Withdraw Form --}}
+                            <form action="" method="POST" id="withdrawRequestForm">
+                                @csrf
+
+                                {{-- Amount Input --}}
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Withdraw Amount <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" name="amount" class="form-control form-control-solid"
+                                        placeholder="Enter amount" required min="1" step="0.01">
+                                </div>
+
+                                {{-- Action Buttons --}}
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-light me-3"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="indicator-label">Submit Request</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
 
 
             @include('layouts.footer')
@@ -470,17 +522,19 @@
 
                             let total_credit = 0;
                             let total_debit = 0;
-
+                            let total_income = 0;
                             $.each(response.transactions, function(index, transaction) {
-                                if (transaction.amount_type === 'add') {
+                                if (transaction.final_transaction_amount > 0) {
                                     total_credit += parseFloat(transaction
-                                        .total_amount);
-                                } else if (transaction.amount_type === 'minus') {
-                                    total_debit += parseFloat(transaction.total_amount);
+                                        .final_transaction_amount);
+                                } else if (transaction.final_transaction_amount < 0) {
+                                    total_debit += parseFloat(transaction
+                                        .final_transaction_amount);
                                 }
+                                total_income += parseFloat(transaction
+                                    .final_transaction_amount);
                             });
 
-                            let total_income = total_credit - total_debit;
 
                             $('#total_credit_section').html(
                                 `<span class="fs-7">₹ </span>${total_credit}`);
@@ -541,7 +595,38 @@
             $(document).on('click', '.transaction-info', function() {
                 let transaction_id = $(this).attr('data-id');
 
-                $('#transactionSummaryModal').modal('show');
+                $.ajax({
+                    url: '{{ route('retailer.accounts.transaction-info') }}',
+                    type: 'GET',
+                    data: {
+                        transaction_id: transaction_id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('response', response);
+
+                        if (response.status) {
+                            $('#transaction-info-section').html(response.html);
+
+                            $('#transactionSummaryModal').modal('show');
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.msg,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again later.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
             });
         });
     </script>

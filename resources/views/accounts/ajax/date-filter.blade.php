@@ -1,12 +1,12 @@
 @foreach ($transactions as $transaction)
     <tr>
         <td class="text-center">
-            @if ($transaction->amount_type == 'add')
+            @if ($transaction->final_transaction_amount > 0)
                 <i class="ki-duotone ki-arrow-up fs-1 text-success me-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
                 </i>
-            @elseif ($transaction->amount_type == 'minus')
+            @elseif ($transaction->final_transaction_amount < 0)
                 <i class="ki-duotone ki-arrow-down fs-1 text-danger me-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
@@ -19,13 +19,13 @@
             {{ $transaction->customer_order?->order_id ?? '-' }}
         </td>
         <td class="text-end">
-            @if ($transaction->amount_type == 'add')
+            @if ($transaction->final_transaction_amount > 0)
                 <div class="badge badge-light-success fs-6">
-                    + {{ $transaction->total_amount }}
+                    + {{ $transaction->final_transaction_amount }}
                 </div>
-            @elseif ($transaction->amount_type == 'minus')
+            @elseif ($transaction->final_transaction_amount <= 0)
                 <div class="badge badge-light-danger fs-6">
-                    - {{ $transaction->total_amount }}
+                    {{ $transaction->final_transaction_amount }}
                 </div>
             @endif
         </td>

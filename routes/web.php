@@ -186,6 +186,7 @@ Route::middleware(['retailer'])->group(function () {
     Route::prefix('accounts')->group(function () {
         Route::get('/', [RetailerAccountTransactionController::class, 'indexAccounts'])->name('retailer.accounts.index');
         Route::get('/date-filter', [RetailerAccountTransactionController::class, 'dateFilterAccounts'])->name('retailer.accounts.date-filter'); // ajax
+        Route::get('/transaction-info', [RetailerAccountTransactionController::class, 'transactionInfo'])->name('retailer.accounts.transaction-info'); // ajax
     });
 });
 
