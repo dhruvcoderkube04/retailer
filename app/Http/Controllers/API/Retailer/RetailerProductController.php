@@ -47,8 +47,8 @@ class RetailerProductController extends Controller
             'google_analytics_id',
             'facebook_pixel_id',
             'app_store_url',
-            // 'apple_store_id',
-            // 'play_store_url',
+            'apple_store_id',
+            'play_store_url',
             'meta_title',
             'meta_keywords',
             'meta_description',
@@ -309,10 +309,84 @@ class RetailerProductController extends Controller
         }
     }
 
-    // new versrion of productget with  variation
+    // public function getSingalProductDetails(Request $request)
+    // {
+
+    //     try {
+    //         $apiKey = $request->header('API-KEY');
+    //         if (!$apiKey) {
+    //             return response()->json(['error' => 'API Key is required.'], 401);
+    //         }
+
+    //         $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+    //         if (!$retailer) {
+    //             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+    //         }
+
+    //         $w_productId = $request->w_product_id;
+    //         $r_productId = $request->r_product_id;
+
+    //         if (!$w_productId && !$r_productId) {
+    //             return response()->json(['error' => 'Either w_product_id or r_product_id is required.'], 422);
+    //         }
+
+    //         if ($w_productId) {
+    //             // Fetch all RetailerProducts with wholesaler.products
+    //             $retailerProducts = RetailerProducts::with(['wholesaler.products.productVariations'])
+    //                 ->where('retailer_id', $retailer->retailer_id)
+    //                 ->get();
+
+    //             $product = null;
+    //             $foundRetailerProduct = null;
+
+    //             foreach ($retailerProducts as $retailerProduct) {
+    //                 if ($retailerProduct->wholesaler && $retailerProduct->wholesaler->products) {
+    //                     $found = $retailerProduct->wholesaler->products->where('id', $w_productId)->first();
+    //                     if ($found) {
+    //                         $product = $found;
+    //                         $foundRetailerProduct = $retailerProduct;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+
+    //             if (!$product) {
+    //                 return response()->json(['error' => 'Product not found.'], 404);
+    //             }
+
+    //             $formatted = $this->singleFormatRetailerProduct($product, $foundRetailerProduct);
+
+    //         } else {
+    //             // Search in RetailerCloneProduct
+    //             $cloneProduct = RetailerCloneProduct::with('productVariations')
+    //                 ->where('retailer_id', $retailer->retailer_id)
+    //                 ->where('id', $r_productId)
+    //                 ->first();
+
+    //             if (!$cloneProduct) {
+    //                 return response()->json(['error' => 'Clone product not found.'], 404);
+    //             }
+
+    //             $formatted = $this->singleFormatCloneProduct($cloneProduct);
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'product' => $formatted
+    //         ], 200);
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Get product detail error: ' . $e->getMessage(), [
+    //             'line' => $e->getLine(),
+    //             'file' => $e->getFile(),
+    //             'trace' => $e->getTraceAsString(),
+    //         ]);
+    //         return response()->json(['error' => 'Something went wrong.'], 500);
+    //     }
+    // }
+
     public function getSingalProductDetails(Request $request)
     {
-
         try {
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
@@ -324,49 +398,64 @@ class RetailerProductController extends Controller
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
 
-            $w_productId = $request->w_product_id;
-            $r_productId = $request->r_product_id;
+            $slug = $request->slug;
 
-            if (!$w_productId && !$r_productId) {
-                return response()->json(['error' => 'Either w_product_id or r_product_id is required.'], 422);
+            if (!$slug) {
+                return response()->json(['error' => 'Slug is required.'], 422);
             }
 
-            if ($w_productId) {
-                $retailerProduct = RetailerProducts::with(['wholesaler.products.productVariations'])
-                    ->where('retailer_id', $retailer->retailer_id)
-                    ->first();
+            // First, search in wholesaler products
+            $retailerProducts = RetailerProducts::with(['wholesaler.products.productVariations'])
+                ->where('retailer_id', $retailer->retailer_id)
+                ->get();
 
-                if (!$retailerProduct || !$retailerProduct->wholesaler) {
-                    return response()->json(['error' => 'Retailer product or wholesaler not found.'], 404);
+            $product = null;
+            $foundRetailerProduct = null;
+
+            foreach ($retailerProducts as $retailerProduct) {
+                if ($retailerProduct->wholesaler && $retailerProduct->wholesaler->products) {
+                    $found = $retailerProduct->wholesaler->products->where('slug', $slug)->first();
+                    if ($found) {
+                        $product = $found;
+                        $foundRetailerProduct = $retailerProduct;
+                        break;
+                    }
                 }
+            }
 
-                $product = $retailerProduct->wholesaler->products->where('id', $w_productId)->first();
+            if ($product) {
+                $formatted = $this->singleFormatRetailerProduct($product, $foundRetailerProduct);
 
-                if (!$product) {
-                    return response()->json(['error' => 'Product not found.'], 404);
-                }
+                return response()->json([
+                    'success' => true,
+                    'product' => $formatted
+                ], 200);
+            }
 
-                $formatted = $this->singleFormatRetailerProduct($product, $retailerProduct);
-            } else {
-                $cloneProduct = RetailerCloneProduct::with('productVariations')
-                    ->where('retailer_id', $retailer->retailer_id)
-                    ->where('id', $r_productId)
-                    ->first();
+            // If not found, search in retailer clone products
+            $cloneProduct = RetailerCloneProduct::with('productVariations')
+                ->where('retailer_id', $retailer->retailer_id)
+                ->where('slug', $slug)
+                ->first();
 
-                if (!$cloneProduct) {
-                    return response()->json(['error' => 'Clone product not found.'], 404);
-                }
-
+            if ($cloneProduct) {
                 $formatted = $this->singleFormatCloneProduct($cloneProduct);
+
+                return response()->json([
+                    'success' => true,
+                    'product' => $formatted
+                ], 200);
             }
 
-            return response()->json([
-                'success' => true,
-                'product' => $formatted
-            ], 200);
+            // If not found in both
+            return response()->json(['error' => 'Product not found.'], 404);
 
         } catch (\Exception $e) {
-            \Log::error('Get product detail error: ' . $e->getMessage());
+            \Log::error('Get product detail error: ' . $e->getMessage(), [
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json(['error' => 'Something went wrong.'], 500);
         }
     }

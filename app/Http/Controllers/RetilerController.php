@@ -384,7 +384,23 @@ class RetilerController extends Controller
     {
         $request->validate([
             'product_name' => 'required|min:3|max:100',
-            'slug' => 'required|string|unique:products,slug',
+            'slug' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
+                        ->where('slug', $value)
+                        ->exists();
+
+                    $existsInProducts = DB::table('products')
+                        ->where('slug', $value)
+                        ->exists();
+
+                    if ($existsInRetailerCloneProduct || $existsInProducts) {
+                        $fail('The slug must be unique across all products.');
+                    }
+                },
+            ],
             // 'categories' => 'required|numeric|exists:categories,id',
             'sub_category_id' => 'required|numeric|exists:sub_categories,id',
             'product_tags' => 'nullable|string|max:255',
@@ -470,9 +486,12 @@ class RetilerController extends Controller
                 } while (Product::where('sku', $sku)->exists());
             }
 
+            // add time stape with uuid in slug
+            $slug = Str::slug($request->slug) . '-' . now()->timestamp . '-' . uniqid();
+
             $product->retailer_id = $retailer_id;
             $product->name = $request->product_name;
-            $product->slug = $request->slug;
+            $product->slug = $slug;
             $product->category_id = $subCategory->category_id;
             $product->sub_category_id = $request->sub_category_id;
             $product->tags = $request->product_tags;
