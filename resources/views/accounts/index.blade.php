@@ -9,7 +9,7 @@
                 <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                            Account Transactions History</h1>
+                            Account Transactions</h1>
 
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
@@ -18,7 +18,7 @@
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
                             </li>
-                            <li class="breadcrumb-item text-muted">Account Transactions History</li>
+                            <li class="breadcrumb-item text-muted">Account Transactions</li>
                         </ul>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                                                     <span class="fs-7">₹ </span>{{ $total_credit }}
                                                 </div>
                                             </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Credit</div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
                                         </div>
 
                                         <!-- Debit -->
@@ -122,7 +122,7 @@
                                                     <span class="fs-7">₹ </span>{{ $total_debit }}
                                                 </div>
                                             </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Debit</div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
                                         </div>
 
                                         <!-- Income -->
@@ -150,7 +150,7 @@
                                                     <span class="fs-7">₹ </span>{{ $total_income }}
                                                 </div>
                                             </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Income</div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
                                         </div>
                                     </div>
                                 </div>
@@ -162,7 +162,7 @@
                                             <span class="fs-5">₹ </span>{{ $webManagement->wallet }}
                                         </div>
                                         <div class="d-flex justify-content-center align-items-center mt-2">
-                                            <i class="ki-duotone ki-wallet fs-1 text-info me-2">
+                                            <i class="ki-duotone ki-wallet fs-1 text-primary me-2">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
                                                 <span class="path3"></span>
@@ -173,13 +173,13 @@
                                     </div>
 
                                     <div class="mt-3">
-                                        <button type="button" class="btn btn-sm btn-flex btn-light-success"
-                                            data-bs-toggle="modal" data-bs-target="#withdrawRequestModal">
+                                        <button type="button" class="btn btn-sm btn-flex btn-primary"
+                                            data-bs-toggle="modal" data-bs-target="#withdrawalRequestModal">
                                             <i class="ki-duotone ki-bank fs-5">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
                                             </i>
-                                            Withdraw Request
+                                            Withdrawal Request
                                         </button>
                                     </div>
                                 </div>
@@ -192,22 +192,11 @@
                     <div class="card card-flush">
                         <div class="card-header align-items-center py-5 gap-2 gap-md-5">
                             <div class="card-title">
-                                <div class="d-flex align-items-center position-relative my-1">
-                                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    <input type="text" data-kt-ecommerce-product-filter="search"
-                                        class="form-control form-control-solid w-250px ps-12 bg-secondary"
-                                        placeholder="Search Product" id="search_field" />
-                                </div>
-                            </div>
-                            <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
                                 <div class="d-flex align-items-center w-100 w-sm-auto">
                                     <div class="input-group mw-250px bg-secondary">
                                         <input type="text"
                                             class="form-control form-control-solid bg-secondary border-0"
-                                            placeholder="Pick date range" id="kt_daterangepicker_accounts_history">
+                                            placeholder="Pick date range" id="kt_daterangepicker_account_transactions">
                                         <span class="input-group-text bg-secondary border-0">
                                             <i class="ki-duotone ki-calendar-8 fs-2">
                                                 <span class="path1"></span>
@@ -220,7 +209,8 @@
                                         </span>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
                                 <button type="button" class="btn btn-flex btn-light-primary" data-bs-toggle="modal"
                                     data-bs-target="#kt_modal_add_product">
                                     <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
@@ -231,89 +221,25 @@
                         </div>
 
                         <div class="card-body pt-0">
-                            {{-- tabs --}}
-                            {{-- <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_1" data-tab="1">Wholesaler
-                                        Products</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_2" data-tab="2">My
-                                        Products</a>
-                                </li>
-                            </ul> --}}
+                            <div class="tab-content">
+                                <table class="table align-middle table-row-dashed fs-6 gy-5"
+                                    id="kt_datatable_account_transactions">
+                                    <thead>
+                                        <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle"></th>
+                                            <th class="text-center align-middle w-250px">Description</th>
+                                            <th class="text-center align-middle w-130px">Date & Time</th>
+                                            <th class="text-center align-middle">Order ID</th>
+                                            <th class="text-center align-middle w-110px">Transaction Amount</th>
+                                            <th class="text-center align-middle w-110px">Current Balance</th>
+                                            <th class="text-center align-middle w-100px">Status</th>
+                                            <th class="text-center align-middle w-80px">Info</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="fw-semibold text-gray-600">
 
-                            {{-- tab contents --}}
-                            <div class="tab-content" id="myTabContent">
-
-                                {{-- margin added products --}}
-                                <div class="tab-pane fade show active" id="kt_tab_pane_1" role="tabpanel">
-                                    <table class="table align-middle table-row-dashed fs-6 gy-5"
-                                        id="kt_datatable_accounts_history">
-                                        <thead>
-                                            <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th></th>
-                                                <th class="text-center align-middle">Description</th>
-                                                <th class="text-center align-middle">Date & Time</th>
-                                                <th class="text-center align-middle">Order ID</th>
-                                                <th class="text-center align-middle">Transaction Amount</th>
-                                                <th class="text-center align-middle">Current Balance</th>
-                                                <th class="text-center align-middle">Info</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="fw-semibold text-gray-600">
-                                            @foreach ($transactions as $transaction)
-                                                <tr>
-                                                    <td class="text-center">
-                                                        @if ($transaction->final_transaction_amount > 0)
-                                                            <i class="ki-duotone ki-arrow-up fs-1 text-success me-2">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                            </i>
-                                                        @elseif ($transaction->final_transaction_amount < 0)
-                                                            <i class="ki-duotone ki-arrow-down fs-1 text-danger me-2">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                            </i>
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-start">{{ $transaction->description }}</td>
-                                                    <td class="text-center">{{ $transaction->created_at }}</td>
-                                                    <td class="text-center">
-                                                        {{ $transaction->customer_order?->order_id ?? '-' }}
-                                                    </td>
-                                                    <td class="text-end">
-                                                        @if ($transaction->final_transaction_amount > 0)
-                                                            <div class="badge badge-light-success fs-6">
-                                                                + {{ $transaction->final_transaction_amount }}
-                                                            </div>
-                                                        @elseif ($transaction->final_transaction_amount <= 0)
-                                                            <div class="badge badge-light-danger fs-6">
-                                                                {{ $transaction->final_transaction_amount }}
-                                                            </div>
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-end">
-                                                        <div class="badge badge-light-secondary fs-6">
-                                                            {{ $transaction->current_balance }}
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <a href="javascript:void(0)" class="transaction-info"
-                                                            data-id="{{ $transaction->id }}">
-                                                            <i class="ki-duotone ki-information-2 fs-2 text-primary">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                                <span class="path3"></span>
-                                                            </i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -386,13 +312,12 @@
                 </div>
             </div>
 
-            {{-- withdraw-request-modal --}}
-            <div class="modal fade" id="withdrawRequestModal" tabindex="-1" aria-hidden="true">
+            {{-- withdrawal-request-modal --}}
+            <div class="modal fade" id="withdrawalRequestModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered mw-550px">
                     <div class="modal-content">
-                        {{-- Header --}}
                         <div class="modal-header bg-white border-bottom">
-                            <h2 class="fw-bold mb-0">Withdraw Request</h2>
+                            <h2 class="fw-bold mb-0">Withdrawal Request</h2>
                             <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
                                 <i class="ki-duotone ki-cross fs-2">
                                     <span class="path1"></span>
@@ -401,10 +326,8 @@
                             </div>
                         </div>
 
-                        {{-- Body --}}
                         <div class="modal-body p-5">
-                            {{-- Wallet and Bank Details --}}
-                            <div class="mb-5">
+                            <div class="mb-7">
                                 <div class="bg-light-primary p-4 rounded">
                                     <div class="text-gray-700 fs-6">
                                         <div class="mb-2"><strong>Current Balance:</strong>
@@ -419,19 +342,22 @@
                                 </div>
                             </div>
 
-                            {{-- Withdraw Form --}}
-                            <form action="" method="POST" id="withdrawRequestForm">
+                            <form method="POST" id="withdrawalRequestForm" class="m-1">
                                 @csrf
-
-                                {{-- Amount Input --}}
-                                <div class="mb-4">
-                                    <label class="form-label fw-semibold">Withdraw Amount <span
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">Withdrawal Amount <span
                                             class="text-danger">*</span></label>
-                                    <input type="number" name="amount" class="form-control form-control-solid"
-                                        placeholder="Enter amount" required min="1" step="0.01">
+                                    <input type="number" name="request_amount"
+                                        class="form-control form-control-solid border-secondary"
+                                        placeholder="Enter amount" min="1" step="0.01" autocomplete="off">
+                                    <span class="error error_request_amount text-danger m-2 d-none"></span>
                                 </div>
-
-                                {{-- Action Buttons --}}
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">Remarks</label>
+                                    <textarea name="remarks" class="form-control form-control-solid border-secondary" placeholder="Enter remarks"
+                                        autocomplete="off"></textarea>
+                                    <span class="error error_remarks text-danger m-2 d-none"></span>
+                                </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="button" class="btn btn-light me-3"
                                         data-bs-dismiss="modal">Cancel</button>
@@ -445,41 +371,23 @@
                 </div>
             </div>
 
-
-
-
-
             @include('layouts.footer')
         </div>
     </div>
 @endsection
 
 @section('script')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script>
-        //<------------- START : product datatable ------------->
-        var table1 = $("#kt_datatable_accounts_history").DataTable({
-            order: [],
-            columnDefs: [{
-                orderable: false,
-                targets: 0
-            }]
-        });
-        $("#search_field").on("keyup", function() {
-            table1.search(this.value).draw();
-        });
-        //<------------- END : product datatable ------------->
-
         //<------------- START : date pickert ------------->
         var start = moment().subtract(29, "days");
         var end = moment();
 
         function cb(start, end) {
-            $("#kt_daterangepicker_accounts_history").html(start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
+            $("#kt_daterangepicker_account_transactions").html(start.format("DD/MM/YYYY") + " - " + end.format(
+                "DD/MM/YYYY"));
         }
 
-        $("#kt_daterangepicker_accounts_history").daterangepicker({
+        $("#kt_daterangepicker_account_transactions").daterangepicker({
             startDate: start,
             endDate: end,
             locale: {
@@ -499,97 +407,102 @@
         cb(start, end);
         //<------------- END : date pickert ------------->
 
-        $(document).ready(function() {
-            $(document).on('change', '#kt_daterangepicker_accounts_history', function() {
-                const fullDate = $(this).val();
-                const fullDateArray = fullDate.split(" - ");
-                const from = fullDateArray[0];
-                const to = fullDateArray[1];
 
-                $.ajax({
-                    url: '{{ route('retailer.accounts.date-filter') }}',
-                    type: 'GET',
-                    data: {
-                        from: from,
-                        to: to,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        console.log('response', response);
+        //<------------- START : server-side transaction datatable ------------->
+        dataTable = $('#kt_datatable_account_transactions').DataTable({
+            dom: "<'row mb-2'" +
+                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                ">" +
+                "<'table-responsive'tr>" +
+                "<'row'" +
+                "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                ">",
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('retailer.accounts.fetch-record') }}",
+                type: "POST",
+                data: function(d) {
+                    d._token = '{{ csrf_token() }}';
+                    d.date_filter = $('#kt_daterangepicker_account_transactions').val();
+                    d.order = d.order; // Add order data
+                    d.columns = d.columns; // Add columns data
+                },
+                dataSrc: function(json) {
+                    return json.data;
+                }
+            },
+            order: [],
+            columns: [{
+                    data: 'transaction_type',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'description',
+                },
+                {
+                    data: 'created_at',
+                    className: 'text-center',
+                },
+                {
+                    data: 'order_id',
+                    className: 'text-center',
+                    orderable: false
+                },
+                {
+                    data: 'final_transaction_amount',
+                    className: 'text-end',
+                },
+                {
+                    data: 'current_balance',
+                    className: 'text-end',
+                },
+                {
+                    data: 'status',
+                    className: 'text-center'
+                },
+                {
+                    data: 'info',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+            ],
+            initComplete: function() {
+                let searchBox = $('.datatable-search-section input');
+                let searchLabel = $('.datatable-search-section label');
+                let lengthSelect = $('.datatable-length-section select');
 
-                        if (response.status) {
-                            $('tbody').html(response.html);
-
-                            let total_credit = 0;
-                            let total_debit = 0;
-                            let total_income = 0;
-                            $.each(response.transactions, function(index, transaction) {
-                                if (transaction.final_transaction_amount > 0) {
-                                    total_credit += parseFloat(transaction
-                                        .final_transaction_amount);
-                                } else if (transaction.final_transaction_amount < 0) {
-                                    total_debit += parseFloat(transaction
-                                        .final_transaction_amount);
-                                }
-                                total_income += parseFloat(transaction
-                                    .final_transaction_amount);
-                            });
-
-
-                            $('#total_credit_section').html(
-                                `<span class="fs-7">₹ </span>${total_credit}`);
-                            $('#total_debit_section').html(
-                                `<span class="fs-7">₹ </span>${total_debit}`);
-
-                            if (total_income > 0) {
-                                $('#total_income_section').html(`
-                                    <i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    <div class="fs-4 fw-bold">
-                                        <span class="fs-7">₹ </span>${total_income}
-                                    </div>
-                                `);
-                            } else if (total_income < 0) {
-                                $('#total_income_section').html(`
-                                    <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    <div class="fs-4 fw-bold">
-                                        <span class="fs-7">₹ </span>${total_income}
-                                    </div>
-                                `);
-                            } else {
-                                $('#total_income_section').html(`
-                                    <i class="ki-duotone ki-information fs-4 text-muted me-2">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    <div class="fs-4 fw-bold">
-                                        <span class="fs-7">₹ </span>${total_income}
-                                    </div>
-                                `);
-                            }
-                        } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: response.msg,
-                                icon: 'error',
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Something went wrong. Please try again later.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
+                searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
+                searchBox.before(
+                    '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
+                ); // add icon
+                searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
+                    'placeholder', 'Search'); // style the search input
+                searchBox.css({
+                    'padding': '13px 15px 12px 15px',
+                    'font-size': '14px',
                 });
+
+                searchLabel.css({
+                    'display': 'none',
+                });
+
+                lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
+                lengthSelect.css({
+                    'padding': '13px 27px 12px 14px',
+                    'font-size': '14px',
+                })
+            }
+        });
+        //<------------- END : server-side transaction datatable ------------->
+
+        $(document).ready(function() {
+            $("#kt_daterangepicker_account_transactions").on('apply.daterangepicker', function(ev, picker) {
+                dataTable.draw();
             });
 
             $(document).on('click', '.transaction-info', function() {
@@ -628,6 +541,64 @@
                     }
                 });
             });
+
+            //<------------------- START : Withdrawal Request From Submit ----------------->
+            $(document).on('submit', '#withdrawalRequestForm', function(e) {
+                e.preventDefault();
+
+                let form = $(this);
+                let amountInput = form.find('input[name="request_amount"]');
+                let amount = parseFloat(amountInput.val());
+                let currentWalletBalance = parseFloat('{{ $webManagement->wallet ?? 0 }}');
+
+                // validation
+                $('.error').text('').addClass('d-none');
+                let errorSpan = form.find('.error_request_amount');
+                if (!amount || amount <= 0) {
+                    errorSpan.text('Please enter a valid withdrawal amount.').removeClass('d-none');
+                    amountInput.focus();
+                    return false;
+                }
+                if (amount > currentWalletBalance) {
+                    errorSpan.text('Entered amount exceeds your current wallet balance.').removeClass(
+                        'd-none');
+                    amountInput.focus();
+                    return false;
+                }
+
+                $.ajax({
+                    url: '{{ route('retailer.accounts.withdrawal-request-post') }}',
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.status) {
+                            $('#withdrawalRequestModal').modal('hide');
+                            Swal.fire({
+                                title: 'Request Sent!',
+                                text: response.msg,
+                                icon: 'success'
+                            });
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.msg,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again later.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+            //<------------------- END : Withdrawal Request From Submit ----------------->
         });
     </script>
 @endsection
