@@ -14,42 +14,57 @@
 
 <div class="d-flex flex-column gap-2 fs-6 fw-semibold text-gray-700">
 
-    <div class="d-flex justify-content-between py-1 border-bottom">
+    <div class="d-flex justify-content-between pb-2 border-bottom flex-wrap">
         <span>Product Name :</span>
-        <span>{{ $transactionDetail->customer_order?->product?->name ? $transactionDetail->customer_order?->product?->name : $transactionDetail->customer_order?->retailerCloneProduct?->name }}</span>
+        <span class="text-end text-break" style="max-width: 240px;">
+            {{ $transactionDetail->customer_order?->product?->name
+                ? $transactionDetail->customer_order?->product?->name
+                : ($transactionDetail->customer_order?->retailerCloneProduct?->name
+                    ? $transactionDetail->customer_order?->retailerCloneProduct?->name
+                    : 'N/A') }}
+        </span>
     </div>
 
-    <div class="d-flex justify-content-between py-1 border-bottom">
+    <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
         <span>Tracking ID :</span>
-        <span>N/A</span>
+        <span class="text-end text-break" style="max-width: 240px;">N/A</span>
     </div>
 
-    <div class="d-flex justify-content-between py-1 border-bottom">
+    <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
         <span>Remark :</span>
-        <span>{{ $transactionDetail->description ?? 'N/A' }}</span>
+        <span class="text-end text-break" style="max-width: 240px;">
+            {{ $transactionDetail->description ?? 'N/A' }}
+        </span>
     </div>
 
-    <div class="d-flex justify-content-between py-1 border-bottom">
+    <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
         <span>Date :</span>
-        <span>{{ \Carbon\Carbon::parse($transactionDetail->created_at)->format('d-M-Y h:i A') }}</span>
+        <span class="text-end text-break" style="max-width: 240px;">
+            {{ \Carbon\Carbon::parse($transactionDetail->created_at)->format('d-M-Y h:i A') }}
+        </span>
     </div>
 
-    <div class="d-flex justify-content-between py-1 border-bottom">
+    <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
         <span>Order ID :</span>
-        <span 
-            class="text-primary text-hover-underline">{{ $transactionDetail->customer_order->order_id ?? 'N/A' }}</span>
+        <span class="text-end text-break text-primary text-hover-underline" style="max-width: 240px;">
+            {{ $transactionDetail->customer_order->order_id ?? 'N/A' }}
+        </span>
     </div>
 
-    <div class="d-flex justify-content-between py-1 border-bottom">
+    <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
         <span>Transaction Amount :</span>
-        <span class="{{ $amount_text_css }}">{{ $transactionDetail->transaction_amount }}</span>
+        <span class="text-end text-break {{ $amount_text_css }}" style="max-width: 240px;">
+            {{ $transactionDetail->transaction_amount }}
+        </span>
     </div>
 
     @if ($transactionDetail->charges)
         @foreach ($transactionDetail->charges as $key => $charge)
-            <div class="d-flex justify-content-between py-1 border-bottom">
+            <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
                 <span>{{ $key }} :</span>
-                <span class="text-danger">-{{ $charge }}</span>
+                <span class="text-end text-break text-danger" style="max-width: 240px;">
+                    -{{ $charge }}
+                </span>
             </div>
         @endforeach
     @endif

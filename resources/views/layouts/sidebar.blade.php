@@ -8,15 +8,13 @@
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                 ? Auth::user()->userDetail->company_logo // Use URL directly from Spaces
                 : asset('assets/media/logos/big_mart_nepal_cover.jpg') }}"
-                class="h-55px text-center app-sidebar-logo-default"
-                alt="{{ Auth::user()->firstname }}"
+                class="h-55px text-center app-sidebar-logo-default" alt="{{ Auth::user()->firstname }}"
                 style="border-radius: 10px; justify-content: space-evenly;" />
 
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                 ? Auth::user()->userDetail->company_logo // Use URL directly from Spaces
                 : asset('assets/media/logos/bigmart.jpg') }}"
-                class="h-25px app-sidebar-logo-minimize"
-                alt="{{ Auth::user()->firstname }}"
+                class="h-25px app-sidebar-logo-minimize" alt="{{ Auth::user()->firstname }}"
                 style="border-radius: 5px; justify-content: space-evenly;" />
         </a>
 
@@ -194,7 +192,7 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges','pincode-serviceable','track-order']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges', 'pincode-serviceable', 'track-order']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -289,8 +287,8 @@
                             </div> --}}
                             <!--end:Menu item-->
 
-                              <!--begin:Menu item-->
-                              <div class="menu-item">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is('pincode-serviceable') ? 'active' : '' }}"
                                     href="{{ route('retailer.pincode.serviceable') }}">
@@ -302,8 +300,8 @@
                                 <!--end:Menu link-->
                             </div>
                             <!--end:Menu item-->
-                              <!--begin:Menu item-->
-                              <div class="menu-item">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is('track-order') ? 'active' : '' }}"
                                     href="{{ route('retailer.track.order') }}">
@@ -549,19 +547,48 @@
                     </div>
                     <!--end:Menu item-->
 
-                    <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{ request()->is(['accounts']) ? 'active' : '' }}"
-                            href="{{ route('retailer.accounts.index') }}">
-                            <span class="menu-icon fs-1">
-                                <i class="ki-solid ki-finance-calculator fs-1"></i>
+
+                    <!-- Wallet Main Menu -->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is('accounts*') ? 'show' : '' }}">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-wallet fs-1">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
                             </span>
-                            <span class="menu-title">Accounts</span>
-                        </a>
-                        <!--end:Menu link-->
+                            <span class="menu-title">Wallet</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion">
+                            <!-- Account Transactions -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('accounts/transactions') ? 'active' : '' }}"
+                                    href="{{ route('retailer.accounts.transactions') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Account Transactions</span>
+                                </a>
+                            </div>
+
+                            <!-- Withdrawal Request -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('accounts/withdrawal-request') ? 'active' : '' }}"
+                                    href="{{ route('retailer.accounts.withdrawal-request') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Withdrawal Request</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <!--end:Menu item-->
+
+
 
                 </div>
                 <!--end::Menu-->

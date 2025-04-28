@@ -184,9 +184,15 @@ Route::middleware(['retailer'])->group(function () {
 
     // accounts
     Route::prefix('accounts')->group(function () {
-        Route::get('/', [RetailerAccountTransactionController::class, 'indexAccounts'])->name('retailer.accounts.index');
+        Route::get('/transactions', [RetailerAccountTransactionController::class, 'indexAccountsTransactions'])->name('retailer.accounts.transactions');
+        Route::post('/fetch-record', [RetailerAccountTransactionController::class, 'fetchRecord'])->name('retailer.accounts.fetch-record'); // ajax - datatable
         Route::get('/date-filter', [RetailerAccountTransactionController::class, 'dateFilterAccounts'])->name('retailer.accounts.date-filter'); // ajax
         Route::get('/transaction-info', [RetailerAccountTransactionController::class, 'transactionInfo'])->name('retailer.accounts.transaction-info'); // ajax
+
+        // withdrawal-request
+        Route::get('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestIndex'])->name('retailer.accounts.withdrawal-request');
+        Route::post('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestStore'])->name('retailer.accounts.withdrawal-request-post'); // ajax
+        Route::POST('/withdrawal-transactions/fetch-record', [RetailerAccountTransactionController::class, 'fetchRecordWithdrawalTransactions'])->name('retailer.accounts.withdrawal-transactions.fetch-record'); // ajax - datatable
     });
 });
 
