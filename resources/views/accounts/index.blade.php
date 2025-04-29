@@ -159,7 +159,7 @@
                                 <div class="col-md-auto text-center">
                                     <div class="border border-gray-300 border-dashed rounded p-4 w-100">
                                         <div class="fs-1 fw-bold">
-                                            <span class="fs-5">₹ </span>{{ $webManagement->wallet }}
+                                            <span class="fs-5">₹ </span>{{ $user->userDetail->wallet }}
                                         </div>
                                         <div class="d-flex justify-content-center align-items-center mt-2">
                                             <i class="ki-duotone ki-wallet fs-1 text-primary me-2">
@@ -228,10 +228,10 @@
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                             <th class="text-center align-middle"></th>
                                             <th class="text-center align-middle w-250px">Description</th>
-                                            <th class="text-center align-middle w-130px">Date & Time</th>
+                                            <th class="text-center align-middle w-150px">Date & Time</th>
                                             <th class="text-center align-middle">Order ID</th>
-                                            <th class="text-center align-middle w-110px">Transaction Amount</th>
-                                            <th class="text-center align-middle w-110px">Current Balance</th>
+                                            <th class="text-center align-middle w-100px">Transaction Amount</th>
+                                            <th class="text-center align-middle w-100px">Current Balance</th>
                                             <th class="text-center align-middle w-100px">Status</th>
                                             <th class="text-center align-middle w-80px">Info</th>
                                         </tr>
@@ -331,7 +331,7 @@
                                 <div class="bg-light-primary p-4 rounded">
                                     <div class="text-gray-700 fs-6">
                                         <div class="mb-2"><strong>Current Balance:</strong>
-                                            ₹{{ number_format($webManagement->wallet, 2) }}</div>
+                                            ₹{{ number_format($user->userDetail->wallet, 2) }}</div>
                                         <div class="mb-2"><strong>Account Number:</strong>
                                             {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
                                         <div class="mb-2"><strong>IFSC Code:</strong>
@@ -549,7 +549,7 @@
                 let form = $(this);
                 let amountInput = form.find('input[name="request_amount"]');
                 let amount = parseFloat(amountInput.val());
-                let currentWalletBalance = parseFloat('{{ $webManagement->wallet ?? 0 }}');
+                let currentWalletBalance = parseFloat('{{ $user->userDetail->wallet ?? 0 }}');
 
                 // validation
                 $('.error').text('').addClass('d-none');

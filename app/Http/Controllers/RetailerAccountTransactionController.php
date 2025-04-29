@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccountTransaction;
-use App\Models\RetailerWebManagement;
+use App\Models\UserDetail;
 use App\Models\WithdrawalRequest;
 use Carbon\Carbon;
 use Exception;
@@ -23,13 +23,11 @@ class RetailerAccountTransactionController extends Controller
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 
-        $webManagement = RetailerWebManagement::where('retailer_id', $user->id)->first();
-
         $transactions = AccountTransaction::where('user_id', $user->id)
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('accounts.index', compact('transactions', 'webManagement'));
+        return view('accounts.index', compact('transactions', 'user'));
     }
 
     // AJAX - server-side datatable fetch-records
@@ -112,7 +110,7 @@ class RetailerAccountTransactionController extends Controller
 
             $status = '';
             if ($item->status == 1) {
-                $status = '<div class="text-success fs-6">Completed</div>';
+                $status = '<div class="text-success fs-6">Clear</div>';
             } else if ($item->status == 0) {
                 $status = '<div class="text-danger fs-6">Pending</div>';
             }
@@ -182,13 +180,11 @@ class RetailerAccountTransactionController extends Controller
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 
-        $webManagement = RetailerWebManagement::where('retailer_id', $user->id)->first();
-
         $withdrawal_transactions = WithdrawalRequest::where('user_id', $user->id)
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('accounts.withdrawal-request', compact('withdrawal_transactions', 'webManagement'));
+        return view('accounts.withdrawal-request', compact('withdrawal_transactions', 'user'));
     }
 
     // AJAX - server-side datatable fetch-records of withdrawal transactions
@@ -210,6 +206,8 @@ class RetailerAccountTransactionController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('request_amount', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('created_at', 'like', '%' . $search . '%')
                     ->orWhere('remarks', 'like', '%' . $search . '%');
             });
         }
@@ -248,13 +246,13 @@ class RetailerAccountTransactionController extends Controller
 
             $status = '';
             if ($item->status == 'completed') {
-                $status = '<div class="text-success fs-6">Completed</div>';
+                $status = '<div class="badge badge-light-success fs-6">Completed</div>';
             } else if ($item->status == 'pending') {
-                $status = '<div class="text-info fs-6">Pending</div>';
+                $status = '<div class="badge badge-light-info fs-6">Pending</div>';
             } else if ($item->status == 'on hold') {
-                $status = '<div class="text-warning fs-6">Pending</div>';
+                $status = '<div class="badge badge-light-warning fs-6">On Hold</div>';
             } else if ($item->status == 'rejected') {
-                $status = '<div class="text-danger fs-6">Rejected</div>';
+                $status = '<div class="badge badge-light-danger fs-6">Rejected</div>';
             }
 
             $data[] = array(
@@ -273,28 +271,29 @@ class RetailerAccountTransactionController extends Controller
     {
         DB::beginTransaction();
         try {
-            $retailer = Auth::user();
+            $user = Auth::user();
 
-            WithdrawalRequest::create([
-                'user_id' => $retailer->id,
-                'user_type' => 'retailer',
-                'request_amount' => $request->request_amount,
-                'remarks' => $request->remarks ?? null
-            ]);
+            $userDetail = UserDetail::where('user_id', $user->id)->first();
+            $userDetail->wallet = ($userDetail->wallet) - ($request->request_amount);
+            $userDetail->save();
 
-            $webManagement = RetailerWebManagement::where('retailer_id', $retailer->id)->first();
-            $webManagement->wallet = ($webManagement->wallet) - ($request->request_amount);
-            $webManagement->save();
-
-            AccountTransaction::create([
-                'user_id' => $retailer->id,
+            $accountTransaction = AccountTransaction::create([
+                'user_id' => $user->id,
                 'user_type' => 'retailer',
                 'description' => 'Withdrawal Request on ' . Carbon::now()->format('F d, Y, h:i a'),
                 'transaction_amount' => -abs($request->request_amount),
                 'final_transaction_amount' => -abs($request->request_amount),
-                'current_balance' => $webManagement->wallet,
+                'current_balance' => $userDetail->wallet,
                 'order_type' => 'other',
                 'status' => 0 // pending till not approved by admin
+            ]);
+
+            WithdrawalRequest::create([
+                'user_id' => $user->id,
+                'user_type' => 'retailer',
+                'request_amount' => $request->request_amount,
+                'remarks' => $request->remarks ?? null,
+                'account_transaction_id' => $accountTransaction->id
             ]);
 
             DB::commit();

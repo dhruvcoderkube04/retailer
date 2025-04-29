@@ -18,6 +18,7 @@ class UserDetail extends Model
         'company_logo',
         'company_name',
         'postal_code',
+        'wallet',
         'account_number',
         'ifsc_code',
         'account_holder_name',

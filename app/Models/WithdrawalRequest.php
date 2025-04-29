@@ -11,7 +11,9 @@ class WithdrawalRequest extends Model
         'user_type',
         'request_amount',
         'status',
-        'remarks'
+        'remarks',
+        'approver_remark',
+        'account_transaction_id'
     ];
 
     public function user()
