@@ -57,7 +57,7 @@ Sing-in Retailer | TrandMart
                             <!--begin::Heading-->
                             <div class="text-center mb-11">
                                 <!--begin::Title-->
-                                <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1>
+                                <h1 class="text-gray-900 fw-bolder mb-3">Sign In Retailer</h1>
                             </div>
 
                             <!--begin::Input group=-->
