@@ -32,6 +32,7 @@
             margin-top: 0.5rem;
             line-height: 1.5;
         }
+
         #selected-courier-display strong {
             color: #333;
         }
@@ -92,78 +93,91 @@
                     @endif
 
                     <div class="card card-flush">
-                        <div class="card-header d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between py-5 gap-3">
-                            <!-- Tabs -->
-                            <div class="card-toolbar flex-grow-1">
-                                <ul class="nav nav-pills d-flex flex-nowrap overflow-auto gap-2">
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
+                        <div class="card-header d-flex flex-wrap align-items-center justify-content-center py-5 gap-3">
+                            <div class="card-toolbar w-100 d-flex justify-content-center">
+                                <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 justify-content-start flex-nowrap"
+                                    style="overflow-x: auto; overflow-y: hidden; white-space: nowrap;">
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
-                                            New
-                                            <span class="badge badge-light ms-2">{{ $count['new'] ?? 0 }}</span>
+                                            <i class="fas fa-sync-alt pe-2 text-primary"></i> New
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-info px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'confirmed-by-retailer']) }}">
-                                            Confirmed <span class="badge badge-light ms-2">
-                                                {{ $count['confirmed_by_retailer'] ?? 0 }}</span>
+                                            <i class="fas fa-thumbs-up pe-2 text-info"></i> Approved
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-primary px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'transfered-retailer-to-wholesaler' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'transfered-retailer-to-wholesaler']) }}">
-                                            Transfered to Wholesaler
-                                            <span class="badge badge-light ms-2">{{ $count['transfered_retailer_to_wholesaler'] ?? 0 }}</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'ready-to-ship' ? 'active' : '' }}"
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'ready-to-ship' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'ready-to-ship']) }}">
-                                            Ready To Ship
-                                            <span class="badge badge-light ms-2">{{ $count['ready_to_ship'] ?? 0 }}</span>
+                                            <i class="fas fa-box-open pe-2 text-success"></i> Pickup
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-success px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'in-transit' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'in-transit']) }}">
+                                            <i class="fas fa-route pe-2 text-warning"></i> In Transit
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'ofd' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'ofd']) }}">
+                                            <i class="fas fa-truck-arrow-right pe-2 text-warning"></i> OFD
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'delivered-by-retailer']) }}">
-                                            Delivered
-                                            <span class="badge badge-light ms-2">{{ $count['delivered_by_retailer'] ?? 0 }}</span>
+                                            <i class="fas fa-check-circle pe-2 text-success"></i> Delivered
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'rto' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'rto']) }}">
+                                            <i class="fas fa-undo-alt pe-2 text-danger"></i> RTO
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'rtn-to-seller' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'rtn-to-seller']) }}">
+                                            <i class="fas fa-warehouse pe-2 text-success"></i> RTN to Seller
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'close' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'close']) }}">
+                                            <i class="fa-regular fa-circle-xmark pe-2 text-danger"></i> Close
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancelled-by-retailer']) }}">
-                                            Cancelled
-                                            <span class="badge badge-light ms-2">{{ $count['cancelled_by_retailer'] ?? 0 }}</span>
+                                            <i class="fas fa-ban pe-2 text-danger"></i> Cancel
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-customer' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'cancelled-by-customer']) }}">
-                                            Cancelled By Customer <span class="badge badge-light ms-2">{{ $count['cancelled_by_customer'] ?? 0 }}</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link btn btn-light-danger px-4 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'inactive' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'inactive']) }}">
-                                            Inactive <span class="badge badge-light ms-2">{{ @$count['inactive'] ?? 0 }}</span>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'lost' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'lost']) }}">
+                                            <i class="fas fa-question-circle pe-2 text-muted"></i> Lost
                                         </a>
                                     </li>
                                 </ul>
                             </div>
 
-                            <!-- Search -->
-                            <div class="card-title">
-                                <div class="d-flex align-items-center position-relative my-1">
-                                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    <input type="text" data-kt-ecommerce-product-filter="search"
-                                        class="form-control form-control-solid w-250px ps-12" placeholder="Search Product"
-                                        id="search_field" />
-                                </div>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="card-title">
+                            <div class="d-flex align-items-center position-relative my-1">
+                                <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <input type="text" data-kt-ecommerce-product-filter="search"
+                                    class="form-control form-control-solid w-250px ps-12" placeholder="Search Product"
+                                    id="search_field" />
                             </div>
                         </div>
 
@@ -221,7 +235,8 @@
                                                         </span>
                                                     </div>
                                                     <div class="my-2">
-                                                        <strong>Tracking Id:</strong> {{ @$detail->tracking_number }} <br/>
+                                                        <strong>Tracking Id:</strong> {{ @$detail->tracking_number }}
+                                                        <br />
                                                         <strong>API Oroder Id:</strong> {{ @$detail->api_order_id }}
                                                     </div>
                                                 </div>
@@ -234,7 +249,10 @@
                                                         if (!empty($detail?->product?->images)) {
                                                             $imagePath = explode(',', $detail->product->images)[0];
                                                         } elseif (!empty($detail?->retailerCloneProduct?->images)) {
-                                                            $imagePath = explode(',', $detail->retailerCloneProduct->images)[0];
+                                                            $imagePath = explode(
+                                                                ',',
+                                                                $detail->retailerCloneProduct->images,
+                                                            )[0];
                                                         } else {
                                                             $imagePath = null;
                                                         }
@@ -298,7 +316,7 @@
                                                         data-order-id="{{ $detail->id }}"
                                                         data-product-amount="{{ $detail?->final_amount }}"
                                                         data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{$detail->order_id}}">
+                                                        data-c-order-id="{{ $detail->order_id }}">
                                                         Action
                                                     </button>
                                                 @elseif ($detail->status == 'confirmed_by_retailer')
@@ -309,7 +327,7 @@
                                                         data-product-pincode="{{ $detail->customer->pincode }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
-                                                        data-c-order-id="{{$detail->order_id}}">
+                                                        data-c-order-id="{{ $detail->order_id }}">
                                                         Action
                                                     </button>
                                                 @elseif ($detail->status == 'shipped_by_retailer')
@@ -320,7 +338,7 @@
                                                         data-order-id="{{ $detail->id }}"
                                                         data-product-amount="{{ $detail?->final_amount }}"
                                                         data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{$detail->order_id}}">
+                                                        data-c-order-id="{{ $detail->order_id }}">
                                                         Action
                                                     </button>
                                                 @else
@@ -331,7 +349,7 @@
                                                         data-order-id="{{ $detail->id }}"
                                                         data-product-amount="{{ $detail?->final_amount }}"
                                                         data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{$detail->order_id}}" disabled>
+                                                        data-c-order-id="{{ $detail->order_id }}" disabled>
                                                         Action
                                                     </button>
                                                 @endif
@@ -525,7 +543,8 @@
                                                 <option value="" disabled selected>-- Select Pickup Location --
                                                 </option>
                                                 @foreach ($pickupAddress as $address)
-                                                    <option value="{{ $address->id }}" data-pincode="{{ $address->pincode }}"
+                                                    <option value="{{ $address->id }}"
+                                                        data-pincode="{{ $address->pincode }}"
                                                         data-warehouse-id="{{ $address->warehouse_id }}">
                                                         📍 {{ $address->first_name }} {{ $address->last_name }} -
                                                         {{ $address->address }}, {{ $address->state }},
@@ -543,16 +562,18 @@
                                 </div>
                             </div>
 
-                             {{-- product weight --}}
-                             <div class="col-md-6">
+                            {{-- product weight --}}
+                            <div class="col-md-6">
                                 <div class="mt-5 mx-7" id="productWeightContainer" style="display: none;">
                                     <h5 class="fw-bold text-gray-800 mb-3">
                                         <i class="bi bi-box text-primary me-2 fs-4"></i> Enter Product Weight (in grams)
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <select name="product_weight" class="form-select form-select-lg" id="product_weight" data-control="select2">
-                                                <option value="" disabled selected>-- Select Product Weight --</option>
+                                            <select name="product_weight" class="form-select form-select-lg"
+                                                id="product_weight" data-control="select2">
+                                                <option value="" disabled selected>-- Select Product Weight --
+                                                </option>
                                                 <option value="0.5">500 GM</option>
                                                 <option value="1">1KG</option> <!-- 1KG -->
                                                 <option value="1.5">1.5KG</option> <!-- 1.5KG -->
@@ -581,15 +602,18 @@
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
                                             <!-- Button to trigger the modal -->
-                                            <button type="button" class="btn btn-primary" id="selectCourierBtn" style="display: none;">
+                                            <button type="button" class="btn btn-primary" id="selectCourierBtn"
+                                                style="display: none;">
                                                 Select Courier Service
                                             </button>
                                             <!-- Display selected courier -->
                                             <div id="selected-courier-display" class="mt-2 text-info"></div>
                                             <!-- Hidden input to store selected courier -->
-                                            <input type="hidden" name="courier_service" id="courier_service" value="">
+                                            <input type="hidden" name="courier_service" id="courier_service"
+                                                value="">
                                             <input type="hidden" name="courier_service_id" id="courier_service_id">
-                                            <span class="text-danger mt-5 courier-service-error-section" style="display: none;">
+                                            <span class="text-danger mt-5 courier-service-error-section"
+                                                style="display: none;">
                                                 <i class="bi bi-exclamation-triangle"></i>
                                                 <span class="courier-service-error"></span>
                                             </span>
@@ -700,7 +724,8 @@
     </div>
 
     {{-- Bootstrap Modal for Courier Details --}}
-    <div class="modal fade" id="courierDetailsModal" tabindex="-1" aria-labelledby="courierDetailsModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="courierDetailsModal" tabindex="-1" aria-labelledby="courierDetailsModalLabel"
+        aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -735,23 +760,24 @@
 
 @section('script')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             // for datatable load and table's data search
             var table1 = $("#kt_order_list_table").DataTable();
-            $("#search_field").on("keyup", function () {
+            $("#search_field").on("keyup", function() {
                 table1.search(this.value).draw();
             });
 
             // for search inside select option on modal show
-            $('#new-order-action-modal').on('shown.bs.modal', function () {
+            $('#new-order-action-modal').on('shown.bs.modal', function() {
                 $('.reject_reason_select_new').select2({
                     dropdownParent: $('#new-order-action-modal')
                 });
             });
-            $('#confirmed-order-action-modal').on('shown.bs.modal', function () {
-                $('#pickup_address_id, #rto_address_id, #courier_service, #product_weight, .reject_reason_select_confirmed').select2({
-                    dropdownParent: $('#confirmed-order-action-modal')
-                });
+            $('#confirmed-order-action-modal').on('shown.bs.modal', function() {
+                $('#pickup_address_id, #rto_address_id, #courier_service, #product_weight, .reject_reason_select_confirmed')
+                    .select2({
+                        dropdownParent: $('#confirmed-order-action-modal')
+                    });
                 // Initialize Select Courier button visibility
                 toggleSelectCourierButton();
             });
@@ -770,14 +796,19 @@
 
             // Function to update payload
             function updatePayload(newData) {
-                payload = { ...payload, ...newData };
+                payload = {
+                    ...payload,
+                    ...newData
+                };
             }
 
             // Function to validate payload
             function validatePayload() {
                 const errors = [];
-                if (!payload.source_Pincode || !/^\d{6}$/.test(payload.source_Pincode)) errors.push("Valid source pincode is required.");
-                if (!payload.destination_Pincode || !/^\d{6}$/.test(payload.destination_Pincode)) errors.push("Valid destination pincode is required.");
+                if (!payload.source_Pincode || !/^\d{6}$/.test(payload.source_Pincode)) errors.push(
+                    "Valid source pincode is required.");
+                if (!payload.destination_Pincode || !/^\d{6}$/.test(payload.destination_Pincode)) errors.push(
+                    "Valid destination pincode is required.");
                 if (!payload.payment_Mode) errors.push("Payment mode is required.");
                 if (payload.amount <= 0) errors.push("Amount must be greater than zero.");
                 if (payload.shipment_Weight <= 0) errors.push("Shipment weight must be greater than zero.");
@@ -801,15 +832,17 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: JSON.stringify(payload),
-                    success: function (response) {
+                    success: function(response) {
                         console.log(response, "response shipping info");
-                        if (response.status && response.shipment_rates && response.shipment_rates.length > 0) {
+                        if (response.status && response.shipment_rates && response.shipment_rates
+                            .length > 0) {
                             populateModalTable(response.shipment_rates);
                         } else {
-                            $('#courierDetailsBody').html('<tr><td colspan="6">No courier services available</td></tr>');
+                            $('#courierDetailsBody').html(
+                                '<tr><td colspan="6">No courier services available</td></tr>');
                         }
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         console.error('Error fetching courier rates:', xhr.responseText);
                         let errorMessage = 'Error fetching courier rates';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -823,8 +856,9 @@
             // Function to populate the courier modal table
             function populateModalTable(shipmentRates) {
                 let tableBody = '';
-                shipmentRates.forEach(function (courier) {
-                    const matchingCourier = courierServices.find(cs => cs.courierName === courier.courier_name) || {};
+                shipmentRates.forEach(function(courier) {
+                    const matchingCourier = courierServices.find(cs => cs.courierName === courier
+                        .courier_name) || {};
                     tableBody += `
                         <tr>
                             <td>
@@ -864,7 +898,7 @@
             }
 
             // Handle "Select Courier" button click
-            $(document).on('click', '#selectCourierBtn', function () {
+            $(document).on('click', '#selectCourierBtn', function() {
                 // Hide the previous modal to prevent overlap
                 $('#confirmed-order-action-modal').modal('hide');
 
@@ -873,13 +907,13 @@
                 const selectedOption = $('#pickup_address_id option:selected');
                 const pincode = selectedOption.data('pincode') || '';
                 selectedWarehouseId = selectedOption.data('warehouse-id') || ''; // Store warehouse_id
-                const productamount =  $('#product_amount').val();
-                const cpincode =  $('#customer_pincode').val();
-                console.log(productamount,cpincode);
+                const productamount = $('#product_amount').val();
+                const cpincode = $('#customer_pincode').val();
+                console.log(productamount, cpincode);
 
                 updatePayload({
                     source_Pincode: pincode,
-                    destination_Pincode:cpincode ,
+                    destination_Pincode: cpincode,
                     payment_Mode: "COD",
                     amount: productamount,
                     shipment_Weight: productWeight
@@ -895,14 +929,14 @@
             });
 
             // Handle courier selection from modal
-            $(document).on('click', '.select-courier', function () {
+            $(document).on('click', '.select-courier', function() {
                 const courierName = $(this).data('courier') || 'Unknown';
                 const courierId = $(this).data('courier-id') || '';
                 const shippingCharge = $(this).data('shipping-charge') || '0.00';
                 const codCharge = $(this).data('cod-charge') || '0.00';
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
                 const serviceMode = $(this).data('service-mode') || 'N/A';
-                console.log(courierId,courierName,"courier Info");
+                console.log(courierId, courierName, "courier Info");
 
                 // Store selected courier in hidden inputs
                 $('#rto_charge').val(rtoCharge);
@@ -938,7 +972,7 @@
             });
 
             // Handle close button to restore previous modal and clear selection if no courier selected
-            $('#courierDetailsModal').on('hidden.bs.modal', function () {
+            $('#courierDetailsModal').on('hidden.bs.modal', function() {
                 // Show the previous modal when courier modal closes
                 $('#confirmed-order-action-modal').modal('show');
                 // Clear selected courier display if no courier is selected
@@ -948,12 +982,12 @@
             });
 
             // Handle changes to product weight and pickup address to toggle Select Courier button
-            $(document).on('change', '#product_weight, #pickup_address_id', function () {
+            $(document).on('change', '#product_weight, #pickup_address_id', function() {
                 toggleSelectCourierButton();
             });
 
             //<-------------- START: New Order --------------->
-            $('.reject_reason_select_new').change(function () {
+            $('.reject_reason_select_new').change(function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -962,7 +996,7 @@
                 }
             });
 
-            $(document).on('change', '#new-order-action-modal input[name="status"]', function () {
+            $(document).on('change', '#new-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -974,7 +1008,7 @@
                 }
             });
 
-            $('#courier_service').on('change', function () {
+            $('#courier_service').on('change', function() {
                 const selectedOption = $('#courier_service option:selected');
                 const courierName = selectedOption.val();
                 const courierId = selectedOption.data('id');
@@ -982,7 +1016,7 @@
                 $('#courier_service_id').val(courierId);
             });
 
-            $(document).on('click', '.newOrderAction', function () {
+            $(document).on('click', '.newOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_id = $(this).attr('data-order-id');
@@ -1000,7 +1034,7 @@
                 $('#new-order-action-modal').modal('show');
             });
 
-            $(document).on('submit', '#newOrderForm', function (e) {
+            $(document).on('submit', '#newOrderForm', function(e) {
                 e.preventDefault();
                 $('#new-order-action-modal').modal('hide');
                 let form = new FormData(this);
@@ -1084,7 +1118,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -1092,7 +1126,8 @@
                                         icon: "success",
                                         confirmButtonText: "OK",
                                     }).then(() => {
-                                        window.location.href = `{{ route('retailer.order.list', ':type') }}`
+                                        window.location.href =
+                                            `{{ route('retailer.order.list', ':type') }}`
                                             .replace(":type", response.type);
                                     });
                                 } else {
@@ -1105,7 +1140,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -1120,7 +1155,7 @@
             });
 
             //<-------------- START: Confirmed Order --------------->
-            $('.reject_reason_select_confirmed').change(function () {
+            $('.reject_reason_select_confirmed').change(function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -1129,10 +1164,11 @@
                 }
             });
 
-            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function () {
+            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
 
-                $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
+                $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer')
+                    .hide();
 
                 if (status == 'shipped_by_retailer') {
                     $('#pickupLocationContainer').show();
@@ -1157,14 +1193,14 @@
                 }
             });
 
-            $(document).on('click', '.confirmedOrderAction', function () {
+            $(document).on('click', '.confirmedOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_id = $(this).attr('data-order-id');
                 let customer_pincode = $(this).attr('data-product-pincode');
                 let product_amount = $(this).attr('data-product-amount');
 
-                console.log(order_id,customer_pincode,product_amount, "order detail ");
+                console.log(order_id, customer_pincode, product_amount, "order detail ");
 
                 $('.customer_pincode').val(customer_pincode);
                 $('.product_amount').val(product_amount);
@@ -1176,15 +1212,15 @@
                 $('#confirmed-order-action-modal').modal('show');
             });
 
-            $('#rejectReasonInputConfirm').on('click', function () {
+            $('#rejectReasonInputConfirm').on('click', function() {
                 $('#new-order-action-modal').modal('show');
             });
 
-            $(document).on('submit', '#confirmedOrderForm', function (e) {
+            $(document).on('submit', '#confirmedOrderForm', function(e) {
                 e.preventDefault();
 
                 let form = new FormData(this);
-                console.log(form,'form data');
+                console.log(form, 'form data');
 
                 // START: validation
                 let status = form.get("status");
@@ -1201,7 +1237,8 @@
                 let reject_reason_input_confirmed = $('.reject_reason_input_confirmed').val();
 
                 let errors = [];
-                $('.pickup-address-error-section, .product-weight-error-section, .reject-reason-select-error-section, .reject-reason-input-error-section, .rto-address-error-section, .courier-service-error-section').hide();
+                $('.pickup-address-error-section, .product-weight-error-section, .reject-reason-select-error-section, .reject-reason-input-error-section, .rto-address-error-section, .courier-service-error-section')
+                    .hide();
 
                 if (!status) return;
 
@@ -1243,7 +1280,7 @@
                         }
                     }
                 }
-                console.log(errors.length,"error");
+                console.log(errors.length, "error");
 
                 if (errors.length) return;
                 // END: validation
@@ -1298,7 +1335,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 Swal.close();
                                 if (response.status) {
                                     Swal.fire({
@@ -1307,7 +1344,9 @@
                                         icon: "success",
                                         confirmButtonText: "OK"
                                     }).then(() => {
-                                        window.location.href = `{{ route('retailer.order.list', ':type') }}`.replace(":type", response.type);
+                                        window.location.href =
+                                            `{{ route('retailer.order.list', ':type') }}`
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -1318,7 +1357,7 @@
                                     });
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.close();
                                 Swal.fire({
                                     title: "Error!",

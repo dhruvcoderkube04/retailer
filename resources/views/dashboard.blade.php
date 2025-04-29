@@ -269,22 +269,17 @@
 
                                         <div class="menu-item px-3">
                                             <a href="{{ route('retailer.order.list', 'confirmed-by-retailer') }}"
-                                                class="menu-link px-3">Confirmed Orders</a>
+                                                class="menu-link px-3">Approved Orders</a>
                                         </div>
 
                                         <div class="menu-item px-3">
                                             <a href="{{ route('retailer.order.list', 'ready-to-ship') }}"
-                                                class="menu-link px-3">Ready To Ship Orders</a>
+                                                class="menu-link px-3">In Pickup Orders</a>
                                         </div>
 
                                         <div class="menu-item px-3">
                                             <a href="{{ route('retailer.order.list', 'delivered-by-retailer') }}"
                                                 class="menu-link px-3">Delivered Orders</a>
-                                        </div>
-
-                                        <div class="menu-item px-3">
-                                            <a href="{{ route('retailer.order.list', 'transfered-retailer-to-wholesaler') }}"
-                                                class="menu-link px-3">Transfer To Wholesaler Orders</a>
                                         </div>
                                     </div>
                                 </div>

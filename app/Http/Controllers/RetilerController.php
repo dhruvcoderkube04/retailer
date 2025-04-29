@@ -1030,14 +1030,22 @@ class RetilerController extends Controller
 
         // Filter by type
         $statusMap = [
-            'new' => 'pending',
-            'transfered-retailer-to-wholesaler' => 'transfered_retailer_to_wholesaler',
-            'confirmed-by-retailer' => 'confirmed_by_retailer',
-            'ready-to-ship' => 'shipped_by_retailer',
-            'delivered-by-retailer' => 'delivered_by_retailer',
-            'cancelled-by-retailer' => 'cancelled_by_retailer',
-            'cancelled-by-customer' => 'cancelled_by_customer',
-            'inactive' => 'inactive',
+            'new' => 'pending', // New
+            // 'transfered-retailer-to-wholesaler' => 'transfered_retailer_to_wholesaler',
+            'confirmed-by-retailer' => 'confirmed_by_retailer', // Approved
+            'ready-to-ship' => 'shipped_by_retailer', // Pickup
+            'delivered-by-retailer' => 'delivered_by_retailer', // Delivered
+            'cancelled-by-retailer' => 'cancelled_by_retailer', // Cancel
+            // 'cancelled-by-customer' => 'cancelled_by_customer',
+            // 'inactive' => 'inactive',
+
+            //<------------- New Tabs Added -------------->
+            'in-transit' => 'in-transit', // In Transit
+            'ofd' => 'ofd', // OFD
+            'rto' => 'rto', // RTO
+            'rtn-to-seller' => 'rtn-to-seller', // RTN to seller
+            'close' => 'close', // Close
+            'lost' => 'lost', // Lost
         ];
 
         if (!array_key_exists($type, $statusMap)) {
@@ -1065,6 +1073,7 @@ class RetilerController extends Controller
         return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'courierServices'));
     }
 
+    // NOT IN USE CURRENTLY
     public function newOrderList($type = 'new')
     {
         $retailer = Auth::user();
@@ -1235,7 +1244,8 @@ class RetilerController extends Controller
                     'transfered_retailer_to_wholesaler_at' => Carbon::now()
                 ];
                 $message = 'Wholesaler will ship this product';
-                $type = 'transfered-retailer-to-wholesaler';
+                // $type = 'transfered-retailer-to-wholesaler';
+                $type = 'new';
             } else if ($request->status == 'cancelled_by_retailer') {
                 if ($request->reject_reason_select_new == 'Other') {
                     $cancelled_reason = $request->reject_reason_input_new;
@@ -1368,7 +1378,8 @@ class RetilerController extends Controller
                     'transfered_retailer_to_wholesaler_at' => now()
                 ];
                 $message = 'Wholesaler will ship this product';
-                $type = 'transfered-retailer-to-wholesaler';
+                // $type = 'transfered-retailer-to-wholesaler';
+                $type = 'new';
             } elseif ($request->status === 'cancelled_by_retailer') {
                 $cancelled_reason = $request->reject_reason_select_confirmed === 'Other'
                     ? $request->reject_reason_input_confirmed
