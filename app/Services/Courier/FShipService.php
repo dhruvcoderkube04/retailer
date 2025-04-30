@@ -19,7 +19,8 @@ class FShipService implements CourierInterface
     public function createOrder(array $data): array
     {
         try {
-            $response = Http::withHeaders($this->getHeaders())
+            $response = Http::timeout(300)
+                ->withHeaders($this->getHeaders())
                 ->post($this->apiUrl . '/createforwardorder', $data);
 
             if ($response->failed() || $response->json() === null) {
@@ -206,11 +207,10 @@ class FShipService implements CourierInterface
             return [
                 'status' => $resData['status'] ?? false,
                 'message' => $resData['message']
-                            ?? $resData['response']
-                            ?? 'No message returned from API.',
+                    ?? $resData['response']
+                    ?? 'No message returned from API.',
                 'data' => $resData,
             ];
-
         } catch (\Exception $e) {
             Log::error('Error in API request:', [
                 'error' => $e->getMessage(),

@@ -19,6 +19,7 @@ use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -1280,6 +1281,7 @@ class RetilerController extends Controller
     // use Courier service manager and Fship order place
     public function confirmedOrderAction(Request $request)
     {
+        set_time_limit(180);
         $request->validate([
             'status' => 'required',
         ]);
@@ -1314,6 +1316,7 @@ class RetilerController extends Controller
                 ];
                 $message = 'Order has been ready to ship (by supplier)';
                 $type = 'ready-to-ship';
+
 
                 // Prepare Payload
                 $payload = [
@@ -1368,6 +1371,33 @@ class RetilerController extends Controller
                     $updateData['api_order_id'] = $response['apiorderid'];
                     $message = 'Order has been marked ready to ship';
                     $type = 'ready-to-ship';
+
+                    // Generate and upload PDF
+                    $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
+                        'courier_service_response' => $response,
+                        'courier_logo' => $request->courier_service_logo,
+                        'pickupAddress' => $pickup_address,
+                        'productName' => $productName,
+                        'productSku' => $productSku,
+                        'customerOrder' => $customerOrder,
+                        'date' => Carbon::now(),
+                    ]);
+                    $pdf->setOptions([
+                        'isRemoteEnabled' => true,
+                        'isHtml5ParserEnabled' => true
+                    ]);
+                    $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+
+                    if (Storage::disk('spaces')->exists($filename)) {
+                        Storage::disk('spaces')->delete($filename);
+                    }
+                    Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
+                    $pdfUrl = Storage::disk('spaces')->url($filename);
+
+                    CustomerOrders::where('id', $customerOrder->id)->update([
+                        'shipping_label_url' => $pdfUrl
+                    ]);
+
                 } else {
                     DB::rollBack();
                     return response()->json(['status' => false, 'msg' => $response['response'] ?? 'Failed to create shipping order']);
@@ -1405,7 +1435,8 @@ class RetilerController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Order Confirmation Error: ' . $e->getMessage());
-            return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
+            // return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
+            return response()->json(['status' => false, 'msg' => $e->getMessage()]);
         }
     }
 

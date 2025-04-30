@@ -236,9 +236,15 @@
                                                     </div>
                                                     <div class="my-2">
                                                         <strong>Tracking Id:</strong> {{ @$detail->tracking_number }}
-                                                        <br />
+                                                    </div>
+                                                    <div class="my-2">
                                                         <strong>API Oroder Id:</strong> {{ @$detail->api_order_id }}
                                                     </div>
+                                                    @if ($detail->status == 'shipped_by_retailer' && $detail->shipping_label_url)
+                                                        <a href="{{ $detail->shipping_label_url }}" target="_blank">
+                                                            <i class="fa-solid fa-download"></i> Shipping Label
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             </td>
 
@@ -612,6 +618,7 @@
                                             <input type="hidden" name="courier_service" id="courier_service"
                                                 value="">
                                             <input type="hidden" name="courier_service_id" id="courier_service_id">
+                                            <input type="hidden" name="courier_service_logo" id="courier_service_logo">
                                             <span class="text-danger mt-5 courier-service-error-section"
                                                 style="display: none;">
                                                 <i class="bi bi-exclamation-triangle"></i>
@@ -873,6 +880,7 @@
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.courier_name}"
                                         data-courier-id="${matchingCourier.courierId || ''}"
+                                        data-courier-logo="${matchingCourier.logoUrl || null}"
                                         data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
                                         data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
                                         data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
@@ -932,6 +940,7 @@
             $(document).on('click', '.select-courier', function() {
                 const courierName = $(this).data('courier') || 'Unknown';
                 const courierId = $(this).data('courier-id') || '';
+                const courierLogo = $(this).data('courier-logo') || null;
                 const shippingCharge = $(this).data('shipping-charge') || '0.00';
                 const codCharge = $(this).data('cod-charge') || '0.00';
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
@@ -946,6 +955,7 @@
 
                 $('#courier_service').val(courierName);
                 $('#courier_service_id').val(courierId);
+                $('#courier_service_logo').val(courierLogo);
 
                 // Display all courier details below the Select Courier button
                 $('#selected-courier-display').html(`
@@ -1336,6 +1346,7 @@
                             processData: false,
                             contentType: false,
                             success: function(response) {
+                                window.open(response.pdfUrl, "_blank");
                                 Swal.close();
                                 if (response.status) {
                                     Swal.fire({

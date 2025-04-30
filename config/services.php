@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'lorrigo' => [
+        'email' => env('LORRIGO_EMAIL'),
+        'password' => env('LORRIGO_PASSWORD'),
+        'base_url' => env('LORRIGO_API_URL'),
+    ],
+
+    'fship' => [
+        'base_url' => env('FSHIP_URL'),
+        'signature' => env('FSHIP_SIGNATURE'),
+    ],
+
 ];

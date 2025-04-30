@@ -38,6 +38,10 @@ class CustomerOrders extends Model
 
         'tracking_number',
         'api_order_id',
+        
+        'shipping_label_url',
+        'pickup_image',
+
         'courier_service',
         'service_mode',
         'shipping_charge',
