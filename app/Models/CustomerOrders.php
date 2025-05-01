@@ -15,45 +15,41 @@ class CustomerOrders extends Model
         'wholesaler_id',
         'quantity',
         'final_amount',
+        'order_process_by',
         'status',
-        'confirmed_by_retailer_at',
+        'approved_by_retailer_at',
         'transfered_retailer_to_wholesaler_at',
-        'confirmed_by_wholesaler_at',
-        'shipped_by_retailer_at',
-        'shipped_by_wholesaler_at',
-        'delivered_by_retailer_at',
-        'delivered_by_wholesaler_at',
-        'cancelled_by_customer_at',
-        'cancelled_by_retailer_at',
-        'cancelled_by_wholesaler_at',
+        'approved_by_wholesaler_at',
+        'pickup_at',
+        'in_transit_at',
+        'ofd_at',
+        'delivered_at',
+        'rto_at',
+        'rtn_to_seller_at',
+        'close_at',
+        'cancel_at',
+        'lost_at',
         'received_at',
-
         'delivered_by',
         'cancelled_by',
         'inactive',
         'cancelled_reason',
-
         'pickup_address_id',
         'product_weight',
-
         'tracking_number',
         'api_order_id',
-        
         'shipping_label_url',
         'pickup_image',
-
         'courier_service',
         'service_mode',
         'shipping_charge',
         'cod_charge',
         'rto_charge',
+        'charges',
         'expected_delivery',
-        'retailer_transit_at',
-        'wholesaler_transit_at',
         'payment_status',
         'payment_method',
         'variation_id'
-
     ];
 
     protected $casts = [

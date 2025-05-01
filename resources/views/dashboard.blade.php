@@ -84,7 +84,7 @@
                         <!-- Confirmed Orders -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
-                                <a href="{{ route('retailer.order.list', 'confirmed-by-retailer') }}">
+                                <a href="{{ route('retailer.order.list', 'approved-by-retailer') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                                         <i class="ki-duotone ki-tablet-ok fs-2hx text-primary mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
@@ -102,7 +102,7 @@
                         <!-- Ready to Ship -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
-                                <a href="{{ route('retailer.order.list', 'ready-to-ship') }}">
+                                <a href="{{ route('retailer.order.list', 'pickup') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                                         <i class="ki-duotone ki-delivery fs-2hx text-success mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
@@ -121,7 +121,7 @@
                         <!-- Delivered -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
-                                <a href="{{ route('retailer.order.list', 'delivered-by-retailer') }}">
+                                <a href="{{ route('retailer.order.list', 'delivered') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                                         <i class="ki-duotone ki-delivery-3 fs-2hx text-info mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
@@ -268,17 +268,17 @@
                                         </div>
 
                                         <div class="menu-item px-3">
-                                            <a href="{{ route('retailer.order.list', 'confirmed-by-retailer') }}"
+                                            <a href="{{ route('retailer.order.list', 'approved-by-retailer') }}"
                                                 class="menu-link px-3">Approved Orders</a>
                                         </div>
 
                                         <div class="menu-item px-3">
-                                            <a href="{{ route('retailer.order.list', 'ready-to-ship') }}"
+                                            <a href="{{ route('retailer.order.list', 'pickup') }}"
                                                 class="menu-link px-3">In Pickup Orders</a>
                                         </div>
 
                                         <div class="menu-item px-3">
-                                            <a href="{{ route('retailer.order.list', 'delivered-by-retailer') }}"
+                                            <a href="{{ route('retailer.order.list', 'delivered') }}"
                                                 class="menu-link px-3">Delivered Orders</a>
                                         </div>
                                     </div>

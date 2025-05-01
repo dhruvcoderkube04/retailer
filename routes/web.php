@@ -8,6 +8,7 @@ use App\Http\Controllers\CoupanController;
 use App\Http\Controllers\RetailerAccountTransactionController;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
+use App\Http\Controllers\RetailerOrderController;
 use App\Http\Controllers\RetilerController;;
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
@@ -84,15 +85,20 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/remove-product/{id}', [RetilerController::class, 'removeProduct'])->name('retailer.remove-product');
 
     // place order
-    Route::get('/place-order', [RetilerController::class, 'placeOrderView'])->name('retailer.place-order-view');
-    Route::post('/place-order', [RetilerController::class, 'placeOrder'])->name('retailer.place-order');
+    Route::get('/place-order', [RetailerOrderController::class, 'placeOrderView'])->name('retailer.place-order-view');
+    Route::post('/place-order', [RetailerOrderController::class, 'placeOrder'])->name('retailer.place-order');
 
     // order
     Route::prefix('orders-list')->group(function () {
-        Route::get('/{type?}', [RetilerController::class, 'orderList'])->name('retailer.order.list');
+        Route::get('/{type?}', [RetailerOrderController::class, 'orderList'])->name('retailer.order.list');
         Route::post('/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
-        Route::post('/action/new-order', [RetilerController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
-        Route::post('/action/confirmed-order', [RetilerController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
+        Route::post('/action/new-order', [RetailerOrderController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
+        Route::post('/action/confirmed-order', [RetailerOrderController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
+        Route::post('/action/pickup-order', [RetailerOrderController::class, 'pickupOrderAction'])->name('retailer.order.action.pickup-order');
+        Route::get('/pickup-image/fetch', [RetailerOrderController::class, 'pickupImageFetch'])->name('retailer.order.pickup-image.fetch');
+        Route::post('/pickup-image/upload', [RetailerOrderController::class, 'pickupImageUpload'])->name('retailer.order.pickup-image.upload');
+        Route::post('/action/in-transit-order', [RetailerOrderController::class, 'inTransitOrderAction'])->name('retailer.order.action.in-transit-order');
+
     });
 
     // mange Profile

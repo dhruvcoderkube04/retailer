@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('status', [
                 'pending',
                 'transfered_retailer_to_wholesaler',
-                'confirmed_by_retailer',
+                'approved_by_retailer',
                 'confirmed_by_wholesaler',
                 'shipped_by_retailer',
                 'shipped_by_wholesaler',

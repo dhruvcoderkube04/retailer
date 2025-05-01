@@ -8,17 +8,18 @@
     {
         $statuses = [
             'pending' => 'Pending',
+            'approved_by_retailer' => 'Approved By Retailer',
             'transfered_retailer_to_wholesaler' => 'Transferred To Wholesaler',
-            'confirmed_by_retailer' => 'Confirmed By Retailer',
-            'confirmed_by_wholesaler' => 'Confirmed By Wholesaler',
-            'transit_by_retailer' => 'Transit By Retailer',
-            'shipped_by_retailer' => 'Shipped By Retailer',
-            'shipped_by_wholesaler' => 'Shipped By Wholesaler',
-            'delivered_by_retailer' => 'Delivered By Retailer',
-            'delivered_by_wholesaler' => 'Delivered By Wholesaler',
-            'cancelled_by_customer' => 'Cancelled By Customer',
-            'cancelled_by_retailer' => 'Cancelled By Retailer',
-            'cancelled_by_wholesaler' => 'Cancelled By Wholesaler',
+            'approved_by_wholesaler' => 'Confirmed By Wholesaler',
+            'pickup' => 'Pickup',
+            'in_transit' => 'In Transit',
+            'ofd' => 'OFD',
+            'delivered' => 'Delivered',
+            'rto' => 'RTO',
+            'rtn_to_seller' => 'RTN To Seller',
+            'close' => 'Close',
+            'cancel' => 'Cancelled',
+            'lost' => 'Lost',
             'received' => 'Received',
         ];
 
@@ -105,14 +106,14 @@
                                         </a>
                                     </li>
                                     <li class="nav-item my-3">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'confirmed-by-retailer' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'confirmed-by-retailer']) }}">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'approved-by-retailer' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'approved-by-retailer']) }}">
                                             <i class="fas fa-thumbs-up pe-2 text-info"></i> Approved
                                         </a>
                                     </li>
                                     <li class="nav-item my-3">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'ready-to-ship' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'ready-to-ship']) }}">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'pickup' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'pickup']) }}">
                                             <i class="fas fa-box-open pe-2 text-success"></i> Pickup
                                         </a>
                                     </li>
@@ -129,8 +130,8 @@
                                         </a>
                                     </li>
                                     <li class="nav-item my-3">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered-by-retailer' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'delivered-by-retailer']) }}">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'delivered']) }}">
                                             <i class="fas fa-check-circle pe-2 text-success"></i> Delivered
                                         </a>
                                     </li>
@@ -153,8 +154,8 @@
                                         </a>
                                     </li>
                                     <li class="nav-item my-3">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'cancelled-by-retailer' ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'cancelled-by-retailer']) }}">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'cancel' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'cancel']) }}">
                                             <i class="fas fa-ban pe-2 text-danger"></i> Cancel
                                         </a>
                                     </li>
@@ -241,10 +242,18 @@
                                                     <div class="my-2">
                                                         <strong>API Oroder Id:</strong> {{ @$detail->api_order_id }}
                                                     </div>
-                                                    @if ($detail->status == 'shipped_by_retailer' && $detail->shipping_label_url)
-                                                        <a href="{{ $detail->shipping_label_url }}" target="_blank">
-                                                            <i class="fa-solid fa-download"></i> Shipping Label
-                                                        </a>
+                                                    @if ($detail->status == 'pickup' && $detail->shipping_label_url)
+                                                        <div class="my-2">
+                                                            <a href="{{ $detail->shipping_label_url }}" target="_blank">
+                                                                <i class="fa-solid fa-download"></i> Shipping Label
+                                                            </a>
+                                                        </div>
+                                                        <div class="my-2">
+                                                            <a href="javascript:void(0)" id="uploadPickupImage"
+                                                                data-order-id="{{ $detail->id }}">
+                                                                <i class="fa-solid fa-upload"></i> Upload Pickup Image
+                                                            </a>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </td>
@@ -271,25 +280,6 @@
                                                     @endif
                                                 </div>
                                             </td>
-                                            {{-- <td class="">
-                                                <div>
-                                                    <strong>Order Id:</strong> {{ $detail->order_id }}<br>
-                                                    <strong>Name:</strong>{{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}<br>
-                                                    <strong>Quantity:</strong> Qty: {{ $detail->quantity }} | Size:
-                                                    {{ $detail->size }}<br>
-                                                    <strong>Amount:</strong> ₹
-                                                    {{ $detail?->final_amount }}
-                                                    {{ $detail?->product?->new_price ?? ($detail?->retailerCloneProduct?->new_price ?? '') }}<br>
-                                                    <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}<br>
-                                                    <strong>Checkout At:
-                                                        {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</strong><br>
-                                                    <strong>Order Status:</strong>
-                                                    <span
-                                                        class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
-                                                        {{ order_status($detail->status) }}
-                                                    </span>
-                                                </div>
-                                            </td> --}}
 
                                             {{-- customer detail --}}
                                             <td>
@@ -326,7 +316,7 @@
                                                         data-c-order-id="{{ $detail->order_id }}">
                                                         Action
                                                     </button>
-                                                @elseif ($detail->status == 'confirmed_by_retailer')
+                                                @elseif ($detail->status == 'approved_by_retailer')
                                                     <button type="button"
                                                         class="btn btn-primary btn-sm confirmedOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
@@ -337,9 +327,20 @@
                                                         data-c-order-id="{{ $detail->order_id }}">
                                                         Action
                                                     </button>
-                                                @elseif ($detail->status == 'shipped_by_retailer')
+                                                @elseif ($detail->status == 'pickup')
                                                     <button type="button"
-                                                        class="btn btn-primary btn-sm readyToShipOrderAction"
+                                                        class="btn btn-primary btn-sm pickupOrderAction"
+                                                        data-product-id="{{ $detail->product_id }}"
+                                                        data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
+                                                        data-order-id="{{ $detail->id }}"
+                                                        data-product-amount="{{ $detail?->final_amount }}"
+                                                        data-product-pincode="{{ $detail->customer->pincode }}"
+                                                        data-c-order-id="{{ $detail->order_id }}">
+                                                        Action
+                                                    </button>
+                                                @elseif ($detail->status == 'in_transit')
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm inTransitOrderAction"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
@@ -372,7 +373,8 @@
         </div>
         @include('layouts.footer')
     </div>
-    <!-- New Order Modal -->
+
+    <!-- START: New Order Modal -->
     <div class="modal fade" id="new-order-action-modal" tabindex="-1" aria-labelledby="new-order-action-modal-label"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -400,7 +402,7 @@
                             <div class="list-group">
                                 <label class="list-group-item d-flex align-items-center gap-3">
                                     <input class="form-check-input mt-0" type="radio" name="status"
-                                        id="confirmed_by_retailer" value="confirmed_by_retailer">
+                                        id="approved_by_retailer" value="approved_by_retailer">
                                     <i class="bi bi-check-circle-fill text-success fs-5"></i>
                                     <span>Confirm Order</span>
                                 </label>
@@ -413,8 +415,8 @@
                                 </label> --}}
 
                                 <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
-                                    <input class="form-check-input mt-0" type="radio" name="status"
-                                        id="cancelled_by_retailer" value="cancelled_by_retailer">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="cancel"
+                                        value="cancel">
                                     <i class="bi bi-x-circle-fill text-danger fs-5"></i>
                                     <span>Cancel Order</span>
                                 </label>
@@ -430,7 +432,7 @@
                                 <div class="card-body p-3">
                                     <label for="rejectReasonSelectNew" class="form-label fw-semibold text-gray-700">Choose
                                         a reject reason:</label>
-                                    <select name="reject_reason_select_new"
+                                    <select name="reject_reason_select"
                                         class="form-select form-select-lg reject_reason_select_new"
                                         id="rejectReasonSelectNew" data-control="select2">
                                         <option value="" disabled selected>-- Select Reason --</option>
@@ -458,7 +460,7 @@
                                     <label for="rejectReasonInputNew" class="form-label fw-semibold text-gray-700">Enter
                                         Reason Here:</label>
                                     <input type="text" class="form-control reject_reason_input_new"
-                                        name="reject_reason_input_new" id="rejectReasonInputNew" min="1"
+                                        name="reject_reason_input" id="rejectReasonInputNew" min="1"
                                         placeholder="Enter reject reason">
 
                                     <span class="text-danger mt-5 reject-reason-input-error-section"
@@ -487,8 +489,9 @@
             </div>
         </div>
     </div>
+    <!-- END: New Order Modal -->
 
-    <!-- Confirmed Order Modal -->
+    <!-- START: Confirmed Order Modal -->
     <div class="modal fade" id="confirmed-order-action-modal" tabindex="-1"
         aria-labelledby="confirmed-order-action-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -513,8 +516,8 @@
                         <div class="mb-7">
                             <div class="list-group">
                                 <label class="list-group-item d-flex align-items-center gap-3">
-                                    <input class="form-check-input mt-0" type="radio" name="status"
-                                        id="shipped_by_retailer" value="shipped_by_retailer">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="pickup"
+                                        value="pickup">
                                     <i class="bi bi-truck text-success fs-5"></i>
                                     <span>I Want To Ship</span>
                                 </label>
@@ -527,8 +530,8 @@
                                 </label>
 
                                 <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
-                                    <input class="form-check-input mt-0" type="radio" name="status"
-                                        id="cancelled_by_retailer" value="cancelled_by_retailer">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="cancel"
+                                        value="cancel">
                                     <i class="bi bi-x-circle-fill text-danger fs-5"></i>
                                     <span>Cancel Order</span>
                                 </label>
@@ -659,7 +662,7 @@
                                             {{-- <label for="rejectReasonSelectConfirmed"
                                                 class="form-label fw-semibold text-gray-700">Choose
                                                 a reject reason:</label> --}}
-                                            <select name="reject_reason_select_confirmed"
+                                            <select name="reject_reason_select"
                                                 class="form-select form-select-lg reject_reason_select_confirmed"
                                                 id="rejectReasonSelectConfirmed" data-control="select2">
                                                 <option value="" disabled selected>-- Select Reason --</option>
@@ -691,7 +694,7 @@
                                                 class="form-label fw-semibold text-gray-700">Enter
                                                 Reason Here:</label>
                                             <input type="text" class="form-control reject_reason_input_confirmed"
-                                                name="reject_reason_input_confirmed" id="rejectReasonInputConfirm"
+                                                name="reject_reason_input" id="rejectReasonInputConfirm"
                                                 min="1" placeholder="Enter reject reason">
 
                                             <span class="text-danger mt-5 reject-reason-input-error-section"
@@ -730,8 +733,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Bootstrap Modal for Courier Details --}}
     <div class="modal fade" id="courierDetailsModal" tabindex="-1" aria-labelledby="courierDetailsModalLabel"
         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
@@ -763,6 +764,271 @@
             </div>
         </div>
     </div>
+    <!-- END: Confirmed Order Modal -->
+
+    <!-- START: Pickup Order Modal -->
+    <div class="modal fade" id="pickup-order-action-modal" tabindex="-1"
+        aria-labelledby="pickup-order-action-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title d-flex align-item-center gap-4 mt-1" id="pickup-order-action-modal-label">
+                        <span class="menu-icon">
+                            <i class="ki-duotone ki-delivery-3 fs-1" style="color: rgb(51, 51, 51)">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </span>
+                        <span>Order Action</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="pickupOrderForm" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold d-none">Order Action:</label>
+
+                            <div class="list-group">
+                                <label class="list-group-item d-flex align-items-center gap-3">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="in_transit"
+                                        value="in_transit" checked>
+                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                    <span>Process To Intransit</span>
+                                </label>
+
+                                <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="cancel"
+                                        value="cancel">
+                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                                    <span>Cancel Order</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Select --}}
+                        <div class="mt-12 mx-7 rejectReasonSelectContainer" style="display: none;">
+                            <h5 class="fw-bold text-gray-800 mb-3">
+                                <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
+                            </h5>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonSelectPickup"
+                                        class="form-label fw-semibold text-gray-700">Choose
+                                        a reject reason:</label>
+                                    <select name="reject_reason_select"
+                                        class="form-select form-select-lg reject_reason_select_pickup"
+                                        id="rejectReasonSelectPickup" data-control="select2">
+                                        <option value="" disabled selected>-- Select Reason --</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                        <option value="Pricing Issue">Pricing Issue</option>
+                                        <option value="Customer Request">Customer Requested Cancellation</option>
+                                        <option value="Payment Issue">Payment Not Received</option>
+                                        <option value="Shipping Restriction">Cannot Deliver to Customer's Location</option>
+                                        <option value="Product Discontinued">Product Discontinued</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="text-danger mt-5 reject-reason-select-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-select-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Input --}}
+                        <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonInputPickup" class="form-label fw-semibold text-gray-700">Enter
+                                        Reason Here:</label>
+                                    <input type="text" class="form-control reject_reason_input_pickup"
+                                        name="reject_reason_input" id="rejectReasonInputPickup" min="1"
+                                        placeholder="Enter reject reason">
+
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-input-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="product_id" class="product_id">
+                        <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_id" class="order_id">
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="submit" class="btn btn-primary" for="pickupOrderForm">
+                            <i class="bi bi-send"></i> Submit Action
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="upload-pickup-image-modal" tabindex="-1"
+        aria-labelledby="upload-pickup-image-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <form id="uploadPickupImageForm" method="POST">
+                    @csrf
+                    <div class="modal-body px-2 py-5">
+                        <div class="mt-1 mx-7">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-4">
+                                    <label for="pickup_image" class="form-label fw-semibold text-gray-700">Pickup
+                                        Image:</label>
+
+                                    <div style="width: 200px; height: 170px;" class="m-3 text-center">
+                                        <img src="" alt="Pickup Image" style="width: 100%; height: 100%;"
+                                            id="pickup_image_preview">
+                                    </div>
+
+                                    <input type="file" class="form-control" name="pickup_image" id="pickup_image"
+                                        accept=".jpg,.jpeg,.webp,.png,.svg,image/jpeg,image/jpg,image/webp,image/png,image/svg+xml">
+
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-input-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="order_id" class="pickup_image_order_id">
+                    </div>
+
+                    <div class="modal-footer bg-light p-2">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-sm btn-primary" for="uploadPickupImageForm">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- END: Pickup Order Modal -->
+
+    <!-- START: In Transit Order Modal -->
+    <div class="modal fade" id="in-transit-order-action-modal" tabindex="-1"
+        aria-labelledby="in-transit-order-action-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title d-flex align-item-center gap-4 mt-1" id="in-transit-order-action-modal-label">
+                        <span class="menu-icon">
+                            <i class="ki-duotone ki-delivery-3 fs-1" style="color: rgb(51, 51, 51)">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </span>
+                        <span>Order Action</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="inTransitOrderForm" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold d-none">Order Action:</label>
+
+                            <div class="list-group">
+                                <label class="list-group-item d-flex align-items-center gap-3">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="delivered"
+                                        value="delivered" checked>
+                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                    <span>Delivered</span>
+                                </label>
+
+                                <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
+                                    <input class="form-check-input mt-0" type="radio" name="status" id="cancel"
+                                        value="cancel">
+                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                                    <span>Cancel Order</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Select --}}
+                        <div class="mt-12 mx-7 rejectReasonSelectContainer" style="display: none;">
+                            <h5 class="fw-bold text-gray-800 mb-3">
+                                <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
+                            </h5>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonSelectInTransit"
+                                        class="form-label fw-semibold text-gray-700">Choose
+                                        a reject reason:</label>
+                                    <select name="reject_reason_select"
+                                        class="form-select form-select-lg reject_reason_select_in_transit"
+                                        id="rejectReasonSelectInTransit" data-control="select2">
+                                        <option value="" disabled selected>-- Select Reason --</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                        <option value="Pricing Issue">Pricing Issue</option>
+                                        <option value="Customer Request">Customer Requested Cancellation</option>
+                                        <option value="Payment Issue">Payment Not Received</option>
+                                        <option value="Shipping Restriction">Cannot Deliver to Customer's Location</option>
+                                        <option value="Product Discontinued">Product Discontinued</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="text-danger mt-5 reject-reason-select-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-select-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Input --}}
+                        <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonInputInTransit" class="form-label fw-semibold text-gray-700">Enter
+                                        Reason Here:</label>
+                                    <input type="text" class="form-control reject_reason_input_in_transit"
+                                        name="reject_reason_input" id="rejectReasonInputInTransit" min="1"
+                                        placeholder="Enter reject reason">
+
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-input-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="product_id" class="product_id">
+                        <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_id" class="order_id">
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="submit" class="btn btn-primary" for="inTransitOrderForm">
+                            <i class="bi bi-send"></i> Submit Action
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- END: In Transit Order Modal -->
 @endsection
 
 
@@ -1011,7 +1277,7 @@
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
-                if (status == 'cancelled_by_retailer') {
+                if (status == 'cancel') {
                     $('.rejectReasonSelectContainer').show();
                     $('#new-order-action-modal .reject_reason_select_new').trigger('change');
                 } else {
@@ -1047,7 +1313,6 @@
 
             $(document).on('submit', '#newOrderForm', function(e) {
                 e.preventDefault();
-                $('#new-order-action-modal').modal('hide');
                 let form = new FormData(this);
 
                 // START: validation
@@ -1060,7 +1325,7 @@
 
                 if (!status) return;
 
-                if (status === "cancelled_by_retailer") {
+                if (status === "cancel") {
                     if (!reject_reason_select_new) {
                         $(".reject-reason-select-error").text("Please select a reject reason");
                         $(".reject-reason-select-error-section").show();
@@ -1079,6 +1344,8 @@
                 if (errors.length) return;
                 // END: validation
 
+                $('#new-order-action-modal').modal('hide');
+
                 let swalConfig = {
                     title: "Are you sure?",
                     text: "",
@@ -1090,7 +1357,7 @@
                 };
 
                 switch (status) {
-                    case "confirmed_by_retailer":
+                    case "approved_by_retailer":
                         swalConfig.text = "You are about to confirm this order.";
                         swalConfig.icon = "success";
                         swalConfig.confirmButtonText = "Yes, Confirm it!";
@@ -1100,7 +1367,7 @@
                         swalConfig.icon = "success";
                         swalConfig.confirmButtonText = "Yes, Transfer it!";
                         break;
-                    case "cancelled_by_retailer":
+                    case "cancel":
                         swalConfig.text = "You are about to reject this order.";
                         swalConfig.icon = "warning";
                         swalConfig.confirmButtonText = "Yes, Reject it!";
@@ -1164,6 +1431,8 @@
                     }
                 });
             });
+            //<-------------- END: New Order --------------->
+
 
             //<-------------- START: Confirmed Order --------------->
             $('.reject_reason_select_confirmed').change(function() {
@@ -1181,7 +1450,7 @@
                 $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer')
                     .hide();
 
-                if (status == 'shipped_by_retailer') {
+                if (status == 'pickup') {
                     $('#pickupLocationContainer').show();
                     $('#rtoAddressContainer').show();
                     $('#productWeightContainer').show();
@@ -1196,7 +1465,7 @@
                     $('#selectCourierBtn').hide(); // Ensure button is hidden for non-shipped status
                 }
 
-                if (status == 'cancelled_by_retailer') {
+                if (status == 'cancel') {
                     $('.rejectReasonSelectContainer').show();
                     $('.reject_reason_select_confirmed').trigger('change');
                 } else {
@@ -1221,10 +1490,6 @@
                 $('.order_id').val(order_id);
 
                 $('#confirmed-order-action-modal').modal('show');
-            });
-
-            $('#rejectReasonInputConfirm').on('click', function() {
-                $('#new-order-action-modal').modal('show');
             });
 
             $(document).on('submit', '#confirmedOrderForm', function(e) {
@@ -1253,7 +1518,7 @@
 
                 if (!status) return;
 
-                if (status === "shipped_by_retailer") {
+                if (status === "pickup") {
                     if (!pickup_address_id) {
                         $(".pickup-address-error").text("Please select pickup address");
                         $(".pickup-address-error-section").show();
@@ -1276,7 +1541,7 @@
                     }
                 }
 
-                if (status === "cancelled_by_retailer") {
+                if (status === "cancel") {
                     if (!reject_reason_select_confirmed) {
                         $(".reject-reason-select-error").text("Please select a reject reason");
                         $(".reject-reason-select-error-section").show();
@@ -1309,7 +1574,7 @@
                 };
 
                 switch (status) {
-                    case "shipped_by_retailer":
+                    case "pickup":
                         swalConfig.text = "You are about to confirm this order.";
                         swalConfig.icon = "success";
                         swalConfig.confirmButtonText = "Yes, Confirm it!";
@@ -1319,7 +1584,7 @@
                         swalConfig.icon = "success";
                         swalConfig.confirmButtonText = "Yes, Transfer it!";
                         break;
-                    case "cancelled_by_retailer":
+                    case "cancel":
                         swalConfig.text = "You are about to reject this order.";
                         swalConfig.icon = "warning";
                         swalConfig.confirmButtonText = "Yes, Reject it!";
@@ -1347,7 +1612,6 @@
                             processData: false,
                             contentType: false,
                             success: function(response) {
-                                window.open(response.pdfUrl, "_blank");
                                 Swal.close();
                                 if (response.status) {
                                     Swal.fire({
@@ -1383,6 +1647,388 @@
                 });
             });
             //<-------------- END: Confirmed Order --------------->
+
+            //<-------------- START: Pickup Order --------------->
+            // pickup image fetch
+            $(document).on('click', '#uploadPickupImage', function() {
+                $('.reject-reason-input-error').text('');
+                $('.reject-reason-input-error-section').hide();
+
+                let order_id = $(this).attr('data-order-id');
+                $('.pickup_image_order_id').val(order_id);
+
+                $.ajax({
+                    url: "{{ route('retailer.order.pickup-image.fetch') }}",
+                    type: "GET",
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        order_id: order_id
+                    },
+                    success: function(response) {
+                        var defaultImage = "/assets/media/images/no_image.jpg";
+
+                        if (response.status) {
+                            if (response.data.pickup_image) {
+                                $('#pickup_image_preview').attr('src', response.data
+                                    .pickup_image);
+                            } else {
+                                $('#pickup_image_preview').attr('src', defaultImage);
+                            }
+                        } else {
+                            $('#pickup_image_preview').attr('src', defaultImage);
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#pickup_image_preview').attr('src', defaultImage);
+                    }
+                });
+
+                $('#upload-pickup-image-modal').modal('show');
+            });
+
+            // pickup image upload
+            $(document).on('submit', '#uploadPickupImageForm', function(e) {
+                e.preventDefault();
+
+                let form = $(this)[0];
+                let formData = new FormData(form);
+
+                $.ajax({
+                    url: "{{ route('retailer.order.pickup-image.upload') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response.status) {
+                            $('#uploadPickupImageForm')[0].reset();
+                            $('#pickup_image_preview').attr('src', '');
+                            $('.pickup_image_order_id').val('');
+                            Swal.fire({
+                                title: "Image Uploaded!",
+                                text: response.msg || 'Image uploaded successfully!',
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            });
+                            $('#upload-pickup-image-modal').modal('hide');
+                        } else {
+                            $('.reject-reason-input-error').text(response.msg ||
+                                'Upload failed.');
+                            $('.reject-reason-input-error-section').show();
+                        }
+                    },
+                    error: function(xhr) {
+                        let error = xhr.responseJSON?.message || 'Something went wrong.';
+                        $('.reject-reason-input-error').text(error);
+                        $('.reject-reason-input-error-section').show();
+                    }
+                });
+            });
+
+            $(document).on('click', '.pickupOrderAction', function() {
+                let product_id = $(this).attr('data-product-id');
+                let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
+                let order_id = $(this).attr('data-order-id');
+                let c_order_id = $(this).attr('data-c-order-id');
+
+                $('.product_id').val(product_id);
+                $('.retailer_clone_product_id').val(retailer_clone_product_id);
+                $('.order_id').val(order_id);
+                $('.corder_id').val(c_order_id);
+
+                $('#pickup-order-action-modal').modal('show');
+            });
+
+            $(document).on('change', '#pickup-order-action-modal input[name="status"]', function() {
+                const status = $(this).val();
+                $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
+
+                if (status == 'cancel') {
+                    $('.rejectReasonSelectContainer').show();
+                    $('#pickup-order-action-modal .reject_reason_select_pickup').trigger('change');
+                } else {
+                    $('.rejectReasonSelectContainer').hide();
+                }
+            });
+
+            $('.reject_reason_select_pickup').change(function() {
+                let selectedReason = $(this).val();
+                if (selectedReason == "Other") {
+                    $('.rejectReasonInputContainer').show();
+                } else {
+                    $('.rejectReasonInputContainer').hide();
+                }
+            });
+
+            $(document).on('submit', '#pickupOrderForm', function(e) {
+                e.preventDefault();
+                let form = new FormData(this);
+
+                // START: validation
+                let status = form.get("status");
+                let reject_reason_select_pickup = $('.reject_reason_select_pickup').val();
+                let reject_reason_input_pickup = $('.reject_reason_input_pickup').val();
+
+                let errors = [];
+                $('.reject-reason-select-error-section, .reject-reason-input-error-section').hide();
+
+                if (!status) return;
+
+                if (status === "cancel") {
+                    if (!reject_reason_select_pickup) {
+                        $(".reject-reason-select-error").text("Please select a reject reason");
+                        $(".reject-reason-select-error-section").show();
+                        errors.push("reject_reason_select_pickup");
+                    }
+
+                    if (reject_reason_select_pickup === "Other") {
+                        if (!reject_reason_input_pickup || reject_reason_input_pickup.trim() === "") {
+                            $(".reject-reason-input-error").text("Please enter a valid reject reason");
+                            $(".reject-reason-input-error-section").show();
+                            errors.push("reject_reason_input_pickup");
+                        }
+                    }
+                }
+
+                if (errors.length) return;
+                // END: validation
+
+                $('#pickup-order-action-modal').modal('hide');
+
+                let swalConfig = {
+                    title: "Are you sure?",
+                    text: "",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "",
+                };
+
+                switch (status) {
+                    case "in_transit":
+                        swalConfig.text = "You are about to in transit this order.";
+                        swalConfig.icon = "success";
+                        swalConfig.confirmButtonText = "Yes, Confirm it!";
+                        break;
+                    case "cancel":
+                        swalConfig.text = "You are about to reject this order.";
+                        swalConfig.icon = "warning";
+                        swalConfig.confirmButtonText = "Yes, Reject it!";
+                        break;
+                    default:
+                        return;
+                }
+
+                Swal.fire(swalConfig).then((result) => {
+                    if (result.isConfirmed) {
+                        const submitBtn = document.getElementById('submitButton');
+                        if (submitBtn) submitBtn.disabled = true;
+
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we process your request.",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: "{{ route('retailer.order.action.pickup-order') }}",
+                            type: "POST",
+                            data: form,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.status) {
+                                    Swal.fire({
+                                        title: "Success!",
+                                        text: response.msg,
+                                        icon: "success",
+                                        confirmButtonText: "OK",
+                                    }).then(() => {
+                                        window.location.href =
+                                            `{{ route('retailer.order.list', ':type') }}`
+                                            .replace(":type", response.type);
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: response.msg,
+                                        icon: "error",
+                                        confirmButtonText: "OK"
+                                    });
+                                    if (submitBtn) submitBtn.disabled = false;
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Something went wrong, Please try later!",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                                if (submitBtn) submitBtn.disabled = false;
+                            }
+                        });
+                    }
+                });
+            });
+            //<-------------- END: Pickup Order --------------->
+
+            //<-------------- START: In Transit Order --------------->
+            $(document).on('click', '.inTransitOrderAction', function() {
+                let product_id = $(this).attr('data-product-id');
+                let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
+                let order_id = $(this).attr('data-order-id');
+                let c_order_id = $(this).attr('data-c-order-id');
+
+                $('.product_id').val(product_id);
+                $('.retailer_clone_product_id').val(retailer_clone_product_id);
+                $('.order_id').val(order_id);
+                $('.corder_id').val(c_order_id);
+
+                $('#in-transit-order-action-modal').modal('show');
+            });
+
+            $(document).on('change', '#in-transit-order-action-modal input[name="status"]', function() {
+                const status = $(this).val();
+                $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
+
+                if (status == 'cancel') {
+                    $('.rejectReasonSelectContainer').show();
+                    $('#in-transit-order-action-modal .reject_reason_select_in_transit').trigger('change');
+                } else {
+                    $('.rejectReasonSelectContainer').hide();
+                }
+            });
+
+            $('.reject_reason_select_in_transit').change(function() {
+                let selectedReason = $(this).val();
+                if (selectedReason == "Other") {
+                    $('.rejectReasonInputContainer').show();
+                } else {
+                    $('.rejectReasonInputContainer').hide();
+                }
+            });
+
+            $(document).on('submit', '#inTransitOrderForm', function(e) {
+                e.preventDefault();
+                let form = new FormData(this);
+
+                // START: validation
+                let status = form.get("status");
+                let reject_reason_select_in_transit = $('.reject_reason_select_in_transit').val();
+                let reject_reason_input_in_transit = $('.reject_reason_input_in_transit').val();
+
+                let errors = [];
+                $('.reject-reason-select-error-section, .reject-reason-input-error-section').hide();
+
+                if (!status) return;
+
+                if (status === "cancel") {
+                    if (!reject_reason_select_in_transit) {
+                        $(".reject-reason-select-error").text("Please select a reject reason");
+                        $(".reject-reason-select-error-section").show();
+                        errors.push("reject_reason_select_in_transit");
+                    }
+
+                    if (reject_reason_select_in_transit === "Other") {
+                        if (!reject_reason_input_in_transit || reject_reason_input_in_transit.trim() === "") {
+                            $(".reject-reason-input-error").text("Please enter a valid reject reason");
+                            $(".reject-reason-input-error-section").show();
+                            errors.push("reject_reason_input_in_transit");
+                        }
+                    }
+                }
+
+                if (errors.length) return;
+                // END: validation
+
+                $('#in-transit-order-action-modal').modal('hide');
+
+                let swalConfig = {
+                    title: "Are you sure?",
+                    text: "",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "",
+                };
+
+                switch (status) {
+                    case "delivered":
+                        swalConfig.text = "Are you sure to mark as delivered?.";
+                        swalConfig.icon = "success";
+                        swalConfig.confirmButtonText = "Yes, Delivered!";
+                        break;
+                    case "cancel":
+                        swalConfig.text = "You are about to reject this order.";
+                        swalConfig.icon = "warning";
+                        swalConfig.confirmButtonText = "Yes, Reject it!";
+                        break;
+                    default:
+                        return;
+                }
+
+                Swal.fire(swalConfig).then((result) => {
+                    if (result.isConfirmed) {
+                        const submitBtn = document.getElementById('submitButton');
+                        if (submitBtn) submitBtn.disabled = true;
+
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we process your request.",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: "{{ route('retailer.order.action.in-transit-order') }}",
+                            type: "POST",
+                            data: form,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.status) {
+                                    Swal.fire({
+                                        title: "Success!",
+                                        text: response.msg,
+                                        icon: "success",
+                                        confirmButtonText: "OK",
+                                    }).then(() => {
+                                        window.location.href =
+                                            `{{ route('retailer.order.list', ':type') }}`
+                                            .replace(":type", response.type);
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: response.msg,
+                                        icon: "error",
+                                        confirmButtonText: "OK"
+                                    });
+                                    if (submitBtn) submitBtn.disabled = false;
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Something went wrong, Please try later!",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                                if (submitBtn) submitBtn.disabled = false;
+                            }
+                        });
+                    }
+                });
+            });
+            //<-------------- END: In Transit Order --------------->
         });
     </script>
 @endsection

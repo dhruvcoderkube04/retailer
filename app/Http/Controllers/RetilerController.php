@@ -14,7 +14,6 @@ use App\Models\RetailerProducts;
 use App\Models\RTOAddress;
 use App\Models\Ticket;
 use App\Models\COrders;
-use App\Models\CourierPartner;
 use App\Models\ProductVariation;
 use App\Models\RetailerCategory;
 use App\Models\SubCategory;
@@ -46,15 +45,15 @@ class RetilerController extends Controller
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'confirmed_by_retailer')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'approved_by_retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'shipped_by_retailer')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pickup')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered_by_retailer')
+            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
@@ -105,13 +104,13 @@ class RetilerController extends Controller
             'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'confirmed_by_retailer')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'approved_by_retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('retailer_id', $user->id)->where('status', 'shipped_by_retailer')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('retailer_id', $user->id)->where('status', 'pickup')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered_by_retailer')
+            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->sum('final_amount'),
@@ -296,6 +295,9 @@ class RetilerController extends Controller
             ]
         ]);
     }
+
+
+
 
 
     public function retailerProduct()
@@ -923,565 +925,7 @@ class RetilerController extends Controller
         }
     }
 
-    // place-order page view
-    public function placeOrderView(Request $request)
-    {
-        // $retailer = Auth::user();
-        // $retailerProducts = RetailerProducts::with([
-        //     'product',
-        //     'wholesaler.userDetail'
-        // ])
-        //     ->where('retailer_id', $retailer->id)
-        //     ->get();
-
-        $retailer = Auth::user()->id;
-
-        $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
-            ->where('retailer_id', $retailer)
-            ->get();
-
-        $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
-            $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
-                ->where('category_id', $retailerProduct->category_id)
-                ->distinct('id')
-                ->get();
-
-            $retailerProduct->setRelation('products', $products);
-            return $retailerProduct;
-        });
-
-        return view('place-order.place-order-view', compact('filteredRetailerProducts'));
-    }
-
-    // place-order
-    public function placeOrder(Request $request)
-    {
-        $request->validate([
-            'firstname' => 'required|max:30',
-            'lastname' => 'required|max:30',
-            'phone_number' => 'required|numeric|digits:10',
-            'email' => 'nullable|email',
-            'address' => 'required|max:250',
-            'state' => 'required|max:50',
-            'city' => 'required|max:50',
-            'pincode' => 'required|numeric|digits:6',
-            'payment_method' => 'required'
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $customerDetail = new CustomerDetails();
-            $customerDetail->firstname = $request->firstname;
-            $customerDetail->lastname = $request->lastname;
-            $customerDetail->phone_number = $request->phone_number;
-            $customerDetail->email = $request->email ?? null;
-            $customerDetail->address = $request->address;
-            $customerDetail->state = $request->state;
-            $customerDetail->city = $request->city;
-            $customerDetail->pincode = $request->pincode;
-            $customerDetail->save();
-
-            $customerOrder = new CustomerOrders();
-            $customerOrder->customer_id = $customerDetail->id;
-            $customerOrder->product_id = $request->product_id;
-            $customerOrder->retailer_id = $request->retailer_id;
-            $customerOrder->wholesaler_id = $request->wholesaler_id;
-            $customerOrder->quantity = $request->quantity;
-            $customerOrder->payment_method = $request->payment_method;
-            $customerOrder->save();
-
-            DB::commit();
-            session()->flash('success', 'Order has been placed successfully');
-            return redirect()->route('retailer.order.list');
-        } catch (Exception $e) {
-            DB::rollBack();
-            session()->flash('error', 'Something went wrong!');
-            return redirect()->route('retailer.place-order-view');
-        }
-    }
-
-    // use courierservicemanager
-    public function orderList($type = 'new')
-    {
-        $retailer = Auth::user();
-
-        // Order status count
-        $count = CustomerOrders::where('retailer_id', $retailer->id)
-            ->selectRaw("
-                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
-                SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
-                SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
-                SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
-                SUM(CASE WHEN status = 'transit_by_retailer' THEN 1 ELSE 0 END) as transit,
-                SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
-                SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
-                SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
-                SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
-            ")->first()->toArray();
-
-        // Orders query
-        $sql = CustomerOrders::with([
-            'customer',
-            'product',
-            'retailerCloneProduct',
-            'wholesaler.userDetail',
-        ])->where('retailer_id', $retailer->id);
-
-        // Filter by type
-        $statusMap = [
-            'new' => 'pending', // New
-            // 'transfered-retailer-to-wholesaler' => 'transfered_retailer_to_wholesaler',
-            'confirmed-by-retailer' => 'confirmed_by_retailer', // Approved
-            'ready-to-ship' => 'shipped_by_retailer', // Pickup
-            'delivered-by-retailer' => 'delivered_by_retailer', // Delivered
-            'cancelled-by-retailer' => 'cancelled_by_retailer', // Cancel
-            // 'cancelled-by-customer' => 'cancelled_by_customer',
-            // 'inactive' => 'inactive',
-
-            //<------------- New Tabs Added -------------->
-            'in-transit' => 'in-transit', // In Transit
-            'ofd' => 'ofd', // OFD
-            'rto' => 'rto', // RTO
-            'rtn-to-seller' => 'rtn-to-seller', // RTN to seller
-            'close' => 'close', // Close
-            'lost' => 'lost', // Lost
-        ];
-
-        if (!array_key_exists($type, $statusMap)) {
-            return redirect()->route('retailer.order.list');
-        }
-
-        $sql->where('status', $statusMap[$type]);
-        $retailerOrders = $sql->orderBy('id', 'DESC')->get();
-        // Pickup address
-        $pickupAddress = PickAddress::where('user_id', $retailer->id)->get();
-
-        // Courier list via service manager
-        try {
-            $courierService = \App\Services\CourierServiceManager::getService();
-            $courierServices = $courierService->courierList();
-        } catch (\Exception $e) {
-            \Log::error('Failed to fetch courier list: ' . $e->getMessage());
-            $courierServices = [];
-        }
-
-        return view('orders.orders-list', compact('retailerOrders', 'count', 'pickupAddress', 'courierServices'));
-    }
-
-    // NOT IN USE CURRENTLY
-    public function newOrderList($type = 'new')
-    {
-        $retailer = Auth::user();
-
-        // Count order statuses
-        $count = COrders::where('retailer_id', $retailer->id)
-            ->selectRaw("
-                SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new,
-                SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing,
-                SUM(CASE WHEN status = 'pickups' THEN 1 ELSE 0 END) as pickups,
-                SUM(CASE WHEN status = 'ready_to_ship' THEN 1 ELSE 0 END) as ready_to_ship,
-                SUM(CASE WHEN status = 'transit' THEN 1 ELSE 0 END) as transit,
-                SUM(CASE WHEN status = 'ofd' THEN 1 ELSE 0 END) as ofd,
-                SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
-                SUM(CASE WHEN status = 'rto' THEN 1 ELSE 0 END) as rto,
-                SUM(CASE WHEN status = 'received' THEN 1 ELSE 0 END) as received,
-                SUM(CASE WHEN status = 'cancel' THEN 1 ELSE 0 END) as cancel,
-                SUM(CASE WHEN status = 'close' THEN 1 ELSE 0 END) as close
-            ")->first()->toArray();
-
-        // Fetch filtered orders based on type
-        $sql = COrders::with([
-            'customer',
-            'product',
-            'retailerCloneProduct',
-            'wholesaler.userDetail',
-        ])->where('retailer_id', $retailer->id);
-
-        // Map the $type to corresponding status
-        $statusMap = [
-            'new' => 'new',
-            'processing' => 'processing',
-            'pickups' => 'pickups',
-            'ready_to_ship' => 'ready_to_ship',
-            'transit' => 'transit',
-            'ofd' => 'ofd',
-            'delivered' => 'delivered',
-            'rto' => 'rto',
-            'received' => 'received',
-            'cancel' => 'cancel',
-            'close' => 'close',
-        ];
-
-        if (array_key_exists($type, $statusMap)) {
-            $sql->where('status', $statusMap[$type]);
-        } else {
-            return redirect()->route('retailer.order.list');
-        }
-
-        $retailerOrders = $sql->orderBy('id', 'DESC')->get();
-
-        // Pickup and RTO addresses
-        $pickupAddress = PickAddress::where('retailer_id', $retailer->id)->get();
-        $rtoAddress = RTOAddress::where('retailer_id', $retailer->id)->get();
-
-        // Courier services (currently empty or from API if uncommented)
-        $courierServices = [];
-
-        // dd($count);
-
-        return view('orders.new-order-list', compact('retailerOrders', 'count', 'pickupAddress', 'rtoAddress', 'courierServices'));
-    }
-
-    // order action
-    // public function orderAction(Request $request)
-    // {
-    //     $request->validate([
-    //         'status' => 'required',
-    //     ]);
-
-    //     DB::beginTransaction();
-    //     try {
-    //         $retailer = Auth::user();
-    //         $customerOrder = CustomerOrders::find($request->order_id);
-
-    //         if (!$customerOrder) {
-    //             session()->flash('error', 'Order not found');
-    //             return redirect()->route('retailer.order.list');
-    //         }
-
-    //         $updateData = [];
-    //         $message = '';
-    //         $type = '';
-    //         if ($request->status == 'confirmed_by_retailer') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'confirmed_by_retailer_at' => Carbon::now()
-    //             ];
-    //             $message = 'Order has been confirmed successfully';
-    //             $type = 'confirmed-by-retailer';
-    //         } else if ($request->status == 'shipped_by_retailer') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'shipped_by_retailer_at' => Carbon::now()
-    //             ];
-    //             $message = 'Order has been ready to ship (by supplier)';
-    //             $type = 'ready-to-ship';
-    //         } else if ($request->status == 'delivered_by_retailer') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'delivered_by_retailer_at' => Carbon::now(),
-    //                 'delivered_by' => $retailer->id
-    //             ];
-    //             $message = 'Order has been delivered by supplier';
-    //             $type = 'delivered-by-retailer';
-    //         } else if ($request->status == 'transfered_retailer_to_wholesaler') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'transfered_retailer_to_wholesaler_at' => Carbon::now()
-    //             ];
-    //             $message = 'Wholesaler will ship this product';
-    //             $type = 'transfered-retailer-to-wholesaler';
-    //         } else if ($request->status == 'cancelled_by_retailer') {
-    //             $updateData = [
-    //                 'status' => $request->status,
-    //                 'cancelled_by_retailer_at' => Carbon::now(),
-    //                 'cancelled_by' => $retailer->id
-    //             ];
-    //             $message = 'Order has been cancelled by retailer';
-    //             $type = 'cancelled-by-retailer';
-    //         }
-
-    //         if (!empty($updateData)) {
-    //             $customerOrder->update($updateData);
-    //             DB::commit();
-    //             session()->flash('success', $message);
-    //         } else {
-    //             session()->flash('error', 'Invalid order status');
-    //         }
-
-    //         return redirect()->route('retailer.order.list', ['type' => $type]);
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         session()->flash('error', 'Something went wrong!');
-    //         return redirect()->route('retailer.order.list');
-    //     }
-    // }
-
-    public function newOrderAction(Request $request)
-    {
-        $request->validate([
-            'status' => 'required',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $retailer = Auth::user();
-            $customerOrder = CustomerOrders::find($request->order_id);
-
-            if (!$customerOrder) {
-                return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
-            }
-
-            $updateData = [];
-            $message = '';
-            $type = '';
-            if ($request->status == 'confirmed_by_retailer') {
-                $updateData = [
-                    'status' => $request->status,
-                    'confirmed_by_retailer_at' => Carbon::now()
-                ];
-                $message = 'Order has been confirmed successfully';
-                $type = 'confirmed-by-retailer';
-            } else if ($request->status == 'transfered_retailer_to_wholesaler') {
-                $updateData = [
-                    'status' => $request->status,
-                    'transfered_retailer_to_wholesaler_at' => Carbon::now()
-                ];
-                $message = 'Wholesaler will ship this product';
-                // $type = 'transfered-retailer-to-wholesaler';
-                $type = 'new';
-            } else if ($request->status == 'cancelled_by_retailer') {
-                if ($request->reject_reason_select_new == 'Other') {
-                    $cancelled_reason = $request->reject_reason_input_new;
-                } else {
-                    $cancelled_reason = $request->reject_reason_select_new;
-                }
-                $updateData = [
-                    'status' => $request->status,
-                    'cancelled_by_retailer_at' => Carbon::now(),
-                    'cancelled_by' => $retailer->id,
-                    'cancelled_reason' => $cancelled_reason
-                ];
-                $message = 'Order has been cancelled by retailer';
-                $type = 'cancelled-by-retailer';
-            }
-
-            if (!empty($updateData)) {
-                $customerOrder->update($updateData);
-                DB::commit();
-                return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
-            } else {
-                return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['status' => false, 'msg' => 'Something went wrong, Plase try later!']);
-        }
-    }
-
-    // add Fship order place
-    // use Courier service manager and Fship order place
-    public function confirmedOrderAction(Request $request)
-    {
-        set_time_limit(180);
-        $request->validate([
-            'status' => 'required',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $retailer = Auth::user();
-            $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
-
-            $courier_partner = CourierPartner::where('is_active',1)->first();
-            if (!$customerOrder) {
-                return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
-            }
-
-            $productName = $customerOrder->retailerCloneProduct->name ?? $customerOrder->product->name ?? 'N/A';
-            $productSku = $customerOrder->retailerCloneProduct->sku ?? $customerOrder->product->sku ?? 'N/A';
-            $pickup_address = PickAddress::where('id', $request->pickup_address_id)->first();
-
-
-            $updateData = [];
-            $message = '';
-            $type = '';
-
-            if ($request->status === 'shipped_by_retailer') {
-                $updateData = [
-                    'status' => $request->status,
-                    'shipped_by_retailer_at' => now(),
-                    'pickup_address_id' => $request->pickup_address_id,
-                    'product_weight' => $request->product_weight,
-                    'service_mode' => $request->service_mode,
-                    'shipping_charge' => $request->shipping_charge,
-                    'cod_charge' => $request->cod_charge,
-                    'rto_charge' => $request->rto_charge,
-                ];
-                $message = 'Order has been ready to ship (by supplier)';
-                $type = 'ready-to-ship';
-
-                // Prepare Payload
-                if (!empty($courier_partner) && $courier_partner->code =='fship')
-                {
-                    $payload = [
-                        "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
-                        "customer_Mobile" => $customerOrder->customer->phone_number,
-                        "customer_Emailid" => $customerOrder->customer->email,
-                        "customer_Address" => $customerOrder->customer->address,
-                        "landMark" => "",
-                        "customer_Address_Type" => "Home",
-                        "customer_PinCode" => $customerOrder->customer->pincode,
-                        "customer_City" => $customerOrder->customer->city,
-                        "orderId" => $customerOrder->order_id,
-                        "invoice_Number" => '',
-                        "payment_Mode" => 1, // COD
-                        "express_Type" => "surface",
-                        "is_Ndd" => 0,
-                        "order_Amount" => $customerOrder->final_amount,
-                        "tax_Amount" => 0,
-                        "extra_Charges" => 0,
-                        "total_Amount" => $customerOrder->final_amount,
-                        "cod_Amount" => $customerOrder->final_amount ?? 0,
-                        "shipment_Weight" => $request->product_weight,
-                        "shipment_Length" => 12,
-                        "shipment_Width" => 12,
-                        "shipment_Height" => 12,
-                        "volumetric_Weight" => 1,
-                        "latitude" => 0,
-                        "longitude" => 0,
-                        "pick_Address_ID" => $pickup_address->warehouse_id,
-                        "return_Address_ID" => $pickup_address->warehouse_id,
-                        "products" => [
-                            [
-                                "productId" => "121212",
-                                "productName" => $productName,
-                                "unitPrice" => $customerOrder->final_amount,
-                                "quantity" => $customerOrder->quantity,
-                                "productCategory" => "",
-                                "hsnCode" => "",
-                                "sku" => $productSku,
-                                "taxRate" => 0,
-                                "productDiscount" => 0
-                            ]
-                        ],
-                        "courierId" => $request->courier_service_id,
-                    ];
-                }
-                else if(!empty($courier_partner) && $courier_partner->code =='lorrigo')
-                {
-                    $payload = [
-                        "ewaybill" => "",
-                        "order_reference_id" => "564231_CC_T_COD_T",
-                        "payment_mode" => 1,
-                        "orderWeight" => 0.5,
-                        "orderWeightUnit" => "kg",
-                        "order_invoice_date" => "",
-                        "order_invoice_number" => "",
-                        "numberOfBoxes" => 1,
-                        "orderSizeUnit" => "cm",
-                        "orderBoxHeight" => 0.5,
-                        "orderBoxWidth" => 0.5,
-                        "orderBoxLength" => 0.5,
-                        "amount2Collect" => 1,
-                        "customerDetails" => [
-                            "name" => "Ravi",
-                            "phone" => "+919999955555",
-                            "address" => "I-10/969, Rajesthan",
-                            "pincode" => "302017",
-                        ],
-                        "productDetails" => [
-                            "name" => "Watch",
-                            "category" => "Watch",
-                            "hsn_code" => "",
-                            "quantity" => 1,
-                            "taxRate" => "0",
-                            "taxableValue" => "100",
-                        ],
-                        "pickupAddress" => "680be51d2c2c2a3451adba44",
-                        "sellerDetails" => [
-                            "sellerName" => "Tony",
-                            "sellerGSTIN" => "",
-                            "isSellerAddressAdded" => true,
-                            "sellerPhone" => "8888855555",
-                            "sellerAddress" => "",
-                            "sellerPincode" => 110025,
-                        ],
-                        "isReverseOrder" => false,
-                    ];
-                }
-                else
-                {
-                    $payload = [];
-                }
-
-                // Send request via CourierServiceManager
-                $courierService = \App\Services\CourierServiceManager::getService();
-                $response = $courierService->createOrder($payload);
-
-                if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
-                    $updateData['tracking_number'] = $response['waybill'];
-                    $updateData['api_order_id'] = $response['apiorderid'];
-                    $message = 'Order has been marked ready to ship';
-                    $type = 'ready-to-ship';
-
-                    // Generate and upload PDF
-                    $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
-                        'courier_service_response' => $response,
-                        'courier_logo' => $request->courier_service_logo,
-                        'pickupAddress' => $pickup_address,
-                        'productName' => $productName,
-                        'productSku' => $productSku,
-                        'customerOrder' => $customerOrder,
-                        'date' => Carbon::now(),
-                    ]);
-                    $pdf->setOptions([
-                        'isRemoteEnabled' => true,
-                        'isHtml5ParserEnabled' => true
-                    ]);
-                    $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
-
-                    if (Storage::disk('spaces')->exists($filename)) {
-                        Storage::disk('spaces')->delete($filename);
-                    }
-                    Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
-                    $pdfUrl = Storage::disk('spaces')->url($filename);
-
-                    CustomerOrders::where('id', $customerOrder->id)->update([
-                        'shipping_label_url' => $pdfUrl
-                    ]);
-
-                } else {
-                    DB::rollBack();
-                    return response()->json(['status' => false, 'msg' => $response['response'] ?? 'Failed to create shipping order']);
-                }
-            } elseif ($request->status === 'transfered_retailer_to_wholesaler') {
-                $updateData = [
-                    'status' => $request->status,
-                    'transfered_retailer_to_wholesaler_at' => now()
-                ];
-                $message = 'Wholesaler will ship this product';
-                // $type = 'transfered-retailer-to-wholesaler';
-                $type = 'new';
-            } elseif ($request->status === 'cancelled_by_retailer') {
-                $cancelled_reason = $request->reject_reason_select_confirmed === 'Other'
-                    ? $request->reject_reason_input_confirmed
-                    : $request->reject_reason_select_confirmed;
-
-                $updateData = [
-                    'status' => $request->status,
-                    'cancelled_by_retailer_at' => now(),
-                    'cancelled_by' => $retailer->id,
-                    'cancelled_reason' => $cancelled_reason
-                ];
-                $message = 'Order has been cancelled by retailer';
-                $type = 'cancelled-by-retailer';
-            }
-
-            if (!empty($updateData)) {
-                $customerOrder->update($updateData);
-                DB::commit();
-                return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
-            }
-
-            return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Order Confirmation Error: ' . $e->getMessage());
-            // return response()->json(['status' => false, 'msg' => 'Something went wrong, please try later!']);
-            return response()->json(['status' => false, 'msg' => $e->getMessage()]);
-        }
-    }
+    
 
     public function Profile()
     {
@@ -1597,6 +1041,7 @@ class RetilerController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
+
 
     public function downloadStockSample()
     {
@@ -1802,18 +1247,34 @@ class RetilerController extends Controller
         return back()->with('success-account-info', 'Account information saved successfully!');
     }
 
+    // use couire service manager
     public function ratecCalculationPost(Request $request)
     {
+        $data = $request->validate([
+            'source_Pincode' => 'required|digits:6',
+            'destination_Pincode' => 'required|digits:6',
+            'payment_Mode' => 'required|string',
+            'amount' => 'required|numeric',
+            'shipment_Weight' => 'required|numeric',
+            'shipment_Length' => 'nullable|numeric',
+            'shipment_Width' => 'nullable|numeric',
+            'shipment_Height' => 'nullable|numeric',
+            'volumetric_Weight' => 'nullable|numeric',
+        ]);
+
         try {
             $courierService = \App\Services\CourierServiceManager::getService();
-            $response = $courierService->calculateRate($request->all());
+            $response = $courierService->calculateRate($data);
+
             if (!empty($response['status']) && $response['status'] === true) {
                 return response()->json($response);
             }
 
-            if (!empty($response['valid']) && $response['valid'] === true) {
-                return response()->json($response);
-            }
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch rates from courier service.',
+                'details' => $response,
+            ], 400);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
