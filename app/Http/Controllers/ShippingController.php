@@ -315,7 +315,6 @@ class ShippingController extends Controller
         return response()->json($address);
     }
 
-
     public function RTOAddressupdate(Request $request, $id)
     {
 

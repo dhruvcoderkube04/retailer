@@ -1045,7 +1045,7 @@ class RetilerController extends Controller
 
     public function downloadStockSample()
     {
-        $filePath = public_path('samplestock/sample_products.xlsx');
+        $filePath = public_path('samplestock/stock_sample.xlsx');
 
         if (!file_exists($filePath)) {
             return back()->with('error', 'File not found.');
@@ -1106,8 +1106,7 @@ class RetilerController extends Controller
 
             return response()->json(['errors' => $errors], 422);
         } catch (\Exception $e) {
-            // return response()->json(['error' => 'An error occurred during file processing: ' . $e->getMessage()], 500);
-            return response()->json(['error' => 'An error occurred during file processing check product name and slug is unique'], 500);
+            return response()->json(['error' => 'An error occurred during file processing'], 500);
         }
     }
 

@@ -14,16 +14,17 @@ use Illuminate\Support\Str;
 class ProductImport implements ToCollection, WithValidation, WithHeadingRow
 {
 
-
     private $requiredColumns = [
         'product_name',
         'product_description',
         'product_tags',
         'quantity',
         'new_price',
-        'sku',
-        'image_1',
-        'video',
+        'old_price',
+        // 'sku',
+        'images',
+        'images1',
+        'videos',
         // 'slug'
     ];
 
@@ -34,141 +35,44 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
         $this->categoryId = $categoryId;
     }
 
-
-
-
-    // public function collection(Collection $rows)
-    // {
-    //     $validRows = [];
-    //     $invalidRows = [];
-    //     $retailerId = Auth::id();
-
-    //     foreach ($rows as $row) {
-    //         $row = $this->map($row); // Map headings correctly
-
-    //         // Skip rows where required data is missing
-    //         if (empty($row['product_name']) || empty($row['new_price']) || empty($row['quantity'])) {
-    //             $invalidRows[] = $row;
-    //             continue;
-    //         }
-
-    //         RetailerCloneProduct::updateOrCreate(
-    //             [
-    //                 'retailer_id' => $retailerId,
-    //                 'name' => $row['product_name'], // Match by product_name and retailer_id
-    //             ],
-    //             [
-    //                 'description' => $row['product_description'] ?? null,
-    //                 'category_id' => $this->categoryId,
-    //                 'tags' => $row['product_tags'] ?? null,
-    //                 'slug' => !empty($row['slug'])
-    //                     ? Str::slug($row['slug'])
-    //                     : Str::slug($row['product_name'] . '-' . uniqid()),  // ✅ Ensure unique slug
-    //                 'quantity' => $row['quantity'],
-    //                 'new_price' => $row['new_price'],
-    //                 'old_price' => 0,
-    //                 'status' => 'active',
-    //                 'sku' => $row['sku'],
-    //                 'image_1' => $row['image_1'] ?? null,
-    //                 'video' => $row['video'] ?? null,
-    //             ]
-    //         );
-
-
-
-    //         $validRows[] = $row;
-    //     }
-
-    //     return [
-    //         'valid' => $validRows,
-    //         'invalid' => $invalidRows,
-    //     ];
-    // }
-
-    // public function collection(Collection $rows)
-    // {
-    //     $validRows = [];
-    //     $invalidRows = [];
-    //     $retailerId = Auth::id();
-
-    //     foreach ($rows as $row) {
-    //         $row = $this->map($row); // Map headings correctly
-
-    //         if (empty($row['product_name']) || empty($row['new_price']) || empty($row['quantity'])) {
-    //             $invalidRows[] = $row;
-    //             continue;
-    //         }
-
-    //         $originalName = $row['product_name'];
-    //         $name = $originalName;
-    //         $counter = 1;
-
-    //         // Check for existing product names and modify if needed
-    //         while (
-    //             RetailerCloneProduct::where('retailer_id', $retailerId)
-    //                 ->where('name', $name)
-    //                 ->exists()
-    //         ) {
-    //             $name = $originalName . '-' . $counter;
-    //             $counter++;
-    //         }
-
-    //         // Update or create with the final unique name
-    //         RetailerCloneProduct::updateOrCreate(
-    //             [
-    //                 'retailer_id' => $retailerId,
-    //                 'name' => $name, // Unique name
-    //             ],
-    //             [
-    //                 'description' => $row['product_description'] ?? null,
-    //                 'category_id' => $this->categoryId,
-    //                 'tags' => $row['product_tags'] ?? null,
-    //                 'slug' => !empty($row['slug'])
-    //                     ? Str::slug($row['slug'])
-    //                     : Str::slug($name . '-' . uniqid()), // Unique slug
-    //                 'quantity' => $row['quantity'],
-    //                 'new_price' => $row['new_price'],
-    //                 'old_price' => 0,
-    //                 'status' => 'active',
-    //                 'sku' => $row['sku'],
-    //                 'image_1' => $row['image_1'] ?? null,
-    //                 'video' => $row['video'] ?? null,
-    //             ]
-    //         );
-
-    //         $row['product_name'] = $name; // Save the final name used
-    //         $validRows[] = $row;
-    //     }
-
-    //     return [
-    //         'valid' => $validRows,
-    //         'invalid' => $invalidRows,
-    //     ];
-    // }
-
-
     public function collection(Collection $rows)
     {
         $validRows = [];
         $invalidRows = [];
         $retailerId = Auth::id();
-    
+
         foreach ($rows as $row) {
             $row = $this->map($row);
-    
+
+            $allImages = [];
+            // Add the primary image if available
+            if (!empty($row['images'])) {
+                $allImages[] = $row['images'];
+            }
+
+            // Add additional images from 'images1' if available
+            if (!empty($row['images1'])) {
+                $extraImages = explode('|', $row['images1']);
+                $allImages = array_merge($allImages, $extraImages);
+            }
+
+            // Prepare video if available
+            $videoUrl = !empty($row['videos']) ? $row['videos'] : null;
+
+
             if (empty($row['product_name']) || empty($row['new_price']) || empty($row['quantity'])) {
                 $invalidRows[] = $row;
                 continue;
             }
-    
+
             $originalName = $row['product_name'];
-    
+
             // Fetch all matching product names for this retailer
             $existingNames = RetailerCloneProduct::where('retailer_id', $retailerId)
                 ->where('name', 'like', $originalName . '%')
                 ->pluck('name')
                 ->toArray();
-    
+
             // Extract suffix numbers and find the next available one
             $maxSuffix = 0;
             foreach ($existingNames as $existingName) {
@@ -178,11 +82,11 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
                     $maxSuffix = max($maxSuffix, (int)$matches[1] + 1);
                 }
             }
-    
+
             // Create unique name
             $finalName = $maxSuffix > 0 ? $originalName . '-' . $maxSuffix : $originalName;
             // dd($finalName);
-    
+
             // Create product
             RetailerCloneProduct::create([
                 'retailer_id' => $retailerId,
@@ -195,23 +99,24 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
                     : Str::slug($finalName . '-' . uniqid()),
                 'quantity' => $row['quantity'],
                 'new_price' => $row['new_price'],
-                'old_price' => 0,
+                'old_price' => $row['old_price'],
                 'status' => 'active',
-                'sku' => $row['sku'],
-                'image_1' => $row['image_1'] ?? null,
-                'video' => $row['video'] ?? null,
+                'sku' => !empty($row['sku']) ? $row['sku'] : (string) Str::uuid(),
+                // 'sku' => $row['sku'] ,
+                'images' => implode(',', $allImages),
+                'videos' => $videoUrl,
             ]);
-    
+
             $row['product_name'] = $finalName;
             $validRows[] = $row;
         }
-    
+
         return [
             'valid' => $validRows,
             'invalid' => $invalidRows,
         ];
     }
-    
+
 
     public function rules(): array
     {
@@ -267,9 +172,11 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
             'product_tags' => $row['product_tags'] ?? null,
             'quantity' => $row['quantity'] ?? null,
             'new_price' => $row['new_price'] ?? null,
+            'old_price' => $row['old_price'] ?? null,
             'sku' => $row['sku'] ?? null,
-            'image_1' => $row['image_1'] ?? null,
-            'video' => $row['video'] ?? null,
+            'images' => $row['images'] ?? null,
+            'images1' => $row['images1'] ?? null,
+            'videos' => $row['videos'] ?? null,
             'slug' => @$row['slug'] ?? null,
         ];
     }

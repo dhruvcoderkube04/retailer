@@ -71,7 +71,6 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/retailer/get-subcategories', [RetilerController::class, 'getSubCategories'])->name('retailer.getSubCategories'); // ajax
     //<-------------------- END : retailer product -------------------->
 
-
     // Bulk product upload
     Route::get('/download-stock-sample', [RetilerController::class, 'downloadStockSample'])->name('retailer.download-stock-sample'); // retailer (added, clone, own) product view page
     Route::post('/upload-bulk-product', [RetilerController::class, 'uploadBulkProduct'])->name('retailer.upload.bulkproduct'); // retailer (added, clone, own) product view page
@@ -163,7 +162,6 @@ Route::middleware(['retailer'])->group(function () {
     // track order
     Route::get('/track-order', [ShippingController::class, 'trackOrder'])->name('retailer.track.order');
     Route::post('/track-order', [ShippingController::class, 'trackOrderStatus'])->name('retailer.track.order.status');
-
 
     Route::post('/pick-address/store', [ShippingController::class, 'pickAddressStore'])->name('retailer.pickaddress.pickAddressStore');
     Route::get('/pick-address/edit/{id}', [ShippingController::class, 'pickAddressedit']);

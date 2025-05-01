@@ -460,32 +460,6 @@
                         return;
                     }
 
-                    // if (!stockfile) {
-                    //     Swal.fire({
-                    //         icon: 'error',
-                    //         title: 'Error',
-                    //         text: 'Please select a file to upload!'
-                    //     });
-                    //     return;
-                    // }
-
-                    // // Allowed MIME types for .xlsx and .csv
-                    // const allowedTypes = [
-                    //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-                    //     "text/csv", // .csv
-                    //     "application/vnd.ms-excel" // some browsers use this for .csv
-                    // ];
-
-                    // if (!allowedTypes.includes(stockfile.type)) {
-                    //     Swal.fire({
-                    //         icon: 'error',
-                    //         title: 'Invalid File Type!',
-                    //         text: 'Only .xlsx and .csv files are allowed.'
-                    //     });
-                    //     return;
-                    // }
-
-
                     formData.append("categories", categoryId); // Append category to formdata.
 
                     submitButton.prop("disabled", true);
