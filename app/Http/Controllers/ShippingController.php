@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CourierPartner;
 use App\Models\PickAddress;
 use App\Models\RTOAddress;
 use Illuminate\Http\Request;
@@ -47,89 +48,6 @@ class ShippingController extends Controller
         return view('shipping.shipping-charges');
     }
 
-    // store in both my databse and fship
-    // public function pickAddressStore(Request $request)
-    // {
-    //     $request->validate([
-    //         'warehouse_name' => 'required|string|max:255',
-    //         'first_name' => 'required|string|max:255',
-    //         'last_name' => 'required|string|max:255',
-    //         'mobile' => 'required|digits:10',
-    //         'pincode' => 'required|digits:6',
-    //         'address' => 'required|string',
-    //         'state' => 'required|string',
-    //         'city' => 'required|string',
-    //     ]);
-
-    //     $user = Auth::user();
-
-    //     // Check if warehouse already exists for this retailer with same name
-    //     $existingWarehouse = PickAddress::where('user_id', $user->id)
-    //         ->where('warehouse_name', $request->warehouse_name)
-    //         ->first();
-
-    //     $isUpdate = false;
-    //     $warehouseId = null;
-
-    //     $warehouseData = [
-    //         "warehouseName" => $request->warehouse_name,
-    //         "contactName" => $request->first_name,
-    //         "addressLine1" => $request->address,
-    //         "addressLine2" => "",
-    //         "pincode" => $request->pincode,
-    //         "city" => $request->city,
-    //         "phoneNumber" => $request->mobile,
-    //         "email" => $user->email,
-    //     ];
-
-    //     try {
-    //         if ($existingWarehouse && $existingWarehouse->warehouse_id) {
-    //             // If name matches and warehouse ID exists, update FShip warehouse
-    //             $warehouseData['warehouseId'] = $existingWarehouse->warehouse_id;
-
-    //             $response = Http::withHeaders([
-    //                 'Content-Type' => 'application/json',
-    //                 'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-    //             ])->post('https://capi-qc.fship.in/api/updatewarehouse', $warehouseData);
-
-    //             $isUpdate = true;
-    //         } else {
-    //             // Create new warehouse on FShip
-    //             $response = Http::withHeaders([
-    //                 'Content-Type' => 'application/json',
-    //                 'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-    //             ])->post('https://capi-qc.fship.in/api/addwarehouse', $warehouseData);
-    //         }
-
-    //         $res = $response->json();
-
-    //         if (isset($res['status']) && $res['status'] === true) {
-    //             $warehouseId = $res['warehouseId'] ?? null;
-
-    //             // Save/update in local DB
-    //             $address = $existingWarehouse ?? new PickAddress();
-    //             $address->warehouse_id = $warehouseId;
-    //             $address->warehouse_name = $request->warehouse_name;
-    //             $address->first_name = $request->first_name;
-    //             $address->last_name = $request->last_name;
-    //             $address->mobile_number = $request->mobile;
-    //             $address->pincode = $request->pincode;
-    //             $address->address = $request->address;
-    //             $address->state = $request->state;
-    //             $address->city = $request->city;
-    //             $address->user_id = $user->id;
-    //             $address->save();
-
-    //             $message = $isUpdate ? 'Address updated successfully!' : 'Address added successfully!';
-    //             return back()->with('success', $message);
-    //         }
-
-    //         return back()->with('error', $res['response'] ?? 'FShip API failed.');
-    //     } catch (\Exception $e) {
-    //         return back()->with('error', 'Something went wrong: ' . $e->getMessage());
-    //     }
-    // }
-
     // for muitple courier partner
     public function pickAddressStore(Request $request)
     {
@@ -144,12 +62,13 @@ class ShippingController extends Controller
             'state' => 'required|string',
             'city' => 'required|string',
         ]);
-
         $user = Auth::user();
 
         // Check if warehouse already exists for this retailer with same name
+        $courier_id = CourierPartner::select('id')->where('is_active',1)->first();
+
         $existingWarehouse = PickAddress::where('user_id', $user->id)
-            ->where('warehouse_name', $request->warehouse_name)
+            ->where('warehouse_name', $request->warehouse_name)->where('courier_partner_id',@$courier_id->id)
             ->first();
 
         $isUpdate = false;
@@ -165,14 +84,12 @@ class ShippingController extends Controller
             "phoneNumber" => $request->mobile,
             "email" => $user->email,
         ];
-
         try {
             // Log warehouse data before the API call
             Log::info('Warehouse Data:', $warehouseData);
 
             // Get the active courier service based on the selected courier partner
             $courierService = CourierServiceManager::getService();
-
             if (!$courierService) {
                 // Log if no courier service is found
                 Log::error('Courier service not found.');
@@ -188,7 +105,6 @@ class ShippingController extends Controller
                 // Create new warehouse
                 $response = $courierService->addWarehouse($warehouseData);
             }
-
             // Log the response received
             Log::info('Courier service response:', ['response' => $response]);
 
@@ -208,6 +124,7 @@ class ShippingController extends Controller
                 return back()->with('error', $res['response']['response']); // Show the specific API error message
             }
 
+            // dd($res);
             // If the status is true, continue with saving the warehouse data
             if (isset($res['status']) && $res['status'] === true) {
                 $warehouseId = $res['warehouseId'] ?? null;
@@ -224,11 +141,13 @@ class ShippingController extends Controller
                 $address->state = $request->state;
                 $address->city = $request->city;
                 $address->user_id = $user->id;
+                $address->courier_partner_id = @$courier_id->id;
                 $address->save();
 
                 $message = $isUpdate ? 'Warehouse updated successfully!' : 'Warehouse added successfully!';
                 return back()->with('success', $message);
             }
+
 
             $errorMessage = is_array($res['response'] ?? null)
             ? ($res['response']['message'] ?? 'Courier service error.')
@@ -243,31 +162,12 @@ class ShippingController extends Controller
         }
     }
 
-
     public function pickAddressedit($id)
     {
         $address = PickAddress::findOrFail($id);
 
         return response()->json($address);
     }
-
-    // public function pickAddressupdate(Request $request, $id)
-    // {
-    //     $request->validate([
-    //         'first_name' => 'required|string|max:255',
-    //         'last_name'  => 'required|string|max:255',
-    //         'mobile_number'     => 'required|digits:10',
-    //         'pincode'    => 'required|digits:6',
-    //         'address'    => 'required|string',
-    //         'state'      => 'required|string',
-    //         'city'       => 'required|string',
-    //     ]);
-
-    //     $pickAddress = PickAddress::findOrFail($id);
-    //     $pickAddress->update($request->all());
-
-    //     return redirect()->back()->with('success', 'Address updated successfully!');
-    // }
 
     // update on updateWarehouse
     public function pickAddressupdate(Request $request, $id)
@@ -451,72 +351,32 @@ class ShippingController extends Controller
 
     public function pincodeServiceable()
     {
-        return view('shipping.pincode-serviceable');
+        $partner = CourierPartner::where('is_active', true)->firstOrFail();
+        return view('shipping.pincode-serviceable',compact('partner'));
     }
 
-    // public function pincodeCheckAvailability(Request $request)
-    // {
-    //     try {
-    //         $response = Http::withHeaders([
-    //             'Content-Type' => 'application/json',
-    //             // 'signature' => env('FSHIP_SIGNATURE_TEST_KEY'),
-    //             'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-    //         ])->post('https://capi-qc.fship.in/api/pincodeserviceability', [
-    //             'source_Pincode' => $request->source_pincode,
-    //             'destination_Pincode' => $request->destination_pincode,
-    //         ]);
-    //         if ($response->successful()) {
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'data' => $response->json()
-    //             ]);
-    //         } else {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'API responded with an error.',
-    //                 'status_code' => $response->status(),
-    //                 'error' => $response->json()
-    //             ], $response->status());
-    //         }
-    //     } catch (\Exception $e) {
-    //         // Optionally log the error for debugging
-    //         Log::error('FShip API Error: ' . $e->getMessage());
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Something went wrong. Please try again later.',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
-    // user from interface courier partner
     public function pincodeCheckAvailability(Request $request)
     {
-        $request->validate([
-            'source_pincode' => 'required|digits:6',
-            'destination_pincode' => 'required|digits:6',
-        ]);
-
         try {
             $courierService = CourierServiceManager::getService();
 
-            $response = $courierService->checkPincodeAvailability([
-                'source_Pincode' => $request->source_pincode,
-                'destination_Pincode' => $request->destination_pincode,
-            ]);
-
+            // Let the service itself handle validation
+            $response = $courierService->checkPincodeAvailability($request->all());
             return response()->json([
                 'success' => true,
                 'data' => $response,
             ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Courier API Error (Pincode Check): ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong. Please try again later.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -525,41 +385,6 @@ class ShippingController extends Controller
     {
         return view('shipping.track-order-status');
     }
-
-    // public function trackOrderStatus(Request $request)
-    // {
-    //     try {
-    //         $response = Http::withHeaders([
-    //             'Content-Type' => 'application/json',
-    //             'signature' => '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb',
-    //         ])->post('https://capi-qc.fship.in/api/trackinghistory', [
-    //             'waybill' => $request->track_no,
-    //         ]);
-    //         if ($response->successful()) {
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'data' => $response->json()
-    //             ]);
-    //         } else {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'API responded with an error.',
-    //                 'status_code' => $response->status(),
-    //                 'error' => $response->json()
-    //             ], $response->status());
-    //         }
-    //     } catch (\Exception $e) {
-    //         // Optionally log the error for debugging
-    //         Log::error('FShip API Error: ' . $e->getMessage());
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Something went wrong. Please try again later.',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
 
     // user interface courier service manager
     public function trackOrderStatus(Request $request)

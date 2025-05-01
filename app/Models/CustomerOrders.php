@@ -48,7 +48,8 @@ class CustomerOrders extends Model
         'cod_charge',
         'rto_charge',
         'expected_delivery',
-
+        'retailer_transit_at',
+        'wholesaler_transit_at',
         'payment_status',
         'payment_method',
         'variation_id'

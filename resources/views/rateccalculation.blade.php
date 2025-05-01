@@ -30,8 +30,8 @@
                   <div class="col-md-6">
                      <label class="form-label">Payment Mode</label>
                      <select name="payment_Mode" class="form-select">
-                        <option value="COD">COD</option>
-                        <option value="Prepaid">Prepaid</option>
+                        <option value="0">COD</option>
+                        <option value="1">Prepaid</option>
                      </select>
                   </div>
                   <div class="col-md-6">
@@ -56,7 +56,6 @@
                   </div>
                </div>
             </div>
-
             <div class="d-flex justify-content-end m-3">
                <button type="submit" class="btn btn-primary">Calculate</button>
             </div>
@@ -77,6 +76,13 @@
     document.getElementById('rate_calculator_form').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const submitBtn = document.querySelector('#rate_calculator_form button[type="submit"]');
+
+        // Disable button and show loading
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Calculating...';
+
         const form = e.target;
         const formData = new FormData(form);
 
@@ -91,7 +97,6 @@
         const W = parseFloat(formData.get('shipment_Width') || 0);
         const H = parseFloat(formData.get('shipment_Height') || 0);
         const volWeight = (L * W * H) / 5000;
-
         formData.append('volumetric_Weight', volWeight.toFixed(2));
 
         fetch("{{ route('retailer.rate.calculation.post') }}", {
@@ -103,12 +108,40 @@
         })
         .then(res => res.json())
         .then(res => {
-            if (res.status && res.shipment_rates && res.shipment_rates.length > 0) {
+            let total_rates_list = [];
+            submitBtn.disabled = false;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Calculate';
+            // Detect API type and parse accordingly
+            // console.log(res.data.rates && Array.isArray(res.data.rates));
+            if (res.shipment_rates && Array.isArray(res.shipment_rates)) {
+                // Fship API
+                total_rates_list = res.shipment_rates.map(rate => ({
+                    courier_name: rate.courier_name || '',
+                    shipping_charge: rate.shipping_charge || 0,
+                    cod_charge: rate.cod_charge || 0,
+                    rto_charge: rate.rto_charge || 0,
+                    service_mode: rate.service_mode || ''
+                }));
+
+            } else if (res.rates && Array.isArray(res.rates)) {
+                // Lorriog API
+                total_rates_list = res.rates.map(rate => ({
+                    courier_name: rate.name || '',
+                    shipping_charge: rate.shipping_charge || 0,
+                    cod_charge: rate.cod || 0,
+                    rto_charge: rate.rtoCharges || 0,
+                    service_mode: rate.type || ''
+                }));
+            }
+            // Only if we have rates, display them
+            console.log(total_rates_list.length);
+            if (total_rates_list.length > 0) {
                 resultSection.style.display = 'block';
-                res.shipment_rates.forEach(rate => {
+                total_rates_list.forEach(rate => {
                     resultList.innerHTML += `
-                        <div class="col-md-6">
-                            <div class="card border shadow p-3">
+                        <div class="col-md-6 mb-3">
+                            <div class="card border shadow-sm p-3">
                                 <h5>${rate.courier_name}</h5>
                                 <p><strong>Shipping:</strong> ₹${rate.shipping_charge}</p>
                                 <p><strong>COD:</strong> ₹${rate.cod_charge}</p>
@@ -122,14 +155,20 @@
                 resultList.innerHTML = `
                     <div class="col-12">
                         <div class="alert alert-danger text-center">
-                            No record found.
+                            No courier services found.
                         </div>
                     </div>
                 `;
                 resultSection.style.display = 'block';
             }
+
+
         })
         .catch(err => {
+            console.error(err);
+            submitBtn.disabled = false;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Calculate';
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
@@ -137,5 +176,5 @@
             });
         });
     });
-    </script>
+</script>
 @endsection

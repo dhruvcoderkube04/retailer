@@ -12,11 +12,11 @@ class PickAddress extends Model
     protected $table = 'pickup_addresses';
 
     protected $fillable = [
-        'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city', 'retailer_id', 
+        'first_name', 'last_name', 'mobile_number','courier_partner_id','pincode', 'address', 'state', 'city', 'retailer_id',
     ];
 
 
-    
+
     public function retailer()
     {
         return $this->belongsTo(User::class, 'retailer_id')->where('user_type', 3);

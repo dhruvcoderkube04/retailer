@@ -4,6 +4,8 @@ namespace App\Services\Courier;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class FShipService implements CourierInterface
 {
@@ -12,8 +14,8 @@ class FShipService implements CourierInterface
 
     public function __construct()
     {
-        $this->apiUrl = 'https://capi-qc.fship.in/api'; // Define the base URL here
-        $this->signature = '085c36066064af83c66b9dbf44d190d40feec79f437bc1c1cb'; // Define your signature or load from config
+        $this->apiUrl = config('services.fship.base_url');
+        $this->signature = config('services.fship.signature');
     }
 
     public function createOrder(array $data): array
@@ -124,22 +126,30 @@ class FShipService implements CourierInterface
 
     public function checkPincodeAvailability(array $data): array
     {
+        $validator = Validator::make($data, [
+            'source_pincode' => 'required|digits:6',
+            'destination_pincode' => 'required|digits:6',
+        ]);
+
+        if ($validator->fails()) {
+            throw new \InvalidArgumentException($validator->errors()->first());
+        }
+
         try {
+            //  Step 2: Send full $data (do not modify payload)
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'signature' => $this->signature,
             ])->post($this->apiUrl . '/pincodeserviceability', $data);
 
             if ($response->successful()) {
-                return $response->json(); // return response as array
+                return $response->json(); // return original response
             } else {
-                // Log and return an empty array or appropriate error message
-                Log::error('Pincode serviceability check failed', ['response' => $response->body()]);
+                Log::error('FShip pincode serviceability check failed', ['response' => $response->body()]);
                 return ['status' => false, 'message' => 'Failed to check pincode availability.'];
             }
         } catch (\Exception $e) {
-            // Log the exception and return an error response
-            Log::error('Pincode check API error: ' . $e->getMessage());
+            Log::error('FShip pincode check API error: ' . $e->getMessage());
             return ['status' => false, 'message' => 'An error occurred while checking pincode availability.'];
         }
     }
@@ -228,11 +238,33 @@ class FShipService implements CourierInterface
 
     public function calculateRate(array $data): array
     {
+        // Validate inside service
+        $validator = Validator::make($data, [
+            'source_Pincode' => 'required|digits:6',
+            'destination_Pincode' => 'required|digits:6',
+            'payment_Mode' => 'required|string',
+            'amount' => 'required|numeric',
+            'shipment_Weight' => 'required|numeric',
+            'shipment_Length' => 'nullable|numeric',
+            'shipment_Width' => 'nullable|numeric',
+            'shipment_Height' => 'nullable|numeric',
+            'volumetric_Weight' => 'nullable|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validatedData = $validator->validated();
+
+        // Now send API request
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'signature' => $this->signature,
-        ])->post($this->apiUrl . '/ratecalculator', $data);
+        ])->post($this->apiUrl . '/ratecalculator', $validatedData);
 
         return $response->json();
     }
+
 }
+

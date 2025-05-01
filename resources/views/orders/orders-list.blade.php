@@ -11,6 +11,7 @@
             'transfered_retailer_to_wholesaler' => 'Transferred To Wholesaler',
             'confirmed_by_retailer' => 'Confirmed By Retailer',
             'confirmed_by_wholesaler' => 'Confirmed By Wholesaler',
+            'transit_by_retailer' => 'Transit By Retailer',
             'shipped_by_retailer' => 'Shipped By Retailer',
             'shipped_by_wholesaler' => 'Shipped By Wholesaler',
             'delivered_by_retailer' => 'Delivered By Retailer',

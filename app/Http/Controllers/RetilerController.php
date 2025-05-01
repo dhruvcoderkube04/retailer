@@ -14,6 +14,7 @@ use App\Models\RetailerProducts;
 use App\Models\RTOAddress;
 use App\Models\Ticket;
 use App\Models\COrders;
+use App\Models\CourierPartner;
 use App\Models\ProductVariation;
 use App\Models\RetailerCategory;
 use App\Models\SubCategory;
@@ -295,9 +296,6 @@ class RetilerController extends Controller
             ]
         ]);
     }
-
-
-
 
 
     public function retailerProduct()
@@ -1002,7 +1000,6 @@ class RetilerController extends Controller
         }
     }
 
-    // order list page
     // use courierservicemanager
     public function orderList($type = 'new')
     {
@@ -1015,6 +1012,7 @@ class RetilerController extends Controller
                 SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
                 SUM(CASE WHEN status = 'confirmed_by_retailer' THEN 1 ELSE 0 END) as confirmed_by_retailer,
                 SUM(CASE WHEN status = 'shipped_by_retailer' THEN 1 ELSE 0 END) as ready_to_ship,
+                SUM(CASE WHEN status = 'transit_by_retailer' THEN 1 ELSE 0 END) as transit,
                 SUM(CASE WHEN status = 'delivered_by_retailer' THEN 1 ELSE 0 END) as delivered_by_retailer,
                 SUM(CASE WHEN status = 'cancelled_by_retailer' THEN 1 ELSE 0 END) as cancelled_by_retailer,
                 SUM(CASE WHEN status = 'cancelled_by_customer' THEN 1 ELSE 0 END) as cancelled_by_customer,
@@ -1054,18 +1052,14 @@ class RetilerController extends Controller
         }
 
         $sql->where('status', $statusMap[$type]);
-
         $retailerOrders = $sql->orderBy('id', 'DESC')->get();
-
         // Pickup address
         $pickupAddress = PickAddress::where('user_id', $retailer->id)->get();
 
         // Courier list via service manager
         try {
             $courierService = \App\Services\CourierServiceManager::getService();
-
             $courierServices = $courierService->courierList();
-            // dd($courierServices);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch courier list: ' . $e->getMessage());
             $courierServices = [];
@@ -1213,7 +1207,6 @@ class RetilerController extends Controller
     //     }
     // }
 
-    //
     public function newOrderAction(Request $request)
     {
         $request->validate([
@@ -1276,7 +1269,6 @@ class RetilerController extends Controller
         }
     }
 
-
     // add Fship order place
     // use Courier service manager and Fship order place
     public function confirmedOrderAction(Request $request)
@@ -1291,6 +1283,7 @@ class RetilerController extends Controller
             $retailer = Auth::user();
             $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
 
+            $courier_partner = CourierPartner::where('is_active',1)->first();
             if (!$customerOrder) {
                 return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
             }
@@ -1298,6 +1291,7 @@ class RetilerController extends Controller
             $productName = $customerOrder->retailerCloneProduct->name ?? $customerOrder->product->name ?? 'N/A';
             $productSku = $customerOrder->retailerCloneProduct->sku ?? $customerOrder->product->sku ?? 'N/A';
             $pickup_address = PickAddress::where('id', $request->pickup_address_id)->first();
+
 
             $updateData = [];
             $message = '';
@@ -1317,51 +1311,100 @@ class RetilerController extends Controller
                 $message = 'Order has been ready to ship (by supplier)';
                 $type = 'ready-to-ship';
 
-
                 // Prepare Payload
-                $payload = [
-                    "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
-                    "customer_Mobile" => $customerOrder->customer->phone_number,
-                    "customer_Emailid" => $customerOrder->customer->email,
-                    "customer_Address" => $customerOrder->customer->address,
-                    "landMark" => "",
-                    "customer_Address_Type" => "Home",
-                    "customer_PinCode" => $customerOrder->customer->pincode,
-                    "customer_City" => $customerOrder->customer->city,
-                    "orderId" => $customerOrder->order_id,
-                    "invoice_Number" => '',
-                    "payment_Mode" => 1, // COD
-                    "express_Type" => "surface",
-                    "is_Ndd" => 0,
-                    "order_Amount" => $customerOrder->final_amount,
-                    "tax_Amount" => 0,
-                    "extra_Charges" => 0,
-                    "total_Amount" => $customerOrder->final_amount,
-                    "cod_Amount" => $customerOrder->final_amount ?? 0,
-                    "shipment_Weight" => $request->product_weight,
-                    "shipment_Length" => 12,
-                    "shipment_Width" => 12,
-                    "shipment_Height" => 12,
-                    "volumetric_Weight" => 1,
-                    "latitude" => 0,
-                    "longitude" => 0,
-                    "pick_Address_ID" => $pickup_address->warehouse_id,
-                    "return_Address_ID" => $pickup_address->warehouse_id,
-                    "products" => [
-                        [
-                            "productId" => "121212",
-                            "productName" => $productName,
-                            "unitPrice" => $customerOrder->final_amount,
-                            "quantity" => $customerOrder->quantity,
-                            "productCategory" => "",
-                            "hsnCode" => "",
-                            "sku" => $productSku,
-                            "taxRate" => 0,
-                            "productDiscount" => 0
-                        ]
-                    ],
-                    "courierId" => $request->courier_service_id,
-                ];
+                if (!empty($courier_partner) && $courier_partner->code =='fship')
+                {
+                    $payload = [
+                        "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+                        "customer_Mobile" => $customerOrder->customer->phone_number,
+                        "customer_Emailid" => $customerOrder->customer->email,
+                        "customer_Address" => $customerOrder->customer->address,
+                        "landMark" => "",
+                        "customer_Address_Type" => "Home",
+                        "customer_PinCode" => $customerOrder->customer->pincode,
+                        "customer_City" => $customerOrder->customer->city,
+                        "orderId" => $customerOrder->order_id,
+                        "invoice_Number" => '',
+                        "payment_Mode" => 1, // COD
+                        "express_Type" => "surface",
+                        "is_Ndd" => 0,
+                        "order_Amount" => $customerOrder->final_amount,
+                        "tax_Amount" => 0,
+                        "extra_Charges" => 0,
+                        "total_Amount" => $customerOrder->final_amount,
+                        "cod_Amount" => $customerOrder->final_amount ?? 0,
+                        "shipment_Weight" => $request->product_weight,
+                        "shipment_Length" => 12,
+                        "shipment_Width" => 12,
+                        "shipment_Height" => 12,
+                        "volumetric_Weight" => 1,
+                        "latitude" => 0,
+                        "longitude" => 0,
+                        "pick_Address_ID" => $pickup_address->warehouse_id,
+                        "return_Address_ID" => $pickup_address->warehouse_id,
+                        "products" => [
+                            [
+                                "productId" => "121212",
+                                "productName" => $productName,
+                                "unitPrice" => $customerOrder->final_amount,
+                                "quantity" => $customerOrder->quantity,
+                                "productCategory" => "",
+                                "hsnCode" => "",
+                                "sku" => $productSku,
+                                "taxRate" => 0,
+                                "productDiscount" => 0
+                            ]
+                        ],
+                        "courierId" => $request->courier_service_id,
+                    ];
+                }
+                else if(!empty($courier_partner) && $courier_partner->code =='lorrigo')
+                {
+                    $payload = [
+                        "ewaybill" => "",
+                        "order_reference_id" => "564231_CC_T_COD_T",
+                        "payment_mode" => 1,
+                        "orderWeight" => 0.5,
+                        "orderWeightUnit" => "kg",
+                        "order_invoice_date" => "",
+                        "order_invoice_number" => "",
+                        "numberOfBoxes" => 1,
+                        "orderSizeUnit" => "cm",
+                        "orderBoxHeight" => 0.5,
+                        "orderBoxWidth" => 0.5,
+                        "orderBoxLength" => 0.5,
+                        "amount2Collect" => 1,
+                        "customerDetails" => [
+                            "name" => "Ravi",
+                            "phone" => "+919999955555",
+                            "address" => "I-10/969, Rajesthan",
+                            "pincode" => "302017",
+                        ],
+                        "productDetails" => [
+                            "name" => "Watch",
+                            "category" => "Watch",
+                            "hsn_code" => "",
+                            "quantity" => 1,
+                            "taxRate" => "0",
+                            "taxableValue" => "100",
+                        ],
+                        "pickupAddress" => "680be51d2c2c2a3451adba44",
+                        "sellerDetails" => [
+                            "sellerName" => "Tony",
+                            "sellerGSTIN" => "",
+                            "isSellerAddressAdded" => true,
+                            "sellerPhone" => "8888855555",
+                            "sellerAddress" => "",
+                            "sellerPincode" => 110025,
+                        ],
+                        "isReverseOrder" => false,
+                    ];
+                }
+                else
+                {
+                    $payload = [];
+                }
+
                 // Send request via CourierServiceManager
                 $courierService = \App\Services\CourierServiceManager::getService();
                 $response = $courierService->createOrder($payload);
@@ -1554,7 +1597,6 @@ class RetilerController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
-
 
     public function downloadStockSample()
     {
@@ -1760,34 +1802,18 @@ class RetilerController extends Controller
         return back()->with('success-account-info', 'Account information saved successfully!');
     }
 
-    // use couire service manager
     public function ratecCalculationPost(Request $request)
     {
-        $data = $request->validate([
-            'source_Pincode' => 'required|digits:6',
-            'destination_Pincode' => 'required|digits:6',
-            'payment_Mode' => 'required|string',
-            'amount' => 'required|numeric',
-            'shipment_Weight' => 'required|numeric',
-            'shipment_Length' => 'nullable|numeric',
-            'shipment_Width' => 'nullable|numeric',
-            'shipment_Height' => 'nullable|numeric',
-            'volumetric_Weight' => 'nullable|numeric',
-        ]);
-
         try {
             $courierService = \App\Services\CourierServiceManager::getService();
-            $response = $courierService->calculateRate($data);
-
+            $response = $courierService->calculateRate($request->all());
             if (!empty($response['status']) && $response['status'] === true) {
                 return response()->json($response);
             }
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to fetch rates from courier service.',
-                'details' => $response,
-            ], 400);
+            if (!empty($response['valid']) && $response['valid'] === true) {
+                return response()->json($response);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

@@ -61,9 +61,17 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("orderTrackForm");
+        const submitButton = form.querySelector('button[type="submit"]');
 
         form.addEventListener("submit", function (e) {
             e.preventDefault();
+            // Disable button and show loading text
+            // First, get the submit button
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Tracking ...
+            `;
 
             const track_no = document.getElementById("track_no").value.trim();
             const track_noRegex = /^[1-9][0-9]{5}$/; // Valid Indian pincode
@@ -96,7 +104,8 @@
 
                 const data = response.data;
 
-                if (data.status) {
+                if (data.summary) {
+                    // TYPE 1: Old Format (Summary + TrackingData)
                     const summary = data.summary || {};
                     const tracking = data.trackingdata && data.trackingdata.length > 0 ? data.trackingdata[0] : {};
 
@@ -115,16 +124,46 @@
                         <strong>Status:</strong> ${tracking.status || 'N/A'}<br>
                         <strong>Remark:</strong> ${tracking.remark || 'N/A'}<br>
                         <strong>Location:</strong> ${tracking.location || 'N/A'}<br>
-                        <strong>Date & Time:</strong> ${tracking.dateandTime || 'N/A'}<br>`;
+                        <strong>Date & Time:</strong> ${tracking.dateandTime || 'N/A'}<br>
+                    `;
+                } else if (data.order) {
+                    // TYPE 2: Lorrigo Format (Order Object)
+
+                    const order = data.order;
+                    const latestStage = order.orderStages && order.orderStages.length > 0 ? order.orderStages[order.orderStages.length - 1] : {};
+
+                    statusEl.innerText = `Order Status: ${latestStage.action || 'N/A'}`;
+                    resultBox.classList.remove("alert-danger");
+                    resultBox.classList.add("alert-info");
+
+                    detailsEl.innerHTML = `
+                        <strong>Order Reference ID:</strong> ${order.client_order_reference_id || 'N/A'}<br>
+                        <strong>AWB:</strong> ${order.awb || 'N/A'}<br>
+                        <strong>Product Name:</strong> ${order.productId?.name || 'N/A'}<br>
+                        <strong>Customer Name:</strong> ${order.customerDetails?.name || 'N/A'}<br>
+                        <strong>Customer Phone:</strong> ${order.customerDetails?.phone || 'N/A'}<br>
+                        <strong>Pickup City:</strong> ${order.pickupAddress?.city || 'N/A'}<br><br>
+
+                        <strong>Latest Stage:</strong><br>
+                        <strong>Action:</strong> ${latestStage.action || 'N/A'}<br>
+                        <strong>Date & Time:</strong> ${latestStage.stageDateTime || 'N/A'}<br>
+                    `;
                 } else {
-                    statusEl.innerText = "No Tracking Found";
+                    // Unknown structure
+                    statusEl.innerText = "Error";
                     resultBox.classList.remove("alert-success");
                     resultBox.classList.add("alert-danger");
-                    detailsEl.innerHTML = `<strong>Message:</strong> ${data.response || 'No data available.'}`;
+
+                    detailsEl.innerHTML = `<strong>Error:</strong> Tracking order not Found.`;
                 }
 
                 resultBox.style.display = "block";
+
+                // Reset button
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Track';
             })
+
             .catch(error => {
                 console.error(error);
                 const resultBox = document.getElementById("availabilityResult");
@@ -135,6 +174,9 @@
                 resultBox.classList.remove("alert-success");
                 resultBox.classList.add("alert-danger");
                 detailsEl.innerHTML = `<strong>Error:</strong> Unable to fetch tracking details.`;
+
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Track';
 
                 resultBox.style.display = "block";
             });

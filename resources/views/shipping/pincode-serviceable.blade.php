@@ -1,25 +1,19 @@
 @extends('layouts.base')
 @section('title')
-    Check Delivery Availability  | TrendMart
+    Check Delivery Availability | TrendMart
 @endsection
 
 @section('content')
     <!--begin::Content-->
     <div id="kt_app_content" class="app-content flex-column-fluid">
-        <!--begin::Content container-->
         <div id="kt_app_content_container" class="app-container container-xxl">
-
-            <!--begin::Check Delivery Availability-->
             <div class="card mb-5 mb-xl-10">
-                <!--begin::Card header-->
                 <div class="card-header card-header-stretch pb-0">
                     <div class="card-title">
                         <h3 class="m-0">Check Delivery Availability</h3>
                     </div>
                 </div>
-                <!--end::Card header-->
 
-                <!--begin::Card body-->
                 <div class="card-body">
                     <form id="pincodeCheckForm">
                         <div class="row gy-5 gx-5">
@@ -27,11 +21,12 @@
                                 <label class="form-label">Source Pincode <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="source_pincode" id="source_pincode" required />
                             </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Destination Pincode <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="destination_pincode" id="destination_pincode" required />
-                            </div>
+                            @if ($partner->code == 'fship')
+                                <div class="col-md-6">
+                                    <label class="form-label">Destination Pincode <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="destination_pincode" id="destination_pincode"/>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="mt-5">
@@ -51,31 +46,59 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <!--end::Card body-->
-            </div>
-            <!--end::Check Delivery Availability-->
 
+                </div>
+            </div>
         </div>
-        <!--end::Content container-->
     </div>
-    <!--end::Content-->
 @endsection
 
 @section('script')
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("pincodeCheckForm");
+        const submitButton = form.querySelector('button[type="submit"]'); // <-- Add this!
 
         form.addEventListener("submit", function (e) {
             e.preventDefault();
 
-            const sourcePincode = document.getElementById("source_pincode").value.trim();
-            const destinationPincode = document.getElementById("destination_pincode").value.trim();
-            const pincodeRegex = /^[1-9][0-9]{5}$/; // Valid Indian pincode
+            // Disable the submit button
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
 
-            if (!pincodeRegex.test(sourcePincode) || !pincodeRegex.test(destinationPincode)) {
-                alert("Please enter valid 6-digit Indian pincodes.");
+            const sourcePincode = document.getElementById("source_pincode").value.trim();
+            const pincodeRegex = /^[1-9][0-9]{5}$/;
+
+            let destinationInput = document.getElementById("destination_pincode");
+            let destinationPincode = destinationInput ? destinationInput.value.trim() : "";
+
+            // If destination input exists and is empty, assign source pincode
+            if (destinationInput && destinationPincode === "") {
+                destinationPincode = sourcePincode;
+                destinationInput.value = sourcePincode;
+            }
+
+            // Validate source pincode
+            if (!pincodeRegex.test(sourcePincode)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Pincode',
+                    text: 'Please enter a valid 6-digit source pincode.',
+                });
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Check Availability';
+                return;
+            }
+
+            // Validate destination pincode ONLY if input exists
+            if (destinationInput && !pincodeRegex.test(destinationPincode)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Pincode',
+                    text: 'Please enter a valid 6-digit destination pincode.',
+                });
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Check Availability';
                 return;
             }
 
@@ -96,30 +119,55 @@
                 const statusEl = document.getElementById("result_status");
                 const detailsEl = document.getElementById("result_details");
 
-                const data = response.data; // Adjusted: accessing nested `data` object
+                if (!response.success) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: response.message || 'Something went wrong!',
+                    });
+                    return;
+                }
 
-                statusEl.innerText = data.status ? "Service Available" : "Service Not Available";
+                const data = response.data;
+
+                const isAvailable = data.available ?? data.status;
+                statusEl.innerText = isAvailable ? "Service Available" : "Service Not Available";
                 resultBox.classList.remove("alert-success", "alert-danger");
-                resultBox.classList.add(data.status ? "alert-success" : "alert-danger");
+                resultBox.classList.add(isAvailable ? "alert-success" : "alert-danger");
 
-                detailsEl.innerHTML = `
-                    <strong>Source:</strong> ${data.source || 'N/A'}<br>
-                    <strong>Destination:</strong> ${data.destination || 'N/A'}<br>
-                    <strong>Zone:</strong> ${data.zone || 'N/A'}<br>
-                    <strong>Pickup:</strong> ${data.pickup || 'No'}<br>
-                    <strong>Delivery:</strong> ${data.delivery || 'No'}<br>
-                    <strong>COD:</strong> ${data.cod || 'No'}<br>
-                    <strong>Message:</strong> ${data.response || 'No message'}
-                `;
+                if (data.city && data.state) {
+                    // Lorrigo type response
+                    detailsEl.innerHTML = `
+                        <strong>City:</strong> ${data.city || 'N/A'}<br>
+                        <strong>State:</strong> ${data.state || 'N/A'}<br>
+                        <strong>Message:</strong> ${data.message || 'No message'}
+                    `;
+                } else {
+                    // Other partner type response
+                    detailsEl.innerHTML = `
+                        <strong>Source:</strong> ${data.source || 'N/A'}<br>
+                        <strong>Destination:</strong> ${data.destination || 'N/A'}<br>
+                        <strong>Zone:</strong> ${data.zone || 'N/A'}<br>
+                        <strong>Pickup:</strong> ${data.pickup || 'No'}<br>
+                        <strong>Delivery:</strong> ${data.delivery || 'No'}<br>
+                        <strong>COD:</strong> ${data.cod || 'No'}<br>
+                        <strong>Message:</strong> ${data.response || 'No message'}
+                    `;
+                }
 
                 resultBox.style.display = "block";
-                })
+            })
             .catch(error => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Something went wrong while check pincode serviceable.',
+                    text: 'Something went wrong while checking pincode serviceable.',
                 });
+            })
+            .finally(() => {
+                // Enable the submit button back
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Check Availability';
             });
         });
     });

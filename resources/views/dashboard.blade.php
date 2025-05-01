@@ -311,24 +311,14 @@
                                                                         @php
                                                                             if (!empty($detail?->product?->images)) {
                                                                                 $imagePath =
-                                                                                    'https://wholesale.lghosts.com/uploads/' .
                                                                                     explode(
                                                                                         ',',
                                                                                         $detail->product->images,
                                                                                     )[0];
                                                                             } elseif (
-                                                                                !empty(
-                                                                                    $detail?->retailerCloneProduct
-                                                                                        ?->images
-                                                                                )
+                                                                                !empty($detail?->retailerCloneProduct?->images)
                                                                             ) {
-                                                                                $imagePath =
-                                                                                    'https://wholesale.lghosts.com/uploads/' .
-                                                                                    explode(
-                                                                                        ',',
-                                                                                        $detail->retailerCloneProduct
-                                                                                            ->images,
-                                                                                    )[0];
+                                                                                $imagePath = explode(',',$detail->retailerCloneProduct->images)[0];
                                                                             } else {
                                                                                 $imagePath = null;
                                                                             }
