@@ -145,6 +145,10 @@
                         data-kt-menu-placement="bottom-end">
                         <img src="{{ $logoUrl }}" class="rounded-3" alt="user" />
                     </div>
+                    <div class="mt-2 ms-2 fs-4 fw-semibold text-dark d-none d-lg-block">
+                        Hi, {{ Auth::user()->firstname }} {{ Auth::user()->lastname }}
+                    </div>
+
                     <!--begin::User account menu-->
                     <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px"
                         data-kt-menu="true">
