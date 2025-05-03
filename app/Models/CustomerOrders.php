@@ -49,7 +49,12 @@ class CustomerOrders extends Model
         'expected_delivery',
         'payment_status',
         'payment_method',
-        'variation_id'
+        'variation_id',
+
+        'shipment_status',
+        'fulfilledby',
+        'shipment_status_updated_at',
+        'courier_partner_id'
     ];
 
     protected $casts = [
