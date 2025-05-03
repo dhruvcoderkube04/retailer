@@ -42,22 +42,27 @@ class RetilerController extends Controller
 
         $data = [
             'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
             'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'approved_by_retailer')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
             'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pickup')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
             'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])
+                ->where('order_process_by', 'retailer')
                 ->sum('final_amount'),
         ];
 
@@ -87,6 +92,7 @@ class RetilerController extends Controller
         ])
             ->where('retailer_id', $user->id)
             ->where('status', 'pending')
+            ->where('order_process_by', 'retailer')
             ->orderBy('id', 'DESC')
             ->take(5)
             ->get();
@@ -102,18 +108,22 @@ class RetilerController extends Controller
 
         $data = [
             'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
             'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'approved_by_retailer')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
             'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('retailer_id', $user->id)->where('status', 'pickup')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
             'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered')
+                ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->sum('final_amount'),
+            'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->where('order_process_by', 'retailer')->sum('final_amount'),
         ];
 
         return response()->json(['status' => true, 'data' => $data]);
@@ -924,6 +934,8 @@ class RetilerController extends Controller
             return redirect()->route('retailer.product');
         }
     }
+
+
 
     public function Profile()
     {

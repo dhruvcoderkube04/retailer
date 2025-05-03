@@ -407,13 +407,6 @@
                                     <span>Confirm Order</span>
                                 </label>
 
-                                {{-- <label class="list-group-item d-flex align-items-center gap-3 mt-2">
-                                    <input class="form-check-input mt-0" type="radio" name="status"
-                                        id="transfered_retailer_to_wholesaler" value="transfered_retailer_to_wholesaler">
-                                    <i class="bi bi-box-arrow-right text-primary fs-5"></i>
-                                    <span>Transfer to Wholesaler</span>
-                                </label> --}}
-
                                 <label class="list-group-item d-flex align-items-center gap-3 mt-2 text-danger">
                                     <input class="form-check-input mt-0" type="radio" name="status" id="cancel"
                                         value="cancel">
@@ -522,7 +515,8 @@
                                     <span>I Want To Ship</span>
                                 </label>
 
-                                <label class="list-group-item d-flex align-items-center gap-3 mt-2">
+                                <label
+                                    class="list-group-item d-flex align-items-center gap-3 mt-2 transfered-retailer-to-wholesaler-section">
                                     <input class="form-check-input mt-0" type="radio" name="status"
                                         id="transfered_retailer_to_wholesaler" value="transfered_retailer_to_wholesaler">
                                     <i class="bi bi-box-arrow-right text-primary fs-5"></i>
@@ -694,8 +688,8 @@
                                                 class="form-label fw-semibold text-gray-700">Enter
                                                 Reason Here:</label>
                                             <input type="text" class="form-control reject_reason_input_confirmed"
-                                                name="reject_reason_input" id="rejectReasonInputConfirm"
-                                                min="1" placeholder="Enter reject reason">
+                                                name="reject_reason_input" id="rejectReasonInputConfirm" min="1"
+                                                placeholder="Enter reject reason">
 
                                             <span class="text-danger mt-5 reject-reason-input-error-section"
                                                 style="display: none;">
@@ -843,7 +837,8 @@
                         <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
                             <div class="card shadow-sm border-0">
                                 <div class="card-body p-3">
-                                    <label for="rejectReasonInputPickup" class="form-label fw-semibold text-gray-700">Enter
+                                    <label for="rejectReasonInputPickup"
+                                        class="form-label fw-semibold text-gray-700">Enter
                                         Reason Here:</label>
                                     <input type="text" class="form-control reject_reason_input_pickup"
                                         name="reject_reason_input" id="rejectReasonInputPickup" min="1"
@@ -996,7 +991,8 @@
                         <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
                             <div class="card shadow-sm border-0">
                                 <div class="card-body p-3">
-                                    <label for="rejectReasonInputInTransit" class="form-label fw-semibold text-gray-700">Enter
+                                    <label for="rejectReasonInputInTransit"
+                                        class="form-label fw-semibold text-gray-700">Enter
                                         Reason Here:</label>
                                     <input type="text" class="form-control reject_reason_input_in_transit"
                                         name="reject_reason_input" id="rejectReasonInputInTransit" min="1"
@@ -1279,18 +1275,10 @@
 
                 if (status == 'cancel') {
                     $('.rejectReasonSelectContainer').show();
-                    $('#new-order-action-modal .reject_reason_select_new').trigger('change');
+                    $('.reject_reason_select_new').first().trigger('change');
                 } else {
                     $('.rejectReasonSelectContainer').hide();
                 }
-            });
-
-            $('#courier_service').on('change', function() {
-                const selectedOption = $('#courier_service option:selected');
-                const courierName = selectedOption.val();
-                const courierId = selectedOption.data('id');
-                const imageUrl = selectedOption.data('image');
-                $('#courier_service_id').val(courierId);
             });
 
             $(document).on('click', '.newOrderAction', function() {
@@ -1362,11 +1350,6 @@
                         swalConfig.icon = "success";
                         swalConfig.confirmButtonText = "Yes, Confirm it!";
                         break;
-                    case "transfered_retailer_to_wholesaler":
-                        swalConfig.text = "This order will be transferred to the wholesaler.";
-                        swalConfig.icon = "success";
-                        swalConfig.confirmButtonText = "Yes, Transfer it!";
-                        break;
                     case "cancel":
                         swalConfig.text = "You are about to reject this order.";
                         swalConfig.icon = "warning";
@@ -1435,7 +1418,7 @@
 
 
             //<-------------- START: Confirmed Order --------------->
-            $('.reject_reason_select_confirmed').change(function() {
+            $(document).on('change', '.reject_reason_select_confirmed', function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -1467,7 +1450,7 @@
 
                 if (status == 'cancel') {
                     $('.rejectReasonSelectContainer').show();
-                    $('.reject_reason_select_confirmed').trigger('change');
+                    $('.reject_reason_select_confirmed').first().trigger('change');
                 } else {
                     $('.rejectReasonSelectContainer').hide();
                 }
@@ -1480,7 +1463,12 @@
                 let customer_pincode = $(this).attr('data-product-pincode');
                 let product_amount = $(this).attr('data-product-amount');
 
-                console.log(order_id, customer_pincode, product_amount, "order detail ");
+                if (product_id) {
+                    $('.transfered-retailer-to-wholesaler-section').removeClass('d-none');
+                }
+                if (retailer_clone_product_id) {
+                    $('.transfered-retailer-to-wholesaler-section').addClass('d-none');
+                }
 
                 $('.customer_pincode').val(customer_pincode);
                 $('.product_amount').val(product_amount);
@@ -1492,6 +1480,14 @@
                 $('#confirmed-order-action-modal').modal('show');
             });
 
+            $('#courier_service').on('change', function() {
+                const selectedOption = $('#courier_service option:selected');
+                const courierName = selectedOption.val();
+                const courierId = selectedOption.data('id');
+                const imageUrl = selectedOption.data('image');
+                $('#courier_service_id').val(courierId);
+            });
+
             $(document).on('submit', '#confirmedOrderForm', function(e) {
                 e.preventDefault();
 
@@ -1500,6 +1496,7 @@
 
                 // START: validation
                 let status = form.get("status");
+                let retailer_clone_product_id = form.get("retailer_clone_product_id");
                 let pickup_address_id = $('#pickup_address_id').val();
                 let rto_address_id = $('#rto_address_id').val();
                 let courier_service = $('#courier_service').val();
@@ -1517,6 +1514,9 @@
                     .hide();
 
                 if (!status) return;
+                if (retailer_clone_product_id && status == 'transfered_retailer_to_wholesaler') {
+                    return;
+                }
 
                 if (status === "pickup") {
                     if (!pickup_address_id) {
@@ -1745,7 +1745,7 @@
 
                 if (status == 'cancel') {
                     $('.rejectReasonSelectContainer').show();
-                    $('#pickup-order-action-modal .reject_reason_select_pickup').trigger('change');
+                    $('.reject_reason_select_pickup').first().trigger('change');
                 } else {
                     $('.rejectReasonSelectContainer').hide();
                 }
@@ -1898,7 +1898,7 @@
 
                 if (status == 'cancel') {
                     $('.rejectReasonSelectContainer').show();
-                    $('#in-transit-order-action-modal .reject_reason_select_in_transit').trigger('change');
+                    $('.reject_reason_select_in_transit').first().trigger('change');
                 } else {
                     $('.rejectReasonSelectContainer').hide();
                 }
@@ -1935,7 +1935,8 @@
                     }
 
                     if (reject_reason_select_in_transit === "Other") {
-                        if (!reject_reason_input_in_transit || reject_reason_input_in_transit.trim() === "") {
+                        if (!reject_reason_input_in_transit || reject_reason_input_in_transit.trim() ===
+                            "") {
                             $(".reject-reason-input-error").text("Please enter a valid reject reason");
                             $(".reject-reason-input-error-section").show();
                             errors.push("reject_reason_input_in_transit");

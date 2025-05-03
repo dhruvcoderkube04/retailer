@@ -17,6 +17,7 @@ class MarkOldOrdersInactive extends Command
 
         $orders = CustomerOrders::where('status','pending')
             ->where('created_at', '<=', $cutoff)
+            ->where('order_process_by', 'retailer')
             ->get();
 
         $orders->each(function ($order) {

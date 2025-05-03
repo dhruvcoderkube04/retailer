@@ -90,7 +90,6 @@ Route::middleware(['retailer'])->group(function () {
     // order
     Route::prefix('orders-list')->group(function () {
         Route::get('/{type?}', [RetailerOrderController::class, 'orderList'])->name('retailer.order.list');
-        Route::post('/action', [RetilerController::class, 'orderAction'])->name('retailer.order.action');
         Route::post('/action/new-order', [RetailerOrderController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
         Route::post('/action/confirmed-order', [RetailerOrderController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
         Route::post('/action/pickup-order', [RetailerOrderController::class, 'pickupOrderAction'])->name('retailer.order.action.pickup-order');

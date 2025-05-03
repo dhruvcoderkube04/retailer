@@ -88,6 +88,7 @@ class RetailerOrderController extends Controller
             $customerOrder->wholesaler_id = $request->wholesaler_id;
             $customerOrder->quantity = $request->quantity;
             $customerOrder->payment_method = $request->payment_method;
+            $customerOrder->order_process_by = 'retailer';
             $customerOrder->save();
 
             DB::commit();
@@ -116,7 +117,9 @@ class RetailerOrderController extends Controller
                 SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
                 SUM(CASE WHEN status = 'cancel' THEN 1 ELSE 0 END) as cancel,
                 SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
-            ")->first()->toArray();
+            ")
+            ->where('order_process_by', 'retailer')
+            ->first()->toArray();
 
         // Orders query
         $sql = CustomerOrders::with([
@@ -124,13 +127,14 @@ class RetailerOrderController extends Controller
             'product',
             'retailerCloneProduct',
             'wholesaler.userDetail',
-        ])->where('retailer_id', $retailer->id);
+        ])
+        ->where('order_process_by', 'retailer')
+        ->where('retailer_id', $retailer->id);
 
         // Filter by type
         $statusMap = [
             'new' => 'pending',
             'approved-by-retailer' => 'approved_by_retailer',
-            'transfered_retailer_to_wholesaler',
             'pickup' => 'pickup',
             'in-transit' => 'in_transit',
             'ofd' => 'ofd',
@@ -401,6 +405,7 @@ class RetailerOrderController extends Controller
         $customerOrder->update([
             'status' => 'transfered_retailer_to_wholesaler',
             'transfered_retailer_to_wholesaler_at' => Carbon::now(),
+            'order_process_by' => 'wholesaler',
         ]);
 
         return [true, 'Wholesaler will ship this product', 'new'];
@@ -619,6 +624,7 @@ class RetailerOrderController extends Controller
         $customerOrder->update([
             'status' => 'delivered',
             'delivered_at' => Carbon::now(),
+            'delivered_by' => $retailer->id,
         ]);
 
         return [true, 'Order has been marked as delivered', 'delivered'];
