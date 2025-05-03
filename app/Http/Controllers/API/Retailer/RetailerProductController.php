@@ -481,6 +481,7 @@ class RetailerProductController extends Controller
                     'wholesaler_id' => $wholesalerId,
                     'quantity' => $quantity,
                     'final_amount' => $request->final_amount,
+                    'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
                     'variation_id' => @$product['variant_id'],
                     'created_at' => now(),
