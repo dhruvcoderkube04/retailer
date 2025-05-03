@@ -39,6 +39,9 @@ class FShipService implements CourierInterface
                 ];
             }
 
+            $waybill = $response['waybill'];
+            $this->registerpick($waybill);
+
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Exception while creating order', [
@@ -326,6 +329,33 @@ class FShipService implements CourierInterface
             'response' => 'Re-attempt request failed.',
             'error' => $response->body()
         ];
+    }
+
+    private function registerpick($waybill):string
+    {
+        try {
+            $response = Http::withHeaders($this->getHeaders())
+                ->post($this->apiUrl . '/registerpickup', [
+                    'waybills' => [$waybill],
+                ]);
+
+            // Check if the response was successful
+            if ($response->successful()) {
+                // Return the response as an array
+                return true;
+            } else {
+                // Log the error and return an empty array or custom error message
+                Log::error('Register Pickup ID failed', [
+                    'status' => $response->status(),
+                    'error' => $response->body(),
+                ]);
+                return false;
+            }
+        } catch (\Exception $e) {
+            // Catch any exception, log it, and return an error message
+            Log::error('Error while Register Pickup id after order place : ' . $e->getMessage());
+            return false;
+        }
     }
 }
 

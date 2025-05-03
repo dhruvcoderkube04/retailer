@@ -4,7 +4,7 @@
     <!--begin::Logo-->
     <div class="app-sidebar-logo px-6 ms-2" id="kt_app_sidebar_logo">
         <!--begin::Logo image-->
-        <a href="{{ route('retailer.dashboard') }}">
+        {{-- <a href="{{ route('retailer.dashboard') }}">
             <img src="{{ Auth::user()->userDetail && Auth::user()->userDetail->company_logo
                 ? Auth::user()->userDetail->company_logo // Use URL directly from Spaces
                 : asset('assets/media/logos/big_mart_nepal_cover.jpg') }}"
@@ -16,7 +16,7 @@
                 : asset('assets/media/logos/bigmart.jpg') }}"
                 class="h-25px app-sidebar-logo-minimize" alt="{{ Auth::user()->firstname }}"
                 style="border-radius: 5px; justify-content: space-evenly;" />
-        </a>
+        </a> --}}
 
         <div id="kt_app_sidebar_toggle"
             class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary h-30px w-30px position-absolute top-50 start-100 translate-middle rotate"

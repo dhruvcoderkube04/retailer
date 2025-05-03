@@ -253,48 +253,48 @@ class LorrigoService implements CourierInterface
     public function updateWarehouse(array $data): array
     {
         try {
+            $payload = [
+                'name' => $data['warehouseName'], // must be unique
+                'pincode' => $data['pincode'],
+                'address1' => substr($data['addressLine1'], 0, 100), // max 100 chars
+                'phone' => $data['phoneNumber'],
+                'contactPersonName' => $data['contactName'],
+                'isRTOAddressSame' => true,
+                'rtoAddress' => "",
+                'rtoPincode' => ""
+            ];
+
+            Log::info('Sending warehouse to Lorrigo', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'signature' => $this->signature,
-            ])->post($this->apiUrl . '/updatewarehouse', $data);
+                'Authorization' => 'Bearer '.$this->token,
+            ])->post($this->apiUrl . '/api/hub', $payload);
 
-            if ($response->failed()) {
-                Log::error('Courier API request failed.', [
-                    'url' => $this->apiUrl . 'updatewarehouse',
-                    'request_data' => $data,
-                    'response_body' => $response->body(),
-                    'status_code' => $response->status(),
-                ]);
-
+            if ($response->successful()) {
+                $json = $response->json();
+                Log::info('Lorrigo warehouse added', ['response' => $json]);
                 return [
-                    'status' => false,
-                    'message' => 'Courier API call failed.',
-                    'error' => $response->body(),
-                    'data' => [],
+                    'status' => true,
+                    'warehouseId' => @$json['hub']['_id'],
+                    'data' => $json,
                 ];
             }
 
-            $resData = $response->json();
-
-            return [
-                'status' => $resData['status'] ?? false,
-                'message' => $resData['message']
-                            ?? $resData['response']
-                            ?? 'No message returned from API.',
-                'data' => $resData,
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('Error in API request:', [
-                'error' => $e->getMessage(),
-                'request_data' => $data,
+            Log::error('Lorrigo Add Warehouse Failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
             ]);
 
             return [
                 'status' => false,
-                'message' => 'An error occurred while calling the courier API.',
+                'message' => 'Failed to add warehouse via Lorrigo.',
+            ];
+        } catch (\Exception $e) {
+            Log::error('Lorrigo Add Warehouse Exception', ['error' => $e->getMessage()]);
+            return [
+                'status' => false,
+                'message' => 'Lorrigo warehouse creation error.',
                 'error' => $e->getMessage(),
-                'data' => [],
             ];
         }
     }
@@ -351,6 +351,16 @@ class LorrigoService implements CourierInterface
             Log::error('Error during Lorrigo Rate Calculation: ' . $e->getMessage());
             return ['status' => false, 'message' => 'An error occurred while calculating rate.', 'error' => $e->getMessage()];
         }
+    }
+
+    public function cancelShipment(array $data): array
+    {
+       return [];
+    }
+
+    public function reattemptShipment(array $data): array
+    {
+        return [];
     }
 
 }

@@ -105,13 +105,25 @@
                 const data = response.data;
 
                 if (data.summary) {
-                    // TYPE 1: Old Format (Summary + TrackingData)
                     const summary = data.summary || {};
-                    const tracking = data.trackingdata && data.trackingdata.length > 0 ? data.trackingdata[0] : {};
+                    const trackingData = data.trackingdata || [];
 
                     statusEl.innerText = `Status: ${summary.status || 'N/A'}`;
                     resultBox.classList.remove("alert-danger");
                     resultBox.classList.add("alert-success");
+
+                    let trackingHtml = '';
+                    trackingData.forEach((track, index) => {
+                        trackingHtml += `
+                            <div style="margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #ccc;">
+                                <strong>Tracking Entry #${index + 1}</strong><br>
+                                <strong>Status:</strong> ${track.status || 'N/A'}<br>
+                                <strong>Remark:</strong> ${track.remark || 'N/A'}<br>
+                                <strong>Location:</strong> ${track.location || 'N/A'}<br>
+                                <strong>Date & Time:</strong> ${track.dateandTime || 'N/A'}<br>
+                            </div>
+                        `;
+                    });
 
                     detailsEl.innerHTML = `
                         <strong>Order ID:</strong> ${summary.orderid || 'N/A'}<br>
@@ -120,11 +132,8 @@
                         <strong>Ordered On:</strong> ${summary.orderedon || 'N/A'}<br>
                         <strong>Last Scan Date:</strong> ${summary.lastscandate || 'N/A'}<br><br>
 
-                        <strong>Latest Tracking:</strong><br>
-                        <strong>Status:</strong> ${tracking.status || 'N/A'}<br>
-                        <strong>Remark:</strong> ${tracking.remark || 'N/A'}<br>
-                        <strong>Location:</strong> ${tracking.location || 'N/A'}<br>
-                        <strong>Date & Time:</strong> ${tracking.dateandTime || 'N/A'}<br>
+                        <strong>Tracking History:</strong><br>
+                        ${trackingHtml}
                     `;
                 } else if (data.order) {
                     // TYPE 2: Lorrigo Format (Order Object)

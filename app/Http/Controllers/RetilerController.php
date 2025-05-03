@@ -1286,11 +1286,9 @@ class RetilerController extends Controller
                 return response()->json($response);
             }
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to fetch rates from courier service.',
-                'details' => $response,
-            ], 400);
+            if(!empty($response['valid']) && $response['valid']=== true){
+                return response()->json($response);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
