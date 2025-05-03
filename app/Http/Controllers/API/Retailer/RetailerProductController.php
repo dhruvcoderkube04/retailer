@@ -503,7 +503,7 @@ class RetailerProductController extends Controller
             Log::error('Checkout Error:', ['error' => $e->getMessage()]);
             return response()->json([
                 'error' => 'Something went wrong!',
-                'message' => $e->getMessage()
+                // 'message' => $e->getMessage()
             ], 500);
         }
     }

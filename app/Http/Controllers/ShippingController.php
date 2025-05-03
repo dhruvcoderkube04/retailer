@@ -124,7 +124,6 @@ class ShippingController extends Controller
                 return back()->with('error', $res['response']['response']); // Show the specific API error message
             }
 
-            // dd($res);
             // If the status is true, continue with saving the warehouse data
             if (isset($res['status']) && $res['status'] === true) {
                 $warehouseId = $res['warehouseId'] ?? null;

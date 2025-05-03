@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('view-logviewer', function ($user) {
-            return $user->email === 'ayush@gmail.com'; // Customize as needed
+            return $user->email === 'mustafa786@gmail.com'; // Customize as needed
         });
         // to load data in header
         View::composer('*', function ($view) {
