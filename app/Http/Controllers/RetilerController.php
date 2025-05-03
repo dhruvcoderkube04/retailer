@@ -925,8 +925,6 @@ class RetilerController extends Controller
         }
     }
 
-    
-
     public function Profile()
     {
         $id = Auth::user()->id;
@@ -1106,6 +1104,9 @@ class RetilerController extends Controller
 
             return response()->json(['errors' => $errors], 422);
         } catch (\Exception $e) {
+            Log::error('File processing error: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
             return response()->json(['error' => 'An error occurred during file processing'], 500);
         }
     }
@@ -1207,7 +1208,8 @@ class RetilerController extends Controller
 
     public function storeAccoutinfo(Request $request)
     {
-        $user = Auth::user()->id;
+        $userId = Auth::user()->id;
+
         $request->validate([
             'account_number' => 'nullable|string|max:50',
             'ifsc_code' => 'nullable|string|max:20',
@@ -1226,23 +1228,26 @@ class RetilerController extends Controller
             'pancard_number'
         ]);
 
-        // Handle uploads
-
+        // Upload to DigitalOcean Spaces
         foreach (['pan_image', 'aadhar_image', 'cancel_cheque'] as $field) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/account'), $filename);
-                $data[$field === 'pan_card' ? 'pan_image' : $field] = 'uploads/account/' . $filename;
+                $directory = 'uploads/account/';
+                $path = $directory . $filename;
+
+                Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+
+                $data[$field] = Storage::disk('spaces')->url($path);
             }
         }
 
-        // Only update if record exists
-        $userDetail = UserDetail::where('user_id', $user)->first();
+        $userDetail = UserDetail::where('user_id', $userId)->first();
 
         if ($userDetail) {
             $userDetail->update($data);
         }
+
         return back()->with('success-account-info', 'Account information saved successfully!');
     }
 

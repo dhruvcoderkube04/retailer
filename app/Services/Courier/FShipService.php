@@ -266,5 +266,66 @@ class FShipService implements CourierInterface
         return $response->json();
     }
 
+    public function cancelShipment(array $data): array
+    {
+        $validator = Validator::make($data, [
+            "reason"  => "required|max:255",
+            "waybill" => "required|numeric",
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validatedData = $validator->validated();
+
+        // Now send API request
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'signature' => $this->signature,
+        ])->post($this->apiUrl . '/cancelorder', $validatedData);
+
+        return $response->json();
+    }
+
+    public function reattemptShipment(array $data): array
+    {
+        // Step 1: Validate input
+        $validator = Validator::make($data, [
+            'apiorderid'        => 'required|integer',
+            'action'            => 'required|in:re-attempt,change-address,change-phone,rto',
+            'reattempt_date'    => 'nullable|date_format:Y-m-d\TH:i:s.v\Z',
+            'contact_name'      => 'nullable|string|max:255',
+            'complete_address'  => 'nullable|string|max:500',
+            'landmark'          => 'nullable|string|max:255',
+            'mobilenumber'      => 'nullable|string|max:20',
+            'remarks'           => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'status' => false,
+                'response' => 'Validation failed.',
+                'errors' => $validator->errors()
+            ];
+        }
+
+        // Step 2: Call FShip API
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'signature' => $this->signature,
+        ])->post($this->apiUrl . '/reattemptorder', $validator);
+
+        // Step 3: Return response
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return [
+            'status' => false,
+            'response' => 'Re-attempt request failed.',
+            'error' => $response->body()
+        ];
+    }
 }
 

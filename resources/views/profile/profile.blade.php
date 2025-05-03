@@ -362,7 +362,7 @@
                     </div>
                     <!--end::Basic info-->
                     {{-- Accoutn info  --}}
-                    {{-- <div class="card mb-5 mb-xl-10">
+                    <div class="card mb-5 mb-xl-10">
                         @if (session('success-account-info'))
                             <div class="alert alert-success text-green-600 p-2">
                                 {{ session('success-account-info') }}
@@ -469,7 +469,7 @@
                                 </div>
                             </form>
                         </div>
-                    </div> --}}
+                    </div>
                 </div>
                 <!--end::Content container-->
             </div>

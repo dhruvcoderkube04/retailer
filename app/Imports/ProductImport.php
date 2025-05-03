@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Models\RetailerCloneProduct;
+use App\Models\SubCategory;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -28,11 +29,11 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
         // 'slug'
     ];
 
-    protected $categoryId;
+    protected $subcategoryId;
 
-    public function __construct($categoryId)
+    public function __construct($subcategoryId)
     {
-        $this->categoryId = $categoryId;
+        $this->subcategoryId = $subcategoryId;
     }
 
     public function collection(Collection $rows)
@@ -40,7 +41,7 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
         $validRows = [];
         $invalidRows = [];
         $retailerId = Auth::id();
-
+        $categoryId = SubCategory::where('id',$this->subcategoryId)->first();
         foreach ($rows as $row) {
             $row = $this->map($row);
 
@@ -92,7 +93,8 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
                 'retailer_id' => $retailerId,
                 'name' => $finalName,
                 'description' => $row['product_description'] ?? null,
-                'category_id' => $this->categoryId,
+                'category_id' => $categoryId->category_id,
+                'sub_category_id' => $this->subcategoryId,
                 'tags' => $row['product_tags'] ?? null,
                 'slug' => !empty($row['slug'])
                     ? Str::slug($row['slug'])

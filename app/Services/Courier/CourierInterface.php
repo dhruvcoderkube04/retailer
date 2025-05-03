@@ -11,4 +11,7 @@ interface CourierInterface
     public function addWarehouse(array $data): array;
     public function updateWarehouse(array $data): array;
     public function calculateRate(array $data): array;
+
+    public function cancelShipment(array $data): array;
+    public function reattemptShipment(array $data): array;
 }
