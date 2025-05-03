@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use App\Models\RetailerWebManagement;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('view-logviewer', function ($user) {
+            return $user->email === 'ayush@gmail.com'; // Customize as needed
+        });
         // to load data in header
         View::composer('*', function ($view) {
             if (Auth::check()) {
