@@ -1,11 +1,9 @@
 <?php
+use Illuminate\Support\Facades\Schedule;
+use App\Console\Commands\TrackShipments;
+use Illuminate\Support\Facades\Log;
 
-
-use Illuminate\Foundation\Configuration\Schedule;
-use App\Console\Commands\MarkInactiveOrders;
-
-return function (Schedule $schedule) {
-    $schedule->command(MarkInactiveOrders::class)->everyMinute(); //
-    // $schedule->command(MarkInactiveOrders::class)->hourly();
-};
-
+Schedule::command(TrackShipments::class)
+    ->everyMinute()
+    ->onSuccess(fn () => Log::info('✅ TrackShipments success'))
+    ->onFailure(fn () => Log::error('❌ TrackShipments failed'));

@@ -85,8 +85,7 @@
                                                 <div class="card-body d-flex flex-center flex-column py-9 px-5">
                                                     <!--begin::Avatar-->
                                                     <div class="symbol symbol-65px symbol-circle mb-5">
-                                                        <!-- {{ $wholesaler->userDetail->company_logo }} -->
-                                                        <img src="{{ $wholesaler->userDetail->company_logo
+                                                        <img src="{{ @$wholesaler->userDetail->company_logo
                                                             ?  $wholesaler->userDetail->company_logo
                                                             : asset('assets/media/avatars/no-profile.png') }}"
                                                             alt="image" />
@@ -97,7 +96,7 @@
                                                     <!--end::Avatar-->
                                                     <!--begin::Name-->
                                                     <a href="#"
-                                                        class="fs-4 text-gray-800 text-hover-primary fw-bold mb-0">{{ $wholesaler->userDetail->company_name }}</a>
+                                                        class="fs-4 text-gray-800 text-hover-primary fw-bold mb-0">{{ @$wholesaler->userDetail->company_name }}</a>
                                                     <!--end::Name-->
                                                     <!--begin::Position-->
                                                     <div class="fw-semibold text-gray-500 mb-6">{{ $wholesaler->firstname }}

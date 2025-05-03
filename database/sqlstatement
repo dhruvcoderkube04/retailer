@@ -12,3 +12,12 @@ ALTER TABLE `user_details`
 
 ALTER TABLE `pickup_addresses`
 MODIFY `warehouse_id` VARCHAR(50);
+
+
+
+adda another column
+
+ALTER TABLE customer_orders
+ADD COLUMN shipment_status VARCHAR(255) NULL AFTER status,
+ADD COLUMN fulfilledby VARCHAR(255) NULL AFTER shipment_status,
+ADD COLUMN shipment_status_updated_at TIMESTAMP NULL AFTER fulfilledby;
