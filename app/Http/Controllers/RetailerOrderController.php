@@ -496,8 +496,7 @@ class RetailerOrderController extends Controller
                 "orderBoxHeight"=> 0.5,
                 "orderBoxWidth"=> 0.5,
                 "orderBoxLength"=> 0.5,
-                // "amount2Collect"=> $customerOrder->final_amount,
-                "amount2Collect"=> 1,   # for temp
+                "amount2Collect"=> $customerOrder->final_amount,
                 "customerDetails"=> [
                   "name"=> trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
                   "phone"=> $customerOrder->customer->phone_number,
@@ -510,7 +509,7 @@ class RetailerOrderController extends Controller
                   "hsn_code"=> "",
                   "quantity"=> 1,
                   "taxRate"=> "1",
-                  "taxableValue"=> "100"
+                  "taxableValue"=> $customerOrder->final_amount,
                 ],
                 "pickupAddress"=> $pickup_address->warehouse_id,
                 "sellerDetails"=> [

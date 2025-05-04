@@ -124,32 +124,7 @@ class LorrigoService implements CourierInterface
         }
     }
 
-    public function courierList(): array
-    {
-        try {
-            $response = Http::withHeaders([
-                'signature' => $this->signature
-            ])->get($this->apiUrl . '/getallcourier');
 
-            // If request failed or response is not valid JSON
-            if ($response->failed() || $response->json() === null) {
-                Log::error('Failed to fetch courier list', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-
-                return []; // fallback to empty array
-            }
-
-            return $response->json();
-        } catch (\Exception $e) {
-            Log::error('Exception while fetching courier list', [
-                'error' => $e->getMessage()
-            ]);
-
-            return []; // fallback to empty array
-        }
-    }
 
     public function checkPincodeAvailability(array $data): array
     {
@@ -361,6 +336,11 @@ class LorrigoService implements CourierInterface
     }
 
     public function reattemptShipment(array $data): array
+    {
+        return [];
+    }
+
+    public function courierList(): array
     {
         return [];
     }
