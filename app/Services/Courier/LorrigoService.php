@@ -46,8 +46,10 @@ class LorrigoService implements CourierInterface
     public function createOrder(array $data): array
     {
         try {
-            $response = Http::withHeaders($this->getHeaders())
-                ->post($this->apiUrl . '/createforwardorder', $data);
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer '.$this->token,
+            ])->post($this->apiUrl . '/api/order/b2c', $data);
 
             if ($response->failed() || $response->json() === null) {
                 Log::error('Failed to create order', [
@@ -301,18 +303,17 @@ class LorrigoService implements CourierInterface
 
     public function calculateRate(array $data): array
     {
-        // dd($data);
         // Step 1: Validate the incoming data
         $validator = Validator::make($data, [
             'source_Pincode' => 'required|digits:6',
             'destination_Pincode' => 'required|digits:6',
-            'payment_Mode' => 'required|in:0,1', // 0=COD, 1=Prepaid
+            'payment_Mode' => 'required|string',
             'shipment_Weight' => 'required|numeric',
-            'shipment_Height' => 'required|numeric',
-            'shipment_Length' => 'required|numeric',
-            'shipment_Width' => 'required|numeric',
+            'shipment_Height' => 'nullable|numeric',
+            'shipment_Length' => 'nullable|numeric',
+            'shipment_Width' => 'nullable|numeric',
             // 'sizeUnit' => 'required|string',
-            'volumetric_Weight' => 'required|string',
+            'volumetric_Weight' => 'nullable|string',
             'amount' => 'required|numeric',
         ]);
 
@@ -322,17 +323,18 @@ class LorrigoService implements CourierInterface
 
         // Step 2: Prepare payload for Lorrigo
         $payload = [
-            'boxHeight' => (string) ($data['shipment_Height'] ?? '10'),
-            'boxLength' => (string) ($data['shipment_Length'] ?? '10'),
-            'boxWidth' => (string) ($data['shipment_Width'] ?? '10'),
-            'collectableAmount' => (string) ($data['amount']),
+            'boxHeight' => (string) ($data['shipment_Height'] ?? "10"),
+            'boxLength' => (string) ($data['shipment_Length'] ?? "10"),
+            'boxWidth' => (string) ($data['shipment_Width'] ?? "10"),
+            'collectableAmount' => (string) ($data['amount']) ?? "",
             'deliveryPincode' => (string) $data['destination_Pincode'],
-            'paymentType' => (int) $data['payment_Mode'] ?? 1,
+            'paymentType' => $data['payment_Mode'] == 'COD' ? 1 : 0, // 1=COD, 0=Prepaid
             'pickupPincode' => (string) $data['source_Pincode'],
             'sizeUnit' => 'cm',
             'weight' => (string) $data['shipment_Weight'],
             'weightUnit' => 'kg',
         ];
+        // dd( $payload);
         // Step 3: Call Lorrigo API
         try {
             // dd($payload);

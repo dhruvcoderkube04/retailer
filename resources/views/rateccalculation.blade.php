@@ -121,17 +121,19 @@
                     shipping_charge: rate.shipping_charge || 0,
                     cod_charge: rate.cod_charge || 0,
                     rto_charge: rate.rto_charge || 0,
-                    service_mode: rate.service_mode || ''
+                    service_mode: rate.service_mode || '',
+                    expected_pickup : rate.expectedPickup || ''
                 }));
 
             } else if (res.rates && Array.isArray(res.rates)) {
                 // Lorriog API
                 total_rates_list = res.rates.map(rate => ({
                     courier_name: rate.name || '',
-                    shipping_charge: rate.shipping_charge || 0,
+                    shipping_charge: rate.charge || 0,
                     cod_charge: rate.cod || 0,
                     rto_charge: rate.rtoCharges || 0,
-                    service_mode: rate.type || ''
+                    service_mode: rate.type || '',
+                    expected_pickup : rate.expectedPickup || ''
                 }));
             }
             // Only if we have rates, display them
@@ -147,6 +149,7 @@
                                 <p><strong>COD:</strong> ₹${rate.cod_charge}</p>
                                 <p><strong>RTO:</strong> ₹${rate.rto_charge}</p>
                                 <p><strong>Mode:</strong> ${rate.service_mode}</p>
+                                 <p><strong>Expected Pickup :</strong> ${rate.expected_pickup}</p>
                             </div>
                         </div>
                     `;

@@ -183,9 +183,7 @@
                             </div>
                         </div>
 
-
                         <div class="card-body pt-0">
-
                             <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_order_list_table">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -1103,11 +1101,14 @@
                     },
                     data: JSON.stringify(payload),
                     success: function(response) {
-                        console.log(response, "response shipping info");
+
                         if (response.status && response.shipment_rates && response.shipment_rates
                             .length > 0) {
                             populateModalTable(response.shipment_rates);
-                        } else {
+                        }else if (response.rates && Array.isArray(response.rates) && response.rates.length > 0) {
+                            populateModalTableLorrigo(response.rates);
+                        }
+                        else {
                             $('#courierDetailsBody').html(
                                 '<tr><td colspan="6">No courier services available</td></tr>');
                         }
@@ -1123,7 +1124,7 @@
                 });
             }
 
-            // Function to populate the courier modal table
+            // Function to populate the courier modal table  for fship
             function populateModalTable(shipmentRates) {
                 let tableBody = '';
                 shipmentRates.forEach(function(courier) {
@@ -1147,7 +1148,43 @@
                                         data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
                                         data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
                                         data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || 'N/A'}">
+                                        data-service-mode="${courier.service_mode || 'N/A'}
+                                        data-cpartner="fship">
+                                    Select
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+                $('#courierDetailsBody').html(tableBody);
+            }
+
+            // Function to populate the courier modal table  for lorrigo
+            function populateModalTableLorrigo(shipmentRates) {
+                let tableBody = '';
+                shipmentRates.forEach(function(courier) {
+
+                    const matchingCourier = courierServices.find(cs => cs.courierName === courier
+                        .courier_name) || {};
+                    tableBody += `
+                        <tr>
+                            <td>
+                                ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
+                                ${courier.name}
+                            </td>
+                            <td>₹${(courier.charge || 0).toFixed(2)}</td>
+                            <td>₹${(courier.cod || 0).toFixed(2)}</td>
+                            <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
+                            <td>${courier.type || 'N/A'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary select-courier"
+                                        data-courier="${courier.name}"
+                                        data-courier-id="${courier.carrierID || ''}"
+                                        data-courier-logo="${courier.name || null}"
+                                        data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
+                                        data-cod-charge="${(courier.cod || 0).toFixed(2)}"
+                                        data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
+                                        data-service-mode="${courier.type || 'N/A'}"
+                                        data-cpartner="lorrigo">
                                     Select
                                 </button>
                             </td>
@@ -1208,6 +1245,7 @@
                 const codCharge = $(this).data('cod-charge') || '0.00';
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
                 const serviceMode = $(this).data('service-mode') || 'N/A';
+                const cpartner =  $(this).data('cpartner');
                 console.log(courierId, courierName, "courier Info");
 
                 // Store selected courier in hidden inputs
@@ -1230,13 +1268,17 @@
                 `);
 
                 // Validate courier match
+
                 const matchedCourier = courierServices.find(cs => cs.courierName === courierName);
-                if (!matchedCourier || matchedCourier.courierId !== courierId) {
-                    $('.courier-service-error').text('Selected courier does not match available services.');
-                    $('.courier-service-error-section').show();
-                    return;
-                } else {
-                    $('.courier-service-error-section').hide();
+                if (cpartner == 'fship')
+                {
+                    if (!matchedCourier || matchedCourier.courierId !== courierId) {
+                        $('.courier-service-error').text('Selected courier does not match available services.');
+                        $('.courier-service-error-section').show();
+                        return;
+                    } else {
+                        $('.courier-service-error-section').hide();
+                    }
                 }
 
                 // Close courier modal and show previous modal

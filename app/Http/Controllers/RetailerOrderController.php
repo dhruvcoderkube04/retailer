@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\AccountTransaction;
 use App\Models\COrders;
+use App\Models\CourierPartner;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\PickAddress;
@@ -295,6 +296,7 @@ class RetailerOrderController extends Controller
             return response()->json(['status' => false, 'msg' => 'Something went wrong, Plase try later!']);
         }
     }
+
     public function pickupImageFetch(Request $request)
     {
         try {
@@ -310,6 +312,7 @@ class RetailerOrderController extends Controller
             return response()->json(['status' => false, 'msg' => $e->getMessage()]);
         }
     }
+
     public function pickupImageUpload(Request $request)
     {
         $request->validate([
@@ -417,6 +420,8 @@ class RetailerOrderController extends Controller
         $productName = $customerOrder->retailerCloneProduct->name ?? $customerOrder->product->name ?? 'N/A';
         $productSku = $customerOrder->retailerCloneProduct->sku ?? $customerOrder->product->sku ?? 'N/A';
 
+        $user = Auth::user();
+
         $updateData = [
             'status' => $request->status,
             'pickup_at' => now(),
@@ -430,86 +435,181 @@ class RetailerOrderController extends Controller
         $message = 'Order has been ready to ship (by supplier)';
         $type = 'pickup';
 
-        $payload = [
-            "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
-            "customer_Mobile" => $customerOrder->customer->phone_number,
-            "customer_Emailid" => $customerOrder->customer->email,
-            "customer_Address" => $customerOrder->customer->address,
-            "landMark" => "",
-            "customer_Address_Type" => "Home",
-            "customer_PinCode" => $customerOrder->customer->pincode,
-            "customer_City" => $customerOrder->customer->city,
-            "orderId" => $customerOrder->order_id,
-            "invoice_Number" => '',
-            "payment_Mode" => 1,
-            "express_Type" => "surface",
-            "is_Ndd" => 0,
-            "order_Amount" => $customerOrder->final_amount,
-            "tax_Amount" => 0,
-            "extra_Charges" => 0,
-            "total_Amount" => $customerOrder->final_amount,
-            "cod_Amount" => $customerOrder->final_amount ?? 0,
-            "shipment_Weight" => $request->product_weight,
-            "shipment_Length" => 12,
-            "shipment_Width" => 12,
-            "shipment_Height" => 12,
-            "volumetric_Weight" => 1,
-            "latitude" => 0,
-            "longitude" => 0,
-            "pick_Address_ID" => $pickup_address->warehouse_id,
-            "return_Address_ID" => $pickup_address->warehouse_id,
-            "products" => [[
-                "productId" => "121212",
-                "productName" => $productName,
-                "unitPrice" => $customerOrder->final_amount,
-                "quantity" => $customerOrder->quantity,
-                "productCategory" => "",
-                "hsnCode" => "",
-                "sku" => $productSku,
-                "taxRate" => 0,
-                "productDiscount" => 0
-            ]],
-            "courierId" => $request->courier_service_id,
-        ];
+        $active_courier_partners = CourierPartner::where('is_active',1)->first();
+
+        if(!empty($active_courier_partners) && $active_courier_partners->code =='fship')
+        {
+            $payload = [
+                "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+                "customer_Mobile" => $customerOrder->customer->phone_number,
+                "customer_Emailid" => $customerOrder->customer->email,
+                "customer_Address" => $customerOrder->customer->address,
+                "landMark" => "",
+                "customer_Address_Type" => "Home",
+                "customer_PinCode" => $customerOrder->customer->pincode,
+                "customer_City" => $customerOrder->customer->city,
+                "orderId" => $customerOrder->order_id,
+                "invoice_Number" => '',
+                "payment_Mode" => 1,
+                "express_Type" => "surface",
+                "is_Ndd" => 0,
+                "order_Amount" => $customerOrder->final_amount,
+                "tax_Amount" => 0,
+                "extra_Charges" => 0,
+                "total_Amount" => $customerOrder->final_amount,
+                "cod_Amount" => $customerOrder->final_amount ?? 0,
+                "shipment_Weight" => $request->product_weight,
+                "shipment_Length" => 12,
+                "shipment_Width" => 12,
+                "shipment_Height" => 12,
+                "volumetric_Weight" => 1,
+                "latitude" => 0,
+                "longitude" => 0,
+                "pick_Address_ID" => $pickup_address->warehouse_id,
+                "return_Address_ID" => $pickup_address->warehouse_id,
+                "products" => [[
+                    "productId" => "121212",
+                    "productName" => $productName,
+                    "unitPrice" => $customerOrder->final_amount,
+                    "quantity" => $customerOrder->quantity,
+                    "productCategory" => "",
+                    "hsnCode" => "",
+                    "sku" => $productSku,
+                    "taxRate" => 0,
+                    "productDiscount" => 0
+                ]],
+                "courierId" => $request->courier_service_id,
+            ];
+        }
+        elseif(!empty($active_courier_partners) &&  $active_courier_partners->code =='lorrigo')
+        {
+            $payload = [
+                "ewaybill"=> "",
+                "order_reference_id"=> $customerOrder->order_id . 1,
+                "payment_mode"=> 1,
+                "orderWeight"=> 0.5,
+                "orderWeightUnit"=> "kg",
+                "order_invoice_date"=> "",
+                "order_invoice_number"=> "",
+                "numberOfBoxes"=> 1,
+                "orderSizeUnit"=> "cm",
+                "orderBoxHeight"=> 0.5,
+                "orderBoxWidth"=> 0.5,
+                "orderBoxLength"=> 0.5,
+                // "amount2Collect"=> $customerOrder->final_amount,
+                "amount2Collect"=> 1,   # for temp
+                "customerDetails"=> [
+                  "name"=> trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+                  "phone"=> $customerOrder->customer->phone_number,
+                  "address"=> $customerOrder->customer->address .' '. $customerOrder->customer->city,
+                  "pincode"=> $customerOrder->customer->pincode,
+                ],
+                "productDetails"=> [
+                  "name"=> $productName,
+                  "category"=> "watch",
+                  "hsn_code"=> "",
+                  "quantity"=> 1,
+                  "taxRate"=> "1",
+                  "taxableValue"=> "100"
+                ],
+                "pickupAddress"=> $pickup_address->warehouse_id,
+                "sellerDetails"=> [
+                  "sellerName"=> $user->firstname .' '. @$user->lastname,
+                  "sellerGSTIN"=> "",
+                  "isSellerAddressAdded"=> true,
+                  "sellerPhone"=> @$user->phone_number,
+                  "sellerAddress"=> @$user->userDetail->address .' '. @$user->userDetail->city .' '. @$user->userDetail->state .' '. @$user->userDetail->country,
+                  "sellerPincode"=> @$user->userDetail->postal_code
+                ],
+                "isReverseOrder"=> false
+            ];
+        }
 
         $courierService = \App\Services\CourierServiceManager::getService();
         $response = $courierService->createOrder($payload);
 
-        if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
-            $updateData['tracking_number'] = $response['waybill'];
-            $updateData['api_order_id'] = $response['apiorderid'];
+        if(!empty($active_courier_partners) && $active_courier_partners->code =='fship')
+        {
+            if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
+                $updateData['tracking_number'] = $response['waybill'];
+                $updateData['api_order_id'] = $response['apiorderid'];
 
-            $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
-                'courier_service_response' => $response,
-                'courier_logo' => $request->courier_service_logo,
-                'pickupAddress' => $pickup_address,
-                'productName' => $productName,
-                'productSku' => $productSku,
-                'customerOrder' => $customerOrder,
-                'date' => Carbon::now(),
-            ]);
-            $pdf->setOptions([
-                'isRemoteEnabled' => true,
-                'isHtml5ParserEnabled' => true
-            ]);
-            $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+                $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
+                    'courier_service_response' => $response,
+                    'courier_logo' => $request->courier_service_logo,
+                    'pickupAddress' => $pickup_address,
+                    'productName' => $productName,
+                    'productSku' => $productSku,
+                    'customerOrder' => $customerOrder,
+                    'date' => Carbon::now(),
+                ]);
+                $pdf->setOptions([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true
+                ]);
+                $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
 
-            if (Storage::disk('spaces')->exists($filename)) {
-                Storage::disk('spaces')->delete($filename);
+                if (Storage::disk('spaces')->exists($filename)) {
+                    Storage::disk('spaces')->delete($filename);
+                }
+                Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
+                $pdfUrl = Storage::disk('spaces')->url($filename);
+
+                CustomerOrders::where('id', $customerOrder->id)->update([
+                    'shipping_label_url' => $pdfUrl
+                ]);
+
+                $customerOrder->update($updateData);
+
+                return [true, 'Order has been marked ready to ship', 'pickup'];
+            } else {
+                return [false, $response['response'] ?? 'Failed to create shipping order', ''];
             }
-            Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
-            $pdfUrl = Storage::disk('spaces')->url($filename);
-
-            CustomerOrders::where('id', $customerOrder->id)->update([
-                'shipping_label_url' => $pdfUrl
-            ]);
-
-            $customerOrder->update($updateData);
-
-            return [true, 'Order has been marked ready to ship', 'pickup'];
-        } else {
-            return [false, $response['response'] ?? 'Failed to create shipping order', ''];
         }
+        elseif(!empty($active_courier_partners) &&  $active_courier_partners->code =='lorrigo')
+        {
+            if (!empty($response['order']['orderStages'][0]['_id']) && !empty($response['order']['_id'])) {
+                $updateData['tracking_number'] = $response['order']['orderStages'][0]['_id']; // Using stage _id as tracking_number
+                $updateData['api_order_id'] = $response['order']['_id']; // Main order _id
+
+                $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
+                    'courier_service_response' => $response['order'],
+                    'courier_logo' => $request->courier_service_logo,
+                    'pickupAddress' => $pickup_address,
+                    'productName' => $productName,
+                    'productSku' => $productSku,
+                    'customerOrder' => $customerOrder,
+                    'date' => Carbon::now(),
+                ]);
+
+                $pdf->setOptions([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true
+                ]);
+
+                $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+
+                if (Storage::disk('spaces')->exists($filename)) {
+                    Storage::disk('spaces')->delete($filename);
+                }
+
+                Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
+                $pdfUrl = Storage::disk('spaces')->url($filename);
+
+                CustomerOrders::where('id', $customerOrder->id)->update([
+                    'shipping_label_url' => $pdfUrl
+                ]);
+
+                $customerOrder->update($updateData);
+
+                return [true, 'Order has been marked ready to ship', 'pickup'];
+            }
+        }
+        else
+        {
+            return [false, $response['response'] ?? 'Courier Partner not Select', ''];
+        }
+
     }
 
     // IN-TRANSIT
