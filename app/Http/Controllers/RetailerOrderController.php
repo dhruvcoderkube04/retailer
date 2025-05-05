@@ -409,6 +409,7 @@ class RetailerOrderController extends Controller
             'status' => 'transfered_retailer_to_wholesaler',
             'transfered_retailer_to_wholesaler_at' => Carbon::now(),
             'order_process_by' => 'wholesaler',
+            'checkout_type'=>'cod',
         ]);
 
         return [true, 'Wholesaler will ship this product', 'new'];

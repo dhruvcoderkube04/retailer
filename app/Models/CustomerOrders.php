@@ -50,11 +50,11 @@ class CustomerOrders extends Model
         'payment_status',
         'payment_method',
         'variation_id',
-
         'shipment_status',
         'fulfilledby',
         'shipment_status_updated_at',
-        'courier_partner_id'
+        'courier_partner_id',
+        'checkout_type'
     ];
 
     protected $casts = [
