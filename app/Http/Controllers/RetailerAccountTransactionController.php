@@ -19,7 +19,7 @@ class RetailerAccountTransactionController extends Controller
     public function indexAccountsTransactions(Request $request)
     {
         $user = Auth::user();
-        if (!$user->user_type == 3) { // retailer            
+        if ($user->user_type != 3) { // retailer            
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 

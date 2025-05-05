@@ -468,7 +468,7 @@ class RetailerOrderController extends Controller
                 "pick_Address_ID" => $pickup_address->warehouse_id,
                 "return_Address_ID" => $pickup_address->warehouse_id,
                 "products" => [[
-                    "productId" => "121212",
+                    "productId" => $customerOrder->id,
                     "productName" => $productName,
                     "unitPrice" => $customerOrder->final_amount,
                     "quantity" => $customerOrder->quantity,
@@ -505,7 +505,7 @@ class RetailerOrderController extends Controller
                 ],
                 "productDetails"=> [
                   "name"=> $productName,
-                  "category"=> "watch",
+                  "category"=> $customerOrder->retailerCloneProduct->sub_category->sub_category_name ?? $customerOrder->product->sub_category->sub_category_name ?? 'N/A',
                   "hsn_code"=> "",
                   "quantity"=> 1,
                   "taxRate"=> "1",
