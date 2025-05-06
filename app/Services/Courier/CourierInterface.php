@@ -14,4 +14,6 @@ interface CourierInterface
 
     public function cancelShipment(array $data): array;
     public function reattemptShipment(array $data): array;
+    public function createShipment(array $payload): array|bool;
+
 }

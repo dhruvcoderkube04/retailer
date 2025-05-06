@@ -357,5 +357,10 @@ class FShipService implements CourierInterface
             return false;
         }
     }
+
+    public function createShipment($payload):array|bool
+    {
+        return [];
+    }
 }
 

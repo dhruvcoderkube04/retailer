@@ -2,6 +2,7 @@
 
 namespace App\Services\Courier;
 
+use App\Models\LorrigoCarrier;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -42,7 +43,6 @@ class LorrigoService implements CourierInterface
         ];
     }
 
-
     public function createOrder(array $data): array
     {
         try {
@@ -64,7 +64,6 @@ class LorrigoService implements CourierInterface
                     'data' => [],
                 ];
             }
-
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Exception while creating order', [
@@ -123,8 +122,6 @@ class LorrigoService implements CourierInterface
             ];
         }
     }
-
-
 
     public function checkPincodeAvailability(array $data): array
     {
@@ -345,4 +342,31 @@ class LorrigoService implements CourierInterface
         return [];
     }
 
+
+    public function createShipment(array $payload): array|bool
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->acceptJson()
+                ->post("{$this->apiUrl}/api/shipment/v2", $payload);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('Create shipment failed', [
+                'status' => $response->status(),
+                'response' => $response->body(),
+            ]);
+
+            return false;
+        } catch (\Throwable $e) {
+            Log::error('Create shipment exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return false;
+        }
+    }
 }

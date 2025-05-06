@@ -1,0 +1,24 @@
+id,name,weight_slab,weight_unit,increment_weight,type,nickname
+6631eca4e7bf344f412fe4c9,Xpressbees surface 0.5 kg,0.5,Kg,0.5,surface,BDS
+6633295ae7bf344f412fe4cb,Ekart surface 0.5 kg,0.5,Kg,0.5,surface,BDS
+66332c24e7bf344f412fe4cc,Amazon Prepaid surface 0.5 kg,0.5,Kg,0.5,surface,BDS
+66332cade7bf344f412fe4cd,Amazon COD surface 0.5 kg,0.5,Kg,0.5,surface,BDS
+66332d04e7bf344f412fe4ce,Delhivery air 0.5 kg,0.5,Kg,0.5,surface,BDS
+66596494ea09cc12380f0b87,Delhivery surface 5 kg,5,Kg,1,surface,DEL
+66617a7ee7ac2a637505b8ad,Ecom Express Surface 3 kg,3,Kg,1,surface,BDS
+6668b335e7ac2a637505b8bc,Xpressbees Surface 1 kg,1,Kg,1,surface,BDS
+6668b420e7ac2a637505b8bd,Xpressbees Surface 5 kg,5,Kg,1,surface,BDS
+66693b70e7ac2a637505b8be,DTDC Air 0.5 kg,0.5,Kg,0.5,surface,BDS
+666b04d2e7ac2a637505b8d0,Delhivery RVP 5 kg,5,Kg,1,surface,DEL
+666c31eee7ac2a637505b8d2,Delhivery surface 0.5 kg,0.5,Kg,0.5,surface,DEL.0.5
+666c8c69e7ac2a637505b8d3,Delhivery Surface RVP 0.5 kg,0.5,Kg,0.5,surface,DEL.0.5
+666d27b7e7ac2a637505b8d4,Shadowfax Surface RVP 0.5kg,0.5,Kg,0.5,surface,BDS
+666fe2ff30e6ee33c1b0d849,Delhivery Surface RVP 10 kg,10,Kg,1,surface,DEL.10
+666fe32c30e6ee33c1b0d84a,Delhivery Surface 10 kg,10,Kg,1,surface,DEL.10
+66bc2fbf5853fe89e5895568,DTDC surface 2 kg,2,Kg,1,surface,BDS
+66ea9951a99c44d605d53a5a,Ekart Surface 5 kg,5,Kg,1,surface,BDS
+678b3ac540f9b7f91a8b4c3f,Bluedart air 0.5kg,0.5,Kg,0.5,air,BDS
+67a30c0bc0f32f279b8b5c88,Bluedart Surface 0.5 kg,0.5,Kg,0.5,surface,BDS
+67c1dce4ec84abf517a537fc,Xpressbees Surface 0.25 kg spl,0.25,Kg,0.25,surface,BDS
+67c2d928ec84abf517a537fd,Amazon Surface 0.25 kg spl,0.25,Kg,0.25,surface,BDS
+67f7a38195960495efe49215,Bluedart Surface 2 kg,2,Kg,1,surface,BDS

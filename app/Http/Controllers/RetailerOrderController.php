@@ -9,6 +9,7 @@ use App\Models\CourierPartner;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
+use App\Models\LorrigoCarrier;
 use App\Models\PickAddress;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
@@ -531,7 +532,7 @@ class RetailerOrderController extends Controller
         } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
             $payload = [
                 "ewaybill" => "",
-                "order_reference_id" => $customerOrder->order_id . 1,
+                "order_reference_id" => $customerOrder->order_id . rand(1,9999999),
                 "payment_mode" => 1,
                 "orderWeight" => 0.5,
                 "orderWeightUnit" => "kg",
@@ -609,44 +610,80 @@ class RetailerOrderController extends Controller
             } else {
                 return [false, $response['response'] ?? 'Failed to create shipping order', ''];
             }
-        } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
-            if (!empty($response['order']['orderStages'][0]['_id']) && !empty($response['order']['_id'])) {
-                $updateData['tracking_number'] = $response['order']['orderStages'][0]['_id']; // Using stage _id as tracking_number
-                $updateData['api_order_id'] = $response['order']['_id']; // Main order _id
+        }
+        elseif(!empty($active_courier_partners) &&  $active_courier_partners->code =='lorrigo')
+        {
 
-                $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
-                    'courier_service_response' => $response['order'],
-                    'courier_logo' => $request->courier_service_logo,
-                    'pickupAddress' => $pickup_address,
-                    'productName' => $productName,
-                    'productSku' => $productSku,
-                    'customerOrder' => $customerOrder,
-                    'date' => Carbon::now(),
-                ]);
+            if (!empty($response['order']['_id'])) {
 
-                $pdf->setOptions([
-                    'isRemoteEnabled' => true,
-                    'isHtml5ParserEnabled' => true
-                ]);
+                // dd($request->courier_service);
+                // $get_carrier = LorrigoCarrier::where('name',$request->courier_service)->first();
+                $get_carrier = LorrigoCarrier::whereRaw("REPLACE(LOWER(name), ' ', '') = ?", [
+                    str_replace(' ', '', strtolower($request->courier_service))
+                ])->first();
 
-                $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+                if ($get_carrier)
+                {
+                    $create_shipment_payload = [
+                        "carrierId"=> $get_carrier->id,
+                        "orderId"=>$response['order']['_id'],
+                        "carrierNickName"=>$get_carrier->nickname ,
+                        "charge"=> $request->shipping_charge,
+                        "orderType"=> 0,
+                        "type"=> $get_carrier->type
+                    ];
 
-                if (Storage::disk('spaces')->exists($filename)) {
-                    Storage::disk('spaces')->delete($filename);
+                    $createshipment = $courierService->createShipment($create_shipment_payload);
+                    if ($createshipment['valid']  && $createshipment['order'])
+                    {
+                        $updateData['tracking_number'] = $createshipment['order']['awb'];
+                        $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
+
+                        $pdf = PDF::loadView('pdf.lorrigo-order-shipping-label', [
+                            'courier_service_response' => $createshipment['order']['awb'],
+                            'courier_logo' => @$request->courier_service_logo,
+                            'pickupAddress' => $pickup_address,
+                            'productName' => $productName,
+                            'productSku' => $productSku,
+                            'customerOrder' => $customerOrder,
+                            'date' => Carbon::now(),
+                        ]);
+
+                        $pdf->setOptions([
+                            'isRemoteEnabled' => true,
+                            'isHtml5ParserEnabled' => true
+                        ]);
+
+                        $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+
+                        if (Storage::disk('spaces')->exists($filename)) {
+                            Storage::disk('spaces')->delete($filename);
+                        }
+
+                        Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
+                        $pdfUrl = Storage::disk('spaces')->url($filename);
+
+                        CustomerOrders::where('id', $customerOrder->id)->update([
+                            'shipping_label_url' => $pdfUrl
+                        ]);
+
+                        $customerOrder->update($updateData);
+
+                        return [true, 'Order has been marked ready to ship', 'pickup'];
+                    }
+                    else
+                    {
+                        return [false,  $response['response'] ?? 'tracking number created failed ', ''];
+                    }
                 }
-
-                Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
-                $pdfUrl = Storage::disk('spaces')->url($filename);
-
-                CustomerOrders::where('id', $customerOrder->id)->update([
-                    'shipping_label_url' => $pdfUrl
-                ]);
-
-                $customerOrder->update($updateData);
-
-                return [true, 'Order has been marked ready to ship', 'pickup'];
+                else
+                {
+                    return [false, $response['response'] ?? 'Carrier id  not Select', ''];
+                }
             }
-        } else {
+        }
+        else
+        {
             return [false, $response['response'] ?? 'Courier Partner not Select', ''];
         }
     }
