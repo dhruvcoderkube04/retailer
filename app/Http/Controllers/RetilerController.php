@@ -86,8 +86,7 @@ class RetilerController extends Controller
         // Fetch filtered orders based on type
         $retailerOrders = CustomerOrders::with([
             'customer',
-            'product',
-            'retailerCloneProduct',
+            'order_product_detail',
             'wholesaler.userDetail',
         ])
             ->where('retailer_id', $user->id)

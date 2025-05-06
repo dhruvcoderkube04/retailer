@@ -30,7 +30,7 @@ return new class extends Migration
             $table->json('images')->nullable();
             $table->json('videos')->nullable();
             $table->string('url')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('inactive');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->string('color')->nullable();
             $table->string('size')->nullable();
             $table->json('specifications')->nullable();

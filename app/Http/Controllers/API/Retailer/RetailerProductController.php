@@ -473,6 +473,38 @@ class RetailerProductController extends Controller
                     }
                     $productModel->quantity -= $quantity;
                     $productModel->save();
+
+                    // START: clone to order_product_details
+                    $orderProductDetails = new OrderProductDetails();
+                    $orderProductDetails->product_id = $productModel->id;
+                    $orderProductDetails->sku = $productModel->sku;
+                    $orderProductDetails->wholesaler_id = $productModel->wholesaler_id ?? null;
+                    $orderProductDetails->retailer_id = $productModel->retailer_id ?? null;
+                    $orderProductDetails->name = $productModel->name;
+                    $orderProductDetails->slug = $productModel->slug;
+                    $orderProductDetails->description = $productModel->description;
+                    $orderProductDetails->brand_name = $productModel->brand_name;
+                    $orderProductDetails->tags = $productModel->tags;
+                    $orderProductDetails->quantity = $productModel->quantity;
+                    $orderProductDetails->old_price = $productModel->old_price;
+                    $orderProductDetails->new_price = $productModel->new_price;
+                    $orderProductDetails->discount_price = $productModel->discount_price;
+                    $orderProductDetails->images = $productModel->images;
+                    $orderProductDetails->videos = $productModel->videos;
+                    $orderProductDetails->url = $productModel->url;
+                    $orderProductDetails->status = $productModel->status;
+                    $orderProductDetails->color = $productModel->color;
+                    $orderProductDetails->size = $productModel->size;
+                    $orderProductDetails->specifications = $productModel->specifications;
+                    $orderProductDetails->category_id = $productModel->category_id;
+                    $orderProductDetails->category_name = $productModel->category->category_name ?? null;
+                    $orderProductDetails->sub_category_id = $productModel->sub_category_id;
+                    $orderProductDetails->sub_category_name = $productModel->sub_category->sub_category_name ?? null;
+                    $orderProductDetails->meta_title = $productModel->meta_title;
+                    $orderProductDetails->meta_description = $productModel->meta_description;
+                    $orderProductDetails->meta_keywords = $productModel->meta_keywords;
+                    $orderProductDetails->save();
+                    // END: clone to order_product_details
                 } else {
                     $retailerProduct = RetailerCloneProduct::where('retailer_id', $retailerId)
                         ->where('id', $cloneId)
@@ -485,52 +517,44 @@ class RetailerProductController extends Controller
                     }
                     $retailerProduct->quantity -= $quantity;
                     $retailerProduct->save();
+
+                    // START: clone to order_product_details
+                    $orderProductDetails = new OrderProductDetails();
+                    $orderProductDetails->product_id = $retailerProduct->id;
+                    $orderProductDetails->sku = $retailerProduct->sku;
+                    $orderProductDetails->wholesaler_id = $retailerProduct->wholesaler_id ?? null;
+                    $orderProductDetails->retailer_id = $retailerProduct->retailer_id ?? null;
+                    $orderProductDetails->name = $retailerProduct->name;
+                    $orderProductDetails->slug = $retailerProduct->slug;
+                    $orderProductDetails->description = $retailerProduct->description;
+                    $orderProductDetails->brand_name = $retailerProduct->brand_name;
+                    $orderProductDetails->tags = $retailerProduct->tags;
+                    $orderProductDetails->quantity = $retailerProduct->quantity;
+                    $orderProductDetails->old_price = $retailerProduct->old_price;
+                    $orderProductDetails->new_price = $retailerProduct->new_price;
+                    $orderProductDetails->discount_price = $retailerProduct->discount_price;
+                    $orderProductDetails->images = $retailerProduct->images;
+                    $orderProductDetails->videos = $retailerProduct->videos;
+                    $orderProductDetails->url = $retailerProduct->url;
+                    $orderProductDetails->status = $retailerProduct->status;
+                    $orderProductDetails->color = $retailerProduct->color;
+                    $orderProductDetails->size = $retailerProduct->size;
+                    $orderProductDetails->specifications = $retailerProduct->specifications;
+                    $orderProductDetails->category_id = $retailerProduct->category_id;
+                    $orderProductDetails->category_name = $retailerProduct->category->category_name ?? null;
+                    $orderProductDetails->sub_category_id = $retailerProduct->sub_category_id;
+                    $orderProductDetails->sub_category_name = $retailerProduct->sub_category->sub_category_name ?? null;
+                    $orderProductDetails->meta_title = $retailerProduct->meta_title;
+                    $orderProductDetails->meta_description = $retailerProduct->meta_description;
+                    $orderProductDetails->meta_keywords = $retailerProduct->meta_keywords;
+                    $orderProductDetails->save();
+                    // END: clone to order_product_details
                 }
-
-                // START: clone to order_product_details
-                // $product_detail = Product::where('id', $request->product_id)->where('status', 'active')->first();
-                // if (!$product_detail) {
-                //     $product_detail = RetailerCloneProduct::where('id', $request->product_id)->where('status', 'active')->first();
-                //     if (!$product_detail) {
-                //         session()->flash('error', 'Invalid product!');
-                //         return redirect()->route('retailer.place-order-view');
-                //     }
-                // }
-
-                // $orderProductDetails = new OrderProductDetails();
-                // $orderProductDetails->product_id = $product_detail->id;
-                // $orderProductDetails->sku = $product_detail->sku;
-                // $orderProductDetails->wholesaler_id = $product_detail->wholesaler_id ?? null;
-                // $orderProductDetails->retailer_id = $product_detail->retailer_id ?? null;
-                // $orderProductDetails->name = $product_detail->name;
-                // $orderProductDetails->slug = $product_detail->slug;
-                // $orderProductDetails->description = $product_detail->description;
-                // $orderProductDetails->brand_name = $product_detail->brand_name;
-                // $orderProductDetails->tags = $product_detail->tags;
-                // $orderProductDetails->quantity = $product_detail->quantity;
-                // $orderProductDetails->old_price = $product_detail->old_price;
-                // $orderProductDetails->new_price = $product_detail->new_price;
-                // $orderProductDetails->discount_price = $product_detail->discount_price;
-                // $orderProductDetails->images = $product_detail->images;
-                // $orderProductDetails->videos = $product_detail->videos;
-                // $orderProductDetails->url = $product_detail->url;
-                // $orderProductDetails->status = $product_detail->status;
-                // $orderProductDetails->color = $product_detail->color;
-                // $orderProductDetails->size = $product_detail->size;
-                // $orderProductDetails->specifications = $product_detail->specifications;
-                // $orderProductDetails->category_id = $product_detail->category_id;
-                // $orderProductDetails->category_name = $product_detail->category->category_name ?? null;
-                // $orderProductDetails->sub_category_id = $product_detail->sub_category_id;
-                // $orderProductDetails->sub_category_name = $product_detail->sub_category->sub_category_name ?? null;
-                // $orderProductDetails->meta_title = $product_detail->meta_title;
-                // $orderProductDetails->meta_description = $product_detail->meta_description;
-                // $orderProductDetails->meta_keywords = $product_detail->meta_keywords;
-                // $orderProductDetails->save();
-                // END: clone to order_product_details
 
                 $orderItems[] = [
                     'order_id' => $orderID,
                     'customer_id' => $customerDetail->id,
+                    'order_product_id' => $orderProductDetails->id,
                     'product_id' => $productId,
                     'retailer_clone_product_id' => $cloneId,
                     'retailer_id' => $retailerId,

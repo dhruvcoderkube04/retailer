@@ -175,8 +175,7 @@ class RetailerOrderController extends Controller
         // Orders query
         $sql = CustomerOrders::with([
             'customer',
-            'product',
-            'retailerCloneProduct',
+            'order_product_detail',
             'wholesaler.userDetail',
         ])
         ->where('order_process_by', 'retailer')
@@ -275,7 +274,7 @@ class RetailerOrderController extends Controller
         DB::beginTransaction();
         try {
             $retailer = Auth::user();
-            $customerOrder = CustomerOrders::with(['customer', 'product', 'retailerCloneProduct'])->find($request->order_id);
+            $customerOrder = CustomerOrders::with(['customer', 'order_product_detail'])->find($request->order_id);
 
             if (!$customerOrder) {
                 return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
@@ -410,7 +409,7 @@ class RetailerOrderController extends Controller
         try {
             $retailer = Auth::user();
 
-            $customerOrder = CustomerOrders::with('product', 'retailerCloneProduct')
+            $customerOrder = CustomerOrders::with('order_product_detail')
                 ->find($request->order_id);
 
             if (!$customerOrder) {
@@ -432,7 +431,7 @@ class RetailerOrderController extends Controller
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
                 DB::rollBack();
-                return response()->json(['status' => false, 'msg' => 'Invalid Order Status']);
+                return response()->json(['status' => false, 'msg' => $message ?? 'Invalid Order Status']);
             }
         } catch (Exception $e) {
             DB::rollBack();
@@ -469,8 +468,8 @@ class RetailerOrderController extends Controller
     // PICKUP
     private function handlePickupStatus($request, $customerOrder, $pickup_address)
     {
-        $productName = $customerOrder->retailerCloneProduct->name ?? $customerOrder->product->name ?? 'N/A';
-        $productSku = $customerOrder->retailerCloneProduct->sku ?? $customerOrder->product->sku ?? 'N/A';
+        $productName = $customerOrder->order_product_detail->name ?? 'N/A';
+        $productSku = $customerOrder->order_product_detail->sku ?? 'N/A';
 
         $user = Auth::user();
 
@@ -484,8 +483,6 @@ class RetailerOrderController extends Controller
             'cod_charge' => $request->cod_charge,
             'rto_charge' => $request->rto_charge,
         ];
-        $message = 'Order has been ready to ship (by supplier)';
-        $type = 'pickup';
 
         $active_courier_partners = CourierPartner::where('is_active', 1)->first();
 
@@ -554,7 +551,7 @@ class RetailerOrderController extends Controller
                 ],
                 "productDetails" => [
                     "name" => $productName,
-                    "category" => $customerOrder->retailerCloneProduct->sub_category->sub_category_name ?? $customerOrder->product->sub_category->sub_category_name ?? 'N/A',
+                    "category" => $customerOrder->order_product_detail->sub_category_name ?? 'N/A',
                     "hsn_code" => "",
                     "quantity" => 1,
                     "taxRate" => "1",
@@ -682,12 +679,16 @@ class RetailerOrderController extends Controller
 
         // wholesaler product
         if ($customerOrder->product_id && !$customerOrder->retailer_clone_product_id) {
-            $wholesalerDetail = UserDetail::where('user_id', $customerOrder->product->wholesaler_id)->first();
+            $wholesalerDetail = UserDetail::where('user_id', $customerOrder->order_product_detail->wholesaler_id)->first();
 
             $marginFetch = RetailerProducts::where('retailer_id', $retailer->id)
-                ->where('wholesaler_id', $customerOrder->product->wholesaler_id)
-                ->where('category_id', $customerOrder->product->category_id)
+                ->where('wholesaler_id', $customerOrder->order_product_detail->wholesaler_id)
+                ->where('category_id', $customerOrder->order_product_detail->category_id)
                 ->first();
+
+            if (!$marginFetch) {
+                return [false, 'Product category margin not added, Please go to Wholesaler section and add margin first', 'delivered'];
+            }
 
             if ($customerOrder->final_amount < $marginFetch->margin) {
                 $retailer_transaction_amount = 0;
@@ -726,9 +727,9 @@ class RetailerOrderController extends Controller
             // wholesaler entry
             AccountTransaction::create([
                 'customer_order_id' => $customerOrder->id,
-                'user_id' => $customerOrder->product->wholesaler_id,
+                'user_id' => $customerOrder->order_product_detail->wholesaler_id,
                 'user_type' => 'wholesaler',
-                'description' => 'Product ' . $customerOrder->product->name . ' has been delivered by retailer, Order id is ' . $customerOrder->order_id,
+                'description' => 'Product ' . $customerOrder->order_product_detail->name . ' has been delivered by retailer, Order id is ' . $customerOrder->order_id,
                 'transaction_amount' => $wholesaler_transaction_amount,
                 'charges' => null,
                 'final_transaction_amount' => $wholesaler_final_transaction_amount,

@@ -213,7 +213,7 @@
                                                     </div>
                                                     <div class="my-2">
                                                         <strong>Name:</strong>
-                                                        {{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}
+                                                        {{ $detail?->order_product_detail?->name ?? '' }}
                                                     </div>
                                                     <div class="my-2">
                                                         <strong>Quantity:</strong> Qty: {{ $detail->quantity }}
@@ -222,7 +222,6 @@
                                                     <div class="my-2">
                                                         <strong>Amount:</strong> ₹
                                                         {{ $detail?->final_amount }}
-                                                        {{-- {{ $detail?->product?->new_price ?? ($detail?->retailerCloneProduct?->new_price ?? '') }} --}}
                                                     </div>
                                                     <div class="my-2">
                                                         <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}
@@ -260,16 +259,10 @@
                                             <td>
                                                 <div class="mt-2">
                                                     @php
-                                                        if (!empty($detail?->product?->images)) {
-                                                            $imagePath = explode(',', $detail->product->images)[0];
-                                                        } elseif (!empty($detail?->retailerCloneProduct?->images)) {
-                                                            $imagePath = explode(
-                                                                ',',
-                                                                $detail->retailerCloneProduct->images,
-                                                            )[0];
-                                                        } else {
-                                                            $imagePath = null;
-                                                        }
+                                                        $imagePath = explode(
+                                                            ',',
+                                                            $detail->order_product_detail->images,
+                                                        )[0];
                                                     @endphp
 
                                                     @if ($imagePath)
@@ -306,6 +299,7 @@
                                             <td>
                                                 @if ($detail->status == 'pending')
                                                     <button type="button" class="btn btn-primary btn-sm newOrderAction"
+                                                        data-order-product-id="{{$detail->order_product_id}}"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
@@ -317,6 +311,7 @@
                                                 @elseif ($detail->status == 'approved_by_retailer')
                                                     <button type="button"
                                                         class="btn btn-primary btn-sm confirmedOrderAction"
+                                                        data-order-product-id="{{$detail->order_product_id}}"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-product-amount="{{ $detail?->final_amount }}"
                                                         data-product-pincode="{{ $detail->customer->pincode }}"
@@ -328,6 +323,7 @@
                                                 @elseif ($detail->status == 'pickup')
                                                     <button type="button"
                                                         class="btn btn-primary btn-sm pickupOrderAction"
+                                                        data-order-product-id="{{$detail->order_product_id}}"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
@@ -339,6 +335,7 @@
                                                 @elseif ($detail->status == 'in_transit')
                                                     <button type="button"
                                                         class="btn btn-primary btn-sm inTransitOrderAction"
+                                                        data-order-product-id="{{$detail->order_product_id}}"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
@@ -350,6 +347,7 @@
                                                 @else
                                                     <button type="button" class="btn btn-primary btn-sm"
                                                         style="white-space: nowrap; opacity: 0.4"
+                                                        data-order-product-id="{{$detail->order_product_id}}"
                                                         data-product-id="{{ $detail->product_id }}"
                                                         data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
                                                         data-order-id="{{ $detail->id }}"
@@ -465,6 +463,7 @@
 
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_product_id" class="order_product_id">
                         <input type="hidden" name="order_id" class="order_id">
                     </div>
 
@@ -702,6 +701,7 @@
 
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_product_id" class="order_product_id">
                         <input type="hidden" name="order_id" class="order_id">
                         <input type="hidden" class="corder_id" name="c_order_id">
                         {{-- <input type="hidden" name="courier_service_id" class="courier_service_id"> --}}
@@ -853,6 +853,7 @@
 
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_product_id" class="order_product_id">
                         <input type="hidden" name="order_id" class="order_id">
                     </div>
 
@@ -1007,6 +1008,7 @@
 
                         <input type="hidden" name="product_id" class="product_id">
                         <input type="hidden" name="retailer_clone_product_id" class="retailer_clone_product_id">
+                        <input type="hidden" name="order_product_id" class="order_product_id">
                         <input type="hidden" name="order_id" class="order_id">
                     </div>
 
@@ -1105,10 +1107,10 @@
                         if (response.status && response.shipment_rates && response.shipment_rates
                             .length > 0) {
                             populateModalTable(response.shipment_rates);
-                        }else if (response.rates && Array.isArray(response.rates) && response.rates.length > 0) {
+                        } else if (response.rates && Array.isArray(response.rates) && response.rates
+                            .length > 0) {
                             populateModalTableLorrigo(response.rates);
-                        }
-                        else {
+                        } else {
                             $('#courierDetailsBody').html(
                                 '<tr><td colspan="6">No courier services available</td></tr>');
                         }
@@ -1245,7 +1247,7 @@
                 const codCharge = $(this).data('cod-charge') || '0.00';
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
                 const serviceMode = $(this).data('service-mode') || 'N/A';
-                const cpartner =  $(this).data('cpartner');
+                const cpartner = $(this).data('cpartner');
                 console.log(courierId, courierName, "courier Info");
 
                 // Store selected courier in hidden inputs
@@ -1270,10 +1272,10 @@
                 // Validate courier match
 
                 const matchedCourier = courierServices.find(cs => cs.courierName === courierName);
-                if (cpartner == 'fship')
-                {
+                if (cpartner == 'fship') {
                     if (!matchedCourier || matchedCourier.courierId !== courierId) {
-                        $('.courier-service-error').text('Selected courier does not match available services.');
+                        $('.courier-service-error').text(
+                            'Selected courier does not match available services.');
                         $('.courier-service-error-section').show();
                         return;
                     } else {
@@ -1326,6 +1328,7 @@
             $(document).on('click', '.newOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
+                let order_product_id = $(this).attr('data-order-product-id');
                 let order_id = $(this).attr('data-order-id');
                 let c_order_id = $(this).attr('data-c-order-id');
 
@@ -1335,6 +1338,7 @@
 
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
+                $('.order_product_id').val(order_product_id);
                 $('.order_id').val(order_id);
                 $('.corder_id').val(c_order_id);
 
@@ -1501,6 +1505,7 @@
             $(document).on('click', '.confirmedOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
+                let order_product_id = $(this).attr('data-order-product-id');
                 let order_id = $(this).attr('data-order-id');
                 let customer_pincode = $(this).attr('data-product-pincode');
                 let product_amount = $(this).attr('data-product-amount');
@@ -1517,6 +1522,7 @@
 
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
+                $('.order_product_id').val(order_product_id);
                 $('.order_id').val(order_id);
 
                 $('#confirmed-order-action-modal').modal('show');
@@ -1770,11 +1776,13 @@
             $(document).on('click', '.pickupOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
+                let order_product_id = $(this).attr('data-order-product-id');
                 let order_id = $(this).attr('data-order-id');
                 let c_order_id = $(this).attr('data-c-order-id');
 
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
+                $('.order_product_id').val(order_product_id);
                 $('.order_id').val(order_id);
                 $('.corder_id').val(c_order_id);
 
@@ -1923,11 +1931,13 @@
             $(document).on('click', '.inTransitOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
+                let order_product_id = $(this).attr('data-order-product-id');
                 let order_id = $(this).attr('data-order-id');
                 let c_order_id = $(this).attr('data-c-order-id');
 
                 $('.product_id').val(product_id);
                 $('.retailer_clone_product_id').val(retailer_clone_product_id);
+                $('.order_product_id').val(order_product_id);
                 $('.order_id').val(order_id);
                 $('.corder_id').val(c_order_id);
 
