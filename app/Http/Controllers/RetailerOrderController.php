@@ -8,8 +8,10 @@ use App\Models\COrders;
 use App\Models\CourierPartner;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
+use App\Models\OrderProductDetails;
 use App\Models\PickAddress;
 use App\Models\Product;
+use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
 use App\Models\RTOAddress;
 use App\Models\UserDetail;
@@ -66,7 +68,12 @@ class RetailerOrderController extends Controller
             'state' => 'required|max:50',
             'city' => 'required|max:50',
             'pincode' => 'required|numeric|digits:6',
-            'payment_method' => 'required'
+
+            'product_id' => 'required',
+            'retailer_id' => 'required',
+            'wholesaler_id' => 'required',
+            'quantity' => 'required',
+            'payment_method' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -82,8 +89,50 @@ class RetailerOrderController extends Controller
             $customerDetail->pincode = $request->pincode;
             $customerDetail->save();
 
+            // START: clone to order_product_details
+            $product_detail = Product::where('id', $request->product_id)->where('status', 'active')->first();
+            if (!$product_detail) {
+                $product_detail = RetailerCloneProduct::where('id', $request->product_id)->where('status', 'active')->first();
+                if (!$product_detail) {
+                    session()->flash('error', 'Invalid product!');
+                    return redirect()->route('retailer.place-order-view');
+                }
+            }
+
+            $orderProductDetails = new OrderProductDetails();
+            $orderProductDetails->product_id = $product_detail->id;
+            $orderProductDetails->sku = $product_detail->sku;
+            $orderProductDetails->wholesaler_id = $product_detail->wholesaler_id ?? null;
+            $orderProductDetails->retailer_id = $product_detail->retailer_id ?? null;
+            $orderProductDetails->name = $product_detail->name;
+            $orderProductDetails->slug = $product_detail->slug;
+            $orderProductDetails->description = $product_detail->description;
+            $orderProductDetails->brand_name = $product_detail->brand_name;
+            $orderProductDetails->tags = $product_detail->tags;
+            $orderProductDetails->quantity = $product_detail->quantity;
+            $orderProductDetails->old_price = $product_detail->old_price;
+            $orderProductDetails->new_price = $product_detail->new_price;
+            $orderProductDetails->discount_price = $product_detail->discount_price;
+            $orderProductDetails->images = $product_detail->images;
+            $orderProductDetails->videos = $product_detail->videos;
+            $orderProductDetails->url = $product_detail->url;
+            $orderProductDetails->status = $product_detail->status;
+            $orderProductDetails->color = $product_detail->color;
+            $orderProductDetails->size = $product_detail->size;
+            $orderProductDetails->specifications = $product_detail->specifications;
+            $orderProductDetails->category_id = $product_detail->category_id;
+            $orderProductDetails->category_name = $product_detail->category->category_name ?? null;
+            $orderProductDetails->sub_category_id = $product_detail->sub_category_id;
+            $orderProductDetails->sub_category_name = $product_detail->sub_category->sub_category_name ?? null;
+            $orderProductDetails->meta_title = $product_detail->meta_title;
+            $orderProductDetails->meta_description = $product_detail->meta_description;
+            $orderProductDetails->meta_keywords = $product_detail->meta_keywords;
+            $orderProductDetails->save();
+            // END: clone to order_product_details
+
             $customerOrder = new CustomerOrders();
             $customerOrder->customer_id = $customerDetail->id;
+            $customerOrder->order_product_id = $orderProductDetails->id;
             $customerOrder->product_id = $request->product_id;
             $customerOrder->retailer_id = $request->retailer_id;
             $customerOrder->wholesaler_id = $request->wholesaler_id;
@@ -129,8 +178,8 @@ class RetailerOrderController extends Controller
             'retailerCloneProduct',
             'wholesaler.userDetail',
         ])
-        ->where('order_process_by', 'retailer')
-        ->where('retailer_id', $retailer->id);
+            ->where('order_process_by', 'retailer')
+            ->where('retailer_id', $retailer->id);
 
         // Filter by type
         $statusMap = [
@@ -435,10 +484,9 @@ class RetailerOrderController extends Controller
         $message = 'Order has been ready to ship (by supplier)';
         $type = 'pickup';
 
-        $active_courier_partners = CourierPartner::where('is_active',1)->first();
+        $active_courier_partners = CourierPartner::where('is_active', 1)->first();
 
-        if(!empty($active_courier_partners) && $active_courier_partners->code =='fship')
-        {
+        if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
             $payload = [
                 "customer_Name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
                 "customer_Mobile" => $customerOrder->customer->phone_number,
@@ -480,55 +528,52 @@ class RetailerOrderController extends Controller
                 ]],
                 "courierId" => $request->courier_service_id,
             ];
-        }
-        elseif(!empty($active_courier_partners) &&  $active_courier_partners->code =='lorrigo')
-        {
+        } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
             $payload = [
-                "ewaybill"=> "",
-                "order_reference_id"=> $customerOrder->order_id . 1,
-                "payment_mode"=> 1,
-                "orderWeight"=> 0.5,
-                "orderWeightUnit"=> "kg",
-                "order_invoice_date"=> "",
-                "order_invoice_number"=> "",
-                "numberOfBoxes"=> 1,
-                "orderSizeUnit"=> "cm",
-                "orderBoxHeight"=> 0.5,
-                "orderBoxWidth"=> 0.5,
-                "orderBoxLength"=> 0.5,
-                "amount2Collect"=> $customerOrder->final_amount,
-                "customerDetails"=> [
-                  "name"=> trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
-                  "phone"=> $customerOrder->customer->phone_number,
-                  "address"=> $customerOrder->customer->address .' '. $customerOrder->customer->city,
-                  "pincode"=> $customerOrder->customer->pincode,
+                "ewaybill" => "",
+                "order_reference_id" => $customerOrder->order_id . 1,
+                "payment_mode" => 1,
+                "orderWeight" => 0.5,
+                "orderWeightUnit" => "kg",
+                "order_invoice_date" => "",
+                "order_invoice_number" => "",
+                "numberOfBoxes" => 1,
+                "orderSizeUnit" => "cm",
+                "orderBoxHeight" => 0.5,
+                "orderBoxWidth" => 0.5,
+                "orderBoxLength" => 0.5,
+                "amount2Collect" => $customerOrder->final_amount,
+                "customerDetails" => [
+                    "name" => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+                    "phone" => $customerOrder->customer->phone_number,
+                    "address" => $customerOrder->customer->address . ' ' . $customerOrder->customer->city,
+                    "pincode" => $customerOrder->customer->pincode,
                 ],
-                "productDetails"=> [
-                  "name"=> $productName,
-                  "category"=> $customerOrder->retailerCloneProduct->sub_category->sub_category_name ?? $customerOrder->product->sub_category->sub_category_name ?? 'N/A',
-                  "hsn_code"=> "",
-                  "quantity"=> 1,
-                  "taxRate"=> "1",
-                  "taxableValue"=> $customerOrder->final_amount,
+                "productDetails" => [
+                    "name" => $productName,
+                    "category" => $customerOrder->retailerCloneProduct->sub_category->sub_category_name ?? $customerOrder->product->sub_category->sub_category_name ?? 'N/A',
+                    "hsn_code" => "",
+                    "quantity" => 1,
+                    "taxRate" => "1",
+                    "taxableValue" => $customerOrder->final_amount,
                 ],
-                "pickupAddress"=> $pickup_address->warehouse_id,
-                "sellerDetails"=> [
-                  "sellerName"=> $user->firstname .' '. @$user->lastname,
-                  "sellerGSTIN"=> "",
-                  "isSellerAddressAdded"=> true,
-                  "sellerPhone"=> @$user->phone_number,
-                  "sellerAddress"=> @$user->userDetail->address .' '. @$user->userDetail->city .' '. @$user->userDetail->state .' '. @$user->userDetail->country,
-                  "sellerPincode"=> @$user->userDetail->postal_code
+                "pickupAddress" => $pickup_address->warehouse_id,
+                "sellerDetails" => [
+                    "sellerName" => $user->firstname . ' ' . @$user->lastname,
+                    "sellerGSTIN" => "",
+                    "isSellerAddressAdded" => true,
+                    "sellerPhone" => @$user->phone_number,
+                    "sellerAddress" => @$user->userDetail->address . ' ' . @$user->userDetail->city . ' ' . @$user->userDetail->state . ' ' . @$user->userDetail->country,
+                    "sellerPincode" => @$user->userDetail->postal_code
                 ],
-                "isReverseOrder"=> false
+                "isReverseOrder" => false
             ];
         }
 
         $courierService = \App\Services\CourierServiceManager::getService();
         $response = $courierService->createOrder($payload);
 
-        if(!empty($active_courier_partners) && $active_courier_partners->code =='fship')
-        {
+        if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
             if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
                 $updateData['tracking_number'] = $response['waybill'];
                 $updateData['api_order_id'] = $response['apiorderid'];
@@ -564,9 +609,7 @@ class RetailerOrderController extends Controller
             } else {
                 return [false, $response['response'] ?? 'Failed to create shipping order', ''];
             }
-        }
-        elseif(!empty($active_courier_partners) &&  $active_courier_partners->code =='lorrigo')
-        {
+        } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
             if (!empty($response['order']['orderStages'][0]['_id']) && !empty($response['order']['_id'])) {
                 $updateData['tracking_number'] = $response['order']['orderStages'][0]['_id']; // Using stage _id as tracking_number
                 $updateData['api_order_id'] = $response['order']['_id']; // Main order _id
@@ -603,12 +646,9 @@ class RetailerOrderController extends Controller
 
                 return [true, 'Order has been marked ready to ship', 'pickup'];
             }
-        }
-        else
-        {
+        } else {
             return [false, $response['response'] ?? 'Courier Partner not Select', ''];
         }
-
     }
 
     // IN-TRANSIT
@@ -685,7 +725,7 @@ class RetailerOrderController extends Controller
                 'customer_order_id' => $customerOrder->id,
                 'user_id' => $customerOrder->product->wholesaler_id,
                 'user_type' => 'wholesaler',
-                'description' => 'Product ' . $customerOrder->product->name . ' has been delivered by retailer, Order id is '.$customerOrder->order_id,
+                'description' => 'Product ' . $customerOrder->product->name . ' has been delivered by retailer, Order id is ' . $customerOrder->order_id,
                 'transaction_amount' => $wholesaler_transaction_amount,
                 'charges' => null,
                 'final_transaction_amount' => $wholesaler_final_transaction_amount,
@@ -767,7 +807,7 @@ class RetailerOrderController extends Controller
             'customer_order_id' => $customerOrder->id,
             'user_id' => $retailer->id,
             'user_type' => 'retailer',
-            'description' => 'Charges deducted for Order '.$customerOrder->order_id.' cancelled from In-transit stage',
+            'description' => 'Charges deducted for Order ' . $customerOrder->order_id . ' cancelled from In-transit stage',
             'transaction_amount' => 0,
             'charges' => $charges,
             'final_transaction_amount' => -abs($total_charges),

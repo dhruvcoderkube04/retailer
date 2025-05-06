@@ -9,6 +9,7 @@ class CustomerOrders extends Model
     protected $fillable = [
         'order_id',
         'customer_id',
+        'order_product_id',
         'product_id',
         'retailer_clone_product_id',
         'retailer_id',
@@ -64,6 +65,11 @@ class CustomerOrders extends Model
     public function customer()
     {
         return $this->belongsTo(CustomerDetails::class, 'customer_id');
+    }
+
+    public function order_product_detail()
+    {
+        return $this->belongsTo(OrderProductDetails::class, 'order_product_id');
     }
 
     public function product()
