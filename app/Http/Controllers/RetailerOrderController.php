@@ -169,6 +169,7 @@ class RetailerOrderController extends Controller
                 SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
             ")
             ->where('order_process_by', 'retailer')
+            ->where('checkout_type', 'normal')
             ->first()->toArray();
 
         // Orders query
@@ -178,8 +179,9 @@ class RetailerOrderController extends Controller
             'retailerCloneProduct',
             'wholesaler.userDetail',
         ])
-            ->where('order_process_by', 'retailer')
-            ->where('retailer_id', $retailer->id);
+        ->where('order_process_by', 'retailer')
+        ->where('checkout_type', 'normal')
+        ->where('retailer_id', $retailer->id);
 
         // Filter by type
         $statusMap = [
@@ -458,6 +460,7 @@ class RetailerOrderController extends Controller
             'status' => 'transfered_retailer_to_wholesaler',
             'transfered_retailer_to_wholesaler_at' => Carbon::now(),
             'order_process_by' => 'wholesaler',
+            'checkout_type'=>'cod',
         ]);
 
         return [true, 'Wholesaler will ship this product', 'new'];

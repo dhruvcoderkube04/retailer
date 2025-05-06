@@ -539,7 +539,8 @@ class RetailerProductController extends Controller
                     'final_amount' => $request->final_amount,
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'variation_id' => @$product['variant_id'],
+                    'variation_id' => !empty($product['variant_id']) && $product['variant_id'] != 0 ? $product['variant_id'] : null,
+                    // 'variation_id' => @$product['variant_id'] === 0 ? '':@$product['variant_id'],
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
