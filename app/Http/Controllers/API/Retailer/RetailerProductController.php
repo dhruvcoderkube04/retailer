@@ -408,13 +408,13 @@ class RetailerProductController extends Controller
             'email' => 'required|email',
             'address' => 'required|max:250',
             'payment_method' => 'required|in:cod,upi',
-            'final_amount' => 'required|numeric|min:0',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'nullable',
             'products.*.retailer_product_id' => 'nullable',
             'products.*.wholesaler_id' => 'nullable',
             'products.*.retailer_id' => 'nullable',
-            'products.*.quantity' => 'required|integer|min:1'
+            'products.*.quantity' => 'required|integer|min:1',
+            'products.*.final_amount' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -447,11 +447,14 @@ class RetailerProductController extends Controller
                 'pincode' => $request->pincode
             ]);
 
-            $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
-
+            
             $orderItems = [];
-
+            $orderIDs = [];
+            
             foreach ($request->products as $product) {
+                $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
+                $orderIDs[] = $orderID;
+
                 $wholesalerId = $product['wholesaler_id'] ?? null;
                 $retailerId = $product['retailer_id'] ?? $retailer->retailer_id;
                 $productId = !empty($product['product_id']) ? $product['product_id'] : null;
@@ -560,11 +563,10 @@ class RetailerProductController extends Controller
                     'retailer_id' => $retailerId,
                     'wholesaler_id' => $wholesalerId,
                     'quantity' => $quantity,
-                    'final_amount' => $request->final_amount,
+                    'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
                     'variation_id' => !empty($product['variant_id']) && $product['variant_id'] != 0 ? $product['variant_id'] : null,
-                    // 'variation_id' => @$product['variant_id'] === 0 ? '':@$product['variant_id'],
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
@@ -576,7 +578,7 @@ class RetailerProductController extends Controller
 
             return response()->json([
                 'success' => true,
-                'order_id' => $orderID,
+                'order_id' => $orderIDs,
                 'message' => 'Your order has been placed successfully!'
             ], 200);
         } catch (\Exception $e) {

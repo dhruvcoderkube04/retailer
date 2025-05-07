@@ -96,7 +96,11 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/pickup-image/fetch', [RetailerOrderController::class, 'pickupImageFetch'])->name('retailer.order.pickup-image.fetch');
         Route::post('/pickup-image/upload', [RetailerOrderController::class, 'pickupImageUpload'])->name('retailer.order.pickup-image.upload');
         Route::post('/action/in-transit-order', [RetailerOrderController::class, 'inTransitOrderAction'])->name('retailer.order.action.in-transit-order');
+    });
 
+    // my-order
+    Route::prefix('my-orders')->group(function () {
+        Route::get('/list', [RetailerOrderController::class, 'myOrderList'])->name('retailer.my-order.list');
     });
 
     // mange Profile

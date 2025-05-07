@@ -184,7 +184,25 @@
                                     <span class="path3"></span>
                                 </i>
                             </span>
-                            <span class="menu-title">Orders</span>
+                            <span class="menu-title">Customer Orders</span>
+                        </a>
+                        <!--end:Menu link-->
+                    </div>
+                    <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <!--begin:Menu link-->
+                        <a class="menu-link {{ request()->is(['my-orders/*', 'my-orders']) ? 'active' : '' }}"
+                            href="{{ route('retailer.my-order.list') }}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">My Orders</span>
                         </a>
                         <!--end:Menu link-->
                     </div>

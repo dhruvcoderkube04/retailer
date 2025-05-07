@@ -30,14 +30,6 @@ class RetailerOrderController extends Controller
     // place-order page view
     public function placeOrderView(Request $request)
     {
-        // $retailer = Auth::user();
-        // $retailerProducts = RetailerProducts::with([
-        //     'product',
-        //     'wholesaler.userDetail'
-        // ])
-        //     ->where('retailer_id', $retailer->id)
-        //     ->get();
-
         $retailer = Auth::user()->id;
 
         $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
@@ -179,9 +171,9 @@ class RetailerOrderController extends Controller
             'order_product_detail',
             'wholesaler.userDetail',
         ])
-        ->where('order_process_by', 'retailer')
-        ->where('checkout_type', 'normal')
-        ->where('retailer_id', $retailer->id);
+            ->where('order_process_by', 'retailer')
+            ->where('checkout_type', 'normal')
+            ->where('retailer_id', $retailer->id);
 
         // Filter by type
         $statusMap = [
@@ -460,7 +452,7 @@ class RetailerOrderController extends Controller
             'status' => 'transfered_retailer_to_wholesaler',
             'transfered_retailer_to_wholesaler_at' => Carbon::now(),
             'order_process_by' => 'wholesaler',
-            'checkout_type'=>'cod',
+            'checkout_type' => 'cod',
         ]);
 
         return [true, 'Wholesaler will ship this product', 'new'];
@@ -532,7 +524,7 @@ class RetailerOrderController extends Controller
         } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
             $payload = [
                 "ewaybill" => "",
-                "order_reference_id" => $customerOrder->order_id . rand(1,9999999),
+                "order_reference_id" => $customerOrder->order_id . rand(1, 9999999),
                 "payment_mode" => 1,
                 "orderWeight" => 0.5,
                 "orderWeightUnit" => "kg",
@@ -610,9 +602,7 @@ class RetailerOrderController extends Controller
             } else {
                 return [false, $response['response'] ?? 'Failed to create shipping order', ''];
             }
-        }
-        elseif(!empty($active_courier_partners) &&  $active_courier_partners->code =='lorrigo')
-        {
+        } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
 
             if (!empty($response['order']['_id'])) {
 
@@ -622,20 +612,18 @@ class RetailerOrderController extends Controller
                     str_replace(' ', '', strtolower($request->courier_service))
                 ])->first();
 
-                if ($get_carrier)
-                {
+                if ($get_carrier) {
                     $create_shipment_payload = [
-                        "carrierId"=> $get_carrier->id,
-                        "orderId"=>$response['order']['_id'],
-                        "carrierNickName"=>$get_carrier->nickname ,
-                        "charge"=> $request->shipping_charge,
-                        "orderType"=> 0,
-                        "type"=> $get_carrier->type
+                        "carrierId" => $get_carrier->id,
+                        "orderId" => $response['order']['_id'],
+                        "carrierNickName" => $get_carrier->nickname,
+                        "charge" => $request->shipping_charge,
+                        "orderType" => 0,
+                        "type" => $get_carrier->type
                     ];
 
                     $createshipment = $courierService->createShipment($create_shipment_payload);
-                    if ($createshipment['valid']  && $createshipment['order'])
-                    {
+                    if ($createshipment['valid']  && $createshipment['order']) {
                         $updateData['tracking_number'] = $createshipment['order']['awb'];
                         $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
 
@@ -670,20 +658,14 @@ class RetailerOrderController extends Controller
                         $customerOrder->update($updateData);
 
                         return [true, 'Order has been marked ready to ship', 'pickup'];
-                    }
-                    else
-                    {
+                    } else {
                         return [false,  $response['response'] ?? 'tracking number created failed ', ''];
                     }
-                }
-                else
-                {
+                } else {
                     return [false, $response['response'] ?? 'Carrier id  not Select', ''];
                 }
             }
-        }
-        else
-        {
+        } else {
             return [false, $response['response'] ?? 'Courier Partner not Select', ''];
         }
     }
@@ -874,4 +856,30 @@ class RetailerOrderController extends Controller
     }
     //<-------------- END : Default Private Function to Re-use ---------------->
 
+
+    //<-------------- START : My Orders (Retailer's own orders) ------------------>
+    public function myOrderList(Request $request)
+    {
+        try {
+            $retailer = Auth::user();
+
+            // Orders query
+            $sql = CustomerOrders::with([
+                'order_product_detail',
+                'wholesaler.userDetail',
+            ])
+                ->where('order_process_by', 'wholesaler')
+                ->where('checkout_type', 'punch')
+                ->where('retailer_id', $retailer->id);
+
+            $myOrders = $sql->orderBy('id', 'DESC')->get();
+
+            return view('my-orders.my-orders-list', compact('myOrders'));
+        } catch (Exception $e) {
+            Log::error('Failed to fetch my order list: ' . $e->getMessage());
+            session()->flash('error', 'Something went wrong!');
+            return redirect()->route('retailer.dashboard');
+        }
+    }
+    //<-------------- END : My Orders (Retailer's own orders) ------------------>
 }
