@@ -13,6 +13,7 @@ use App\Http\Controllers\RetilerController;;
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\VBuilder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -111,8 +112,6 @@ Route::middleware(['retailer'])->group(function () {
     // abandonedcard
     Route::get('/abondard-page', [AbandonardCard::class, 'index'])->name('retailer.abandonard.index');
 
-
-
     // automation
     Route::get('/automation', [Automation::class, 'index'])->name('retailer.automation.index');
     Route::get('/automation-campaign', [Automation::class, 'automationCampaign'])->name('retailer.automation.campaign');
@@ -134,11 +133,12 @@ Route::middleware(['retailer'])->group(function () {
     // prohibited item page
     Route::get('/prohibited-item', [RetilerController::class, 'prohibitedItem'])->name('retailer.prohibited.item');
     // Generate ticket
-    Route::get('/ticket-list', [RetilerController::class, 'ticketList'])->name('retailer.ticket.list');
-    Route::post('/generate-ticket', [RetilerController::class, 'generateTicket'])->name('retailer.generate.ticket');
-    Route::post('/delete-ticket', [RetilerController::class, 'deleteTicket'])->name('retailer.ticket.delete');
-    Route::get('/edit-ticket/{ticket_id}', [RetilerController::class, 'editTicket'])->name('retailer.ticket.edit');
-    Route::post('/update-ticket/{id}', [RetilerController::class, 'updateTicket'])->name('retailer.ticket.update');
+    Route::get('/ticket-list', [TicketController::class, 'ticketList'])->name('retailer.ticket.list');
+    Route::post('/generate-ticket', [TicketController::class, 'generateTicket'])->name('retailer.generate.ticket');
+    Route::post('/ticket/{ticket_id}/update-status', [TicketController::class, 'updateTicketStatus'])->name('retailer.ticket.status.update');
+    // Route::post('/delete-ticket', [TicketController::class, 'deleteTicket'])->name('retailer.ticket.delete');
+    // Route::get('/edit-ticket/{ticket_id}', [TicketController::class, 'editTicket'])->name('retailer.ticket.edit');
+    // Route::post('/update-ticket/{id}', [TicketController::class, 'updateTicket'])->name('retailer.ticket.update');
 
     // rate calculation
     Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');

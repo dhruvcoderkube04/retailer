@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('ticket_id')->unique(); // Unique ticket identifier
             $table->unsignedBigInteger('user_id'); // Foreign key for user raising the ticket
             $table->string('subject'); // Ticket subject
-            $table->string('ref_image');
+            $table->string('ref_image')->nullable();
             $table->text('description'); // Detailed issue description
             $table->string('category'); // Category like Billing, Technical, etc.
             $table->enum('priority', ['Low', 'Medium', 'High'])->default('Medium'); // Ticket priority

@@ -202,7 +202,7 @@
                                     <span class="path3"></span>
                                 </i>
                             </span>
-                            <span class="menu-title">My Orders</span>
+                            <span class="menu-title">Punch Orders</span>
                         </a>
                         <!--end:Menu link-->
                     </div>

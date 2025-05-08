@@ -1,9 +1,7 @@
 @extends('layouts.base')
-
 @section('title')
     Ticket Manage | TrendMart
 @endsection
-
 @section('content')
     <!--begin::Main-->
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -109,8 +107,8 @@
                                                     value="1" />
                                             </div>
                                         </th>
-                                        <th class="min-w-125px">Ticket ID</th>
-                                        <th class="min-w-125px">Message</th>
+                                        <th class="min-w-125px">Ticket ID </th>
+                                        <th class="min-w-125px">Message </th>
                                         <th class="min-w-125px">Description</th>
                                         <th class="min-w-125px">Image Ref</th>
                                         <th class="min-w-125px">Status</th>
@@ -138,36 +136,45 @@
                                             </td>
                                             <td>
                                                 <div class="symbol symbol-50px me-3">
-                                                    <img src="{{ $ticket->ref_image }}" class="" alt="">
+                                                    <img src="{{ asset('uploads/ticket/' . $ticket->ref_image) }}"
+                                                        class="" alt="">
                                                 </div>
                                             </td>
                                             <td>
-                                                @php
-                                                    $status = strtolower($ticket->status);
-                                                    $badgeClass = match($status) {
-                                                        'open' => 'badge badge-danger',
-                                                        'in progress' => 'badge badge-info',
-                                                        'pending' => 'badge badge-warning',
-                                                        'closed' => 'badge badge-secondary',
-                                                        'resolved' => 'badge badge-success',
-                                                        default => 'badge badge-light',
-                                                    };
-                                                @endphp
-                                                <span class="{{ $badgeClass }}" data-status="{{ $ticket->status }}">
-                                                    {{ ucfirst($ticket->status) }}
-                                                </span>
+                                                <div
+                                                    class="badge
+                                                    @if ($ticket->status == 'Pending') badge-light-warning
+                                                    @elseif($ticket->status == 'In Progress') badge-light-primary
+                                                    @elseif($ticket->status == 'Resolved') badge-light-success
+                                                    @else badge-light-danger @endif">
+                                                    {{ $ticket->status }}
+                                                </div>
                                             </td>
                                             <td>
-                                                <div class="badge badge-light">{{ $ticket->created_at->diffForHumans() }}</div>
+                                                <div class="badge badge-light">{{ $ticket->created_at }}</div>
                                             </td>
                                             <td class="text-end">
-                                                @if ($ticket->status =='Closed')
-                                                    <select class="form-select form-select-sm ticket-status"
-                                                            data-ticket-id="{{ $ticket->ticket_id }}">
-                                                        <option value="" {{ $ticket->status == '' ? 'selected' : '' }}>Action</option>
-                                                        <option value="Open" {{ $ticket->status == 'Open' ? 'selected' : '' }}>Open</option>
-                                                    </select>
-                                                @endif
+                                                <button
+                                                    class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-ticket"
+                                                    data-id="{{ $ticket->ticket_id }}" data-bs-toggle="tooltip"
+                                                    title="remove">
+                                                    <i class="ki-duotone ki-trash">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                        <span class="path4"></span>
+                                                        <span class="path5"></span>
+                                                    </i>
+                                                </button>
+                                                <button
+                                                    class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-ticket"
+                                                    data-id="{{ $ticket->ticket_id }}" data-bs-toggle="model"
+                                                    data-bs-target="#kt_modal_edit_ticket" title="Edit">
+                                                    <i class="ki-duotone ki-pencil">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                    </i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -184,8 +191,11 @@
             <!--end::Content-->
         </div>
         <!--end::Content wrapper-->
+        <!--begin::Footer-->
+        <!--end::Footer-->
     </div>
     <!--end:::Main-->
+
     <div class="modal fade" id="kt_modal_add_ticket" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
@@ -265,91 +275,157 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="kt_modal_edit_ticket" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Update Coupon</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1"></i>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                    <form id="ticketupdateform" class="form" method="POST">
+                        @csrf
+                        <input type="hidden" id="edit_ticket_id" name="ticket_id">
+
+                        <!--begin::Col-->
+                        <div class="col-lg-8">
+                            <!--begin::Image input-->
+
+                            <div class="image-input image-input-outline" data-kt-image-input="true"
+                                style="background-image: url('assets/media/svg/avatars/blank.svg')">
+                                <!--begin::Preview existing avatar-->
+                                <div class="image-input-wrapper w-125px h-125px" id="edit_ticket_image_ref">
+                                </div>
+
+                                <label
+                                    class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                    data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
+                                    <i class="ki-duotone ki-pencil fs-7">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                    </i>
+                                    <!--begin::Inputs-->
+                                    <input type="file" name="ticket_image_ref" accept=".png, .jpg, .jpeg" />
+                                    <input type="hidden" name="avatar_remove" />
+                                    <!--end::Inputs-->
+                                </label>
+                                <!--end::Label-->
+                                <!--begin::Cancel-->
+                                <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                    data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Cancel avatar">
+                                    <i class="ki-duotone ki-cross fs-2">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                    </i>
+                                </span>
+                                <!--end::Cancel-->
+                                <!--begin::Remove-->
+                                <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                    data-kt-image-input-action="remove" data-bs-toggle="tooltip" title="Remove avatar">
+                                    <i class="ki-duotone ki-cross fs-2">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                    </i>
+                                </span>
+                                <!--end::Remove-->
+                            </div>
+                            <!--end::Image input-->
+                            <!--begin::Hint-->
+                            <div class="form-text">Allowed file types: png, jpg, jpeg.</div>
+                            <!--end::Hint-->
+                        </div>
+                        <!--end::Col-->
+
+                        <div class="mb-3">
+                            <label class="form-label">Ticket Name</label>
+                            <input type="text" class="form-control ticket_name" id="edit_ticket_subject"
+                                name="subject">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ticket Description</label>
+                            <input type="text" class="form-control ticket_description" id="edit_ticket_description"
+                                name="ticket_description">
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Update Ticket</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
 
 @section('script')
     <script>
         $(document).ready(function() {
-            console.log('Document ready, attaching event listeners to .ticket-status');
 
-            // Handle status change using jQuery
-            $(document).on('change', '.ticket-status', function() {
-                console.log('Ticket status change event triggered');
-                console.log('Selected value:', $(this).val());
-                console.log('Ticket ID:', $(this).data('ticket-id'));
+            // $('.edit-ticket').on('click', function() {
+            //     var ticketId = $(this).data('id');
 
-                const ticketId = $(this).data('ticket-id');
-                const newStatus = $(this).val();
-                const row = $(this).closest('tr');
-                const badge = row.find('td span.badge');
-                const url = "{{ url('/ticket') }}/" + ticketId + "/update-status";
-                const csrfToken = '{{ csrf_token() }}';
+            //     $.ajax({
+            //         url: '/edit-ticket/' + ticketId, // Backend route to fetch coupon details
+            //         type: 'GET',
+            //         success: function(response) {
+            //             $('#edit_ticket_id').val(response.ticket_id);
+            //             $('#edit_ticket_subject').val(response.subject);
+            //             $('#edit_ticket_description').val(response.description);
+            //             // image get and set image
 
-                console.log('Row:', row);
-                console.log('Badge:', badge);
-                console.log('Fetch URL:', url);
-                console.log('CSRF Token:', csrfToken);
-                console.log('Request body:', { status: newStatus });
+            //             if (response.image_ref && response.image_ref.trim() !== "") {
+            //                 let imageUrl = "{{ asset('uploads/ticket') }}/" + response
+            //                     .image_ref;
+            //                 $('#edit_ticket_image_ref').css('background-image', 'url("' +
+            //                     imageUrl + '")');
+            //             } else {
+            //                 console.log("No image found, setting default.");
+            //                 $('#edit_ticket_image_ref').css('background-image',
+            //                     'url("assets/media/svg/avatars/blank.svg")');
+            //             }
 
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                    data: JSON.stringify({ status: newStatus }),
-                    contentType: 'application/json',
-                    success: function(data) {
-                        console.log('AJAX success, response:', data);
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Notice',
-                                text: data.message
-                            });
+            //             $('#kt_modal_edit_ticket').modal('show');
+            //         }
+            //     });
+            // });
 
-                            // Update the badge text and class
-                            badge.text(data.status.charAt(0).toUpperCase() + data.status.slice(1)); // Capitalize first letter
-                            const statusLower = data.status.toLowerCase();
-                            badge.removeClass().addClass('badge'); // Reset classes
-                            if (statusLower === 'open') {
-                                badge.addClass('badge-danger');
-                            } else if (statusLower === 'in progress') {
-                                badge.addClass('badge-info');
-                            } else if (statusLower === 'pending') {
-                                badge.addClass('badge-warning');
-                            } else if (statusLower === 'closed') {
-                                badge.addClass('badge-secondary');
-                            } else if (statusLower === 'resolved') {
-                                badge.addClass('badge-success');
-                            } else {
-                                badge.addClass('badge-light');
-                            }
-                            badge.attr('data-status', data.status);
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Notice',
-                                text: 'Failed to update status: ' + (data.error || 'Unknown error')
-                            });
-                            // Revert the dropdown to the previous value
-                            $(this).val(badge.attr('data-status'));
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX error:', xhr, status, error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Notice',
-                            text: 'An error occurred while updating the ticket status: ' + (xhr.responseJSON?.error || error)
-                        });
-                        // Revert the dropdown to the previous value
-                        $(this).val(badge.attr('data-status'));
-                    }
-                });
-            });
+            // document.getElementById("ticketupdateform").addEventListener("submit", function(event) {
+            //     event.preventDefault(); // Prevent default form submission
 
+            //     let ticketId = document.getElementById("edit_ticket_id").value;
+            //     let formData = new FormData(this);
+
+            //     fetch(`/update-ticket/${ticketId}`, {
+            //             method: "POST",
+            //             body: formData,
+            //             headers: {
+            //                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
+            //                     .getAttribute("content"),
+            //                 "Accept": "application/json"
+            //             },
+            //         })
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             if (data.success) {
+            //                 Swal.fire({
+            //                     title: "Success!",
+            //                     text: "Ticket updated successfully!",
+            //                     icon: "success",
+            //                     confirmButtonText: "OK"
+            //                 }).then(() => {
+            //                     window.location.reload(); // Reload page after successful update
+            //                 });
+            //             } else {
+            //                 alert("Error updating coupon");
+            //             }
+            //         })
+            //         .catch(error => console.error("Error:", error));
+            // });
 
             $('#ticketaddform').on('submit', function(e) {
                 e.preventDefault();
@@ -397,6 +473,46 @@
                     }
                 });
             });
+
+            // $(".delete-ticket").click(function() {
+            //     let ticket_id = $(this).data("id");
+
+            //     Swal.fire({
+            //         title: "Are you sure?",
+            //         text: "You won't be able to revert this!",
+            //         icon: "warning",
+            //         showCancelButton: true,
+            //         confirmButtonColor: "#d33",
+            //         cancelButtonColor: "#3085d6",
+            //         confirmButtonText: "Yes, delete it!"
+            //     }).then((result) => {
+            //         if (result.isConfirmed) {
+            //             $.ajax({
+            //                 url: "{{ route('retailer.ticket.delete') }}", // Ensure the correct route name
+            //                 type: "POST",
+            //                 data: {
+            //                     _token: "{{ csrf_token() }}",
+            //                     ticket_id: ticket_id,
+            //                 },
+            //                 success: function(response) {
+            //                     if (response.success) {
+            //                         Swal.fire("Deleted!", "Ticket has been removed.",
+            //                             "success");
+            //                         location
+            //                     .reload(); // Reload the page or update the UI dynamically
+            //                     } else {
+            //                         Swal.fire("Error!", response.message, "error");
+            //                     }
+            //                 },
+            //                 error: function(xhr) {
+            //                     Swal.fire("Error!",
+            //                         "Something went wrong. Please try again.",
+            //                         "error");
+            //                 }
+            //             });
+            //         }
+            //     });
+            // });
         });
     </script>
 @endsection

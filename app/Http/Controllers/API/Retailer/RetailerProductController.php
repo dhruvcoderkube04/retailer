@@ -302,7 +302,7 @@ class RetailerProductController extends Controller
             }
 
             // Step 9: Paginate the full product list
-            $perPage = 8;
+            $perPage = 12;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
             $productsCollection = new Collection($products);
             $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
@@ -447,10 +447,10 @@ class RetailerProductController extends Controller
                 'pincode' => $request->pincode
             ]);
 
-            
+
             $orderItems = [];
             $orderIDs = [];
-            
+
             foreach ($request->products as $product) {
                 $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
                 $orderIDs[] = $orderID;
