@@ -712,19 +712,19 @@ class RetailerOrderController extends Controller
             if ($customerOrder->final_amount < $marginFetch->margin) {
                 $retailer_transaction_amount = 0;
                 $retailer_final_transaction_amount = -abs($total_charges);
-                $retailer_current_balance = $retailerDetail->wallet - $total_charges;
+                $retailer_current_balance = $retailerDetail->pending_wallet - $total_charges;
 
                 $wholesaler_transaction_amount = $customerOrder->final_amount;
                 $wholesaler_final_transaction_amount = $customerOrder->final_amount;
-                $wholesaler_current_balance = $wholesalerDetail->wallet + $customerOrder->final_amount;
+                $wholesaler_current_balance = $wholesalerDetail->pending_wallet + $customerOrder->final_amount;
             } else {
                 $retailer_transaction_amount = $marginFetch->margin;
                 $retailer_final_transaction_amount = $retailer_transaction_amount - $total_charges;
-                $retailer_current_balance = $retailerDetail->wallet + $retailer_final_transaction_amount;
+                $retailer_current_balance = $retailerDetail->pending_wallet + $retailer_final_transaction_amount;
 
                 $wholesaler_transaction_amount = $customerOrder->final_amount - $marginFetch->margin;
                 $wholesaler_final_transaction_amount = $customerOrder->final_amount - $marginFetch->margin;
-                $wholesaler_current_balance = $wholesalerDetail->wallet + $wholesaler_final_transaction_amount;
+                $wholesaler_current_balance = $wholesalerDetail->pending_wallet + $wholesaler_final_transaction_amount;
             }
 
             // retailer entry
@@ -738,9 +738,10 @@ class RetailerOrderController extends Controller
                 'final_transaction_amount' => $retailer_final_transaction_amount,
                 'current_balance' => $retailer_current_balance,
                 'order_type' => 'completed',
-                'status' => 1
+                'status' => 1,
+                'type' => 'pending'
             ]);
-            $retailerDetail->wallet = $retailer_current_balance;
+            $retailerDetail->pending_wallet = $retailer_current_balance;
             $retailerDetail->save();
 
             // wholesaler entry
@@ -754,9 +755,10 @@ class RetailerOrderController extends Controller
                 'final_transaction_amount' => $wholesaler_final_transaction_amount,
                 'current_balance' => $wholesaler_current_balance,
                 'order_type' => 'completed',
-                'status' => 1
+                'status' => 1,
+                'type' => 'pending'
             ]);
-            $wholesalerDetail->wallet = $wholesaler_current_balance;
+            $wholesalerDetail->pending_wallet = $wholesaler_current_balance;
             $wholesalerDetail->save();
         }
 
@@ -764,7 +766,7 @@ class RetailerOrderController extends Controller
         if (!$customerOrder->product_id && $customerOrder->retailer_clone_product_id) {
             $retailer_transaction_amount = $customerOrder->final_amount;
             $retailer_final_transaction_amount = $customerOrder->final_amount - $total_charges;
-            $retailer_current_balance = $retailerDetail->wallet + $retailer_final_transaction_amount;
+            $retailer_current_balance = $retailerDetail->pending_wallet + $retailer_final_transaction_amount;
 
             // retailer entry
             AccountTransaction::create([
@@ -777,9 +779,10 @@ class RetailerOrderController extends Controller
                 'final_transaction_amount' => $retailer_final_transaction_amount,
                 'current_balance' => $retailer_current_balance,
                 'order_type' => 'completed',
-                'status' => 1
+                'status' => 1,
+                'type' => 'pending'
             ]);
-            $retailerDetail->wallet = $retailer_current_balance;
+            $retailerDetail->pending_wallet = $retailer_current_balance;
             $retailerDetail->save();
         }
 
@@ -834,11 +837,12 @@ class RetailerOrderController extends Controller
             'transaction_amount' => 0,
             'charges' => $charges,
             'final_transaction_amount' => -abs($total_charges),
-            'current_balance' => $retailerDetail->wallet - $total_charges,
+            'current_balance' => $retailerDetail->pending_wallet - $total_charges,
             'order_type' => 'completed',
-            'status' => 1
+            'status' => 1,
+            'type' => 'pending'
         ]);
-        $retailerDetail->wallet = $retailerDetail->wallet - $total_charges;
+        $retailerDetail->pending_wallet = $retailerDetail->pending_wallet - $total_charges;
         $retailerDetail->save();
 
         $cancelled_reason = ($request->reject_reason_select == 'Other')

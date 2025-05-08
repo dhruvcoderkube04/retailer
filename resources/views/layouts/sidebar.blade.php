@@ -582,14 +582,25 @@
                             <span class="menu-arrow"></span>
                         </span>
                         <div class="menu-sub menu-sub-accordion">
-                            <!-- Account Transactions -->
+                            <!-- Success Wallet Transactions -->
                             <div class="menu-item">
-                                <a class="menu-link {{ request()->is('accounts/transactions') ? 'active' : '' }}"
-                                    href="{{ route('retailer.accounts.transactions') }}">
+                                <a class="menu-link {{ request()->is('accounts/transactions/success-wallet') ? 'active' : '' }}"
+                                    href="{{ route('retailer.accounts.transactions.success-wallet') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
-                                    <span class="menu-title">Account Transactions</span>
+                                    <span class="menu-title">Success Wallet</span>
+                                </a>
+                            </div>
+
+                            <!-- Pending Wallet Transactions -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('accounts/transactions/pending-wallet') ? 'active' : '' }}"
+                                    href="{{ route('retailer.accounts.transactions.pending-wallet') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Pending Wallet</span>
                                 </a>
                             </div>
 

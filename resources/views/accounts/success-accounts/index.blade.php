@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer's Account Transactions | TrendMart
+    Retailer's Success Wallet Transactions | TrendMart
 @endsection
 @section('content')
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -9,7 +9,7 @@
                 <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                            Account Transactions</h1>
+                            Success Wallet Transactions</h1>
 
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
@@ -18,7 +18,7 @@
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
                             </li>
-                            <li class="breadcrumb-item text-muted">Account Transactions</li>
+                            <li class="breadcrumb-item text-muted">Success Wallet Transactions</li>
                         </ul>
                     </div>
                 </div>
@@ -157,18 +157,13 @@
 
                                 <!-- Wallet -->
                                 <div class="col-md-auto text-center">
-                                    <div class="border border-gray-300 border-dashed rounded p-4 w-100">
+                                    <div class="border border-gray-300 border-dashed rounded p-4 w-130">
                                         <div class="fs-1 fw-bold">
-                                            <span class="fs-5">₹ </span>{{ $user->userDetail->wallet }}
+                                            <span class="fs-5">₹ </span>{{ $user->userDetail->success_wallet }}
                                         </div>
                                         <div class="d-flex justify-content-center align-items-center mt-2">
-                                            <i class="ki-duotone ki-wallet fs-1 text-primary me-2">
-                                                <span class="path1"></span>
-                                                <span class="path2"></span>
-                                                <span class="path3"></span>
-                                                <span class="path4"></span>
-                                            </i>
-                                            <div class="fw-semibold fs-3 text-gray-500">Wallet</div>
+                                            <i class="fa-solid fa-circle fs-9 me-2 text-success"></i>
+                                            <div class="fw-semibold fs-5 text-gray-500">Success Wallet</div>
                                         </div>
                                     </div>
 
@@ -194,8 +189,7 @@
                             <div class="card-title">
                                 <div class="d-flex align-items-center w-100 w-sm-auto">
                                     <div class="input-group mw-250px bg-secondary">
-                                        <input type="text"
-                                            class="form-control form-control-solid bg-secondary border-0"
+                                        <input type="text" class="form-control form-control-solid bg-secondary border-0"
                                             placeholder="Pick date range" id="kt_daterangepicker_account_transactions">
                                         <span class="input-group-text bg-secondary border-0">
                                             <i class="ki-duotone ki-calendar-8 fs-2">
@@ -323,7 +317,7 @@
                                 <div class="bg-light-primary p-4 rounded">
                                     <div class="text-gray-700 fs-6">
                                         <div class="mb-2"><strong>Current Balance:</strong>
-                                            ₹{{ number_format($user->userDetail->wallet, 2) }}</div>
+                                            ₹{{ number_format($user->userDetail->success_wallet, 2) }}</div>
                                         <div class="mb-2"><strong>Account Number:</strong>
                                             {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
                                         <div class="mb-2"><strong>IFSC Code:</strong>
@@ -414,7 +408,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('retailer.accounts.fetch-record') }}",
+                url: "{{ route('retailer.accounts.fetch-record.success-wallet') }}",
                 type: "POST",
                 data: function(d) {
                     d._token = '{{ csrf_token() }}';
@@ -541,7 +535,7 @@
                 let form = $(this);
                 let amountInput = form.find('input[name="request_amount"]');
                 let amount = parseFloat(amountInput.val());
-                let currentWalletBalance = parseFloat('{{ $user->userDetail->wallet ?? 0 }}');
+                let currentWalletBalance = parseFloat('{{ $user->userDetail->success_wallet ?? 0 }}');
 
                 // validation
                 $('.error').text('').addClass('d-none');
@@ -552,8 +546,9 @@
                     return false;
                 }
                 if (amount > currentWalletBalance) {
-                    errorSpan.text('Entered amount exceeds your current wallet balance.').removeClass(
-                        'd-none');
+                    errorSpan.text('Entered amount exceeds your current success wallet balance.')
+                        .removeClass(
+                            'd-none');
                     amountInput.focus();
                     return false;
                 }

@@ -17,7 +17,8 @@ class AccountTransaction extends Model
         'final_transaction_amount',
         'current_balance',
         'order_type',
-        'status'
+        'status',
+        'type'
     ];
 
     protected $casts = [

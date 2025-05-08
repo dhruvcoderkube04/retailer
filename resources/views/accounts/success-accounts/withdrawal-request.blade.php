@@ -36,7 +36,7 @@
                                     class="col-sm-auto text-center w-100 w-md-auto border border-gray-300 border-dashed rounded">
                                     <div class="p-8">
                                         <div class="fs-1 fw-bold">
-                                            <span class="fs-5">₹ </span>{{ $user->userDetail->wallet }}
+                                            <span class="fs-5">₹ </span>{{ $user->userDetail->success_wallet }}
                                         </div>
                                         <div class="d-flex justify-content-center align-items-center mt-2">
                                             <i class="ki-duotone ki-wallet fs-1 text-primary me-2">
@@ -164,7 +164,7 @@
                                 <div class="bg-light-primary p-4 rounded">
                                     <div class="text-gray-700 fs-6">
                                         <div class="mb-2"><strong>Current Balance:</strong>
-                                            ₹{{ number_format($user->userDetail->wallet, 2) }}</div>
+                                            ₹{{ number_format($user->userDetail->success_wallet, 2) }}</div>
                                         <div class="mb-2"><strong>Account Number:</strong>
                                             {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
                                         <div class="mb-2"><strong>IFSC Code:</strong>
@@ -331,7 +331,7 @@
                 let form = $(this);
                 let amountInput = form.find('input[name="request_amount"]');
                 let amount = parseFloat(amountInput.val());
-                let currentWalletBalance = parseFloat('{{ $user->userDetail->wallet ?? 0 }}');
+                let currentWalletBalance = parseFloat('{{ $user->userDetail->success_wallet ?? 0 }}');
 
                 // validation
                 $('.error').text('').addClass('d-none');
@@ -342,7 +342,7 @@
                     return false;
                 }
                 if (amount > currentWalletBalance) {
-                    errorSpan.text('Entered amount exceeds your current wallet balance.').removeClass(
+                    errorSpan.text('Entered amount exceeds your current success wallet balance.').removeClass(
                         'd-none');
                     amountInput.focus();
                     return false;

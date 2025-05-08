@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\DB;
 class RetailerAccountTransactionController extends Controller
 {
     //<-------------------- START : account transactions ------------------------>
-    // index - account transactions
-    public function indexAccountsTransactions(Request $request)
+    // index - success account transactions
+    public function indexSuccessAccountsTransactions(Request $request)
     {
         $user = Auth::user();
         if ($user->user_type != 3) { // retailer            
@@ -24,14 +24,15 @@ class RetailerAccountTransactionController extends Controller
         }
 
         $transactions = AccountTransaction::where('user_id', $user->id)
+            ->where('type', 'success')
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('accounts.index', compact('transactions', 'user'));
+        return view('accounts.success-accounts.index', compact('transactions', 'user'));
     }
 
-    // AJAX - server-side datatable fetch-records
-    public function fetchRecord(Request $request)
+    // AJAX - server-side datatable fetch-success-records
+    public function fetchSuccessRecord(Request $request)
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
@@ -43,6 +44,7 @@ class RetailerAccountTransactionController extends Controller
         $retailer = Auth::user();
 
         $query = AccountTransaction::where('user_id', $retailer->id)
+            ->where('type', 'success')
             ->whereDate('created_at', '>=', $from)
             ->whereDate('created_at', '<=', $to);
 
@@ -73,7 +75,132 @@ class RetailerAccountTransactionController extends Controller
         $query->offset($page)->limit($limit);
         $transactions = $query->get();
 
-        $queryTotal = DB::select("SELECT COUNT(*) AS count FROM account_transactions WHERE user_id = $retailer->id")[0]->count;
+        $queryTotal = DB::select("SELECT COUNT(*) AS count FROM account_transactions WHERE user_id = $retailer->id AND `type` = 'success'")[0]->count;
+
+        $data = [];
+        $i = $page;
+        foreach ($transactions as $item) {
+            $i++;
+
+            $transaction_type = '';
+            if ($item->final_transaction_amount > 0) {
+                $transaction_type = '<i class="ki-duotone ki-arrow-up fs-1 text-success me-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>';
+            } elseif ($item->final_transaction_amount < 0) {
+                $transaction_type = '<i class="ki-duotone ki-arrow-down fs-1 text-danger me-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>';
+            }
+
+            $final_transaction_amount = '';
+            if ($item->final_transaction_amount > 0) {
+                $final_transaction_amount = '<div class="badge badge-light-success fs-6">
+                                                +' . $item->final_transaction_amount . '
+                                            </div>';
+            } elseif ($item->final_transaction_amount <= 0) {
+                $final_transaction_amount = '<div class="badge badge-light-danger fs-6">
+                                                ' . $item->final_transaction_amount . '
+                                            </div>';
+            }
+
+            $current_balance = '<div class="badge badge-light-secondary fs-6">
+                                    ' . $item->current_balance . '
+                                </div>';
+
+            $status = '';
+            if ($item->status == 1) {
+                $status = '<div class="text-success fs-6">Clear</div>';
+            } else if ($item->status == 0) {
+                $status = '<div class="text-danger fs-6">Pending</div>';
+            }
+
+            $info = '<a href="javascript:void(0)" class="transaction-info"
+                        data-id="' . $item->id . '">
+                        <i class="ki-duotone ki-information-2 fs-2 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                        </i>
+                    </a>';
+
+            $data[] = array(
+                "transaction_type" => $transaction_type,
+                "description" => $item->description,
+                "created_at" => $item->created_at ? $item->created_at->format('M d, Y h:i A') : 'N/A',
+                "order_id" => $item->customer_order?->order_id ?? 'N/A',
+                "final_transaction_amount" => $final_transaction_amount,
+                "current_balance" => $current_balance,
+                "status" => $status,
+                "info" => $info
+            );
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+    }
+
+    // index - pending account transactions
+    public function indexPendingAccountsTransactions(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->user_type != 3) { // retailer            
+            return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
+        }
+
+        $transactions = AccountTransaction::where('user_id', $user->id)
+            ->where('type', 'pending')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('accounts.pending-accounts.index', compact('transactions', 'user'));
+    }
+
+    // AJAX - server-side datatable fetch-pending-records
+    public function fetchPendingRecord(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $date_filter = explode(' - ', $request->input('date_filter'));
+
+        $from = Carbon::createFromFormat('d/m/Y', $date_filter[0])->format('Y-m-d');
+        $to = Carbon::createFromFormat('d/m/Y', $date_filter[1])->format('Y-m-d');
+        $retailer = Auth::user();
+
+        $query = AccountTransaction::where('user_id', $retailer->id)
+            ->where('type', 'pending')
+            ->whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', '%' . $search . '%')
+                    ->orWhere('transaction_amount', 'like', '%' . $search . '%')
+                    ->orWhere('charges', 'like', '%' . $search . '%')
+                    ->orWhere('final_transaction_amount', 'like', '%' . $search . '%')
+                    ->orWhere('current_balance', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer_order', function ($q) use ($search) {
+                        $q->where('order_id', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            $query->orderBy($columnName, $direction);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $cntFilter = clone $query;
+        $query->offset($page)->limit($limit);
+        $transactions = $query->get();
+
+        $queryTotal = DB::select("SELECT COUNT(*) AS count FROM account_transactions WHERE user_id = $retailer->id AND `type` = 'pending'")[0]->count;
 
         $data = [];
         $i = $page;
@@ -184,7 +311,7 @@ class RetailerAccountTransactionController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('accounts.withdrawal-request', compact('withdrawal_transactions', 'user'));
+        return view('accounts.success-accounts.withdrawal-request', compact('withdrawal_transactions', 'user'));
     }
 
     // AJAX - server-side datatable fetch-records of withdrawal transactions
@@ -274,7 +401,7 @@ class RetailerAccountTransactionController extends Controller
             $user = Auth::user();
 
             $userDetail = UserDetail::where('user_id', $user->id)->first();
-            $userDetail->wallet = ($userDetail->wallet) - ($request->request_amount);
+            $userDetail->success_wallet = ($userDetail->success_wallet) - ($request->request_amount);
             $userDetail->save();
 
             $accountTransaction = AccountTransaction::create([
@@ -283,9 +410,10 @@ class RetailerAccountTransactionController extends Controller
                 'description' => 'Withdrawal Request on ' . Carbon::now()->format('F d, Y, h:i a'),
                 'transaction_amount' => -abs($request->request_amount),
                 'final_transaction_amount' => -abs($request->request_amount),
-                'current_balance' => $userDetail->wallet,
+                'current_balance' => $userDetail->success_wallet,
                 'order_type' => 'other',
-                'status' => 0 // pending till not approved by admin
+                'status' => 0, // pending till not approved by admin
+                'type' => 'success'
             ]);
 
             WithdrawalRequest::create([

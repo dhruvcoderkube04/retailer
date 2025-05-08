@@ -191,8 +191,13 @@ Route::middleware(['retailer'])->group(function () {
 
     // accounts
     Route::prefix('accounts')->group(function () {
-        Route::get('/transactions', [RetailerAccountTransactionController::class, 'indexAccountsTransactions'])->name('retailer.accounts.transactions');
-        Route::post('/fetch-record', [RetailerAccountTransactionController::class, 'fetchRecord'])->name('retailer.accounts.fetch-record'); // ajax - datatable
+        Route::get('/transactions/success-wallet', [RetailerAccountTransactionController::class, 'indexSuccessAccountsTransactions'])->name('retailer.accounts.transactions.success-wallet');
+        Route::post('/fetch-record/success-wallet', [RetailerAccountTransactionController::class, 'fetchSuccessRecord'])->name('retailer.accounts.fetch-record.success-wallet'); // ajax - datatable
+
+        Route::get('/transactions/pending-wallet', [RetailerAccountTransactionController::class, 'indexPendingAccountsTransactions'])->name('retailer.accounts.transactions.pending-wallet');
+        Route::post('/fetch-record/pending-wallet', [RetailerAccountTransactionController::class, 'fetchPendingRecord'])->name('retailer.accounts.fetch-record.pending-wallet'); // ajax - datatable
+
+
         Route::get('/transaction-info', [RetailerAccountTransactionController::class, 'transactionInfo'])->name('retailer.accounts.transaction-info'); // ajax
 
         // withdrawal-request
