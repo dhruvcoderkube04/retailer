@@ -147,9 +147,8 @@
                                                     $badgeClass = match($status) {
                                                         'open' => 'badge badge-danger',
                                                         'in progress' => 'badge badge-info',
-                                                        'pending' => 'badge badge-warning',
-                                                        'closed' => 'badge badge-secondary',
                                                         'resolved' => 'badge badge-success',
+                                                        'closed' => 'badge badge-secondary',
                                                         default => 'badge badge-light',
                                                     };
                                                 @endphp
@@ -271,7 +270,6 @@
     <script>
         $(document).ready(function() {
             console.log('Document ready, attaching event listeners to .ticket-status');
-
             // Handle status change using jQuery
             $(document).on('change', '.ticket-status', function() {
                 console.log('Ticket status change event triggered');
@@ -317,8 +315,6 @@
                                 badge.addClass('badge-danger');
                             } else if (statusLower === 'in progress') {
                                 badge.addClass('badge-info');
-                            } else if (statusLower === 'pending') {
-                                badge.addClass('badge-warning');
                             } else if (statusLower === 'closed') {
                                 badge.addClass('badge-secondary');
                             } else if (statusLower === 'resolved') {
@@ -349,7 +345,6 @@
                     }
                 });
             });
-
 
             $('#ticketaddform').on('submit', function(e) {
                 e.preventDefault();

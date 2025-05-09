@@ -21,7 +21,7 @@ class TicketController extends Controller
     {
         // Validate the request
         $request->validate([
-            'status' => 'required|in:Open,Pending,In Progress,Resolved,Closed',
+            'status' => 'required|in:Open,In Progress,Resolved,Closed',
         ]);
 
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
