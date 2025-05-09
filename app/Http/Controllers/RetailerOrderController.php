@@ -730,6 +730,7 @@ class RetailerOrderController extends Controller
             // retailer entry
             AccountTransaction::create([
                 'customer_order_id' => $customerOrder->id,
+                'tracking_number' => $customerOrder->tracking_number,
                 'user_id' => $retailer->id,
                 'user_type' => 'retailer',
                 'description' => 'Margin amount of order ' . $customerOrder->order_id . ' delivered',
@@ -738,7 +739,7 @@ class RetailerOrderController extends Controller
                 'final_transaction_amount' => $retailer_final_transaction_amount,
                 'current_balance' => $retailer_current_balance,
                 'order_type' => 'completed',
-                'status' => 1,
+                'status' => 0,
                 'type' => 'pending'
             ]);
             $retailerDetail->pending_wallet = $retailer_current_balance;
@@ -747,6 +748,7 @@ class RetailerOrderController extends Controller
             // wholesaler entry
             AccountTransaction::create([
                 'customer_order_id' => $customerOrder->id,
+                'tracking_number' => $customerOrder->tracking_number,
                 'user_id' => $customerOrder->order_product_detail->wholesaler_id,
                 'user_type' => 'wholesaler',
                 'description' => 'Product ' . $customerOrder->order_product_detail->name . ' has been delivered by retailer, Order id is ' . $customerOrder->order_id,
@@ -755,7 +757,7 @@ class RetailerOrderController extends Controller
                 'final_transaction_amount' => $wholesaler_final_transaction_amount,
                 'current_balance' => $wholesaler_current_balance,
                 'order_type' => 'completed',
-                'status' => 1,
+                'status' => 0,
                 'type' => 'pending'
             ]);
             $wholesalerDetail->pending_wallet = $wholesaler_current_balance;
@@ -771,6 +773,7 @@ class RetailerOrderController extends Controller
             // retailer entry
             AccountTransaction::create([
                 'customer_order_id' => $customerOrder->id,
+                'tracking_number' => $customerOrder->tracking_number,
                 'user_id' => $retailer->id,
                 'user_type' => 'retailer',
                 'description' => 'Order ' . $customerOrder->order_id . ' has been delivered',
@@ -779,7 +782,7 @@ class RetailerOrderController extends Controller
                 'final_transaction_amount' => $retailer_final_transaction_amount,
                 'current_balance' => $retailer_current_balance,
                 'order_type' => 'completed',
-                'status' => 1,
+                'status' => 0,
                 'type' => 'pending'
             ]);
             $retailerDetail->pending_wallet = $retailer_current_balance;
@@ -831,6 +834,7 @@ class RetailerOrderController extends Controller
         // retailer entry
         AccountTransaction::create([
             'customer_order_id' => $customerOrder->id,
+            'tracking_number' => $customerOrder->tracking_number,
             'user_id' => $retailer->id,
             'user_type' => 'retailer',
             'description' => 'Charges deducted for Order ' . $customerOrder->order_id . ' cancelled from In-transit stage',
@@ -839,7 +843,7 @@ class RetailerOrderController extends Controller
             'final_transaction_amount' => -abs($total_charges),
             'current_balance' => $retailerDetail->pending_wallet - $total_charges,
             'order_type' => 'completed',
-            'status' => 1,
+            'status' => 0,
             'type' => 'pending'
         ]);
         $retailerDetail->pending_wallet = $retailerDetail->pending_wallet - $total_charges;
