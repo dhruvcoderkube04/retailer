@@ -63,7 +63,7 @@
             <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
                 <span>{{ $key }} :</span>
                 <span class="text-end text-break text-danger" style="max-width: 240px;">
-                    -{{ $charge }}
+                    {{ $charge }}
                 </span>
             </div>
         @endforeach
