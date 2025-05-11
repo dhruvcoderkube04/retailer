@@ -617,6 +617,40 @@
                         </div>
                     </div>
 
+                    <div class="menu-item pt-5">
+                        <div class="menu-content">
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Layouts</span>
+                        </div>
+                    </div>
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is(['themes', 'themes/*']) ? 'show' : '' }}">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-shop fs-1">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Online Store</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+
+                        <div class="menu-sub menu-sub-accordion">
+                            <!-- Themes -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is(['themes', 'themes/*']) ? 'active' : '' }}"
+                                    href="{{ route('retailer.themes.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Themes</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
 
 
                 </div>

@@ -56,8 +56,8 @@ class RetailerProductController extends Controller
                 'google_analytics_id',
                 'facebook_pixel_id',
                 'app_store_url',
-                'apple_store_id',
-                'play_store_url',
+                // 'apple_store_id',
+                // 'play_store_url',
                 'meta_title',
                 'meta_keywords',
                 'meta_description',
@@ -74,7 +74,10 @@ class RetailerProductController extends Controller
                 'banner_title',
                 'banner_sub_title',
                 'banner_button_title',
-            )->where('product_listing_key', $apiKey)->first();
+                'theme',
+            )
+            ->with('theme:id,theme_name,theme_image')
+            ->where('product_listing_key', $apiKey)->first();
             if (!$storeinfo) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
@@ -121,7 +124,7 @@ class RetailerProductController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error fetching retailer company info: ' . $e->getMessage());
-            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

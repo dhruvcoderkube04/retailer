@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\RetailerWebManagement as RetailerWeb;
+use App\Models\Theme;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,12 +31,16 @@ class RetilerWebManagement extends Controller
         $product_list_key = Str::uuid();
         $retailer_subdomain = 'http://trendmart-retailer-website-v2.vercel.app/?token=' . $product_list_key;
 
+        $theme = Theme::whereIn('type', ['retailer', 'both'])
+            ->where('status', 1)
+            ->first();
+
         if (!empty($company_name))
         {
             RetailerWeb::create([
                 'retailer_id'=> $id,
                 'store_name'=>$company_name,
-                'theme'=>'',
+                'theme'=>$theme->id ?? '',
                 'subdomain'=> $retailer_subdomain,
                 'product_listing_key'=>$product_list_key,
                 // 'is_active'=> $request->status == null ? 0:1,

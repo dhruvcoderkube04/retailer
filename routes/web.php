@@ -13,6 +13,7 @@ use App\Http\Controllers\RetilerController;;
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\VBuilder;
 use Illuminate\Support\Facades\Artisan;
@@ -204,6 +205,12 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestIndex'])->name('retailer.accounts.withdrawal-request');
         Route::post('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestStore'])->name('retailer.accounts.withdrawal-request-post'); // ajax
         Route::POST('/withdrawal-transactions/fetch-record', [RetailerAccountTransactionController::class, 'fetchRecordWithdrawalTransactions'])->name('retailer.accounts.withdrawal-transactions.fetch-record'); // ajax - datatable
+    });
+
+    // themes
+    Route::prefix('themes')->group(function () {
+        Route::get('/', [ThemeController::class, 'indexThemes'])->name('retailer.themes.index');
+        Route::post('/active', [ThemeController::class, 'activeTheme'])->name('retailer.themes.active');
     });
 });
 
