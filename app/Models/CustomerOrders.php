@@ -55,6 +55,7 @@ class CustomerOrders extends Model
         'fulfilledby',
         'shipment_status_updated_at',
         'courier_partner_id',
+        'courier_partner_code',
         'checkout_type'
     ];
 

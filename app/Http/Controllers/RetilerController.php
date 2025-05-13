@@ -1285,7 +1285,7 @@ class RetilerController extends Controller
                 return response()->json($response);
             }
 
-            if(!empty($response['valid']) && $response['valid']=== true){
+            if (!empty($response['valid']) && $response['valid'] === true) {
                 return response()->json($response);
             }
         } catch (\Exception $e) {
@@ -1296,4 +1296,86 @@ class RetilerController extends Controller
             ], 500);
         }
     }
+
+    //<----------------------- START : Customer ---------------------->
+    // index
+    public function indexCustomers(Request $request)
+    {
+        return view('customers.index');
+    }
+
+    // AJAX : server side data-table fetch-record
+    public function fetchRecordsCustomers(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+
+        $retailer = Auth::user();
+
+        $query = CustomerDetails::select(
+            'customer_details.id',
+            'customer_details.firstname',
+            'customer_details.lastname',
+            'customer_details.phone_number',
+            'customer_details.email',
+            'customer_details.state',
+            'customer_details.city',
+            'customer_details.pincode'
+        )
+            ->join('customer_orders', 'customer_orders.customer_id', '=', 'customer_details.id')
+            ->where('customer_orders.order_process_by', 'retailer')
+            ->where('customer_orders.retailer_id', $retailer->id)
+            ->distinct();
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_details.firstname', 'like', '%' . $search . '%')
+                    ->orWhere('customer_details.lastname', 'like', '%' . $search . '%')
+                    ->orWhere('customer_details.phone_number', 'like', '%' . $search . '%')
+                    ->orWhere('customer_details.email', 'like', '%' . $search . '%')
+                    ->orWhere('customer_details.state', 'like', '%' . $search . '%')
+                    ->orWhere('customer_details.city', 'like', '%' . $search . '%')
+                    ->orWhere('customer_details.pincode', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            $query->orderBy("customer_details.$columnName", $direction);
+        } else {
+            $query->orderBy('customer_details.id', 'desc');
+        }
+
+        $cntFilter = clone $query;
+        $query->offset($page)->limit($limit);
+        $customers = $query->get();
+
+        $queryTotal = CustomerDetails::join('customer_orders', 'customer_orders.customer_id', '=', 'customer_details.id')
+            ->where('customer_orders.order_process_by', 'retailer')
+            ->where('customer_orders.retailer_id', $retailer->id)
+            ->distinct('customer_details.id')
+            ->count('customer_details.id');
+
+        $data = [];
+        $i = $page;
+        foreach ($customers as $item) {
+            $i++;
+
+            $data[] = array(
+                "sr_no" => $i,
+                "name" => $item->firstname . ' ' . $item->lastname,
+                "mobile_no" => $item->phone_number,
+                "email" => $item->email,
+                "state" => $item->state,
+                "city" => $item->city,
+                "pincode" => $item->pincode
+            );
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+    }
+    //<----------------------- END : Customer ---------------------->
 }

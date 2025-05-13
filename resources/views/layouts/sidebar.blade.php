@@ -172,6 +172,20 @@
                     </div> --}}
                     <!--end:Menu item-->
 
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <a class="menu-link {{ request()->is(['customers/*', 'customers']) ? 'active' : '' }}"
+                            href="{{ route('retailer.customers.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Customer List</span>
+                        </a>
+                    </div>
+
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->

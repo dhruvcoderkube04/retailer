@@ -212,6 +212,12 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/', [ThemeController::class, 'indexThemes'])->name('retailer.themes.index');
         Route::post('/active', [ThemeController::class, 'activeTheme'])->name('retailer.themes.active');
     });
+
+    // customers
+    Route::prefix('customers')->group(function () {
+        Route::get('/', [RetilerController::class, 'indexCustomers'])->name('retailer.customers.index');
+        Route::post('/fetch-record', [RetilerController::class, 'fetchRecordsCustomers'])->name('retailer.customers.fetch-record');
+    });
 });
 
 Route::get('/cc', function() {

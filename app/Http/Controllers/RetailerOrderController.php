@@ -570,6 +570,9 @@ class RetailerOrderController extends Controller
             if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
                 $updateData['tracking_number'] = $response['waybill'];
                 $updateData['api_order_id'] = $response['apiorderid'];
+                $updateData['courier_service'] = $request->courier_service;
+                $updateData['courier_partner_id'] = $active_courier_partners->id;
+                $updateData['courier_partner_code'] = 'fship';
 
                 $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
                     'courier_service_response' => $response,
@@ -626,6 +629,9 @@ class RetailerOrderController extends Controller
                     if ($createshipment['valid']  && $createshipment['order']) {
                         $updateData['tracking_number'] = $createshipment['order']['awb'];
                         $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
+                        $updateData['courier_service'] = $request->courier_service;
+                        $updateData['courier_partner_id'] = $active_courier_partners->id;
+                        $updateData['courier_partner_code'] = 'lorrigo';
 
                         $pdf = PDF::loadView('pdf.lorrigo-order-shipping-label', [
                             'courier_service_response' => $createshipment['order']['awb'],
