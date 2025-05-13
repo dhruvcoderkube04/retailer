@@ -305,10 +305,6 @@ class RetilerController extends Controller
         ]);
     }
 
-
-
-
-
     public function retailerProduct()
     {
         try {

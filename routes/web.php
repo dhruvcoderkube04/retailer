@@ -159,6 +159,12 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/report-page', [ShippingController::class, 'reportPage'])->name('retailer.report.page');
     Route::get('/shipping-charges', [ShippingController::class, 'shippingCharges'])->name('retailer.shipping.charges');
 
+    // direct shipping
+    Route::get('/direct-shipping', [ShippingController::class, 'directShipping'])->name('retailer.direct.shipping');
+    Route::post('/get-customer-data', [ShippingController::class, 'getCustomerRecrodAccrodingOrder'])->name('retailer.getcustomer.data');
+    Route::post('/customer-data-store', [ShippingController::class, 'storeCustomer'])->name('retailer.customerdata.store');
+    Route::post('/direct-shipping-place-order', [ShippingController::class, 'directShippingPlaceOrder'])->name('retailer.directshipping.place.order');
+
     // delivery check availblity
     Route::get('/pincode-serviceable', [ShippingController::class, 'pincodeServiceable'])->name('retailer.pincode.serviceable');
     Route::post('/check-availability', [ShippingController::class, 'pincodeCheckAvailability'])->name('retailer.pincode.check.availability');

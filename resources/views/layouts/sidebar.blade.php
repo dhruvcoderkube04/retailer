@@ -346,6 +346,16 @@
                             </div>
                             <!--end:Menu item-->
 
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('direct-shipping') ? 'active' : '' }}"
+                                    href="{{ route('retailer.direct.shipping') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Direct Shipping </span>
+                                </a>
+                            </div>
+
                             <!--begin:Menu item-->
                             {{-- <div class="menu-item">
                                 <!--begin:Menu link-->

@@ -3,22 +3,221 @@
 namespace App\Http\Controllers;
 
 use App\Models\CourierPartner;
+use App\Models\CustomerDetails;
+use App\Models\CustomerOrders;
+use App\Models\OrderProductDetails;
 use App\Models\PickAddress;
+use App\Models\Product;
+use App\Models\RetailerCategory;
+use App\Models\RetailerCloneProduct;
 use App\Models\RTOAddress;
+use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Services\CourierServiceManager;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ShippingController extends Controller
 {
     public function index(){
         return view('shipping.shipping-list');
     }
-    public function directShipping(){
-        return view('shipping.direct-shipping');
+
+    public function directShipping()
+    {
+        $user = Auth::user();
+
+        // Get category_ids linked to this wholesaler
+        $sub_category_ids = RetailerCategory::where('retailer_id', $user->id)
+            ->pluck('sub_category_id');
+
+        // Fetch only categories which are active and assigned to this wholesaler
+        $data['sub_category_list'] = SubCategory::select('category_id', 'sub_category_name', 'id')
+            ->where('status', 1)
+            ->whereIn('id', $sub_category_ids)
+            ->get();
+
+        return view('shipping.direct-shipping', $data);
     }
+
+    public function getCustomerRecrodAccrodingOrder(Request $request)
+    {
+        $userId = Auth::id();
+        $customerRecords = CustomerDetails::where('user_id', $userId)->get();
+
+        return response()->json($customerRecords);
+    }
+
+    public function storeCustomer(Request $request)
+    {
+        $validated = $request->validate([
+            'firstname' => 'required|string|max:100',
+            'lastname' => 'required|string|max:100',
+            'email' =>'required|email',
+            'phone_number' => 'required|string|max:20',
+            'pincode' => 'required|string|max:10',
+            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+        ]);
+
+        $validated['user_id'] = Auth::user()->id; // Add logged-in user
+
+        $customer = CustomerDetails::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer added successfully!',
+            'customer' => $customer
+        ]);
+    }
+    public function directShippingPlaceOrder(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Step 1: Validate product and customer data
+            $validatedData = $this->validateDirectShipping($request);
+
+            // Step 2: Create customer if not exists or passed
+            $customer = $this->getCustomer($request);
+
+            // Step 3: Create product
+            $product = $this->createRetailerProduct($request);
+
+            // Step 4: Place order
+            $order = $this->createCustomerOrder($request, $customer, $product);
+
+            // Step 5: Set product to inactive
+            $product->update(['status' => 'inactive']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order placed successfully and product marked as inactive.',
+                'order_id' => $order->id,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Direct Shipping Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function validateDirectShipping(Request $request)
+    {
+        return $request->validate([
+            'product_name' => 'required|min:3|max:100',
+            'sub_category_id' => 'required|numeric|exists:sub_categories,id',
+            'qty' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:1|max:99999999.99',
+            'customer_id' => 'required|exists:customer_details,id',
+        ]);
+    }
+
+    private function createCustomerOrder(Request $request, CustomerDetails $customer, RetailerCloneProduct $product)
+    {
+        $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
+
+        $orderProductDetails = OrderProductDetails::create([
+            'product_id' => $product->id,
+            'sku' => $product->sku,
+            'retailer_id' => $product->retailer_id,
+            'name' => $product->name,
+            'slug' => $product->slug,
+            'old_price' => $product->old_price,
+            'new_price' => $product->new_price,
+            'quantity' => $product->quantity,
+            'images' => $product->images,
+            'category_id' => $product->category_id,
+            'sub_category_id' => $product->sub_category_id,
+            'status' => $product->status,
+        ]);
+
+        $order = CustomerOrders::create([
+            'order_id' => $orderID,
+            'customer_id' => $customer->id,
+            'order_product_id' => $orderProductDetails->id,
+            'retailer_clone_product_id' => $product->id,
+            'retailer_id' => $product->retailer_id,
+            'quantity' => $request->qty,
+            'final_amount' => $request->price * $request->qty,
+            'order_process_by' => 'retailer',
+            'payment_method' => $request->payment_method,
+        ]);
+
+        return $order;
+    }
+
+    private function getCustomer(Request $request)
+    {
+        if (!$request->filled('customer_id')) {
+            throw new \Exception('Customer ID is required.');
+        }
+
+        return CustomerDetails::findOrFail($request->customer_id);
+    }
+
+    private function createRetailerProduct(Request $request)
+    {
+        $retailerId = Auth::id();
+        $product = new RetailerCloneProduct();
+
+        if ($request->hasFile('product_image')) {
+            $file = $request->file('product_image');
+
+            $filename = 'product_image_' . now()->timestamp . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $directory = 'products/images/';
+            $path = $directory . $filename;
+
+            // Store image to 'spaces' disk
+            Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
+
+            // Store the public URL in the product's images field
+            $product->images = Storage::disk('spaces')->url($path);
+        }
+
+        $subCategory = SubCategory::findOrFail($request->sub_category_id);
+
+        $sku = $request->sku ?: $this->generateUniqueSKU();
+
+        $slug = Str::slug($request->product_name) . '-' . now()->timestamp . '-' . uniqid();
+
+        $product->fill([
+            'retailer_id' => $retailerId,
+            'name' => $request->product_name,
+            'slug' => $slug,
+            'category_id' => $subCategory->category_id,
+            'sub_category_id' => $request->sub_category_id,
+            'status' => 'active',
+            'old_price' => 0,
+            'new_price' => $request->price,
+            'sku' => $sku,
+            'quantity' => $request->qty,
+        ]);
+
+        $product->save();
+
+        return $product;
+    }
+
+    private function generateUniqueSKU()
+    {
+        do {
+            $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+        } while (RetailerCloneProduct::where('sku', $sku)->exists());
+
+        return $sku;
+    }
+
     public function CreateOwnOrder(){
         return view('shipping.create-own-order');
     }
