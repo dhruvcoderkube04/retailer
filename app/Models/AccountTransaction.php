@@ -8,6 +8,7 @@ class AccountTransaction extends Model
 {
     protected $fillable = [
         'customer_order_id',
+        'tracking_number',
         'user_id',
         'user_type',
         'description',
