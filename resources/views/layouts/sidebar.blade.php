@@ -61,6 +61,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
@@ -80,6 +81,22 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
+                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <a class="menu-link {{ request()->is(['subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'active' : '' }}"
+                            href="{{ route('retailer.subscribed-category.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-shop fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                    <span class="path5"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Subscribed Category</span>
+                        </a>
+                    </div>
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"

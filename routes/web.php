@@ -48,6 +48,13 @@ Route::middleware(['retailer'])->group(function () {
 
     // wholesaler list
     Route::get('/wholesaler-list', [RetilerController::class, 'wholesalerList'])->name('retailer.wholesaler.list'); // wholesaler list
+    Route::post('/wholesaler/fetch-record', [RetilerController::class, 'wholesalerFetchRecord'])->name('retailer.wholesaler.fetch-record'); // ajax - datatable
+
+    // subscribed category
+    Route::prefix('subscribed-category')->group(function() {
+        Route::get('/', [RetilerController::class, 'subscribedCategoryIndex'])->name('retailer.subscribed-category.index'); // subscribed category list
+        Route::post('/subscribed-category/fetch-record', [RetilerController::class, 'subscribedCategoryFetchRecord'])->name('retailer.subscribed-category.fetch-record'); // ajax - datatable
+    });
 
     // add, edit, view, delete margin
     Route::get('/wholesaler/{wholesaler_id}', [RetilerController::class, 'viewCategoryMargin'])->name('retailer.view-category-margin'); // margin add view page

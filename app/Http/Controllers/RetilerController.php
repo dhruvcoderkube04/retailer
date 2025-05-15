@@ -128,13 +128,191 @@ class RetilerController extends Controller
         return response()->json(['status' => true, 'data' => $data]);
     }
 
+    //<------------------------- START : wholesaler list --------------------------->
     // wholesaler list
     public function wholesalerList()
     {
         $isAllWholesalerVisibleCheck = Auth::user()->is_all_wholesaler_visible;
-        $wholesaler_list = User::with('userDetail')->where('user_type', 2)->where('status', 1)->get();
-        return view('wholesaler-list', ['is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck, 'wholesalers' => $wholesaler_list]);
+
+        return view('wholesaler.wholesaler-list', ['is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck]);
     }
+
+    // AJAX : server-side data-table to fetch record of wholesaler list
+    public function wholesalerFetchRecord(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+
+        $query = User::with('userDetail')
+            ->where('user_type', 2)
+            ->where('status', 1);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', '%' . $search . '%')
+                    ->orWhere('lastname', 'like', '%' . $search . '%')
+                    ->orWhereHas('userDetail', function ($q) use ($search) {
+                        $q->where('company_name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            $query->orderBy($columnName, $direction);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $cntFilter = clone $query;
+        $query->offset($page)->limit($limit);
+        $wholesaler = $query->get();
+
+        $queryTotal = User::where('user_type', 2)
+            ->where('status', 1)
+            ->count('id');
+
+        $data = [];
+        $i = $page;
+        foreach ($wholesaler as $key => $item) {
+            $i++;
+
+            $category_count_fetch = Product::where('wholesaler_id', $item->id)
+                ->where('status', 'active')
+                ->distinct('category_id')
+                ->count('category_id');
+            $product_count_fetch = Product::where('wholesaler_id', $item->id)
+                ->where('status', 'active')
+                ->count('id');
+            $details = '
+                <div>
+                    <span>Total Category : </span>
+                    <div class="badge ' . ($category_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
+                                    ' . $category_count_fetch . '
+                    </div>
+                </div>
+                <div>
+                    <span>Total Products : </span>
+                    <div class="badge ' . ($product_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
+                                    ' . $product_count_fetch . '
+                    </div>
+                </div>';
+
+            if ($item->userDetail->company_logo) {
+                $company_logo = '<div>
+                    <img src="' . $item->userDetail->company_logo . '" style="height: 80px; width: 80px;" />
+                </div>';
+            } else {
+                $company_logo = '<div>
+                    <img src="' . asset('/assets/media/avatars/no-profile.png') . '" style="height: 75px; width: 75px;" />
+                </div>';
+            }
+
+            $action = '<a href="' . route('retailer.view-category-margin', $item->id) . '" class="btn btn-primary" style="' . ($category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
+
+            $data[] = array(
+                "company_logo" => $company_logo,
+                "company_name" => $item->userDetail->company_name,
+                "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
+                "details" => $details,
+                "action" => $action
+            );
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+    }
+    //<------------------------- END : wholesaler list --------------------------->
+
+
+    //<------------------------- START : subscribed category list --------------------------->
+    // subscribed category index
+    public function subscribedCategoryIndex()
+    {
+        $isAllWholesalerVisibleCheck = Auth::user()->is_all_wholesaler_visible;
+
+        return view('subscribed-category.index', ['is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck]);
+    }
+
+    // AJAX : server-side data-table to fetch record of subscribed category list
+    public function subscribedCategoryFetchRecord(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $retailer = Auth::user();
+
+        $query = RetailerProducts::with('wholesaler', 'category', 'wholesaler.userDetail')
+            ->where('retailer_id', $retailer->id);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->orWhere('payment_method', 'like', '%' . $search . '%')
+                    ->orWhere('margin', 'like', '%' . $search . '%')
+                    ->orWhere('notes', 'like', '%' . $search . '%')
+                    ->orWhereHas('wholesaler', function ($q) use ($search) {
+                        $q->where('firstname', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('category_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('wholesaler.userDetail', function ($q) use ($search) {
+                        $q->where('company_name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            $query->orderBy($columnName, $direction);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $cntFilter = clone $query;
+        $query->offset($page)->limit($limit);
+        $subscribedCategories = $query->get();
+
+        $queryTotal = RetailerProducts::where('retailer_id', $retailer->id)
+            ->count('id');
+
+        $data = [];
+        $i = $page;
+        foreach ($subscribedCategories as $key => $item) {
+            $i++;
+
+            if ($item->category->category_image) {
+                $category_image = '<div>
+                    <img src="' . $item->category->category_image . '" style="height: 80px; width: 80px;" />
+                </div>';
+            } else {
+                $category_image = '<div>
+                    <img src="' . asset('/assets/media/images/no_image.jpg') . '" style="height: 75px; width: 75px;" />
+                </div>';
+            }
+
+            $margin = '<div class="badge badge-light-primary">
+                            ₹ ' . $item->margin . '
+                        </div>';
+
+            $data[] = array(
+                "category_image" => $category_image,
+                "category_name" => $item->category->category_name,
+                "wholesaler_name" => $item->wholesaler->userDetail->company_name,
+                "payment_method" => $item->payment_method,
+                "margin" => $margin,
+            );
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+    }
+    //<------------------------- END : subscribed category list --------------------------->
+
 
     // <--------------------- START : Add category margin ---------------------->
     // add category margin view page
@@ -164,7 +342,7 @@ class RetilerController extends Controller
             ->where('retailer_id', $retailer->id)
             ->get();
 
-        return view('product.retailer-product-list', [
+        return view('wholesaler.retailer-product-list', [
             'wholesaler' => $wholesaler,
             'categories' => $categories,
             'addedMarginDetails' => $addedMarginDetails

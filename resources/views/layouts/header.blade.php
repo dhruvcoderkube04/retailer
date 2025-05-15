@@ -51,7 +51,9 @@
                 @if (isset($retailer))
                     <div class="app-navbar-item ms-1 ms-md-4">
                         <a href="{{ $retailer->subdomain }}" target="_blank"
-                            class="btn btn-light-success btn-active-light-light">View Your Site</a>
+                            class="btn btn-light-success btn-active-light-light">
+                            <i class="fas fa-external-link-alt me-2 mb-1 fs-7"></i>View Your Site
+                        </a>
                     </div>
                 @endif
 
