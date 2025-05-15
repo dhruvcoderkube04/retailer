@@ -428,6 +428,7 @@ class RetailerOrderController extends Controller
             }
         } catch (Exception $e) {
             DB::rollBack();
+            // return response()->json(['status' => false, 'msg' => $e->getmessage()]);
             return response()->json(['status' => false, 'msg' => 'Something went wrong, Plase try later!']);
         }
     }

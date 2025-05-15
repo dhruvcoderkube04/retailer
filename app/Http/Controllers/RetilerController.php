@@ -202,7 +202,7 @@ class RetilerController extends Controller
                     </div>
                 </div>';
 
-            if ($item->userDetail->company_logo) {
+            if (@$item->userDetail->company_logo) {
                 $company_logo = '<div>
                     <img src="' . $item->userDetail->company_logo . '" style="height: 80px; width: 80px;" />
                 </div>';
@@ -215,8 +215,8 @@ class RetilerController extends Controller
             $action = '<a href="' . route('retailer.view-category-margin', $item->id) . '" class="btn btn-primary" style="' . ($category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
 
             $data[] = array(
-                "company_logo" => $company_logo,
-                "company_name" => $item->userDetail->company_name,
+                "company_logo" => @$company_logo,
+                "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
                 "details" => $details,
                 "action" => $action
