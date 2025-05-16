@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Imports\ProductImport;
+use App\Models\AccountTransaction;
 use App\Models\Category;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
@@ -62,9 +63,20 @@ class RetilerController extends Controller
                 ->count(),
 
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])
+                ->whereIn('status', ['delivered', 'close'])
                 ->where('order_process_by', 'retailer')
                 ->sum('final_amount'),
         ];
+
+        $total_earning = AccountTransaction::whereNotNull('customer_order_id')
+            ->where('user_type', 'retailer')
+            ->where('user_id', $user->id)
+            ->where('type', 'success')
+            ->where('status', 1)
+            ->whereBetween('created_at', [$from, $to])
+            ->sum('final_transaction_amount');
+
+        $data['total_earning'] = $total_earning;
 
         $wholesaler_product = 0;
         $retailerProducts = RetailerProducts::where('retailer_id', $user->id)->get();
@@ -122,8 +134,18 @@ class RetilerController extends Controller
                 ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])->count(),
 
-            'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->where('order_process_by', 'retailer')->sum('final_amount'),
+            'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->whereIn('status', ['delivered', 'close'])->where('order_process_by', 'retailer')->sum('final_amount'),
         ];
+
+         $total_earning = AccountTransaction::whereNotNull('customer_order_id')
+            ->where('user_type', 'retailer')
+            ->where('user_id', $user->id)
+            ->where('type', 'success')
+            ->where('status', 1)
+            ->whereBetween('created_at', [$from, $to])
+            ->sum('final_transaction_amount');
+
+        $data['total_earning'] = $total_earning;
 
         return response()->json(['status' => true, 'data' => $data]);
     }

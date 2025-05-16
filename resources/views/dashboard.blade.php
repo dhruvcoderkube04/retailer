@@ -227,6 +227,30 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Total Earning -->
+                        <div class="col-12 col-md-6 col-xl-3 mb-10">
+                            <div class="card h-100 text-center">
+                                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <i class="ki-duotone ki-finance-calculator fs-2hx mb-4 text-primary">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                        <span class="path3"></span>
+                                        <span class="path4"></span>
+                                        <span class="path5"></span>
+                                        <span class="path6"></span>
+                                        <span class="path7"></span>
+                                    </i>
+                                    <div class="d-flex align-items-start justify-content-center">
+                                        <span class="fs-4 fw-semibold text-gray-500 me-1">₹</span>
+                                        <span class="fw-semibold fs-3x text-gray-800 lh-1 ls-n2" id="total_earning">
+                                            {{ $data['total_earning'] ?? 0 }}
+                                        </span>
+                                    </div>
+                                    <span class="fw-semibold fs-5 text-gray-500 mt-2">Total Earning</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row gy-5 g-xl-10">
@@ -309,16 +333,12 @@
                                                                 <td>
                                                                     <div class="mt-2">
                                                                         @php
-                                                                            if (!empty($detail?->product?->images)) {
+                                                                            if (!empty($detail?->order_product_detail?->images)) {
                                                                                 $imagePath =
                                                                                     explode(
                                                                                         ',',
-                                                                                        $detail->product->images,
+                                                                                        $detail->order_product_detail->images,
                                                                                     )[0];
-                                                                            } elseif (
-                                                                                !empty($detail?->retailerCloneProduct?->images)
-                                                                            ) {
-                                                                                $imagePath = explode(',',$detail->retailerCloneProduct->images)[0];
                                                                             } else {
                                                                                 $imagePath = null;
                                                                             }
@@ -334,7 +354,7 @@
 
                                                                 {{-- product name --}}
                                                                 <td class="text-center">
-                                                                    <strong>{{ $detail?->product?->name ?? ($detail?->retailerCloneProduct?->name ?? '') }}</strong>
+                                                                    <strong>{{ $detail?->order_product_detail?->name ?? 'N/A' }}</strong>
                                                                 </td>
 
                                                                 {{-- order date --}}
@@ -440,6 +460,7 @@
                         $('#ready_for_ship').text(response.data.ready_for_ship_orders_count);
                         $('#delivered').text(response.data.delivered_orders_count);
                         $('#total_sales').text(response.data.total_sales);
+                        $('#total_earning').text(response.data.total_earning);
                     } else {
                         Swal.fire({
                             title: 'Error!',
