@@ -112,8 +112,7 @@
                                                             </td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <a href="{{ route('retailer.clone-product-view', $product->id) }}"
-                                                                        class="symbol symbol-50px">
+                                                                    <div class="symbol symbol-50px">
                                                                         @php
                                                                             $get_image =
                                                                                 explode(',', @$product->images)[0] ??
@@ -121,11 +120,12 @@
                                                                         @endphp
                                                                         <span class="symbol-label"
                                                                             style="background-image: url('{{ $get_image }}');"></span>
-                                                                    </a>
+                                                                    </div>
                                                                     <div class="ms-5">
-                                                                        <a href="#"
-                                                                            class="text-gray-800 text-hover-primary fs-5 fw-bold"
-                                                                            data-kt-ecommerce-product-filter="product_name">{{ ucfirst($product->name) ?? 'N/A' }}</a>
+                                                                        <div class="text-gray-800  fs-5 fw-bold"
+                                                                            data-kt-ecommerce-product-filter="product_name">
+                                                                            {{ ucfirst($product->name) ?? 'N/A' }}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </td>

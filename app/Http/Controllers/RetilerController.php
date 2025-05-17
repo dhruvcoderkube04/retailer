@@ -137,7 +137,7 @@ class RetilerController extends Controller
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->whereIn('status', ['delivered', 'close'])->where('order_process_by', 'retailer')->sum('final_amount'),
         ];
 
-         $total_earning = AccountTransaction::whereNotNull('customer_order_id')
+        $total_earning = AccountTransaction::whereNotNull('customer_order_id')
             ->where('user_type', 'retailer')
             ->where('user_id', $user->id)
             ->where('type', 'success')
@@ -531,6 +531,7 @@ class RetilerController extends Controller
 
             $retailerCloneProducts = RetailerCloneProduct::with('category', 'productVariations')
                 ->where('retailer_id', $retailer)
+                ->orderBy('id', 'desc')
                 ->get();
 
             $clonedProducts = RetailerCloneProduct::where('retailer_id', $retailer)
@@ -1041,7 +1042,7 @@ class RetilerController extends Controller
     public function cloneProductView(Request $request, $product_id)
     {
         try {
-            $product = Product::where('id', $product_id)->first();
+            $product = Product::where('id', $product_id)->orderBy('id', 'desc')->first();
 
             return view('product.clone-product-view', compact('product'));
         } catch (Exception $e) {
@@ -1078,7 +1079,7 @@ class RetilerController extends Controller
     {
 
         $request->validate([
-            'description' => 'required|min:10|max:500',
+            'description' => 'required|max:1000',
             'old_price' => 'required|numeric|min:0.01',
             'new_price' => 'required|numeric|min:0.01'
         ]);
@@ -1102,27 +1103,22 @@ class RetilerController extends Controller
             $cloneProduct->old_price = $request->old_price ?? $product->old_price;
             $cloneProduct->new_price = $request->new_price ?? $product->new_price;
             $cloneProduct->discount_price = $product->discount_price;
-
-            if ($request->images) {
-                $cloneProduct->images = $product->images;
-            }
-            if ($request->videos) {
-                $cloneProduct->videos = $product->videos;
-            }
-
+            $cloneProduct->images = $product->images;
+            $cloneProduct->videos = $product->videos;
             $cloneProduct->url = $product->url;
             $cloneProduct->status = $product->status;
             $cloneProduct->color = $product->color;
             $cloneProduct->size = $product->size;
             $cloneProduct->specifications = $product->specifications;
             $cloneProduct->category_id = $product->category_id;
+            $cloneProduct->sub_category_id = $product->sub_category_id;
             $cloneProduct->meta_title = $product->meta_title;
             $cloneProduct->meta_description = $product->meta_description;
             $cloneProduct->meta_keywords = $product->meta_keywords;
             $cloneProduct->save();
 
             DB::commit();
-            return redirect()->route('retailer.product')->with('success', 'Product cloned successfully');
+            return redirect()->route('retailer.product', ['active-tab' => 2])->with('success', 'Product cloned successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');

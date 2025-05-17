@@ -10,10 +10,30 @@ class RetailerCloneProduct extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'retailer_id', 'name', 'slug', 'description',
-        'brand_name', 'tags', 'quantity', 'new_price','old_price', 'discount_price',
-        'sku', 'images', 'videos', 'url', 'status', 'color', 'size',
-        'specifications', 'category_id', 'meta_title', 'meta_description', 'meta_keywords'
+        'product_id',
+        'retailer_id',
+        'name',
+        'slug',
+        'description',
+        'brand_name',
+        'tags',
+        'quantity',
+        'new_price',
+        'old_price',
+        'discount_price',
+        'sku',
+        'images',
+        'videos',
+        'url',
+        'status',
+        'color',
+        'size',
+        'specifications',
+        'category_id',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'sub_category_id',
     ];
 
     protected $casts = [
