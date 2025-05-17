@@ -31,18 +31,17 @@ class ShippingController extends Controller
     {
         $user = Auth::user();
 
-        // Get category_ids linked to this wholesaler
         $sub_category_ids = RetailerCategory::where('retailer_id', $user->id)
             ->pluck('sub_category_id');
 
-        // Fetch only categories which are active and assigned to this wholesaler
-        $data['sub_category_list'] = SubCategory::select('category_id', 'sub_category_name', 'id')
+        $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
             ->where('status', 1)
             ->whereIn('id', $sub_category_ids)
             ->get();
 
-        return view('shipping.direct-shipping', $data);
+        return view('shipping.direct-shipping', compact('sub_category_list'));
     }
+
 
     public function getCustomerRecrodAccrodingOrder(Request $request)
     {

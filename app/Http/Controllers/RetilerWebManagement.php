@@ -29,9 +29,9 @@ class RetilerWebManagement extends Controller
         $clean_name = strtolower(trim(str_replace(' ', '', $company_name))); // make lowercase and remove spaces
 
         $product_list_key = Str::uuid();
-        $retailer_subdomain = 'http://trendmart-retailer-website-v2.vercel.app/?token=' . $product_list_key;
+        $retailer_subdomain = 'http://trendmart-retailer-website-v2.vercel.app/';
 
-        $theme = Theme::whereIn('type', ['retailer', 'both'])
+        $theme = Theme::whereIn('theme_type', ['retailer', 'both'])
             ->where('status', 1)
             ->first();
 

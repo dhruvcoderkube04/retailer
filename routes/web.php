@@ -157,7 +157,6 @@ Route::middleware(['retailer'])->group(function () {
 
     // Shipping
     Route::get('/shipping-page', [ShippingController::class, 'index'])->name('retailer.shipping.index');
-    Route::get('/direct-shipping', [ShippingController::class, 'directShipping'])->name('retailer.direct.shipping');
     Route::get('/create-own-order', [ShippingController::class, 'CreateOwnOrder'])->name('retailer.ownorder');
     Route::get('/ndr', [ShippingController::class, 'NDR'])->name('retailer.ndr');
     Route::get('/label-setting', [ShippingController::class, 'labelSetting'])->name('retailer.labelsetting');
@@ -182,7 +181,7 @@ Route::middleware(['retailer'])->group(function () {
 
     Route::post('/pick-address/store', [ShippingController::class, 'pickAddressStore'])->name('retailer.pickaddress.pickAddressStore');
     Route::get('/pick-address/edit/{id}', [ShippingController::class, 'pickAddressedit']);
-    Route::put('/pick-address/update/{id}', [ShippingController::class, 'pickAddressupdate']);
+    Route::post('/pick-address/update/{id}', [ShippingController::class, 'pickAddressupdate']);
     Route::delete('/pick-addresses/{id}', [ShippingController::class, 'pickAddressdestroy'])->name('pickAddresses.destroy');
 
     Route::post('/rto-address/store', [ShippingController::class, 'RTOAddressStore'])->name('retailer.rtoaddress.rtoAddressStore');

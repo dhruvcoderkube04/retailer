@@ -45,11 +45,12 @@
                             data-control="select2" name="sub_category_id"
                             data-placeholder="Select an option" id="subCategory">
                             <option></option>
-                            @foreach ($sub_category_list as $sub_category)
+                            @foreach ($sub_category_list ?? [] as $sub_category)
                                 <option data-category-id="{{ $sub_category->category_id }}"
                                     value="{{ $sub_category->id }}"
                                     {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
-                                    {{ Str::upper($sub_category->sub_category_name) }}</option>
+                                    {{ Str::upper($sub_category->sub_category_name) }}
+                                </option>
                             @endforeach
                         </select>
                         @error('sub_category_id')
