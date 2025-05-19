@@ -10,6 +10,7 @@ use App\Models\RetailerCloneProduct;
 use App\Models\SubCategory;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductImport implements ToCollection, WithValidation, WithHeadingRow
@@ -17,16 +18,11 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
 
     private $requiredColumns = [
         'product_name',
-        'product_description',
-        'product_tags',
         'quantity',
         'new_price',
         'old_price',
-        // 'sku',
+        'status',
         'images',
-        'images1',
-        'videos',
-        // 'slug'
     ];
 
     protected $subcategoryId;
@@ -40,77 +36,65 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
     {
         $validRows = [];
         $invalidRows = [];
-        $retailerId = Auth::id();
-        $categoryId = SubCategory::where('id',$this->subcategoryId)->first();
-        foreach ($rows as $row) {
+        $retailer = Auth::user();
+
+        $sub_category = SubCategory::where('id', $this->subcategoryId)->first();
+
+        foreach ($rows as $index => $row) {
+            DB::beginTransaction();
             $row = $this->map($row);
 
-            $allImages = [];
-            // Add the primary image if available
-            if (!empty($row['images'])) {
-                $allImages[] = $row['images'];
-            }
-
-            // Add additional images from 'images1' if available
-            if (!empty($row['images1'])) {
-                $extraImages = explode('|', $row['images1']);
-                $allImages = array_merge($allImages, $extraImages);
-            }
-
-            // Prepare video if available
-            $videoUrl = !empty($row['videos']) ? $row['videos'] : null;
-
-
-            if (empty($row['product_name']) || empty($row['new_price']) || empty($row['quantity'])) {
-                $invalidRows[] = $row;
-                continue;
-            }
-
-            $originalName = $row['product_name'];
-
-            // Fetch all matching product names for this retailer
-            $existingNames = RetailerCloneProduct::where('retailer_id', $retailerId)
-                ->where('name', 'like', $originalName . '%')
-                ->pluck('name')
-                ->toArray();
-
-            // Extract suffix numbers and find the next available one
-            $maxSuffix = 0;
-            foreach ($existingNames as $existingName) {
-                if ($existingName == $originalName) {
-                    $maxSuffix = max($maxSuffix, 1); // if exact match, start from 1
-                } elseif (preg_match('/^' . preg_quote($originalName, '/') . '-(\d+)$/', $existingName, $matches)) {
-                    $maxSuffix = max($maxSuffix, (int)$matches[1] + 1);
+            //<-------- START : Missing data validation ---------->
+            $missing = [];
+            foreach ($this->requiredColumns as $field) {
+                $value = $row[$field] ?? null;
+                if ($field === 'quantity') {
+                    if (!array_key_exists($field, $row) || $value === null || (string)$value === '') {
+                        $missing[] = $field;
+                    }
+                } else {
+                    if (empty(trim((string) $value))) {
+                        $missing[] = $field;
+                    }
                 }
             }
+            if (!empty($missing)) {
+                DB::rollBack();
+                $invalidRows[] = "Row " . ($index + 2) . ": Missing - " . implode(', ', $missing);
+                continue;
+            }
+            //<-------- END : Missing data validation ---------->
 
-            // Create unique name
-            $finalName = $maxSuffix > 0 ? $originalName . '-' . $maxSuffix : $originalName;
-            // dd($finalName);
+            $allImages = array_filter(array_merge(
+                [$row['images']],
+                isset($row['images1']) ? explode('|', $row['images1']) : []
+            ));
+            $sku = $this->generateUniqueSku();
+            $slug = Str::slug($row['product_name']) . '-' . now()->timestamp . '-' . uniqid();
 
-            // Create product
-            RetailerCloneProduct::create([
-                'retailer_id' => $retailerId,
-                'name' => $finalName,
+            RetailerCloneProduct::updateOrCreate([
+                'retailer_id' => $retailer->id,
+                'name' => $row['product_name'],
+            ], [
+                'sku' => $sku,
+                'slug' => $slug,
                 'description' => $row['product_description'] ?? null,
-                'category_id' => $categoryId->category_id,
-                'sub_category_id' => $this->subcategoryId,
                 'tags' => $row['product_tags'] ?? null,
-                'slug' => !empty($row['slug'])
-                    ? Str::slug($row['slug'])
-                    : Str::slug($finalName . '-' . uniqid()),
                 'quantity' => $row['quantity'],
                 'new_price' => $row['new_price'],
                 'old_price' => $row['old_price'],
-                'status' => 'active',
-                'sku' => !empty($row['sku']) ? $row['sku'] : (string) Str::uuid(),
-                // 'sku' => $row['sku'] ,
+                'status' => $row['status'],
                 'images' => implode(',', $allImages),
-                'videos' => $videoUrl,
+                'videos' => $row['videos'] ?? null,
+                'category_id' => $sub_category->category_id,
+                'sub_category_id' => $sub_category->id,
+                'meta_title' => $row['meta_title'] ?? null,
+                'meta_description' => $row['meta_description'] ?? null,
+                'meta_keywords' => $row['meta_keywords'] ?? null,
             ]);
 
-            $row['product_name'] = $finalName;
             $validRows[] = $row;
+            DB::commit();
         }
 
         return [
@@ -119,13 +103,24 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
         ];
     }
 
+    private function generateUniqueSku()
+    {
+        do {
+            $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+        } while (RetailerCloneProduct::where('sku', $sku)->exists());
+
+        return $sku;
+    }
 
     public function rules(): array
     {
         return [
             'product_name' => 'required|string',
-            'new_price' => 'required|numeric',
             'quantity' => 'required|integer',
+            'new_price' => 'required|numeric',
+            'old_price' => 'required|numeric',
+            'status' => 'required|string',
+            'images' => 'required|string',
         ];
     }
 
@@ -133,55 +128,47 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
     {
         return [
             'product_name.required' => 'Product Name is required.',
-            'new_price.required' => 'Price is required.',
-            'new_price.numeric' => 'Price must be a number.',
             'quantity.required' => 'Quantity is required.',
             'quantity.integer' => 'Quantity must be an integer.',
+            'new_price.required' => 'New Price is required.',
+            'new_price.numeric' => 'New Price must be a number.',
+            'old_price.required' => 'Old Price is required.',
+            'old_price.numeric' => 'Old Price must be a number.',
+            'status.required' => 'Status is required.',
+            'images.required' => 'Images are required.',
         ];
     }
 
     public function checkColumns(array $headings)
     {
+        $headings = array_map(fn($h) => strtolower(trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $h))), $headings);
 
-        // dd($headings);
-        // Convert to lowercase, trim, and clean the headings
-        $headingsArray = array_map(function ($heading) {
-            return strtolower(trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $heading))); // Remove hidden characters
-        }, $headings);
-
-        // Check for missing columns
-        $missingColumns = [];
-
+        $missing = [];
         foreach ($this->requiredColumns as $column) {
-            if (!in_array(strtolower($column), $headingsArray, true)) {
-                $missingColumns[] = $column;
+            if (!in_array($column, $headings, true)) {
+                $missing[] = $column;
             }
         }
 
-        return empty($missingColumns) ? true : $missingColumns;
+        return empty($missing) ? true : $missing;
     }
-
-
-
 
     public function map($row): array
     {
-
-        // dd($row);
         return [
             'product_name' => $row['product_name'] ?? null,
-            'product_description' => $row['product_description'] ?? null,
             'product_tags' => $row['product_tags'] ?? null,
             'quantity' => $row['quantity'] ?? null,
             'new_price' => $row['new_price'] ?? null,
             'old_price' => $row['old_price'] ?? null,
-            'sku' => $row['sku'] ?? null,
+            'status' => $row['status'] ?? null,
+            'product_description' => $row['product_description'] ?? null,
             'images' => $row['images'] ?? null,
             'images1' => $row['images1'] ?? null,
             'videos' => $row['videos'] ?? null,
-            'slug' => @$row['slug'] ?? null,
+            'meta_title' => $row['meta_title'] ?? null,
+            'meta_description' => $row['meta_description'] ?? null,
+            'meta_keywords' => $row['meta_keywords'] ?? null,
         ];
     }
-
-
 }

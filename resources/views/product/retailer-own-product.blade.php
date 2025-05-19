@@ -267,51 +267,39 @@
                         <div class="modal-body scroll-y mx-5 mx-xl-7 my-3">
                             <form id="productUploadForm" class="form" method="POST" enctype="multipart/form-data">
                                 @csrf
+
                                 <div class="fv-row mb-7 fv-plugins-icon-container">
-                                    <label class="fs-6 fw-semibold form-label mb-2">
-                                        <span class="required">Product File </span>
-                                        <span class="ms-2" data-bs-toggle="tooltip"
-                                            aria-label="The invoice number must be unique."
-                                            data-bs-original-title="The invoice number must be unique."
-                                            data-kt-initialized="1">
-                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span
-                                                    class="path2"></span><span class="path3"></span></i>
-                                        </span>
-                                    </label>
-                                    <input type="file" class="form-control form-control-solid" name="product_file">
+                                    <label class="fs-6 fw-semibold form-label mb-2 required">Product File</label>
+                                    <input type="file" class="form-control" name="product_file" id="product_file">
+                                    <span class="invalid-feedback d-block" id="product_file_error"></span>
                                     <div
                                         class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
                                     </div>
                                 </div>
+
                                 <div class="fv-row mb-7 fv-plugins-icon-container">
-                                    <label class="fs-6 fw-semibold form-label mb-2">
-                                        <span class="required">Category Name</span>
-                                        <span class="ms-2" data-bs-toggle="tooltip"
-                                            aria-label="The invoice number must be unique."
-                                            data-bs-original-title="The invoice number must be unique."
-                                            data-kt-initialized="1">
-                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span
-                                                    class="path2"></span><span class="path3"></span></i>
-                                        </span>
-                                    </label>
+                                    <label class="fs-6 fw-semibold form-label mb-2 required">Sub Category Name</label>
                                     <div class="mb-6 fv-row">
-                                        <select class="form-select mb-2 @error('categories') is-invalid @enderror"
-                                            data-control="select2" name="categories" data-placeholder="Select an option">
-                                            @foreach ($category_list as $category)
-                                                <option value="{{ $category->id }}">
-                                                    {{ Str::upper($category->category_name) }}</option>
+                                        <select class="form-select mb-2" data-control="select2" name="sub_category"
+                                            id="sub_category" data-placeholder="Select an option">
+                                            <option></option>
+                                            @foreach ($sub_category_list as $sub_category)
+                                                <option value="{{ $sub_category->id }}">
+                                                    {{ Str::upper($sub_category->sub_category_name) }}</option>
                                             @endforeach
                                         </select>
+                                        <span class="invalid-feedback d-block" id="sub_category_error"></span>
                                     </div>
                                     <div class="mb-10 fv-row">
                                         <a href="{{ route('retailer.download-stock-sample') }}">Download Sample Product
                                             File </a>
-                                        <p style="color: red">(Only excepted .xlsx formate)</p>
+                                        <p class="text-danger">(Only accepted .xlsx formate)</p>
                                     </div>
                                     <div
                                         class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
                                     </div>
                                 </div>
+
                                 <div class="text-center">
                                     <button type="reset" class="btn btn-light me-3"
                                         data-bs-dismiss="modal">Discard</button>
@@ -328,7 +316,7 @@
             </div>
 
             {{-- add product modal --}}
-            <div class="modal fade" id="kt_modal_add_clone_product" tabindex="-1" style="display: none;"
+            {{-- <div class="modal fade" id="kt_modal_add_clone_product" tabindex="-1" style="display: none;"
                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered mw-650px">
                     <div class="modal-content">
@@ -395,7 +383,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             @include('layouts.footer')
         </div>
@@ -432,35 +420,31 @@
 
             $(document).ready(function() {
                 //<----------------- START : product upload form submit ---------------->
+                $('#kt_modal_add_product').on('shown.bs.modal', function() {
+                    $('[data-control="select2"]').select2({
+                        dropdownParent: $('#kt_modal_add_product'),
+                        placeholder: 'Select an option',
+                        allowClear: true
+                    });
+                });
+
                 $("#productUploadForm").submit(function(e) {
                     e.preventDefault();
 
                     var formData = new FormData(this);
-
                     let stockfile = $("input[name='product_file']")[0].files[0];
-                    let categoryId = $("select[name='categories']").val(); // Correct selector
+                    let subCategoryId = $("select[name='sub_category']").val();
                     let submitButton = $(this).find("button[type='submit']");
 
-                    if (!stockfile) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Please select an Excel (.xlsx) file!'
-                        });
-                        return;
-                    }
+                    // Clear previous validation states
+                    $('#product_file_error').text('');
+                    $('#sub_category_error').text('');
+                    $('input[name="product_file"]').removeClass('is-invalid');
+                    $('select[name="sub_category"]').removeClass('is-invalid');
+                    $('#sub_category').next('.select2-container').find('.select2-selection').removeClass(
+                        'border border-danger');
 
-                    if (stockfile.type !==
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid File Type!',
-                            text: 'Only .xlsx files are allowed.'
-                        });
-                        return;
-                    }
-
-                    formData.append("categories", categoryId); // Append category to formdata.
+                    formData.append("sub_category", subCategoryId);
 
                     submitButton.prop("disabled", true);
                     submitButton.find(".indicator-label").hide();
@@ -472,39 +456,53 @@
                         data: formData,
                         contentType: false,
                         processData: false,
-                        success: function(mydata) {
+                        success: function(response) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Product Import Successful!'
                             });
-                            $("#kt_margin_added_products_table").load(location.href +
-                                " #kt_margin_added_products_table");
-                            $("#kt_modal_add_product").modal('hide');
+                            location.reload();
                         },
-                        // error: function(mydata) {
-                        //     Swal.fire({ icon: 'error', title: 'Product Import Failed!' });
-                        // }
+                        error: function(xhr) {
+                            if (xhr.status === 422) {
+                                let response = xhr.responseJSON;
 
-                        error: function(mydata) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Product Import Failed!'
-                            });
-                            let errorMessage = "Product Import Failed!";
+                                if (response.errors) {
+                                    // Laravel validator errors
+                                    if (response.errors.product_file) {
+                                        $('#product_file_error').text(response.errors.product_file[
+                                            0]);
+                                        $('input[name="product_file"]').addClass('is-invalid');
+                                    }
+                                    if (response.errors.sub_category) {
+                                        $('#sub_category_error').text(response.errors.sub_category[
+                                            0]);
+                                        $('select[name="sub_category"]').addClass('is-invalid');
+                                        $('#sub_category').next('.select2-container')
+                                            .find('.select2-selection')
+                                            .addClass('border border-danger');
+                                    }
+                                }
 
-                            if (mydata.responseJSON && mydata.responseJSON.error) {
-                                errorMessage = mydata.responseJSON
-                                    .error; // Show backend error message
+                                if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Validation Error',
+                                        html: response.error,
+                                        customClass: {
+                                            popup: 'swal2-danger'
+                                        }
+                                    });
+                                }
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Server Error!',
+                                    text: 'Something went wrong. Please try again.',
+                                });
                             }
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: errorMessage
-                            });
                         },
                         complete: function() {
-                            // Enable submit button and reset loading indicator
                             submitButton.prop("disabled", false);
                             submitButton.find(".indicator-label").show();
                             submitButton.find(".indicator-progress").hide();

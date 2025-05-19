@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class RetilerController extends Controller
 {
@@ -1254,63 +1255,65 @@ class RetilerController extends Controller
         return Response::download($filePath, 'stock_sample.xlsx');
     }
 
-
+    // IMPORT : Retailer own product (retailer_clone_products) import
     public function uploadBulkProduct(Request $request)
     {
-        // dd($request->all());
         $request->validate([
-            'product_file' => 'required|mimes:xlsx',
-            'categories' => 'required|integer',
+            'product_file' => 'required|file|mimes:xlsx',
+            'sub_category' => 'required|exists:sub_categories,id',
         ]);
 
         $file = $request->file('product_file');
-        $categoryId = $request->input('categories');
+        $subCategoryId = $request->input('sub_category');
 
         try {
-            $import = new ProductImport($categoryId);
+            $import = new ProductImport($subCategoryId);
 
-            // Read the first row to check for column headings
-            $headings = array_keys(Excel::toArray(new ProductImport($categoryId), $file)[0][0]);
+            // Check headers (column names)
+            $excelData = Excel::toArray($import, $file);
+            $headings = array_keys($excelData[0][0] ?? []);
 
-            // Check if required columns are present
             $missingColumns = $import->checkColumns($headings);
 
             if ($missingColumns !== true) {
                 return response()->json([
-                    'error' => 'The uploaded file is missing the following required columns: ' . implode(', ', $missingColumns),
+                    'error' => 'The uploaded file is missing the following required columns: <br>' . implode(', ', $missingColumns),
                 ], 422);
             }
 
-            // Process data after validating columns
-            $collection = collect(Excel::toArray(new ProductImport($categoryId), $file)[0]);
+            // Process collection
+            $collection = collect($excelData[0]);
+            $result = $import->collection($collection);
 
-            $result = $import->collection($collection); // Process once
-
-            $data = [
-                'valid' => $result['valid'],
-                'invalid' => $result['invalid'],
-            ];
-
-            return response()->json($data);
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = $e->failures();
-            $errors = [];
-
-            foreach ($failures as $failure) {
-                $errors[] = [
-                    'row' => $failure->row(),
-                    'attribute' => $failure->attribute(),
-                    'errors' => $failure->errors(),
-                    'values' => $failure->values(),
-                ];
+            if (!empty($result['invalid'])) {
+                return response()->json([
+                    'error_type' => 'row_validation',
+                    'error' => implode('<br>', $result['invalid']),
+                ], 422);
             }
 
-            return response()->json(['errors' => $errors], 422);
-        } catch (\Exception $e) {
-            Log::error('File processing error: ' . $e->getMessage(), [
-                'exception' => $e
+            return response()->json([
+                'message' => 'Products imported successfully.',
+                'valid_count' => count($result['valid']),
             ]);
-            return response()->json(['error' => 'An error occurred during file processing'], 500);
+        } catch (ValidationException $e) {
+            $failures = $e->failures();
+            $messages = [];
+
+            foreach ($failures as $failure) {
+                $messages[] = "Row <strong>{$failure->row()}</strong>: " . implode(', ', $failure->errors());
+            }
+
+            return response()->json([
+                'error_type' => 'row_validation',
+                'error' => implode('<br>', $messages),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Bulk Product Upload Error: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'An unexpected error occurred during file processing. Please try again.'
+            ], 500);
         }
     }
 
