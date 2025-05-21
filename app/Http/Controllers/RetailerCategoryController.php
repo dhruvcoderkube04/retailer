@@ -105,7 +105,7 @@ class RetailerCategoryController extends Controller
         }
     }
 
-    // my-categories list
+    // INDEX : my-categories list
     public function myCategoryList()
     {
         $user = Auth::user();
@@ -117,6 +117,101 @@ class RetailerCategoryController extends Controller
             ->where('retailer_id', $user->id)
             ->get();
         return view('category.mycategorylist', compact('retailerCateogries'));
+    }
+
+    // AJAX : server-side data-table for my-categories list
+    public function myCategoryListFetchRecord(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+
+        $retailer = Auth::user();
+
+        $query = RetailerCategory::with([
+            'category',
+            'subCategory'
+        ])
+            ->where('retailer_id', $retailer->id);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->orWhere('created_at', 'like', '%' . $search . '%')
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('category_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('subCategory', function ($q) use ($search) {
+                        $q->where('sub_category_name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            $query->orderBy($columnName, $direction);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $cntFilter = clone $query;
+        $query->offset($page)->limit($limit);
+        $myCategories = $query->get();
+
+        $queryTotal = RetailerCategory::with([
+            'retailer',
+            'category',
+            'subCategory'
+        ])
+            ->where('retailer_id', $retailer->id)
+            ->count('id');
+
+        $data = [];
+        $i = $page;
+        foreach ($myCategories as $key => $item) {
+            $i++;
+
+            $image = $item->category_image ?? asset('assets/media/images/no_image.jpg');
+            $sub_category_image = '
+            <img src="' . $image . '" class="w-40px me-3" alt="sub-category-image" />
+            ';
+
+            $action = '
+                <button class="btn btn-icon btn-light-danger w-30px h-30px me-3"
+                    id="remove-btn"
+                    data-category_id="' . $item->category_id . '"
+                    data-sub_category="' . $item->sub_category_id . '"
+                    data-id="' . $item->id . '"
+                    data-bs-toggle="tooltip"
+                    aria-label="Delete">
+                    <i class="ki-duotone ki-trash fs-3">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </button>
+                <button class="btn btn-icon btn-light-secondary w-30px h-30px"
+                    id="image-upload"
+                    data-id="' . $item->id . '"
+                    data-image="' . $item->category_image . '"
+                    data-bs-toggle="tooltip"
+                    aria-label="Image Upload">
+                    <i class="ki-duotone ki-setting-3 fs-3">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </button>';
+
+            $data[] = array(
+                'sub_category_image' => $sub_category_image,
+                'category_name' => strtoupper(optional($item->category)->category_name),
+                'sub_category_name' => strtoupper(optional($item->subCategory)->sub_category_name),
+                'created_at' => $item->created_at->format('F d, Y, h:i a'),
+                'action' => $action,
+            );
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
     }
 
     // remove category - from myCategoryList (AJAX)

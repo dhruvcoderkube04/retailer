@@ -1,142 +1,55 @@
 @extends('layouts.base')
 @section('title')
-    TrendMart| My Category List
+    My Category List | TrendMart
 @endsection
 
 @section('content')
-    <!--begin::Main-->
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-        <!--begin::Content wrapper-->
         <div class="d-flex flex-column flex-column-fluid">
-            <!--begin::Toolbar-->
             <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                <!--begin::Toolbar container-->
                 <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
-                    <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <!--begin::Title-->
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">My
                             Category List</h1>
-                        <!--end::Title-->
-                        <!--begin::Breadcrumb-->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                            <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
                                 <a href="index.html" class="text-muted text-hover-primary">Category</a>
                             </li>
-                            <!--end::Item-->
-                            <!--begin::Item-->
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
                             </li>
-                            <!--end::Item-->
-                            <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">My Category list</li>
-                            <!--end::Item-->
                         </ul>
-                        <!--end::Breadcrumb-->
                     </div>
-                    <!--end::Page title-->
                 </div>
-                <!--end::Toolbar container-->
             </div>
-            <!--end::Toolbar-->
-            <!--begin::Content-->
+
             <div id="kt_app_content" class="app-content flex-column-fluid">
-                <!--begin::Content container-->
                 <div id="kt_app_content_container" class="app-container container-xxl">
-                    <!--begin::API keys-->
                     <div class="card">
-                        <!--begin::Header-->
-                        <div class="card-header card-header-stretch">
-                            <!--begin::Title-->
-                            <div class="card-title">
-                                <h3>My Category</h3>
-                            </div>
-                            <!--end::Title-->
-                        </div>
-                        <!--end::Header-->
-                        <!--begin::Body-->
-                        <div class="card-body p-0">
-                            <!--begin::Table wrapper-->
-                            <div class="table-responsive">
-                                <!--begin::Table-->
-                                <table class="table align-middle table-row-bordered table-row-solid gy-4 gs-9"
-                                    id="kt_categroy_table">
-                                    <!--begin::Thead-->
-                                    <thead class="border-gray-200 fs-5 fw-semibold bg-lighten">
-                                        <tr>
-                                            <th class="min-w-175px ps-9">Images</th>
-                                            <th class="min-w-175px ps-9">Category</th>
-                                            <th class="min-w-250px px-0">Sub Category</th>
-                                            <th class="min-w-100px">Created</th>
-                                            <th class="min-w-250px px-0">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <!--end::Thead-->
-                                    <!--begin::Tbody-->
-                                    <tbody class="fs-6 fw-semibold text-gray-600">
-                                        @if (count($retailerCateogries) > 0)
-                                            @foreach ($retailerCateogries as $category)
-                                                <tr class="data-load" data-id="{{ $category->id }}">
-                                                    <td class="ps-9">
-                                                        <img id="sub-category-image"
-                                                            src="{{ $category->category_image ? $category->category_image : asset('assets/media/images/no_image.jpg') }}"
-                                                            class="w-40px me-3" alt="">
-                                                    </td>
-                                                    <td class="ps-9">{{ strtoupper($category->category->category_name) }}
-                                                    </td>
-                                                    <td data-bs-target="license" class="ps-0">
-                                                        {{ strtoupper($category->subCategory->sub_category_name) }}</td>
+                        <div class="card-body p-5">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable_my_categroy_list">
+                                <thead>
+                                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                        <th class="text-center min-w-100px">Images</th>
+                                        <th class="text-center min-w-175px">Category</th>
+                                        <th class="text-center min-w-250px">Sub Category</th>
+                                        <th class="text-center min-w-150px">Created</th>
+                                        <th class="text-center min-w-100px">Action</th>
+                                    </tr>
+                                </thead>
 
-                                                    <td>{{ $category->created_at }}</td>
+                                <tbody class="fw-semibold text-gray-600">
 
-                                                    <td>
-                                                        <button class="btn btn-icon btn-light-danger w-30px h-30px me-3"
-                                                            id="remove-btn" data-category_id="{{ $category->category_id }}"
-                                                            data-sub_category="{{ $category->sub_category_id }}"
-                                                            data-id="{{ $category->id }}" data-bs-toggle="tooltip"
-                                                            aria-label="Delete">
-                                                            <i class="ki-duotone ki-trash fs-3"><span
-                                                                    class="path1"></span><span class="path2"></span><span
-                                                                    class="path3"></span>
-                                                                <span class="path4"></span><span class="path5"></span></i>
-                                                        </button>
-                                                        <button class="btn btn-icon btn-light-secondary w-30px h-30px"
-                                                            id="image-upload"
-                                                            data-id="{{ $category->id }}"data-bs-toggle="tooltip"
-                                                            data-image="{{ $category->category_image }}"data-bs-toggle="tooltip"
-                                                            aria-label="Image Uplaod">
-                                                            <i class="ki-duotone ki-setting-3 fs-3"><span
-                                                                    class="path1"></span><span class="path2"></span><span
-                                                                    class="path3"></span><span class="path4"></span><span
-                                                                    class="path5"></span></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td colspan="5" class="text-center">No data found.</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                    <!--end::Tbody-->
-                                </table>
-                                <!--end::Table-->
-                            </div>
-                            <!--end::Table wrapper-->
+                                </tbody>
+                            </table>
                         </div>
-                        <!--end::Body-->
                     </div>
-                    <!--end::API keys-->
                 </div>
-                <!--end::Content container-->
             </div>
-            <!--end::Content-->
         </div>
+        @include('layouts.footer')
     </div>
-    <!--end:::Main-->
 
     <!-- Bootstrap Modal -->
     <div class="modal fade" id="category-image-update" tabindex="-1" aria-labelledby="category-image-update-label"
@@ -176,13 +89,95 @@
             </div>
         </div>
     </div>
-
-
 @endsection
 
 
 @section('script')
     <script>
+        //<------------- START : server-side transaction datatable ------------->
+        dataTable = $('#kt_datatable_my_categroy_list').DataTable({
+            dom: "<'row mb-2'" +
+                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                ">" +
+                "<'table-responsive'tr>" +
+                "<'row'" +
+                "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                ">",
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('retailer.my-category-list.fetch-record') }}",
+                type: "POST",
+                data: function(d) {
+                    d._token = '{{ csrf_token() }}';
+                    d.order = d.order; // Add order data
+                    d.columns = d.columns; // Add columns data
+                },
+                dataSrc: function(json) {
+                    return json.data;
+                }
+            },
+            order: [],
+            columns: [{
+                    data: 'sub_category_image',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'category_name',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'sub_category_name',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'created_at',
+                    className: 'text-center',
+                    orderable: true,
+                },
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+            ],
+            initComplete: function() {
+                let searchBox = $('.datatable-search-section input');
+                let searchLabel = $('.datatable-search-section label');
+                let lengthSelect = $('.datatable-length-section select');
+
+                searchBox.wrap(
+                    '<div class="d-flex align-items-center position-relative my-1 w-100"></div>'
+                );
+                searchBox.before(
+                    '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
+                ); // add icon
+                searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
+                    'placeholder', 'Search'); // style the search input
+                searchBox.css({
+                    'padding': '13px 15px 12px 15px',
+                    'font-size': '14px',
+                });
+
+                searchLabel.css({
+                    'display': 'none',
+                });
+
+                lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
+                lengthSelect.css({
+                    'padding': '13px 27px 12px 14px',
+                    'font-size': '14px',
+                })
+            }
+        });
+        //<------------- END : server-side transaction datatable ------------->
+
         $(document).ready(function() {
             var xhr;
 
@@ -219,14 +214,7 @@
                             "&sub_category=" + subCategoryId + "&id=" + id);
                         xhr.done(function(mydata) {
 
-                            // Swal.fire({
-                            //     icon:'success',
-                            //     title: 'Subcategory Remove Successuflly!',
-                            //     showCancelButton: true
-                            // })
-
-                            $("#kt_categroy_table").load(location.href +
-                                " #kt_categroy_table");
+                            location.reload();
                         });
                         xhr.fail(function(mydata) {
                             Swal.fire({
@@ -247,7 +235,7 @@
                 $("#retailer_category_id").val(categoryId);
 
                 if (imageUrl) {
-                    $("#image-preview").attr("src",imageUrl).show();
+                    $("#image-preview").attr("src", imageUrl).show();
                 } else {
                     $("#image-preview").attr("src", 'assets/media/images/no_image.jpg').show();
                 }
@@ -272,7 +260,7 @@
                     },
                     success: function(response) {
                         if (response.status) {
-                            $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
+                            location.reload();
                             $("#category-image-update").modal("hide");
                         }
                     },

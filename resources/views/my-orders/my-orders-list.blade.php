@@ -4,7 +4,7 @@
 @endsection
 
 @php
-    function order_status($value)
+    function order_status_get($value)
     {
         $statuses = [
             'pending' => 'Pending',
@@ -136,7 +136,7 @@
                                                         <strong>Order Status:</strong>
                                                         <span
                                                             class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
-                                                            {{ order_status($detail->status) }}
+                                                            {{ order_status_get($detail->status) }}
                                                         </span>
                                                     </div>
                                                     @if ($detail->status == 'cancel')

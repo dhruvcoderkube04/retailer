@@ -173,7 +173,8 @@ class RetilerController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('firstname', 'like', '%' . $search . '%')
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
+                    ->orWhere('firstname', 'like', '%' . $search . '%')
                     ->orWhere('lastname', 'like', '%' . $search . '%')
                     ->orWhereHas('userDetail', function ($q) use ($search) {
                         $q->where('company_name', 'like', '%' . $search . '%');

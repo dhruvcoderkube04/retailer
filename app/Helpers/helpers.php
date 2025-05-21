@@ -16,4 +16,32 @@ if (!function_exists('decryptId')) {
    }
 }
 
+//<-------------------- START : For Order List ------------------->
+if (!function_exists('order_status')) {
+    function order_status($value)
+    {
+        $statuses = [
+            'pending' => 'Pending',
+            'approved_by_retailer' => 'Approved By Retailer',
+            'transfered_retailer_to_wholesaler' => 'Transferred To Wholesaler',
+            'approved_by_wholesaler' => 'Confirmed By Wholesaler',
+            'pickup' => 'Pickup',
+            'in_transit' => 'In Transit',
+            'ofd' => 'OFD',
+            'delivered' => 'Delivered',
+            'rto' => 'RTO',
+            'rtn_to_seller' => 'RTN To Seller',
+            'close' => 'Close',
+            'cancel' => 'Cancelled',
+            'lost' => 'Lost',
+            'received' => 'Received',
+        ];
+
+        return $statuses[$value] ?? 'Unknown Status';
+    }
+}
+//<-------------------- END : For Order List ------------------->
+
+
+
 ?>

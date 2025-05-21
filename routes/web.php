@@ -99,6 +99,7 @@ Route::middleware(['retailer'])->group(function () {
     // order
     Route::prefix('orders-list')->group(function () {
         Route::get('/{type?}', [RetailerOrderController::class, 'orderList'])->name('retailer.order.list');
+        Route::post('/order-list/fetch-record', [RetailerOrderController::class, 'fetchRecordOrderList'])->name('retailer.order-list.fetch-record'); // AJAX : datatable
         Route::post('/action/new-order', [RetailerOrderController::class, 'newOrderAction'])->name('retailer.order.action.new-order');
         Route::post('/action/confirmed-order', [RetailerOrderController::class, 'confirmedOrderAction'])->name('retailer.order.action.confirmed-order');
         Route::post('/action/pickup-order', [RetailerOrderController::class, 'pickupOrderAction'])->name('retailer.order.action.pickup-order');
@@ -194,6 +195,7 @@ Route::middleware(['retailer'])->group(function () {
 
     Route::post('/add-retailer-category', [RetailerCategoryController::class, 'addRetailerCategory'])->name('retailer.category.add-retailer-category');
     Route::get('/my-category-list', [RetailerCategoryController::class, 'myCategoryList'])->name('retailer.mycategory.list');
+    Route::post('/my-category-list/fetch-record', [RetailerCategoryController::class, 'myCategoryListFetchRecord'])->name('retailer.my-category-list.fetch-record');
     Route::post('/remove-category', [RetailerCategoryController::class, 'removeCategory'])->name('retailer.remove.category');
     Route::post('/update-category-image', [RetailerCategoryController::class, 'updateCategoryImage'])->name('retailer.category-image.update');
 

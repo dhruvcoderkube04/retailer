@@ -3,29 +3,6 @@
     Retailer's Order List | TrendMart
 @endsection
 
-@php
-    function order_status($value)
-    {
-        $statuses = [
-            'pending' => 'Pending',
-            'approved_by_retailer' => 'Approved By Retailer',
-            'transfered_retailer_to_wholesaler' => 'Transferred To Wholesaler',
-            'approved_by_wholesaler' => 'Confirmed By Wholesaler',
-            'pickup' => 'Pickup',
-            'in_transit' => 'In Transit',
-            'ofd' => 'OFD',
-            'delivered' => 'Delivered',
-            'rto' => 'RTO',
-            'rtn_to_seller' => 'RTN To Seller',
-            'close' => 'Close',
-            'cancel' => 'Cancelled',
-            'lost' => 'Lost',
-            'received' => 'Received',
-        ];
-
-        return $statuses[$value] ?? 'Unknown Status';
-    }
-@endphp
 @section('styles')
     <style>
         #selected-courier-display {
@@ -42,44 +19,60 @@
 @endsection
 
 @section('content')
-    <!--begin::Main-->
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-        <!--begin::Content wrapper-->
         <div class="d-flex flex-column flex-column-fluid">
-            <!--begin::Toolbar-->
-            <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                <!--begin::Toolbar container-->
-                <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
-                    <!--begin::Page title-->
-                    <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <!--begin::Title-->
+            <div id="kt_app_toolbar" class="app-toolbar py-4 py-lg-4">
+                <div id="kt_app_toolbar_container"
+                    class="app-container container-xxl d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+
+                    {{-- Page Title --}}
+                    <div class="page-title">
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
                             Your Orders</h1>
-                        <!--end::Title-->
-                        <!--begin::Breadcrumb-->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                            <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
-                            <!--end::Item-->
-                            <!--begin::Item-->
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
                             </li>
-                            <!--end::Item-->
-                            <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">Order List</li>
-                            <!--end::Item-->
                         </ul>
-                        <!--end::Breadcrumb-->
                     </div>
-                    <!--end::Page title-->
 
+                    {{-- Filters --}}
+                    <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
+                        {{-- Date Picker --}}
+                        <div class="flex-grow-1">
+                            <div class="input-group bg-secondary">
+                                <input type="text" class="form-control form-control-solid bg-secondary border-0"
+                                    placeholder="Pick date range" id="kt_daterangepicker_order_list">
+                                <span class="input-group-text bg-secondary border-0">
+                                    <i class="ki-duotone ki-calendar-8 fs-2">
+                                        <span class="path1"></span><span class="path2"></span>
+                                        <span class="path3"></span><span class="path4"></span>
+                                        <span class="path5"></span><span class="path6"></span>
+                                    </i>
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Payment Method Dropdown --}}
+                        <div style="min-width: 220px; max-width: 220px;">
+                            <select id="payment_method_filter"
+                                class="form-select form-select-solid bg-secondary border-0 w-100" data-control="select2"
+                                data-placeholder="All Payment Method">
+                                <option value="all">All Payment Method</option>
+                                @foreach ($payment_method_list as $payment_method)
+                                    <option value="{{ $payment_method->payment_method }}">
+                                        {{ strtoupper($payment_method->payment_method) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <!--end::Toolbar container-->
             </div>
-            <!--end::Toolbar-->
 
             <div id="kt_app_content" class="app-content flex-column-fluid">
                 <div id="kt_app_content_container" class="app-container container-xxl">
@@ -95,7 +88,8 @@
                     @endif
 
                     <div class="card card-flush">
-                        <div class="card-header d-flex flex-wrap align-items-center justify-content-center py-5 gap-3">
+                        {{-- Stages --}}
+                        <div class="card-header d-flex flex-wrap align-items-center justify-content-center py-1 gap-3">
                             <div class="card-toolbar w-100 d-flex justify-content-center">
                                 <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 justify-content-start flex-nowrap"
                                     style="overflow-x: auto; overflow-y: hidden; white-space: nowrap;">
@@ -167,199 +161,24 @@
                                     </li>
                                 </ul>
                             </div>
-
                         </div>
 
-                        <!-- Search -->
-                        <div class="card-title">
-                            <div class="d-flex align-items-center position-relative my-1">
-                                <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
-                                <input type="text" data-kt-ecommerce-product-filter="search"
-                                    class="form-control form-control-solid w-250px ps-12" placeholder="Search Product"
-                                    id="search_field" />
-                            </div>
-                        </div>
+
 
                         <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_order_list_table">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable_order_list">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center min-w-50px">NO.</th>
-                                        <th class="text-center min-w-150px">ORDER DATE</th>
-                                        <th class="min-w-300px">ORDER DETAIL</th>
-                                        <th class="min-w-150px">MEDIA</th>
-                                        <th class="min-w-300px">CUSTOMER DETAIL</th>
-                                        <th class="min-w-70px">ACTIONS</th>
+                                        <th class="text-center min-w-50px">SR NO</th>
+                                        <th class="text-center min-w-200px">ORDER DATE</th>
+                                        <th class="text-center min-w-300px">ORDER DETAIL</th>
+                                        <th class="text-center min-w-150px">MEDIA</th>
+                                        <th class="text-center min-w-300px">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-70px">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
-                                    @foreach ($retailerOrders as $key => $detail)
-                                        <tr>
-                                            {{-- key --}}
-                                            <td class="text-center">{{ $key + 1 }}</td>
 
-                                            {{-- order date --}}
-                                            <td class="text-center">
-                                                {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
-
-                                            {{-- order detail --}}
-                                            <td class="">
-                                                <div>
-                                                    <div class="my-2">
-                                                        <strong>Order Id:</strong> {{ $detail->order_id }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Name:</strong>
-                                                        {{ $detail?->order_product_detail?->name ?? '' }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Quantity:</strong> Qty: {{ $detail->quantity }}
-                                                        {{ $detail->size ? '| Size: ' . $detail->size : '' }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Amount:</strong> ₹
-                                                        {{ $detail?->final_amount }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Payment:</strong> {{ strtoupper($detail->payment_method) }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Order Status:</strong>
-                                                        <span
-                                                            class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
-                                                            {{ order_status($detail->status) }}
-                                                        </span>
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Tracking Id:</strong> {{ @$detail->tracking_number }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>API Oroder Id:</strong> {{ @$detail->api_order_id }}
-                                                    </div>
-                                                    @if ($detail->status == 'pickup' && $detail->shipping_label_url)
-                                                        <div class="my-2">
-                                                            <a href="{{ $detail->shipping_label_url }}" target="_blank">
-                                                                <i class="fa-solid fa-download"></i> Shipping Label
-                                                            </a>
-                                                        </div>
-                                                        <div class="my-2">
-                                                            <a href="javascript:void(0)" id="uploadPickupImage"
-                                                                data-order-id="{{ $detail->id }}">
-                                                                <i class="fa-solid fa-upload"></i> Upload Pickup Image
-                                                            </a>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </td>
-
-                                            {{-- media --}}
-                                            <td>
-                                                <div class="mt-2">
-                                                    @php
-                                                        $imagePath = explode(
-                                                            ',',
-                                                            $detail->order_product_detail->images,
-                                                        )[0];
-                                                    @endphp
-
-                                                    @if ($imagePath)
-                                                        <img src="{{ $imagePath }}" alt="Product Image"
-                                                            style="width: 100px; height: auto; border-radius: 5px;">
-                                                    @endif
-                                                </div>
-                                            </td>
-
-                                            {{-- customer detail --}}
-                                            <td>
-                                                <div class="my-2">
-                                                    <strong>Name:</strong> {{ $detail->customer->firstname }}
-                                                    {{ $detail->customer->lastname }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>Email Id:</strong> {{ $detail->customer->email }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>Address:</strong> {{ $detail->customer->address }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>Pin Code:</strong> {{ $detail->customer->pincode }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>City:</strong> {{ $detail->customer->city }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>Mobile no:</strong> {{ $detail->customer->phone_number }}
-                                                </div>
-                                            </td>
-
-                                            {{-- action --}}
-                                            <td>
-                                                @if ($detail->status == 'pending')
-                                                    <button type="button" class="btn btn-primary btn-sm newOrderAction"
-                                                        data-order-product-id="{{$detail->order_product_id}}"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}"
-                                                        data-product-amount="{{ $detail?->final_amount }}"
-                                                        data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{ $detail->order_id }}">
-                                                        Action
-                                                    </button>
-                                                @elseif ($detail->status == 'approved_by_retailer')
-                                                    <button type="button"
-                                                        class="btn btn-primary btn-sm confirmedOrderAction"
-                                                        data-order-product-id="{{$detail->order_product_id}}"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-product-amount="{{ $detail?->final_amount }}"
-                                                        data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}"
-                                                        data-c-order-id="{{ $detail->order_id }}">
-                                                        Action
-                                                    </button>
-                                                @elseif ($detail->status == 'pickup')
-                                                    <button type="button"
-                                                        class="btn btn-primary btn-sm pickupOrderAction"
-                                                        data-order-product-id="{{$detail->order_product_id}}"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}"
-                                                        data-product-amount="{{ $detail?->final_amount }}"
-                                                        data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{ $detail->order_id }}">
-                                                        Action
-                                                    </button>
-                                                @elseif ($detail->status == 'in_transit')
-                                                    <button type="button"
-                                                        class="btn btn-primary btn-sm inTransitOrderAction"
-                                                        data-order-product-id="{{$detail->order_product_id}}"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}"
-                                                        data-product-amount="{{ $detail?->final_amount }}"
-                                                        data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{ $detail->order_id }}">
-                                                        Action
-                                                    </button>
-                                                @else
-                                                    <button type="button" class="btn btn-primary btn-sm"
-                                                        style="white-space: nowrap; opacity: 0.4"
-                                                        data-order-product-id="{{$detail->order_product_id}}"
-                                                        data-product-id="{{ $detail->product_id }}"
-                                                        data-retailer-clone-product-id="{{ $detail->retailer_clone_product_id }}"
-                                                        data-order-id="{{ $detail->id }}"
-                                                        data-product-amount="{{ $detail?->final_amount }}"
-                                                        data-product-pincode="{{ $detail->customer->pincode }}"
-                                                        data-c-order-id="{{ $detail->order_id }}" disabled>
-                                                        Action
-                                                    </button>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -1030,13 +849,138 @@
 
 @section('script')
     <script>
+        //<------------- START : date pickert ------------->
+        var start = moment().subtract(29, "days");
+        var end = moment();
+
+        function cb(start, end) {
+            $("#kt_daterangepicker_order_list").html(start.format("DD/MM/YYYY") + " - " + end.format(
+                "DD/MM/YYYY"));
+        }
+
+        $("#kt_daterangepicker_order_list").daterangepicker({
+            startDate: start,
+            endDate: end,
+            locale: {
+                format: "DD/MM/YYYY" // Set the desired format for the input field
+            },
+            ranges: {
+                "Today": [moment(), moment()],
+                "Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
+                "Last 7 Days": [moment().subtract(6, "days"), moment()],
+                "Last 30 Days": [moment().subtract(29, "days"), moment()],
+                "This Month": [moment().startOf("month"), moment().endOf("month")],
+                "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf(
+                    "month")]
+            }
+        }, cb);
+
+        cb(start, end);
+        //<------------- END : date pickert ------------->
+
+
+        //<------------- START : server-side transaction datatable ------------->
+        const type = @json($type);
+        dataTable = $('#kt_datatable_order_list').DataTable({
+            dom: "<'row mb-2'" +
+                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                ">" +
+                "<'table-responsive'tr>" +
+                "<'row'" +
+                "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                ">",
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('retailer.order-list.fetch-record') }}",
+                type: "POST",
+                data: function(d) {
+                    d._token = '{{ csrf_token() }}';
+                    d.date_filter = $('#kt_daterangepicker_order_list').val();
+                    d.payment_method_filter = $('#payment_method_filter').val();
+                    d.type = type;
+                    d.order = d.order; // Add order data
+                    d.columns = d.columns; // Add columns data
+                },
+                dataSrc: function(json) {
+                    return json.data;
+                }
+            },
+            order: [],
+            columns: [{
+                    data: 'sr_no',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'order_date',
+                    className: 'text-center',
+                    orderable: true,
+                },
+                {
+                    data: 'order_detail',
+                    className: 'text-start',
+                    orderable: false,
+                },
+                {
+                    data: 'media',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'customer_detail',
+                    className: 'text-start',
+                    orderable: false,
+                },
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+            ],
+            initComplete: function() {
+                let searchBox = $('.datatable-search-section input');
+                let searchLabel = $('.datatable-search-section label');
+                let lengthSelect = $('.datatable-length-section select');
+
+                searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
+                searchBox.before(
+                    '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
+                ); // add icon
+                searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
+                    'placeholder', 'Search'); // style the search input
+                searchBox.css({
+                    'padding': '13px 15px 12px 15px',
+                    'font-size': '14px',
+                });
+
+                searchLabel.css({
+                    'display': 'none',
+                });
+
+                lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
+                lengthSelect.css({
+                    'padding': '13px 27px 12px 14px',
+                    'font-size': '14px',
+                })
+            }
+        });
+        //<------------- END : server-side transaction datatable ------------->
+
         $(document).ready(function() {
-            // for datatable load and table's data search
-            var table1 = $("#kt_order_list_table").DataTable();
-            $("#search_field").on("keyup", function() {
-                table1.search(this.value).draw();
+            $("#kt_daterangepicker_order_list").on('apply.daterangepicker', function(ev, picker) {
+                dataTable.draw();
             });
 
+            $("#payment_method_filter").on('change', function() {
+                dataTable.draw();
+            });
+        });
+
+        $(document).ready(function() {
             // for search inside select option on modal show
             $('#new-order-action-modal').on('shown.bs.modal', function() {
                 $('.reject_reason_select_new').select2({
