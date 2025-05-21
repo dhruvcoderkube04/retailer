@@ -105,99 +105,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
-                                    @foreach ($myOrders as $key => $detail)
-                                        <tr>
-                                            {{-- key --}}
-                                            <td class="text-center">{{ $key + 1 }}</td>
 
-                                            {{-- order date --}}
-                                            <td class="text-center">
-                                                {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}</td>
-
-                                            {{-- order detail --}}
-                                            <td class="">
-                                                <div>
-                                                    <div class="my-2">
-                                                        <strong>Order Id:</strong> {{ $detail->order_id }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Name:</strong>
-                                                        {{ $detail?->order_product_detail?->name ?? '' }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Quantity:</strong> Qty: {{ $detail->quantity }}
-                                                        {{ $detail->size ? '| Size: ' . $detail->size : '' }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Amount:</strong> ₹
-                                                        {{ $detail?->final_amount }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>Order Status:</strong>
-                                                        <span
-                                                            class="badge {{ $detail->status == 'approved' ? 'badge-success' : 'badge-danger' }}">
-                                                            {{ order_status_get($detail->status) }}
-                                                        </span>
-                                                    </div>
-                                                    @if ($detail->status == 'cancel')
-                                                        <div class="my-2">
-                                                            <strong>Reject Reason: </strong>
-                                                            <span class="text-danger">{{$detail->cancelled_reason ?? 'N/A'}}</span>
-                                                        </div>
-                                                    @endif
-                                                    <div class="my-2">
-                                                        <strong>Tracking Id:</strong> {{ @$detail->tracking_number ?? 'N/A' }}
-                                                    </div>
-                                                    <div class="my-2">
-                                                        <strong>API Oroder Id:</strong> {{ @$detail->api_order_id ?? 'N/A' }}
-                                                    </div>
-                                                    @if ($detail->status == 'pickup' && $detail->shipping_label_url)
-                                                        <div class="my-2">
-                                                            <a href="{{ $detail->shipping_label_url }}" target="_blank">
-                                                                <i class="fa-solid fa-download"></i> Shipping Label
-                                                            </a>
-                                                        </div>
-                                                        <div class="my-2">
-                                                            <a href="javascript:void(0)" id="uploadPickupImage"
-                                                                data-order-id="{{ $detail->id }}">
-                                                                <i class="fa-solid fa-upload"></i> Upload Pickup Image
-                                                            </a>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </td>
-
-                                            {{-- media --}}
-                                            <td>
-                                                <div class="mt-2">
-                                                    @php
-                                                        $imagePath = explode(
-                                                            ',',
-                                                            $detail->order_product_detail->images,
-                                                        )[0];
-                                                    @endphp
-
-                                                    @if ($imagePath)
-                                                        <img src="{{ $imagePath }}" alt="Product Image"
-                                                            style="width: 100px; height: auto; border-radius: 5px;">
-                                                    @endif
-                                                </div>
-                                            </td>
-
-                                            {{-- wholesaler detail --}}
-                                            <td>
-                                                <div class="my-2">
-                                                    <strong>Name:</strong> {{ $detail->wholesaler->userDetail->company_name }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>Email Id:</strong> {{ $detail->wholesaler->email }}
-                                                </div>
-                                                <div class="my-2">
-                                                    <strong>Mobile no:</strong> {{ $detail->wholesaler->phone_number }}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -213,6 +121,26 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            const table = $('#kt_my_order_list_table').DataTable({
+            processing: true,
+            serverSide: true,
+                ajax: {
+                    url: "{{ route('retailer.my-order.fetch-record') }}",
+                    type: 'POST',
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.search = $('#search_field').val();
+                    }
+                },
+                columns: [
+                    { data: 'no', className: 'text-center' },
+                    { data: 'order_date', className: 'text-center' },
+                    { data: 'order_detail' },
+                    { data: 'media' },
+                    { data: 'wholesaler_detail' },
+                ]
+            });
+
             // for datatable load and table's data search
             var table1 = $("#kt_my_order_list_table").DataTable();
             $("#search_field").on("keyup", function() {

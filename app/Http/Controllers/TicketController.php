@@ -17,6 +17,77 @@ class TicketController extends Controller
         return view('support.ticketlist', compact('tickets'));
     }
 
+   public function FetchticketList(Request $request)
+    {
+        $user_id = Auth::id();
+        $search = $request->input('search');
+        $start = $request->input('start', 0);
+        $length = $request->input('length', 10);
+        $draw = $request->input('draw');
+
+        $query = Ticket::where('user_id', $user_id);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ticket_id', 'like', "%{$search}%")
+                    ->orWhere('subject', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        $total = Ticket::where('user_id', $user_id)->count();
+        $filtered = $query->count();
+
+        $tickets = $query->offset($start)
+            ->limit($length)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $data = [];
+        foreach ($tickets as $ticket) {
+            $statusClass = match (strtolower($ticket->status)) {
+                'open' => 'badge badge-danger',
+                'in progress' => 'badge badge-info',
+                'resolved' => 'badge badge-success',
+                'closed' => 'badge badge-secondary',
+                default => 'badge badge-light',
+            };
+
+            $dropdown = '';
+            if ($ticket->status == 'Closed') {
+                $dropdown = '<select class="form-select form-select-sm ticket-status"
+                                data-ticket-id="' . $ticket->ticket_id . '">
+                                <option value="">Action</option>
+                                <option value="Open">Open</option>
+                            </select>';
+            }
+
+            $data[] = [
+                'checkbox' => '<div class="form-check form-check-sm form-check-custom form-check-solid">
+                                <input class="form-check-input" type="checkbox" value="' . $ticket->id . '" />
+                            </div>',
+                'ticket_id' => '<a href="#" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
+                'subject' => e($ticket->subject),
+                'description' => e($ticket->description),
+                'ref_image' => '<img src="' . asset($ticket->ref_image) . '" width="50">',
+                'status' => '<span class="' . $statusClass . '" data-status="' . $ticket->status . '">' . ucfirst($ticket->status) . '</span>',
+                'created_at' => '<div class="badge badge-light">' . $ticket->created_at->diffForHumans() . '</div>',
+                'actions' => $dropdown,
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
+    }
+
     public function updateTicketStatus(Request $request, $ticket_id)
     {
         // Validate the request

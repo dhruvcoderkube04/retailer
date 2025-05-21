@@ -72,6 +72,17 @@
                             <div class="card-toolbar">
                                 <!--begin::Toolbar-->
                                 <div class="d-flex justify-content-end" data-kt-subscription-table-toolbar="base">
+                                      <!--begin::Status Filter-->
+                                        <div class="ms-4 mx-3">
+                                            <select id="status_filter" class="form-select form-select-solid" data-control="select2" data-hide-search="false" data-placeholder="Filter by Status">
+                                                <option></option>
+                                                <option value="open">Open</option>
+                                                <option value="in progress">In Progress</option>
+                                                <option value="resolved">Resolved</option>
+                                                <option value="closed">Closed</option>
+                                            </select>
+                                        </div>
+                                        <!--end::Status Filter-->
                                     <!--begin::Add subscription-->
                                     <button class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#kt_modal_add_ticket">
@@ -119,57 +130,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-600 fw-semibold">
-                                    @foreach ($tickets as $ticket)
-                                        <tr>
-                                            <td>
-                                                <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                                    <input class="form-check-input" type="checkbox" value="1" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <a href="#"
-                                                    class="text-gray-800 text-hover-primary mb-1">{{ $ticket->ticket_id }}</a>
-                                            </td>
-                                            <td>
-                                                <p>{{ $ticket->subject }}</p>
-                                            </td>
-                                            <td>
-                                                <p>{{ $ticket->description }}</p>
-                                            </td>
-                                            <td>
-                                                <div class="symbol symbol-50px me-3">
-                                                    <img src="{{ $ticket->ref_image }}" class="" alt="">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $status = strtolower($ticket->status);
-                                                    $badgeClass = match($status) {
-                                                        'open' => 'badge badge-danger',
-                                                        'in progress' => 'badge badge-info',
-                                                        'resolved' => 'badge badge-success',
-                                                        'closed' => 'badge badge-secondary',
-                                                        default => 'badge badge-light',
-                                                    };
-                                                @endphp
-                                                <span class="{{ $badgeClass }}" data-status="{{ $ticket->status }}">
-                                                    {{ ucfirst($ticket->status) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="badge badge-light">{{ $ticket->created_at->diffForHumans() }}</div>
-                                            </td>
-                                            <td class="text-end">
-                                                @if ($ticket->status =='Closed')
-                                                    <select class="form-select form-select-sm ticket-status"
-                                                            data-ticket-id="{{ $ticket->ticket_id }}">
-                                                        <option value="" {{ $ticket->status == '' ? 'selected' : '' }}>Action</option>
-                                                        <option value="Open" {{ $ticket->status == 'Open' ? 'selected' : '' }}>Open</option>
-                                                    </select>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
+
                                 </tbody>
                             </table>
                             <!--end::Table-->
@@ -270,6 +231,46 @@
     <script>
         $(document).ready(function() {
             console.log('Document ready, attaching event listeners to .ticket-status');
+            // 📊 Initialize DataTable
+            let table = $('#kt_subscriptions_table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('fetch.retailer.ticket.list') }}",
+                    type: "POST",
+                    data: function (d) {
+                        d.search = $('input[data-kt-subscription-table-filter="search"]').val();
+                        d.status = $('#status_filter').val(); // <-- Add this line
+                        d._token = '{{ csrf_token() }}';
+                    }
+                },
+                columns: [
+                    { data: 'checkbox', orderable: false, searchable: false },
+                    { data: 'ticket_id' },
+                    { data: 'subject' },
+                    { data: 'description' },
+                    { data: 'ref_image', orderable: false, searchable: false },
+                    { data: 'status' },
+                    { data: 'created_at' },
+                    { data: 'actions', orderable: false, searchable: false }
+                ]
+            });
+
+            // 🔍 Search trigger
+            $('input[data-kt-subscription-table-filter="search"]').on('keyup', function () {
+                table.ajax.reload();
+            });
+
+            $('#status_filter').on('change', function () {
+                table.ajax.reload();
+            });
+
+            // 🔁 Re-render icons after table draw
+            table.on('draw', function () {
+                if (typeof KTIcon !== 'undefined') {
+                    KTIcon.update();
+                }
+            });
             // Handle status change using jQuery
             $(document).on('change', '.ticket-status', function() {
                 console.log('Ticket status change event triggered');

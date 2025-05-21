@@ -111,6 +111,7 @@ Route::middleware(['retailer'])->group(function () {
     // my-order
     Route::prefix('my-orders')->group(function () {
         Route::get('/list', [RetailerOrderController::class, 'myOrderList'])->name('retailer.my-order.list');
+        Route::post('/fetch-record', [RetailerOrderController::class, 'fetchmyOrderList'])->name('retailer.my-order.fetch-record');
     });
 
     // mange Profile
@@ -130,6 +131,7 @@ Route::middleware(['retailer'])->group(function () {
 
     // coupan
     Route::get('/coupan-page', [CoupanController::class, 'index'])->name('retailer.coupon.index');
+    Route::post('/coupons/fetch', [CoupanController::class, 'fetchCouponsRecord'])->name('coupons.fetch');
     Route::post('/add-coupon', [CoupanController::class, 'AddCoupon'])->name('retailer.coupon.add');
     Route::post('/delete-coupon', [CoupanController::class, 'deleteCoupon'])->name('retailer.coupon.delete');
     Route::get('/edit-coupon/{id}', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
@@ -143,6 +145,7 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/prohibited-item', [RetilerController::class, 'prohibitedItem'])->name('retailer.prohibited.item');
     // Generate ticket
     Route::get('/ticket-list', [TicketController::class, 'ticketList'])->name('retailer.ticket.list');
+    Route::post('/fetch-ticket-list', [TicketController::class, 'FetchticketList'])->name('fetch.retailer.ticket.list');
     Route::post('/generate-ticket', [TicketController::class, 'generateTicket'])->name('retailer.generate.ticket');
     Route::post('/ticket/{ticket_id}/update-status', [TicketController::class, 'updateTicketStatus'])->name('retailer.ticket.status.update');
     // Route::post('/delete-ticket', [TicketController::class, 'deleteTicket'])->name('retailer.ticket.delete');

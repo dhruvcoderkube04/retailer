@@ -316,7 +316,7 @@ class RetailerOrderController extends Controller
                     ->orWhere('shipping_charge', 'like', '%' . $search . '%')
                     ->orWhere('cod_charge', 'like', '%' . $search . '%')
                     ->orWhere('rto_charge', 'like', '%' . $search . '%')
-                    ->orWhere('charges', 'like', '%' . $search . '%')
+                    // ->orWhere('charges', 'like', '%' . $search . '%')
                     ->orWhere('payment_method', 'like', '%' . $search . '%')
                     ->orWhereHas('customer', function ($q) use ($search) {
                         $q->where(function ($q) use ($search) {
@@ -460,13 +460,13 @@ class RetailerOrderController extends Controller
 
             $action = '';
 
-            $common_attrs = ' 
-                data-order-product-id="' . $item->order_product_id . '" 
-                data-product-id="' . $item->product_id . '" 
-                data-retailer-clone-product-id="' . $item->retailer_clone_product_id . '" 
-                data-order-id="' . $item->id . '" 
-                data-product-amount="' . ($item?->final_amount) . '" 
-                data-product-pincode="' . $item->customer->pincode . '" 
+            $common_attrs = '
+                data-order-product-id="' . $item->order_product_id . '"
+                data-product-id="' . $item->product_id . '"
+                data-retailer-clone-product-id="' . $item->retailer_clone_product_id . '"
+                data-order-id="' . $item->id . '"
+                data-product-amount="' . ($item?->final_amount) . '"
+                data-product-pincode="' . $item->customer->pincode . '"
                 data-c-order-id="' . $item->order_id . '"';
 
             if ($item->status == 'pending') {
@@ -1172,6 +1172,111 @@ class RetailerOrderController extends Controller
             Log::error('Failed to fetch my order list: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong!');
             return redirect()->route('retailer.dashboard');
+        }
+    }
+
+    public function fetchmyOrderList(Request $request)
+    {
+        try {
+            $retailer = Auth::user();
+            $query = CustomerOrders::with(['order_product_detail', 'wholesaler.userDetail'])
+                ->where('order_process_by', 'wholesaler')
+                ->where('checkout_type', 'punch')
+                ->where('retailer_id', $retailer->id);
+
+            // Search filter
+            if (!empty($request->search['value'])) {
+                $search = $request->search['value'];
+                $query->where(function($q) use ($search) {
+                    $q->where('order_id', 'like', "%{$search}%")
+                        ->orWhereHas('order_product_detail', function($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $totalRecords = $query->count();
+
+            $records = $query->orderBy('id', 'desc')
+                ->skip($request->start)
+                ->take($request->length)
+                ->get();
+
+            $data = [];
+
+            foreach ($records as $index => $order) {
+                $product = $order->order_product_detail;
+                $imagePath = explode(',', $product->images ?? '')[0] ?? '';
+                $wholesaler = $order->wholesaler->userDetail ?? null;
+
+                $orderStatus = [
+                    'pending' => 'Pending',
+                    'approved_by_retailer' => 'Approved By Retailer',
+                    'transfered_retailer_to_wholesaler' => 'Transferred To Wholesaler',
+                    'approved_by_wholesaler' => 'Confirmed By Wholesaler',
+                    'pickup' => 'Pickup',
+                    'in_transit' => 'In Transit',
+                    'ofd' => 'OFD',
+                    'delivered' => 'Delivered',
+                    'rto' => 'RTO',
+                    'rtn_to_seller' => 'RTN To Seller',
+                    'close' => 'Close',
+                    'cancel' => 'Cancelled',
+                    'lost' => 'Lost',
+                    'received' => 'Received',
+                ];
+
+                $statusText = $orderStatus[$order->status] ?? 'Unknown';
+                $statusBadge = $order->status == 'approved' ? 'badge-success' : 'badge-danger';
+
+                $orderDetailHTML = "
+                    <div><strong>Order Id:</strong> {$order->order_id}</div>
+                    <div><strong>Name:</strong> " . ($product->name ?? 'N/A') . "</div>
+                    <div><strong>Quantity:</strong> Qty: {$order->quantity}" . ($order->size ? ' | Size: ' . $order->size : '') . "</div>
+                    <div><strong>Amount:</strong> ₹{$order->final_amount}</div>
+                    <div><strong>Order Status:</strong> <span class='badge {$statusBadge}'>{$statusText}</span></div>";
+
+                if ($order->status == 'cancel') {
+                    $orderDetailHTML .= "<div><strong>Reject Reason:</strong> <span class='text-danger'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
+                }
+
+                $orderDetailHTML .= "
+                    <div><strong>Tracking Id:</strong> " . ($order->tracking_number ?? 'N/A') . "</div>
+                    <div><strong>API Order Id:</strong> " . ($order->api_order_id ?? 'N/A') . "</div>";
+
+                if ($order->status == 'pickup' && $order->shipping_label_url) {
+                    $orderDetailHTML .= "
+                        <div><a href='{$order->shipping_label_url}' target='_blank'><i class='fa-solid fa-download'></i> Shipping Label</a></div>
+                        <div><a href='javascript:void(0)' id='uploadPickupImage' data-order-id='{$order->id}'><i class='fa-solid fa-upload'></i> Upload Pickup Image</a></div>";
+                }
+
+                $data[] = [
+                    'no' => $request->start + $index + 1,
+                    'order_date' => date('F d, Y, h:i a', strtotime($order->created_at)),
+                    'order_detail' => $orderDetailHTML,
+                    'media' => $imagePath ? "<img src='{$imagePath}' width='100' style='border-radius: 5px;'>" : '',
+                    'wholesaler_detail' => $wholesaler ? "
+                        <strong>Name:</strong> {$wholesaler->company_name}<br>
+                        <strong>Email:</strong> {$order->wholesaler->email}<br>
+                        <strong>Mobile:</strong> {$order->wholesaler->phone_number}
+                    " : 'N/A',
+                ];
+            }
+
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => $e->getMessage()
+            ]);
         }
     }
     //<-------------- END : My Orders (Retailer's own orders) ------------------>

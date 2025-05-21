@@ -107,54 +107,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-600 fw-semibold">
-                                    @foreach ($coupons as $coupon)
-                                        <tr>
-                                            <td>
-                                                <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                                    <input class="form-check-input" type="checkbox" value="1" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <a href="#" class="text-gray-800 text-hover-primary mb-1">{{$coupon->coupon_name}}</a>
-                                            </td>
-                                            <td>
-                                                <div class="badge {{ $coupon->status == 1 ? 'badge-light-success' : 'badge-light-danger' }}">
-                                                    {{ $coupon->status == 1 ? 'Active' : 'Inactive' }}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="badge badge-light">{{$coupon->coupon_code}}</div>
-                                            </td>
-                                            <td>{{$coupon->discount}}</td>
-                                            <td>{{$coupon->created_at}}</td>
-                                            <td class="text-end">
-                                                <button class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-coupan"
-                                                    data-id="{{$coupon->id}}"
-                                                    data-bs-toggle="tooltip"
-                                                    title="remove">
-                                                    <i class="ki-duotone ki-trash">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                        <span class="path3"></span>
-                                                        <span class="path4"></span>
-                                                        <span class="path5"></span>
-                                                    </i>
-                                                </button>
-                                                {{-- {{ dd($coupon)}} --}}
-                                                <button class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-coupan"
-                                                        data-id="{{$coupon->id}}"
-                                                        data-bs-toggle="model"
-                                                        data-bs-target="#kt_modal_edit_coupan"
-                                                        title="Edit">
-                                                    <i class="ki-duotone ki-pencil">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                </button>
 
-                                            </td>
-                                        </tr>
-                                    @endforeach
                                 </tbody>
                             </table>
                             <!--end::Table-->
@@ -293,149 +246,181 @@
     </div>
 @endsection
 
-
 @section('script')
-    <script>
-        $(document).ready(function() {
+<script>
+    $(document).ready(function () {
+        // 📊 Initialize DataTable
+        let table = $('#kt_subscriptions_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('coupons.fetch') }}",
+                type: "POST",
+                data: function (d) {
+                    d.search = $('input[data-kt-subscription-table-filter="search"]').val();
+                    d._token = '{{ csrf_token() }}';
+                }
+            },
+            columns: [
+                { data: 'checkbox', orderable: false, searchable: false },
+                { data: 'coupon_name' },
+                { data: 'status' },
+                { data: 'coupon_code' },
+                { data: 'discount' },
+                { data: 'created_at' },
+                { data: 'actions', orderable: false, searchable: false }
+            ]
+        });
 
-            $('.edit-coupan').on('click', function() {
-             var couponId = $(this).data('id');
+        // 🔍 Search trigger
+        $('input[data-kt-subscription-table-filter="search"]').on('keyup', function () {
+            table.ajax.reload();
+        });
 
-                $.ajax({
-                    url: '/edit-coupon/' + couponId, // Backend route to fetch coupon details
-                    type: 'GET',
-                    success: function(response) {
-                        $('#edit_coupon_id').val(response.id);
-                        $('#edit_coupon_name').val(response.coupon_name);
-                        $('#edit_coupon_code').val(response.coupon_code);
-                        $('#edit_discount_price').val(response.discount);
-                        $('#edit_quantity').val(response.usage_limit);
+        // 🔁 Re-render icons after table draw
+        table.on('draw', function () {
+            if (typeof KTIcon !== 'undefined') {
+                KTIcon.update();
+            }
+        });
 
-                        // Manage status radio button
-                        if (response.status == 1) {
-                            $('input[name="status"][value="1"]').prop('checked', true);
-                        } else {
-                            $('input[name="status"][value="0"]').prop('checked', true);
-                        }
-
-                        $('#kt_modal_edit_coupan').modal('show');
-                    }
-                });
+        // ✏️ Edit Coupon
+        $(document).on('click', '.edit-coupan', function () {
+            let couponId = $(this).data('id');
+            $.ajax({
+                url: `/edit-coupon/${couponId}`,
+                type: 'GET',
+                success: function (response) {
+                    $('#edit_coupon_id').val(response.id);
+                    $('#edit_coupon_name').val(response.coupon_name);
+                    $('#edit_coupon_code').val(response.coupon_code);
+                    $('#edit_discount_price').val(response.discount);
+                    $('#edit_quantity').val(response.usage_limit);
+                    $('input[name="status"][value="' + response.status + '"]').prop('checked', true);
+                    $('#kt_modal_edit_coupan').modal('show');
+                },
+                error: function () {
+                    Swal.fire("Error!", "Failed to load coupon details.", "error");
+                }
             });
-            document.getElementById("coupanupdateform").addEventListener("submit", function (event) {
-                event.preventDefault(); // Prevent default form submission
+        });
 
-                let couponId = document.getElementById("edit_coupon_id").value;
-                let formData = new FormData(this);
+        // 💾 Update Coupon
+        $('#coupanupdateform').on('submit', function (e) {
+            e.preventDefault();
+            let couponId = $('#edit_coupon_id').val();
+            let formData = new FormData(this);
 
-                fetch(`/update-coupon/${couponId}`, {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                        "Accept": "application/json"
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
+            $.ajax({
+                url: `/update-coupon/${couponId}`,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                },
+                success: function (data) {
                     if (data.success) {
-                        alert("Coupon updated successfully!");
-                        window.location.reload(); // Reload page after successful update
+                        Swal.fire("Success!", "Coupon updated successfully!", "success")
+                            .then(() => {
+                                $('#kt_modal_edit_coupan').modal('hide');
+                                table.ajax.reload(null, false);
+                            });
                     } else {
-                        alert("Error updating coupon");
+                        Swal.fire("Error!", "Update failed.", "error");
                     }
-                })
-                .catch(error => console.error("Error:", error));
+                },
+                error: function () {
+                    Swal.fire("Error!", "An unexpected error occurred.", "error");
+                }
             });
+        });
 
+        // ❌ Delete Coupon
+        $(document).on('click', '.delete-coupan', function () {
+            let coupon_id = $(this).data("id");
 
-
-
-            $('#coupanaddform').on('submit', function (e) {
-                e.preventDefault(); // Prevent form from submitting normally
-
-                let formData = new FormData(this);
-                $.ajax({
-                    url: "{{ route('retailer.coupon.add') }}", // Update with your actual route
-                    type: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: "Success!",
-                                text: "Coupon added successfully!",
-                                icon: "success",
-                                confirmButtonText: "OK"
-                            }).then(() => {
-                                // form reset
-                                document.getElementById('coupanaddform').reset();
-                                location.reload(); // Reload the page after user clicks OK
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Error!",
-                                text: "Something went wrong!",
-                                icon: "error",
-                                confirmButtonText: "OK"
-                            });
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('retailer.coupon.delete') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            coupon_id: coupon_id
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire("Deleted!", "Coupon has been removed.", "success");
+                                table.ajax.reload(null, false);
+                            } else {
+                                Swal.fire("Error!", response.message, "error");
+                            }
+                        },
+                        error: function () {
+                            Swal.fire("Error!", "Something went wrong.", "error");
                         }
-                    },
-                    error: function (xhr) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMsg = "";
-                        $.each(errors, function (key, value) {
-                            errorMsg += value[0] + "\n";
-                        });
+                    });
+                }
+            });
+        });
 
+        // ➕ Add Coupon
+        $('#coupanaddform').on('submit', function (e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+
+            $.ajax({
+                url: "{{ route('retailer.coupon.add') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
                         Swal.fire({
-                            title: "Validation Error",
-                            text: errorMsg,
-                            icon: "warning",
+                            title: "Success!",
+                            text: "Coupon added successfully!",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            document.getElementById('coupanaddform').reset();
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Something went wrong!",
+                            icon: "error",
                             confirmButtonText: "OK"
                         });
                     }
-                });
-            });
+                },
+                error: function (xhr) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorMsg = "";
+                    $.each(errors, function (key, value) {
+                        errorMsg += value[0] + "\n";
+                    });
 
-
-
-            $(".delete-coupan").click(function() {
-                let coupon_id = $(this).data("id");
-
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    cancelButtonColor: "#3085d6",
-                    confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('retailer.coupon.delete') }}",  // Ensure the correct route name
-                            type: "POST",
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                coupon_id: coupon_id,
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    Swal.fire("Deleted!", "Coupon has been removed.", "success");
-                                    location.reload(); // Reload the page or update the UI dynamically
-                                } else {
-                                    Swal.fire("Error!", response.message, "error");
-                                }
-                            },
-                            error: function(xhr) {
-                                Swal.fire("Error!", "Something went wrong. Please try again.", "error");
-                            }
-                        });
-                    }
-                });
+                    Swal.fire({
+                        title: "Validation Error",
+                        text: errorMsg,
+                        icon: "warning",
+                        confirmButtonText: "OK"
+                    });
+                }
             });
         });
-    </script>
+    });
+</script>
 @endsection
