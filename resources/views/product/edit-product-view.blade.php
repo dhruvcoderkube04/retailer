@@ -56,7 +56,7 @@
 
                     {{-- <------------------- START : form ---------------> --}}
                     <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row"
-                        action="{{ route('retailer.update.products', $product_detail->id) }}" method="post"
+                        action="{{ route('retailer.update.products', encryptId($product_detail->id)) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="d-flex flex-column flex-row-fluid gap-2 gap-lg-5">

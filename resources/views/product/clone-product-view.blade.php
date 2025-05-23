@@ -40,7 +40,7 @@
                     @endif
 
                     <form id="kt_ecommerce_add_product_form" class="form"
-                        action="{{ route('retailer.clone-product-store', $product->id) }}" method="post">
+                        action="{{ route('retailer.clone-product-store', encryptId($product->id)) }}" method="post">
                         @csrf
                         <div class="card card-flush py-4">
                             <div class="card-body">

@@ -236,7 +236,7 @@ class RetilerController extends Controller
                 </div>';
             }
 
-            $action = '<a href="' . route('retailer.view-category-margin', $item->id) . '" class="btn btn-primary" style="' . ($category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
+            $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
 
             $data[] = array(
                 "company_logo" => @$company_logo,
@@ -342,6 +342,7 @@ class RetilerController extends Controller
     // add category margin view page
     public function viewCategoryMargin(string $wholesaler_id)
     {
+        $wholesaler_id = decryptId($wholesaler_id);
         $retailer = Auth::user();
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
@@ -376,6 +377,7 @@ class RetilerController extends Controller
     // add category margin store
     public function storeCategoryMargin(Request $request, $wholesaler_id)
     {
+        $wholesaler_id = decryptId($wholesaler_id);
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'margin' => 'required|integer|min:1',
@@ -397,12 +399,12 @@ class RetilerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('retailer.view-category-margin', $wholesaler_id)
+            return redirect()->route('retailer.view-category-margin', encryptId($wholesaler_id))
                 ->with('success', 'Category margin added successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');
-            return redirect()->route('retailer.view-category-margin', $wholesaler_id);
+            return redirect()->route('retailer.view-category-margin', encryptId($wholesaler_id));
         }
     }
 
@@ -461,12 +463,12 @@ class RetilerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('retailer.view-category-margin', $wholesaler_id)
+            return redirect()->route('retailer.view-category-margin', encryptId($wholesaler_id))
                 ->with('success', 'Category margin deleted successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');
-            return redirect()->route('retailer.view-category-margin', $wholesaler_id);
+            return redirect()->route('retailer.view-category-margin', encryptId($wholesaler_id));
         }
     }
 
@@ -507,46 +509,10 @@ class RetilerController extends Controller
         ]);
     }
 
-    public function retailerProduct()
+    public function retailerProduct(Request $request) // retailerProductss
     {
         try {
             $retailer = Auth::user()->id;
-            $isAllWholesalerVisible = Auth::user()->is_all_wholesaler_visible;
-
-            $filteredRetailerProducts = collect(); // default to empty
-
-            if ($isAllWholesalerVisible == 1) {
-                $retailerProducts = RetailerProducts::with(['wholesaler.products', 'wholesaler.userDetail'])
-                    ->where('retailer_id', $retailer)
-                    ->get();
-
-                $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
-                    $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
-                        ->where('category_id', $retailerProduct->category_id)
-                        ->distinct('id')
-                        ->get();
-
-                    $retailerProduct->setRelation('products', $products);
-                    return $retailerProduct;
-                });
-            }
-
-            $retailerCloneProducts = RetailerCloneProduct::with('category', 'productVariations')
-                ->where('retailer_id', $retailer)
-                ->orderBy('id', 'desc')
-                ->get();
-
-            $clonedProducts = RetailerCloneProduct::where('retailer_id', $retailer)
-                ->pluck('product_id')
-                ->toArray();
-
-            // category_list
-            $category_ids = RetailerCategory::where('retailer_id', $retailer)
-                ->pluck('category_id');
-            $category_list = Category::select('category_name', 'id')
-                ->where('status', 1)
-                ->whereIn('id', $category_ids)
-                ->get();
 
             // sub_category_list
             $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
@@ -557,17 +523,241 @@ class RetilerController extends Controller
                 ->get();
 
             return view('product.retailer-own-product', [
-                'retailerProducts' => $filteredRetailerProducts,
-                'retailerCloneProducts' => $retailerCloneProducts,
-                'clonedProducts' => $clonedProducts,
-                'sub_category_list' => $sub_category_list,
-                'category_list' => $category_list
+                'sub_category_list' => $sub_category_list
             ]);
         } catch (\Exception $e) {
             Log::error('Error in retailerProduct: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong');
             return redirect()->back()->with('error', 'An error occurred. Please try again.');
         }
+    }
+
+    // AJAX : server-side datatable to fetch record of wholesaler's product
+    public function fetchRecordWholesalersProduct(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+
+        $retailer = Auth::user();
+
+        $isAllWholesalerVisible = $retailer->is_all_wholesaler_visible;
+        if ($isAllWholesalerVisible !== 1) {
+            return response()->json([
+                "draw" => $_POST['draw'],
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => []
+            ]);
+        }
+
+        $clonedProducts = RetailerCloneProduct::where('retailer_id', $retailer->id)
+            ->pluck('product_id')
+            ->toArray();
+
+        $query = RetailerProducts::with('category')
+            ->join('products', function ($join) {
+                $join->on('products.wholesaler_id', '=', 'retailer_products.wholesaler_id')
+                    ->on('products.category_id', '=', 'retailer_products.category_id');
+            })
+            ->join('users', 'products.wholesaler_id', '=', 'users.id')
+            ->leftJoin('user_details', 'users.id', '=', 'user_details.user_id')
+            ->where('retailer_products.retailer_id', $retailer->id)
+            ->select(
+                'products.*',
+                'retailer_products.id as retailer_products_id',
+                'retailer_products.margin',
+                'retailer_products.payment_method',
+                'user_details.company_name'
+            );
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('products.name', 'like', '%' . $search . '%')
+                    ->orWhere('products.sku', 'like', '%' . $search . '%')
+                    ->orWhere('products.new_price', 'like', '%' . $search . '%')
+                    ->orWhere('products.status', 'like', '%' . $search . '%')
+                    ->orWhere('retailer_products.margin', 'like', '%' . $search . '%')
+                    ->orWhere('user_details.company_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $cntFilter = clone $query;
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            if ($columnName == 'new_price') {
+                $query->orderBy('products.' . $columnName, $direction);
+            } else if ($columnName == 'margin') {
+                $query->orderBy('retailer_products.' . $columnName, $direction);
+            } else {
+                $query->orderBy('products.' . $columnName, $direction);
+            }
+        } else {
+            $query->orderBy('products.id', 'desc');
+        }
+
+        $products = $query->distinct('products.id')
+            ->offset($page)
+            ->limit($limit)
+            ->get();
+
+        $queryTotal = RetailerProducts::join('products', function ($join) {
+            $join->on('products.wholesaler_id', '=', 'retailer_products.wholesaler_id')
+                ->on('products.category_id', '=', 'retailer_products.category_id');
+        })
+            ->join('users', 'products.wholesaler_id', '=', 'users.id')
+            ->leftJoin('user_details', 'users.id', '=', 'user_details.user_id')
+            ->where('retailer_products.retailer_id', $retailer->id)
+            ->select(
+                'products.*',
+                'retailer_products.id as retailer_products_id',
+                'retailer_products.margin',
+                'retailer_products.payment_method',
+                'user_details.company_name'
+            )
+            ->count('products.id');
+
+        $data = [];
+        $i = $page;
+        foreach ($products as $product) {
+            $i++;
+
+            $action = !in_array($product->id, $clonedProducts)
+                ? '<a href="' . route('retailer.clone-product-view', encryptId($product->id)) . '" class="btn btn-primary btn-sm">Clone</a>'
+                : '';
+
+            $image = explode(',', $product->images)[0] ?? '';
+            $image = trim($image, '"'); // clean up
+            $imageUrl = $image ? $image : asset('assets/media/images/no_image.jpg');
+            $product_detail = '<div class="d-flex align-items-center ms-4">
+                            <div class="symbol symbol-50px">
+                                <span class="symbol-label" style="background-image: url(\'' . $imageUrl . '\');"></span>
+                            </div>
+                            <div class="ms-5">
+                                <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</div>
+                            </div>
+                          </div>';
+
+            $wholesaler_detail = '<div class="ms-5">
+                            <a href="' . route('retailer.view-category-margin', $product->wholesaler_id ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
+                        </div>';
+
+            $new_price = '<div class="badge badge-light-primary">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
+
+            $margin = '<div class="badge badge-light-info">' . ($product->margin ? '₹ ' . $product->margin : 'N/A') . '</div>';
+
+            $status = $product->status === 'active'
+                ? '<div class="badge badge-light-success">Active</div>'
+                : '<div class="badge badge-light-danger">Inactive</div>';
+
+            $data[] = [
+                'action' => $action,
+                'product' => $product_detail,
+                'wholesaler' => $wholesaler_detail,
+                'sku' => $product->sku ?? 'N/A',
+                'new_price' => $new_price,
+                'margin' => $margin,
+                'status' => $status
+            ];
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+    }
+
+    // AJAX : server-side datatable to fetch record of retailer's clone/own product
+    public function fetchRecordRetailerCloneProduct(Request $request)
+    {
+        $limit = ($request->has('length') ? $request->input('length') : 10);
+        $page = ($request->has('start') ? $request->input('start') : 0);
+        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+
+        $retailer = Auth::user();
+
+        $query = RetailerCloneProduct::with('category', 'productVariations')
+            ->where('retailer_id', $retailer->id);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('sku', 'like', "%$search%")
+                    ->orWhere('new_price', 'like', "%$search%")
+                    ->orWhere('status', 'like', "%$search%")
+                    ->orWhereHas('sub_category', function ($q) use ($search) {
+                        $q->where('sub_category_name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $cntFilter = clone $query;
+
+        if ($request->has('order') && isset($request->order[0])) {
+            $columnIndex = $request->order[0]['column'];  // get column index
+            $columnName = $request->columns[$columnIndex]['data'];  // get column name
+            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+            $query->orderBy($columnName, $direction);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $products = $query->offset($page)->limit($limit)->get();
+
+        $queryTotal = RetailerCloneProduct::with('category', 'productVariations')
+            ->where('retailer_id', $retailer->id)
+            ->count('id');
+
+        $data = [];
+        $i = $page;
+        foreach ($products as $product) {
+            $i++;
+
+            $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
+                <button type="button"
+                    class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
+                    data-id="' . $product->id . '">
+                    <i class="ki-duotone ki-trash fs-3">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </button>
+                <a href="' . route('retailer.edit.product', encryptId($product->id)) . '" title="Edit"
+                    class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
+                    <i class="ki-duotone ki-pencil fs-4">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </a>
+            </div>';
+
+            $image = explode(',', $product->images)[0] ?? '';
+            $image = trim($image, '"'); // clean up
+            $imageUrl = $image ? $image : asset('assets/media/images/no_image.jpg');
+            $product_detail = '<div class="d-flex align-items-center ms-4">
+                            <a href="#" class="symbol symbol-50px">
+                                <span class="symbol-label" style="background-image: url(\'' . $imageUrl . '\');"></span>
+                            </a>
+                            <div class="ms-5">
+                                <a href="#" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars($product->name ?? 'N/A', ENT_QUOTES, 'UTF-8') . '</a>
+                            </div>
+                        </div>';
+
+            $new_price = '<div class="badge badge-light-primary">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
+
+            $status = '<div class="badge ' . ($product->status === 'inactive' ? 'badge-light-danger' : 'badge-light-success') . '">' . ucfirst($product->status) . '</div>';
+
+            $data[] = [
+                'action' => $action,
+                'product' => $product_detail,
+                'sku' => $product->sku ?? 'N/A',
+                'sub_category' => $product->sub_category->sub_category_name ?? 'N/A',
+                'new_price' => $new_price,
+                'status' => $status,
+            ];
+        }
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
     }
 
     // product add view
@@ -743,6 +933,7 @@ class RetilerController extends Controller
     public function retailerEditProduct(Request $request, $product_id)
     {
         try {
+            $product_id = decryptId($product_id);
             $retailer = Auth::user();
 
             $product_detail = RetailerCloneProduct::with('productVariations')
@@ -771,6 +962,7 @@ class RetilerController extends Controller
     // update retailer product
     public function retailerUpdateProduct(Request $request, $product_id)
     {
+        $product_id = decryptId($product_id);
         $request->validate([
             'product_name' => 'nullable|string|max:255',
             // 'categories' => 'required|exists:categories,id',
@@ -1044,6 +1236,7 @@ class RetilerController extends Controller
     public function cloneProductView(Request $request, $product_id)
     {
         try {
+            $product_id = decryptId($product_id);
             $product = Product::where('id', $product_id)->orderBy('id', 'desc')->first();
 
             return view('product.clone-product-view', compact('product'));
@@ -1079,7 +1272,7 @@ class RetilerController extends Controller
     // store clone product
     public function cloneProductStore(Request $request, $product_id)
     {
-
+        $product_id = decryptId($product_id);
         $request->validate([
             'description' => 'required|max:1000',
             'old_price' => 'required|numeric|min:0.01',

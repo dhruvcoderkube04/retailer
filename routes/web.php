@@ -57,9 +57,9 @@ Route::middleware(['retailer'])->group(function () {
     });
 
     // add, edit, view, delete margin
-    Route::get('/wholesaler/{wholesaler_id}', [RetilerController::class, 'viewCategoryMargin'])->name('retailer.view-category-margin'); // margin add view page
+    Route::get('/wholesaler/{wholesaler_id}', [RetilerController::class, 'viewCategoryMargin'])->name('retailer.view-category-margin'); // margin add view page // encrypted
     Route::get('/get-category-wise-products', [RetilerController::class, 'getCategoryWiseProducts'])->name('retailer.get-category-wise-products'); // ajax
-    Route::post('/add-category-margin/{wholesaler_id}', [RetilerController::class, 'storeCategoryMargin'])->name('retailer.add-category-margin'); // POST method of add margin
+    Route::post('/add-category-margin/{wholesaler_id}', [RetilerController::class, 'storeCategoryMargin'])->name('retailer.add-category-margin'); // POST method of add margin // encrypted
     Route::post('/wholesaler-edit-margin', [RetilerController::class, 'editCategoryMargin'])->name('retailer.edit-category-margin'); // margin edit view page
     Route::delete('/remove-category-margin/{wholesaler_id}/{margin_id}', [RetilerController::class, 'removeCategoryMargin'])->name('retailer.remove-category-margin'); // DELETE method of remove margin
     Route::post('update-category-margin', [RetilerController::class, 'updateCategoryMargin'])->name('retailer.update-category-margin'); // margin edit view page
@@ -70,10 +70,13 @@ Route::middleware(['retailer'])->group(function () {
 
     //<-------------------- START : retailer product -------------------->
     Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product'); // product list view
+    Route::post('/wholesalers-product/fetch-record', [RetilerController::class, 'fetchRecordWholesalersProduct'])->name('retailer.wholesalers-product.fetch-record'); // AJAX : datatable - wholesaler's product
+    Route::post('/retailer-clone-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneProduct'])->name('retailer.retailer-clone-product.fetch-record'); // AJAX : datatable - retailer's clone/own product
+
     Route::get('/retailer-add-product', [RetilerController::class, 'retailerAddProduct'])->name('retailer.add.product'); // product add view
     Route::post('/retailer-store-product', [RetilerController::class, 'retailerPostProduct'])->name('retailer.post.product'); // product store
-    Route::get('/retailer-edit-product/{product_id}', [RetilerController::class, 'retailerEditProduct'])->name('retailer.edit.product'); // product edit view
-    Route::post('/retailer-update-product/{product_id}', [RetilerController::class, 'retailerUpdateProduct'])->name('retailer.update.products'); // product update
+    Route::get('/retailer-edit-product/{product_id}', [RetilerController::class, 'retailerEditProduct'])->name('retailer.edit.product'); // product edit view // encrypted
+    Route::post('/retailer-update-product/{product_id}', [RetilerController::class, 'retailerUpdateProduct'])->name('retailer.update.products'); // product update // encrypted
 
     Route::get('/get-sub-category-variations', [RetilerController::class, 'getSubCategoryVariations'])->name('retailer.products.get-sub-category-variations'); // ajax
     Route::get('/product-unique-slug-check', [RetilerController::class, 'productUniqueSlugCheck'])->name('retailer.products.unique-slug-check'); // ajax
@@ -84,8 +87,8 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/download-stock-sample', [RetilerController::class, 'downloadStockSample'])->name('retailer.download-stock-sample'); // retailer (added, clone, own) product view page
     Route::post('/upload-bulk-product', [RetilerController::class, 'uploadBulkProduct'])->name('retailer.upload.bulkproduct'); // retailer (added, clone, own) product view page
 
-    Route::get('/clone-product/{product_id}', [RetilerController::class, 'cloneProductView'])->name('retailer.clone-product-view'); // clone product view
-    Route::post('/clone-product/{product_id}', [RetilerController::class, 'cloneProductStore'])->name('retailer.clone-product-store'); // clone product store
+    Route::get('/clone-product/{product_id}', [RetilerController::class, 'cloneProductView'])->name('retailer.clone-product-view'); // clone product view // encrypted
+    Route::post('/clone-product/{product_id}', [RetilerController::class, 'cloneProductStore'])->name('retailer.clone-product-store'); // clone product store // encrypted
     Route::delete('/clone-product/{product_id}', [RetilerController::class, 'cloneProductRemove'])->name('retailer.clone-product-remove'); // clone product remove
 
     Route::get('/add-product/{id}', [RetilerController::class, 'addProductView'])->name('retailer.add-product-view');

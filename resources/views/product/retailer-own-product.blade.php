@@ -3,15 +3,17 @@
     Retailer's Product List | TrendMart
 @endsection
 @section('content')
-
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
         <div class="d-flex flex-column flex-column-fluid">
-            <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
-                    <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                            Products List</h1>
+            <div id="kt_app_toolbar" class="app-toolbar py-4 py-lg-4">
+                <div id="kt_app_toolbar_container"
+                    class="app-container container-xxl d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
 
+                    {{-- Page Title --}}
+                    <div class="page-title">
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                            Products List
+                        </h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
@@ -21,6 +23,18 @@
                             </li>
                             <li class="breadcrumb-item text-muted">Product list</li>
                         </ul>
+                    </div>
+
+                    <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
+                        <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                            <button type="button" class="btn btn-flex btn-light-primary" data-bs-toggle="modal"
+                                data-bs-target="#kt_modal_add_product">
+                                <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
+                                        class="path2"></span><span class="path3"></span></i>
+                                Bulk Product Upload
+                            </button>
+                            <a href="{{ route('retailer.add.product') }}" class="btn btn-primary">Add Product</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -38,38 +52,17 @@
                         </div>
                     @endif
                     <div class="card card-flush">
-                        <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-                            <div class="card-title">
-                                <div class="d-flex align-items-center position-relative my-1">
-                                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    <input type="text" data-kt-ecommerce-product-filter="search"
-                                        class="form-control form-control-solid w-250px ps-12" placeholder="Search Product"
-                                        id="search_field" />
-                                </div>
-                            </div>
-                            <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                                <button type="button" class="btn btn-flex btn-light-primary" data-bs-toggle="modal"
-                                    data-bs-target="#kt_modal_add_product">
-                                    <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
-                                            class="path2"></span><span class="path3"></span></i>
-                                    Bulk Product Upload
-                                </button>
-                                <a href="{{ route('retailer.add.product') }}" class="btn btn-primary">Add Product</a>
-                            </div>
-                        </div>
-
-                        <div class="card-body pt-0">
+                        <div class="card-body pt-5">
                             {{-- tabs --}}
                             <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_1" data-tab="1">Wholesaler
+                                    <a class="nav-link fw-bold pb-4" data-bs-toggle="tab" href="#kt_tab_pane_1"
+                                        data-tab="1">Wholesaler
                                         Products</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_2" data-tab="2">My
+                                    <a class="nav-link fw-bold pb-4" data-bs-toggle="tab" href="#kt_tab_pane_2"
+                                        data-tab="2">My
                                         Products</a>
                                 </li>
                             </ul>
@@ -80,7 +73,7 @@
                                 {{-- margin added products --}}
                                 <div class="tab-pane fade show active" id="kt_tab_pane_1" role="tabpanel">
                                     <table class="table align-middle table-row-dashed fs-6 gy-5"
-                                        id="kt_margin_added_products_table">
+                                        id="kt_datatable_margin_added_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                 <th class="text-center align-middle min-w-70px">Actions</th>
@@ -99,72 +92,7 @@
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-600">
-                                            @if ($retailerProducts->isNotEmpty())
-                                                @foreach ($retailerProducts as $retailerProduct)
-                                                    @foreach ($retailerProduct->products as $product)
-                                                        <tr>
-                                                            <td class="text-center">
-                                                                @if (!in_array($product->id, $clonedProducts))
-                                                                    <a href="{{ route('retailer.clone-product-view', $product->id) }}"
-                                                                        class="btn btn-primary btn-sm"
-                                                                        style="white-space: nowrap;">Clone</a>
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                <div class="d-flex align-items-center">
-                                                                    <div class="symbol symbol-50px">
-                                                                        @php
-                                                                            $get_image =
-                                                                                explode(',', @$product->images)[0] ??
-                                                                                '';
-                                                                        @endphp
-                                                                        <span class="symbol-label"
-                                                                            style="background-image: url('{{ $get_image }}');"></span>
-                                                                    </div>
-                                                                    <div class="ms-5">
-                                                                        <div class="text-gray-800  fs-5 fw-bold"
-                                                                            data-kt-ecommerce-product-filter="product_name">
-                                                                            {{ ucfirst($product->name) ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <div class="ms-5">
-                                                                    <a href="{{ route('retailer.view-category-margin', $product->wholesaler->id) }}"
-                                                                        class="text-gray-800 text-hover-primary fs-5 fw-bold"
-                                                                        data-kt-ecommerce-product-filter="product_name">{{ ucfirst($retailerProduct?->wholesaler?->userDetail?->company_name) ?? 'N/A' }}</a>
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-center pe-0" data-order="22">
-                                                                <span class="fw-bold">{{ $product->sku ?? 'N/A' }}</span>
-                                                            </td>
-                                                            <td class="text-center" data-order="22">
-                                                                <div class="badge badge-light-primary">
-                                                                    {{ $product->new_price ? '₹ ' . $product->new_price : 'N/A' }}
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-center pe-0" data-order="rating-4">
-                                                                <div class="badge badge-light-info">
-                                                                    {{ $retailerProduct->margin ? '₹ ' . $retailerProduct->margin : 'N/A' }}
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-center" data-order="Inactive">
-                                                                @if ($product->status == 'inactive')
-                                                                    <div class="badge badge-light-danger">
-                                                                        {{ ucfirst($product->status) }}
-                                                                    </div>
-                                                                @elseif ($product->status == 'active')
-                                                                    <div class="badge badge-light-success">
-                                                                        {{ ucfirst($product->status) }}
-                                                                    </div>
-                                                                @endif
-                                                            </td>
 
-                                                        </tr>
-                                                    @endforeach
-                                                @endforeach
-                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
@@ -172,13 +100,13 @@
                                 {{-- clone products --}}
                                 <div class="tab-pane fade" id="kt_tab_pane_2" role="tabpanel">
                                     <table class="table align-middle table-row-dashed fs-6 gy-5"
-                                        id="kt_clone_products_table">
+                                        id="kt_datatable_retailer_clone_products">
                                         <thead>
                                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                 <th class="text-center align-middle min-w-70px">Actions</th>
                                                 <th class="text-center align-middle min-w-200px">Product</th>
                                                 <th class="text-center align-middle min-w-150px">SKU</th>
-                                                <th class="text-center align-middle min-w-100px">Catgory</th>
+                                                <th class="text-center align-middle min-w-100px">Sub Catgory</th>
                                                 <th class="text-center align-middle min-w-100px">New Price
                                                     <br> <span class="text-capitalize fs-9">(Per Pis)</span>
                                                 </th>
@@ -186,65 +114,7 @@
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-600">
-                                            @foreach ($retailerCloneProducts as $cloneProduct)
-                                                <tr>
-                                                    <td
-                                                        class="text-center d-flex justify-content-center align-items-center gap-2">
-                                                        <button type="button"
-                                                            class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
-                                                            data-id="{{ $cloneProduct->id }}">
-                                                            <i class="ki-duotone ki-trash fs-3">
-                                                                <span class="path1"></span><span
-                                                                    class="path2"></span><span class="path3"></span>
-                                                                <span class="path4"></span><span class="path5"></span>
-                                                            </i>
-                                                        </button>
-                                                        <a href="{{ route('retailer.edit.product', $cloneProduct->id) }}"
-                                                            title="Edit"
-                                                            class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
-                                                            <i class="ki-duotone ki-pencil fs-4">
-                                                                <span class="path1"></span><span
-                                                                    class="path2"></span><span class="path3"></span>
-                                                                <span class="path4"></span><span class="path5"></span>
-                                                            </i>
-                                                        </a>
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <a href="#" class="symbol symbol-50px">
-                                                                @php
-                                                                    $imageUrls = explode(',', @$cloneProduct->images);
-                                                                    $firstImageUrl = $imageUrls[0] ?? ''; // Get the first image URL
-                                                                @endphp
-                                                                <span class="symbol-label"
-                                                                    style="background-image: url('{{ $firstImageUrl }}');"></span>
-                                                            </a>
-                                                            <div class="ms-5">
-                                                                <a href="#"
-                                                                    class="text-gray-800 text-hover-primary fs-5 fw-bold"
-                                                                    data-kt-ecommerce-product-filter="product_name">{{ $cloneProduct->name }}</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center pe-0" data-order="22">
-                                                        <span class="fw-bold">{{ $cloneProduct->sku }}</span>
-                                                    </td>
-                                                    <td class="text-center pe-0" data-order="22">
-                                                        {{ @$cloneProduct->sub_category->sub_category_name }}
-                                                    </td>
-                                                    <td class="text-center" data-order="22">
-                                                        <div class="badge badge-light-primary">
-                                                            {{ $cloneProduct->new_price }}
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center" data-order="Inactive">
-                                                        <div
-                                                            class="badge {{ $cloneProduct->status == 'inactive' ? 'badge-light-danger' : 'badge-light-success' }}">
-                                                            {{ ucfirst($cloneProduct->status) }}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -315,108 +185,188 @@
                 </div>
             </div>
 
-            {{-- add product modal --}}
-            {{-- <div class="modal fade" id="kt_modal_add_clone_product" tabindex="-1" style="display: none;"
-                aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered mw-650px">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 class="fw-bold">Upload Product File </h2>
-                            <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span
-                                        class="path2"></span></i>
-                            </div>
-                        </div>
-                        <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
-                            <form id="productUploadForm" class="form" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <div class="fv-row mb-7 fv-plugins-icon-container">
-                                    <label class="fs-6 fw-semibold form-label mb-2">
-                                        <span class="required">Product File </span>
-                                        <span class="ms-2" data-bs-toggle="tooltip"
-                                            aria-label="The invoice number must be unique."
-                                            data-bs-original-title="The invoice number must be unique."
-                                            data-kt-initialized="1">
-                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span
-                                                    class="path2"></span><span class="path3"></span></i>
-                                        </span>
-                                    </label>
-                                    <input type="file" class="form-control form-control-solid" name="product_file">
-                                    <div
-                                        class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
-                                    </div>
-                                </div>
-                                <div class="fv-row mb-7 fv-plugins-icon-container">
-                                    <label class="fs-6 fw-semibold form-label mb-2">
-                                        <span class="required">Category Name</span>
-                                        <span class="ms-2" data-bs-toggle="tooltip"
-                                            aria-label="The invoice number must be unique."
-                                            data-bs-original-title="The invoice number must be unique."
-                                            data-kt-initialized="1">
-                                            <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span
-                                                    class="path2"></span><span class="path3"></span></i>
-                                        </span>
-                                    </label>
-                                    <div class="mb-10 fv-row">
-                                        <select class="form-select mb-2 @error('categories') is-invalid @enderror"
-                                            data-control="select2" name="categories" data-placeholder="Select an option">
-                                            @foreach ($category_list as $category)
-                                                <option value="{{ $category->id }}">
-                                                    {{ Str::upper($category->category_name) }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div
-                                        class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <button type="reset" class="btn btn-light me-3"
-                                        data-bs-dismiss="modal">Discard</button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <span class="indicator-label">Upload</span>
-                                        <span class="indicator-progress">Please wait... <span
-                                                class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-
             @include('layouts.footer')
         </div>
     @endsection
 
     @section('script')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
-        <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
         <script>
-            // product datatable
-            var table1 = $("#kt_margin_added_products_table").DataTable({
+            //<------------- START : server-side transaction datatable ------------->
+            dataTable1 = $('#kt_datatable_margin_added_products').DataTable({
+                dom: "<'row mb-2'" +
+                    "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                    "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                    ">" +
+                    "<'table-responsive'tr>" +
+                    "<'row'" +
+                    "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                    "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                    ">",
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('retailer.wholesalers-product.fetch-record') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = '{{ csrf_token() }}';
+                        d.order = d.order; // Add order data
+                        d.columns = d.columns; // Add columns data
+                    },
+                    dataSrc: function(json) {
+                        return json.data;
+                    }
+                },
                 order: [],
-                columnDefs: [{
-                    orderable: false,
-                    targets: 0
-                }]
-            });
-            $("#search_field").on("keyup", function() {
-                table1.search(this.value).draw();
+                columns: [{
+                        data: 'action',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false,
+                    },
+                    {
+                        data: 'product',
+                        className: 'text-start',
+                        orderable: false,
+                    },
+                    {
+                        data: 'wholesaler',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'sku',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'new_price',
+                        className: 'text-end',
+                        orderable: true,
+                    },
+                    {
+                        data: 'margin',
+                        className: 'text-end',
+                        orderable: true,
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                ],
+                initComplete: function() {
+                    let searchBox = $('.datatable-search-section input');
+                    let searchLabel = $('.datatable-search-section label');
+                    let lengthSelect = $('.datatable-length-section select');
+
+                    searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
+                    searchBox.before(
+                        '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
+                    ); // add icon
+                    searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
+                        'placeholder', 'Search'); // style the search input
+                    searchBox.css({
+                        'padding': '13px 15px 12px 15px',
+                        'font-size': '14px',
+                    });
+
+                    searchLabel.css({
+                        'display': 'none',
+                    });
+
+                    lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
+                    lengthSelect.css({
+                        'padding': '13px 27px 12px 14px',
+                        'font-size': '14px',
+                    })
+                }
             });
 
-            // clone product datatable
-            var table2 = $("#kt_clone_products_table").DataTable({
+            dataTable2 = $('#kt_datatable_retailer_clone_products').DataTable({
+                dom: "<'row mb-2'" +
+                    "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                    "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                    ">" +
+                    "<'table-responsive'tr>" +
+                    "<'row'" +
+                    "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                    "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                    ">",
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('retailer.retailer-clone-product.fetch-record') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = '{{ csrf_token() }}';
+                        d.order = d.order; // Add order data
+                        d.columns = d.columns; // Add columns data
+                    },
+                    dataSrc: function(json) {
+                        return json.data;
+                    }
+                },
                 order: [],
-                columnDefs: [{
-                    orderable: false,
-                    targets: 0
-                }]
-            });
-            $("#search_field").on("keyup", function() {
-                table2.search(this.value).draw();
-            });
+                columns: [{
+                        data: 'action',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false,
+                    },
+                    {
+                        data: 'product',
+                        className: 'text-start',
+                        orderable: false,
+                    },
+                    {
+                        data: 'sku',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'sub_category',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'new_price',
+                        className: 'text-end',
+                        orderable: true,
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                ],
+                initComplete: function() {
+                    let searchBox = $('.datatable-search-section input');
+                    let searchLabel = $('.datatable-search-section label');
+                    let lengthSelect = $('.datatable-length-section select');
 
+                    searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
+                    searchBox.before(
+                        '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
+                    ); // add icon
+                    searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
+                        'placeholder', 'Search'); // style the search input
+                    searchBox.css({
+                        'padding': '13px 15px 12px 15px',
+                        'font-size': '14px',
+                    });
+
+                    searchLabel.css({
+                        'display': 'none',
+                    });
+
+                    lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
+                    lengthSelect.css({
+                        'padding': '13px 27px 12px 14px',
+                        'font-size': '14px',
+                    })
+                }
+            });
+            //<------------- END : server-side transaction datatable ------------->
 
             $(document).ready(function() {
                 //<----------------- START : product upload form submit ---------------->
@@ -428,7 +378,7 @@
                     });
                 });
 
-                $("#productUploadForm").submit(function(e) {
+                $(document).on('submit', '#productUploadForm', function(e) {
                     e.preventDefault();
 
                     var formData = new FormData(this);
@@ -512,7 +462,7 @@
                 //<----------------- END : product upload form submit ---------------->
 
                 //<----------------- START : delete product ---------------->
-                $(".delete-product").click(function() {
+                $(document).on('click', '.delete-product', function() {
                     let productId = $(this).data("id");
 
                     Swal.fire({

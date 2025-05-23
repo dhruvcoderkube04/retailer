@@ -17,11 +17,7 @@
     <div class="d-flex justify-content-between pb-2 border-bottom flex-wrap">
         <span>Product Name :</span>
         <span class="text-end text-break" style="max-width: 240px;">
-            {{ $transactionDetail->customer_order?->product?->name
-                ? $transactionDetail->customer_order?->product?->name
-                : ($transactionDetail->customer_order?->retailerCloneProduct?->name
-                    ? $transactionDetail->customer_order?->retailerCloneProduct?->name
-                    : 'N/A') }}
+            {{ $transactionDetail->customer_order?->order_product_detail?->name ?? 'N/A' }}
         </span>
     </div>
 
