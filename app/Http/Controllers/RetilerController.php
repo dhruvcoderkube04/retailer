@@ -975,25 +975,25 @@ class RetilerController extends Controller
             'images' => 'nullable|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
             'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
-            'sku' => [
-                'nullable',
-                'string',
-                function ($attribute, $value, $fail) use ($product_id) {
-                    $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
-                        ->where('sku', $value)
-                        ->where('id', '!=', $product_id)
-                        ->exists();
+            // 'sku' => [
+            //     'nullable',
+            //     'string',
+            //     function ($attribute, $value, $fail) use ($product_id) {
+            //         $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
+            //             ->where('sku', $value)
+            //             ->where('id', '!=', $product_id)
+            //             ->exists();
 
-                    $existsInProducts = DB::table('products')
-                        ->where('sku', $value)
-                        ->where('id', '!=', $product_id)
-                        ->exists();
+            //         $existsInProducts = DB::table('products')
+            //             ->where('sku', $value)
+            //             ->where('id', '!=', $product_id)
+            //             ->exists();
 
-                    if ($existsInRetailerCloneProduct || $existsInProducts) {
-                        $fail('The SKU must be unique across all products.');
-                    }
-                },
-            ],
+            //         if ($existsInRetailerCloneProduct || $existsInProducts) {
+            //             $fail('The SKU must be unique across all products.');
+            //         }
+            //     },
+            // ],
             'quantity' => 'nullable|integer|min:1|max:999999',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:2000',
@@ -1004,8 +1004,7 @@ class RetilerController extends Controller
 
         DB::beginTransaction();
         try {
-            $product = RetailerCloneProduct::findOrFail($request->product_id);
-
+            $product = RetailerCloneProduct::findOrFail($product_id);
             // digital ocean
             // IMAGE
             $existingImages = explode(',', $product->images);
@@ -1085,18 +1084,18 @@ class RetilerController extends Controller
             $subCategory = SubCategory::find($request->sub_category_id);
 
             // SKU number check else generated unique
-            if ($request->sku) {
-                $sku = $request->sku;
-            } else {
-                do {
-                    // Generate a 14-digit random number (padded if needed)
-                    $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
-                } while (Product::where('sku', $sku)->exists());
-            }
+            // if ($request->sku) {
+            //     $sku = $request->sku;
+            // } else {
+            //     do {
+            //         // Generate a 14-digit random number (padded if needed)
+            //         $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+            //     } while (Product::where('sku', $sku)->exists());
+            // }
 
             // Update product details
             $product->name = $request->product_name;
-            $product->sku = $sku;
+            // $product->sku = $sku;
             $product->category_id = $subCategory->category_id ?? null;
             $product->sub_category_id = $request->sub_category_id;
             $product->description = $request->product_description;
@@ -1161,6 +1160,7 @@ class RetilerController extends Controller
             return redirect()->back()->with('success', 'Product updated successfully!');
         } catch (Exception $e) {
             DB::rollBack();
+            //return response()->json(['success' => false, 'message' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Something went wrong!']);
         }
     }
