@@ -87,6 +87,11 @@ class RetailerAuthController extends Controller
             // Attempt to send verification email
             try {
                 $user->notify(new VerifyEmail);
+                // Also notify the admin
+                 Mail::send('emails.admin_retailer_registered', ['user' => $user], function ($message) {
+                    $message->to('info@techtrendmart.in')
+                            ->subject('New Retailer Registration Notification');
+                });
             } catch (Exception $e) {
                 \Log::error('Failed to send verification email: ' . $e->getMessage());
 
