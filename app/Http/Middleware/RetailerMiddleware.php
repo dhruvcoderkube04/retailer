@@ -16,7 +16,7 @@ class RetailerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->user_type == 3) {
+        if (Auth::check() && Auth::user()->user_type == 3 && Auth::user()->status == 1) {
             return $next($request);
         }
         return redirect()->route('retailer.login')->with('error', 'Unauthorized Access.'); // Corrected line

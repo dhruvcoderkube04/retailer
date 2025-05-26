@@ -125,7 +125,7 @@ class RetailerAuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->where('user_type',3)->first();
 
         if (!$user) {
             return back()->with('error', 'This email is not registered with us.');
@@ -193,7 +193,7 @@ class RetailerAuthController extends Controller
             }
 
             // Find user by email
-            $user = User::where('email', $resetEntry->email)->first();
+            $user = User::where('email', $resetEntry->email)->where('user_type',3)->first();
 
             if (!$user) {
                 return back()->withErrors(['error' => 'No user found for this email.']);
