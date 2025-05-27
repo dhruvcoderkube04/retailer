@@ -226,15 +226,14 @@ class RetilerController extends Controller
                     </div>
                 </div>';
 
-            if (@$item->userDetail->company_logo) {
-                $company_logo = '<div>
-                    <img src="' . $item->userDetail->company_logo . '" style="height: 80px; width: 80px;" />
-                </div>';
+            if ($item->userDetail->company_logo && Storage::disk('spaces')->exists($item->userDetail->company_logo)) {
+                $imagePath = Storage::disk('spaces')->url($item->userDetail->company_logo);
             } else {
-                $company_logo = '<div>
-                    <img src="' . asset('/assets/media/avatars/no-profile.png') . '" style="height: 75px; width: 75px;" />
-                </div>';
+                $imagePath = asset('/assets/media/avatars/no-profile.png');
             }
+            $company_logo = '<div>
+                <img src="' . $imagePath . '" style="height: 75px; width: 75px;" />
+            </div>';
 
             $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
 
@@ -311,15 +310,13 @@ class RetilerController extends Controller
         foreach ($subscribedCategories as $key => $item) {
             $i++;
 
-            if ($item->category->category_image) {
-                $category_image = '<div>
-                    <img src="' . $item->category->category_image . '" style="height: 80px; width: 80px;" />
-                </div>';
-            } else {
-                $category_image = '<div>
-                    <img src="' . asset('/assets/media/images/no_image.jpg') . '" style="height: 75px; width: 75px;" />
-                </div>';
-            }
+            $category_image = '<div>
+                <img src="' . ($item->category->category_image
+                ? Storage::disk('spaces')->url($item->category->category_image)
+                : asset('assets/media/images/no_image.jpg')) . '" 
+                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';" 
+                    style="height: 75px; width: 75px;" />
+            </div>';
 
             $margin = '<div class="badge badge-light-primary">
                             ₹ ' . $item->margin . '
@@ -631,16 +628,26 @@ class RetilerController extends Controller
                 : '';
 
             $image = explode(',', $product->images)[0] ?? '';
-            $image = trim($image, '"'); // clean up
-            $imageUrl = $image ? $image : asset('assets/media/images/no_image.jpg');
+            $image = trim(stripslashes($image), "\"' ");
+            $imageUrl = $image
+                ? Storage::disk('spaces')->url($image)
+                : asset('assets/media/images/no_image.jpg');
+            $defaultImage = asset('assets/media/images/no_image.jpg');
             $product_detail = '<div class="d-flex align-items-center ms-4">
-                            <div class="symbol symbol-50px">
-                                <span class="symbol-label" style="background-image: url(\'' . $imageUrl . '\');"></span>
-                            </div>
-                            <div class="ms-5">
-                                <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</div>
-                            </div>
-                          </div>';
+                <div class="symbol symbol-50px">
+                    <span class="symbol-label">
+                        <img src="' . $imageUrl . '" 
+                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" 
+                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" 
+                            alt="Product Image">
+                    </span>
+                </div>
+                <div class="ms-5">
+                    <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">'
+                . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') .
+                '</div>
+                </div>
+            </div>';
 
             $wholesaler_detail = '<div class="ms-5">
                             <a href="' . route('retailer.view-category-margin', encryptId($product->wholesaler_id) ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
@@ -733,16 +740,26 @@ class RetilerController extends Controller
             </div>';
 
             $image = explode(',', $product->images)[0] ?? '';
-            $image = trim($image, '"'); // clean up
-            $imageUrl = $image ? $image : asset('assets/media/images/no_image.jpg');
+            $image = trim(stripslashes($image), "\"' ");
+            $imageUrl = $image
+                ? Storage::disk('spaces')->url($image)
+                : asset('assets/media/images/no_image.jpg');
+            $defaultImage = asset('assets/media/images/no_image.jpg');
             $product_detail = '<div class="d-flex align-items-center ms-4">
-                            <a href="#" class="symbol symbol-50px">
-                                <span class="symbol-label" style="background-image: url(\'' . $imageUrl . '\');"></span>
-                            </a>
-                            <div class="ms-5">
-                                <a href="#" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars($product->name ?? 'N/A', ENT_QUOTES, 'UTF-8') . '</a>
-                            </div>
-                        </div>';
+                <div class="symbol symbol-50px">
+                    <span class="symbol-label">
+                        <img src="' . $imageUrl . '" 
+                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" 
+                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" 
+                            alt="Product Image">
+                    </span>
+                </div>
+                <div class="ms-5">
+                    <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">'
+                . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') .
+                '</div>
+                </div>
+            </div>';
 
             $new_price = '<div class="badge badge-light-primary">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
 
@@ -847,27 +864,15 @@ class RetilerController extends Controller
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $file) {
                     if ($index >= 3) break;
-                    $originalExtension = $file->getClientOriginalExtension();
-                    $filename = 'product_image_' . now()->timestamp . '_' . $index . '.' . $originalExtension;
-                    $directory = 'products/images/';
-                    $path = $directory . $filename;
-
-                    Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
-                    $imagePaths[] = Storage::disk('spaces')->url($path);
+                    $imagePaths[] = uploadOrUpdateImageToSpaces($file, 'products/images');
                 }
                 $product->images = implode(',', $imagePaths);
             }
 
             // VIDEO
             if ($request->hasFile('video')) {
-                $videoFile = $request->file('video');
-                $videoOriginalExtension = $videoFile->getClientOriginalExtension();
-                $videoFilename = 'product_video_' . now()->timestamp . '.' . $videoOriginalExtension;
-                $videoDirectory = 'products/videos/';
-                $videoPath = $videoDirectory . $videoFilename;
-
-                Storage::disk('spaces')->putFileAs($videoDirectory, $videoFile, $videoFilename, 'public');
-                $product->videos = Storage::disk('spaces')->url($videoPath);
+                $file = $request->file('video');
+                $product->videos = uploadOrUpdateVideoToSpaces($file, 'products/videos');
             } else {
                 $product->videos = null;
             }
@@ -1014,35 +1019,23 @@ class RetilerController extends Controller
 
                 foreach ($files as $file) { // Iterate through each uploaded file
                     try {
-                        $originalExtension = $file->getClientOriginalExtension();
-                        $imageFileName = 'product_image_' . now()->timestamp . '_' . uniqid() . '.' . $originalExtension;
-                        $imageDirectory = 'products/images/'; // Directory in DigitalOcean Spaces for images
-                        $imagePathInSpaces = $imageDirectory . $imageFileName;
-
-                        // Upload image to DigitalOcean Spaces
-                        Storage::disk('spaces')->putFileAs($imageDirectory, $file, $imageFileName, 'public');
-
-                        // Store the public URL for the image
-                        $imagePaths[] = Storage::disk('spaces')->url($imagePathInSpaces); // Use array_push or direct assignment with []
-
+                        $imagePaths[] = uploadOrUpdateImageToSpaces($file, 'products/images');
                     } catch (\Exception $e) {
                         Log::error('Image Upload Failed to Spaces: ' . $e->getMessage());
                         return back()->with('error', 'One or more image uploads failed.')->withInput();
                     }
                 }
 
-                // Delete old images from Spaces
-                foreach ($existingImages as $image) {
-                    if (!empty($image)) {
-                        try {
-                            $oldImagePath = str_replace(Storage::disk('spaces')->url(''), '', $image);
-                            Storage::disk('spaces')->delete($oldImagePath);
-                            Log::info('Old Image Removed: ' . $oldImagePath);
-                        } catch (\Exception $deleteException) {
-                            Log::error('Failed to Remove Old Image: ' . $deleteException->getMessage());
-                        }
-                    }
-                }
+                //<---- NO DELETE as per discussed with nilesh sir on 27-05-2025 ----->
+                // foreach ($existingImages as $image) {
+                //     if (!empty($image)) {
+                //         try {
+                //             deleteImageToSpaces($image);
+                //         } catch (\Exception $deleteException) {
+                //             Log::error('Failed to Remove Old Image: ' . $deleteException->getMessage());
+                //         }
+                //     }
+                // }
             } else {
                 $imagePaths = $existingImages;
             }
@@ -1053,27 +1046,9 @@ class RetilerController extends Controller
             if ($request->hasFile('video')) {
                 try {
                     $file = $request->file('video');
-                    $originalExtension = $file->getClientOriginalExtension();
-                    $fileName = 'product_video_' . now()->timestamp . '_' . uniqid() . '.' . $originalExtension;
-                    $directory = 'products/videos/'; // Directory in DigitalOcean Spaces
-                    $path = $directory . $fileName;
 
-                    // Upload to DigitalOcean Spaces
-                    Storage::disk('spaces')->putFileAs($directory, $file, $fileName, 'public');
-
-                    // Store the public URL
-                    $videoPath = Storage::disk('spaces')->url($path);
-
-                    // Delete old video if exists
-                    if (!empty($product->video)) {
-                        try {
-                            $oldVideoPath = str_replace(Storage::disk('spaces')->url(''), '', $product->video);
-                            Storage::disk('spaces')->delete($oldVideoPath);
-                            Log::info('Old video deleted: ' . $oldVideoPath);
-                        } catch (\Exception $deleteEx) {
-                            Log::error('Failed to delete old video: ' . $deleteEx->getMessage());
-                        }
-                    }
+                    //<---- NO DELETE as per discussed with nilesh sir on 27-05-2025 ----->
+                    $videoPath = uploadOrUpdateVideoToSpaces($file, 'products/videos');
                 } catch (\Exception $e) {
                     Log::error('Video Upload Failed: ' . $e->getMessage());
                     return back()->with('error', 'Video upload failed.')->withInput();
@@ -1253,12 +1228,25 @@ class RetilerController extends Controller
         DB::beginTransaction();
         try {
             $cloneProduct = RetailerCloneProduct::where('id', $clone_product_id)->first();
-
-            if ($cloneProduct) {
-                $cloneProduct->delete();
-
-                ProductVariation::where('product_id', $clone_product_id)->delete();
+            if (!$cloneProduct) {
+                session()->flash('error', 'Invalid product details or alredy deleted');
+                return redirect()->route('retailer.product');
             }
+
+            //<---- NO DELETE as per discussed with nilesh sir on 27-05-2025 ----->
+            // if (!empty($cloneProduct->images)) {
+            //     $imagePaths = explode(',', $cloneProduct->images);
+            //     foreach ($imagePaths as $image) {
+            //         deleteImageToSpaces($image);
+            //     }
+            // }
+            // if (!empty($cloneProduct->videos)) {
+            //     deleteImageToSpaces($cloneProduct->videos);
+            // }
+
+            $cloneProduct->delete();
+
+            ProductVariation::where('product_id', $clone_product_id)->delete();
 
             DB::commit();
             return redirect()->route('retailer.product')->with('success', 'Product removed from clone successfully');
@@ -1284,6 +1272,27 @@ class RetilerController extends Controller
             $retailer = Auth::user();
 
             $product = Product::where('id', $product_id)->first();
+
+            // // Handle image cloning
+            // $cloneImages = [];
+            // if ($product->images) {
+            //     $images = explode(',', $product->images);
+            //     foreach ($images as $image) {
+            //         if (Storage::disk('spaces')->exists($image)) {
+            //             $newImageName = 'products/images/' . now()->timestamp . '_' . Str::random(6) . '.' . pathinfo($image, PATHINFO_EXTENSION);
+            //             Storage::disk('spaces')->copy($image, $newImageName);
+            //             $cloneImages[] = $newImageName;
+            //         }
+            //     }
+            // }
+
+            // // Handle video cloning
+            // $cloneVideo = null;
+            // if ($product->videos && Storage::disk('spaces')->exists($product->videos)) {
+            //     $newVideoName = 'products/videos/' . now()->timestamp . '_' . Str::random(6) . '.' . pathinfo($product->videos, PATHINFO_EXTENSION);
+            //     Storage::disk('spaces')->copy($product->videos, $newVideoName);
+            //     $cloneVideo = $newVideoName;
+            // }
 
             $cloneProduct = new RetailerCloneProduct();
             $cloneProduct->product_id = $product->id;
@@ -1381,20 +1390,7 @@ class RetilerController extends Controller
         if ($request->hasFile('profile')) {
             try {
                 $file = $request->file('profile');  // Get file
-                $filename = time() . '_' . $file->getClientOriginalName(); // Generate unique filename
-                $directory = 'uploads/company_profile/'; // Directory in DigitalOcean Spaces
-                $path = $directory . $filename;
-
-                // Upload to DigitalOcean Spaces
-                Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
-
-                // Store the public URL
-                $profilePath = Storage::disk('spaces')->url($path);
-
-                // You would typically store $profilePath in your database column
-                // instead of just $filename.
-                // Example: $company->profile_url = $profilePath;
-
+                $filename = uploadOrUpdateImageToSpaces($file, 'company_profile',  $user->userDetail->company_logo);
             } catch (\Exception $e) {
                 // Handle upload errors
                 Log::error('Profile Upload to Spaces Failed: ' . $e->getMessage());
@@ -1427,7 +1423,7 @@ class RetilerController extends Controller
                 $userDetailUpdate['postal_code'] = $request->pincode;
             }
             if ($request->hasFile('profile')) {
-                $userDetailUpdate['company_logo'] = $profilePath;
+                $userDetailUpdate['company_logo'] = $filename;
             }
 
             if (!empty($userDetailUpdate)) {
@@ -1628,21 +1624,16 @@ class RetilerController extends Controller
             'pancard_number'
         ]);
 
+        $userDetail = UserDetail::where('user_id', $userId)->first();
+
         // Upload to DigitalOcean Spaces
         foreach (['pan_image', 'aadhar_image', 'cancel_cheque'] as $field) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $directory = 'uploads/account/';
-                $path = $directory . $filename;
-
-                Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
-
-                $data[$field] = Storage::disk('spaces')->url($path);
+                $data[$field] = uploadOrUpdateImageToSpaces($file, 'account_documents', $userDetail->$field);
             }
         }
 
-        $userDetail = UserDetail::where('user_id', $userId)->first();
 
         if ($userDetail) {
             $userDetail->update($data);

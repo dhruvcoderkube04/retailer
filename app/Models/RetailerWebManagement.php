@@ -62,7 +62,7 @@ class RetailerWebManagement extends Model
         return $this->belongsTo(User::class, 'retailer_id', 'id');
     }
 
-    public function theme()
+    public function theme_data()
     {
         return $this->belongsTo(Theme::class, 'theme');
     }

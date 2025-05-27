@@ -333,21 +333,36 @@
                                                                 <td>
                                                                     <div class="mt-2">
                                                                         @php
-                                                                            if (!empty($detail?->order_product_detail?->images)) {
-                                                                                $imagePath =
+                                                                            $defaultImage = asset(
+                                                                                'assets/media/images/no_image.jpg',
+                                                                            );
+                                                                            $imagePath = null;
+
+                                                                            if (
+                                                                                !empty(
+                                                                                    $detail?->order_product_detail
+                                                                                        ?->images
+                                                                                )
+                                                                            ) {
+                                                                                $firstImage =
                                                                                     explode(
                                                                                         ',',
-                                                                                        $detail->order_product_detail->images,
-                                                                                    )[0];
-                                                                            } else {
-                                                                                $imagePath = null;
+                                                                                        $detail->order_product_detail
+                                                                                            ->images,
+                                                                                    )[0] ?? null;
+                                                                                $imagePath = $firstImage
+                                                                                    ? Storage::disk('spaces')->url(
+                                                                                        $firstImage,
+                                                                                    )
+                                                                                    : null;
                                                                             }
                                                                         @endphp
 
                                                                         @if ($imagePath)
                                                                             <img src="{{ $imagePath }}"
                                                                                 alt="Product Image"
-                                                                                style="width: 100px; height: auto; border-radius: 5px;">
+                                                                                style="width: 100px; height: auto; border-radius: 5px;"
+                                                                                onerror="this.onerror=null;this.src='{{ $defaultImage }}';">
                                                                         @endif
                                                                     </div>
                                                                 </td>

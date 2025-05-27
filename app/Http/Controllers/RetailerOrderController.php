@@ -433,11 +433,12 @@ class RetailerOrderController extends Controller
             $order_detail .= '</div>';
 
             $imagePath = explode(',', $item->order_product_detail->images)[0];
-            $media = '<div class="mt-2">';
-            if ($imagePath) {
-                $media .= '<img src="' . $imagePath . '" alt="Product Image" style="width: 100px; height: auto; border-radius: 5px;">';
-            }
-            $media .= '</div>';
+            $media = '<div class="mt-2">
+                    <img src="' . ($imagePath
+                ? Storage::disk('spaces')->url($imagePath)
+                : asset('assets/media/images/no_image.jpg')) . '" 
+                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';" alt="Product Image" style="width: 100px; height: auto; border-radius: 5px;">
+                </div>';
 
             $customer_detail = '<div class="my-2">
                 <strong>Name:</strong> ' . $item->customer->firstname . ' ' . $item->customer->lastname . '
@@ -627,7 +628,11 @@ class RetailerOrderController extends Controller
                 return response()->json(['status' => false, 'msg' => 'Invalid order details']);
             }
 
-            return response()->json(['status' => true, 'msg' => 'Success', 'data' => $order_details]);
+            $pickup_image = $order_details->pickup_image
+                ? Storage::disk('spaces')->url($order_details->pickup_image)
+                : asset('assets/media/images/no_image.jpg');
+
+            return response()->json(['status' => true, 'msg' => 'Success', 'data' => $order_details, 'pickup_image' => $pickup_image]);
         } catch (Exception $e) {
             Log::error('Pickup Image Fetch: ' . $e->getMessage());
             return response()->json(['status' => false, 'msg' => $e->getMessage()]);
@@ -647,14 +652,7 @@ class RetailerOrderController extends Controller
 
             if ($request->hasFile('pickup_image')) {
                 $file = $request->file('pickup_image');
-                $filename = 'orders/pickup-image/order_' . $order->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-
-                if (Storage::disk('spaces')->exists($filename)) {
-                    Storage::disk('spaces')->delete($filename);
-                }
-
-                Storage::disk('spaces')->put($filename, file_get_contents($file), 'public');
-                $imageUrl = Storage::disk('spaces')->url($filename);
+                $imageUrl = uploadOrUpdateImageToSpaces($file, 'orders/pickup-image', $order->pickup_image);
 
                 $order->pickup_image = $imageUrl;
                 $order->save();
@@ -1187,9 +1185,9 @@ class RetailerOrderController extends Controller
             // Search filter
             if (!empty($request->search['value'])) {
                 $search = $request->search['value'];
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
-                        ->orWhereHas('order_product_detail', function($q) use ($search) {
+                        ->orWhereHas('order_product_detail', function ($q) use ($search) {
                             $q->where('name', 'like', "%{$search}%");
                         });
                 });
@@ -1254,7 +1252,11 @@ class RetailerOrderController extends Controller
                     'no' => $request->start + $index + 1,
                     'order_date' => date('F d, Y, h:i a', strtotime($order->created_at)),
                     'order_detail' => $orderDetailHTML,
-                    'media' => $imagePath ? "<img src='{$imagePath}' width='100' style='border-radius: 5px;'>" : '',
+                    'media' => "<img src='" . ($imagePath
+                        ? Storage::disk('spaces')->url($imagePath)
+                        : asset('assets/media/images/no_image.jpg')) . "' 
+                        onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";' 
+                        width='100' style='border-radius: 5px;'>",
                     'wholesaler_detail' => $wholesaler ? "
                         <strong>Name:</strong> {$wholesaler->company_name}<br>
                         <strong>Email:</strong> {$order->wholesaler->email}<br>

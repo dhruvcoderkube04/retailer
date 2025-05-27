@@ -83,8 +83,17 @@
                                             <div class="image-input image-input-outline" data-kt-image-input="true"
                                                 style="background-image: url('assets/media/svg/avatars/blank.svg')">
                                                 <!--begin::Preview existing avatar-->
+                                                @php
+                                                    $logoUrl =
+                                                        $userprofile->userDetail &&
+                                                        $userprofile->userDetail->company_logo
+                                                            ? Storage::disk('spaces')->url(
+                                                                $userprofile->userDetail->company_logo,
+                                                            )
+                                                            : asset('assets/media/avatars/no-profile.png');
+                                                @endphp
                                                 <div class="image-input-wrapper w-125px h-125px"
-                                                    style="background-image: url('{{ @$userprofile->userDetail->company_logo }}')">
+                                                    style="background-image: url('{{ $logoUrl }}')">
                                                 </div>
                                                 {{-- <div class="image-input-wrapper w-125px h-125px" style="background-image: url(assets/media/avatars/300-1.jpg)"></div> --}}
                                                 <!--end::Preview existing avatar-->
@@ -223,7 +232,8 @@
                                         <div class="col-lg-8 fv-row">
                                             <input type="tel" name="phone"
                                                 class="form-control form-control-lg form-control-solid 	@error('phone') is-invalid @enderror"
-                                                placeholder="Phone number" value="{{ $userprofile->phone_number }}" disabled />
+                                                placeholder="Phone number" value="{{ $userprofile->phone_number }}"
+                                                disabled />
                                             @error('phone')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -325,7 +335,7 @@
                                         <div class="col-lg-8 fv-row">
                                             <input type="text" name="address"
                                                 class="form-control form-control-lg form-control-solid"
-                                                placeholder="Address" value="{{  @$userprofile->userDetail->address }}" />
+                                                placeholder="Address" value="{{ @$userprofile->userDetail->address }}" />
                                         </div>
                                         <!--end::Col-->
                                     </div>
@@ -340,7 +350,8 @@
                                         <div class="col-lg-8 fv-row">
                                             <input type="text" name="pincode"
                                                 class="form-control form-control-lg form-control-solid"
-                                                placeholder="Pin code" value="{{ @$userprofile->userDetail->postal_code }}" />
+                                                placeholder="Pin code"
+                                                value="{{ @$userprofile->userDetail->postal_code }}" />
                                         </div>
                                         <!--end::Col-->
                                     </div>
@@ -369,27 +380,33 @@
                             </div>
                         @endif
                         <!-- Card Header -->
-                        <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_info">
+                        <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse"
+                            data-bs-target="#kt_account_info">
                             <div class="card-title m-0">
                                 <h3 class="fw-bold m-0">Account Info</h3>
                             </div>
                         </div>
                         <!-- Card Content -->
                         <div id="kt_account_info" class="collapse show">
-                            <form action="{{ route('retailer.accountinfo') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('retailer.accountinfo') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <div class="card-body border-top p-9">
                                     <div class="row mb-6">
                                         <div class="col-md-6">
                                             <label class="form-label">Account Number</label>
-                                            <input type="text" class="form-control form-control-solid" placeholder="Enter Account No" name="account_number" value="{{ @$userprofile->userDetail->account_number }}" />
+                                            <input type="text" class="form-control form-control-solid"
+                                                placeholder="Enter Account No" name="account_number"
+                                                value="{{ @$userprofile->userDetail->account_number }}" />
                                             @error('account_number')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Bank IFSC Code</label>
-                                            <input type="text" class="form-control form-control-solid" placeholder="Enter Bank IFSC Code" name="ifsc_code" value="{{ @$userprofile->userDetail->ifsc_code }}" />
+                                            <input type="text" class="form-control form-control-solid"
+                                                placeholder="Enter Bank IFSC Code" name="ifsc_code"
+                                                value="{{ @$userprofile->userDetail->ifsc_code }}" />
                                             @error('ifsc_code')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -399,14 +416,18 @@
                                     <div class="row mb-6">
                                         <div class="col-md-6">
                                             <label class="form-label">Holder Name</label>
-                                            <input type="text" class="form-control form-control-solid" placeholder="Enter Holder Name" name="account_holder_name"  value="{{ @$userprofile->userDetail->account_holder_name }}"/>
+                                            <input type="text" class="form-control form-control-solid"
+                                                placeholder="Enter Holder Name" name="account_holder_name"
+                                                value="{{ @$userprofile->userDetail->account_holder_name }}" />
                                             @error('account_holder_name')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Pancard Number</label>
-                                            <input type="text" class="form-control form-control-solid" placeholder="Enter Pancard Number" name="pancard_number" value="{{@$userprofile->userDetail->pancard_number }}" />
+                                            <input type="text" class="form-control form-control-solid"
+                                                placeholder="Enter Pancard Number" name="pancard_number"
+                                                value="{{ @$userprofile->userDetail->pancard_number }}" />
                                             @error('pancard_number')
                                                 <div class="invalid-feedback">{{ $message }} </div>
                                             @enderror
@@ -418,9 +439,17 @@
                                         <div class="col-md-3 text-center">
                                             <label class="form-label">Pan Card</label>
                                             <div class="border p-2 rounded">
-                                                <img src="{{ asset(@$userprofile->userDetail->pan_image) }}" class="img-fluid mb-2" alt="Pan Card" />
+                                                @php
+                                                    $panImage = @$userprofile->userDetail->pan_image;
+                                                    $panImageUrl = $panImage
+                                                        ? Storage::disk('spaces')->url($panImage)
+                                                        : asset('assets/media/images/no_image.jpg');
+                                                    $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                @endphp
+                                                <img src="{{ $panImageUrl }}" class="img-fluid mb-2" alt="Pan Card"
+                                                    onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                 <input type="file" name="pan_image"
-                                                       class="form-control form-control-sm @error('pan_image') is-invalid @enderror" />
+                                                    class="form-control form-control-sm @error('pan_image') is-invalid @enderror" />
                                                 @error('pan_image')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -429,9 +458,19 @@
                                         <div class="col-md-3 text-center">
                                             <label class="form-label">Aadhar Card</label>
                                             <div class="border p-2 rounded">
-                                                <img src="{{ asset(@$userprofile->userDetail->aadhar_image) }}" class="img-fluid mb-2" alt="Aadhar Card" />
+                                                @php
+                                                    $aadharImage = @$userprofile->userDetail->aadhar_image;
+                                                    $aadharImageUrl = $aadharImage
+                                                        ? Storage::disk('spaces')->url($aadharImage)
+                                                        : $defaultImage;
+
+                                                    $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                @endphp
+                                                <img src="{{ $aadharImageUrl }}" class="img-fluid mb-2"
+                                                    alt="Aadhar Card"
+                                                    onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                 <input type="file" name="aadhar_image"
-                                                       class="form-control form-control-sm @error('aadhar_image') is-invalid @enderror" />
+                                                    class="form-control form-control-sm @error('aadhar_image') is-invalid @enderror" />
                                                 @error('aadhar_image')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -440,9 +479,19 @@
                                         <div class="col-md-3 text-center">
                                             <label class="form-label">Cancel Cheque</label>
                                             <div class="border p-2 rounded">
-                                                <img src="{{ asset(@$userprofile->userDetail->cancel_cheque) }}" class="img-fluid mb-2" alt="Cancel Cheque" />
+                                                @php
+                                                    $cancelChequeImage = @$userprofile->userDetail->cancel_cheque;
+                                                    $cancelChequeImageUrl = $cancelChequeImage
+                                                        ? Storage::disk('spaces')->url($cancelChequeImage)
+                                                        : $defaultImage;
+
+                                                    $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                @endphp
+                                                <img src="{{ $cancelChequeImageUrl }}" class="img-fluid mb-2"
+                                                    alt="Cancel Cheque"
+                                                    onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                 <input type="file" name="cancel_cheque"
-                                                       class="form-control form-control-sm @error('cancel_cheque') is-invalid @enderror" />
+                                                    class="form-control form-control-sm @error('cancel_cheque') is-invalid @enderror" />
                                                 @error('cancel_cheque')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -454,11 +503,13 @@
                                     {{-- <div class="mb-6">
                                         <label class="form-label d-block mb-2">Status</label>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="status" type="radio" value="1" checked />
+                                            <input class="form-check-input" name="status" type="radio" value="1"
+                                                checked />
                                             <label class="form-check-label">Active</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="status" type="radio" value="0" />
+                                            <input class="form-check-input" name="status" type="radio"
+                                                value="0" />
                                             <label class="form-check-label">Inactive</label>
                                         </div>
                                     </div> --}}

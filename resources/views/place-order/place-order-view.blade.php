@@ -21,7 +21,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -119,12 +119,11 @@
                                 <tbody class="fw-semibold text-gray-600">
                                     @foreach ($filteredRetailerProducts as $retailerProduct)
                                         @foreach ($retailerProduct->products as $product)
-                                        {{-- {{dd($retailerProduct)}} --}}
+                                            {{-- {{dd($retailerProduct)}} --}}
                                             <tr>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-primary btn-sm placeOrderButton"
-                                                        style="white-space: nowrap;"
-                                                        data-product-id="{{ $product->id }}"
+                                                        style="white-space: nowrap;" data-product-id="{{ $product->id }}"
                                                         data-retailer-id="{{ $retailerProduct->retailer_id }}"
                                                         data-wholesaler-id="{{ $retailerProduct->wholesaler_id }}">
                                                         Punch
@@ -132,13 +131,17 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
+                                                        @php
+                                                            $get_image = explode(',', @$product->images)[0] ?? '';
+                                                            $imageUrl = $get_image
+                                                                ? Storage::disk('spaces')->url(trim($get_image, "\"' "))
+                                                                : asset('assets/media/images/no_image.jpg');
+                                                            $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                        @endphp
                                                         <a href="#" class="symbol symbol-50px">
-                                                            @php
-                                                                $get_image =
-                                                                    explode(',', @$product->images)[0] ?? '';
-                                                            @endphp
-                                                            <span class="symbol-label"
-                                                                style="background-image: url('{{ 'https://wholesale.lghosts.com/uploads/' . $get_image }}');"></span>
+                                                            <img src="{{ $imageUrl }}"
+                                                                onerror="this.onerror=null; this.src='{{ $defaultImage }}';"
+                                                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" />
                                                         </a>
                                                         <div class="ms-5">
                                                             <a href="#"
@@ -166,7 +169,8 @@
                                                     </div>
                                                 </td>
                                                 <td class="text-center pe-0" data-order="rating-4">
-                                                    <div class="badge badge-light-info">{{ $retailerProduct->margin }}</div>
+                                                    <div class="badge badge-light-info">{{ $retailerProduct->margin }}
+                                                    </div>
                                                 </td>
                                                 <td class="text-center" data-order="Inactive">
                                                     @if ($product->status == 'inactive')

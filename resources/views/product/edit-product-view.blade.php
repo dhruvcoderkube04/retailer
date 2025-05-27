@@ -14,7 +14,8 @@
                             Edit Product</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Product</a>
+                                <a href="{{ route('retailer.dashboard') }}"
+                                    class="text-muted text-hover-primary">Product</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -75,7 +76,8 @@
                                                     <label class="required form-label">Product Name</label>
                                                     <input type="text" name="product_name"
                                                         class="form-control mb-2 @error('product_name') is-invalid @enderror"
-                                                        placeholder="Product Name" value="{{ old('product_name', $product_detail->name) }}" />
+                                                        placeholder="Product Name"
+                                                        value="{{ old('product_name', $product_detail->name) }}" />
                                                     @error('product_name')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -158,7 +160,8 @@
                                                     <label class="form-label">Tags</label>
                                                     <input name="product_tags"
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
-                                                        id="product_tags" value="{{ old('product_tags', $product_detail->tags) }}"
+                                                        id="product_tags"
+                                                        value="{{ old('product_tags', $product_detail->tags) }}"
                                                         placeholder="Fashion, Style, Electric" />
                                                     @error('product_tags')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
@@ -266,8 +269,7 @@
                                                     <label class="form-label">Video </label>
                                                     <input type="file" name="video"
                                                         class="form-control mb-2 @error('video') is-invalid @enderror"
-                                                        placeholder="video" value="{{ old('video') }}"
-                                                        id="videoInput" 
+                                                        placeholder="video" value="{{ old('video') }}" id="videoInput"
                                                         accept="video/*" />
                                                     <small class="text-muted">You can upload 1 video within 10 MB.</small>
                                                     @error('video')
@@ -305,9 +307,20 @@
                                                                 <div class="card shadow-sm border border-dark-subtle"
                                                                     style="width: 11rem;">
                                                                     <div class="card-body p-2 text-center">
-                                                                        <img src="{{ $image }}"
+                                                                        @php
+                                                                            $imageUrl = $image
+                                                                                ? Storage::disk('spaces')->url($image)
+                                                                                : asset(
+                                                                                    'assets/media/images/no_image.jpg',
+                                                                                );
+                                                                            $defaultImage = asset(
+                                                                                'assets/media/images/no_image.jpg',
+                                                                            );
+                                                                        @endphp
+                                                                        <img src="{{ $imageUrl }}"
                                                                             class="img-fluid rounded" alt="Product Image"
-                                                                            style="height: 100px; object-fit: cover;" />
+                                                                            style="height: 100px; object-fit: cover;"
+                                                                            onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                                         <div class="text-muted fs-8 mt-2">
                                                                             Image {{ $key + 1 }}
                                                                         </div>
@@ -329,10 +342,14 @@
                                                         <div class="card shadow-sm border border-dark-subtle"
                                                             style="width: 100%; max-width: 300px;">
                                                             <div class="card-body p-2 text-center">
+                                                                @php
+                                                                    $videoPath = Storage::disk('spaces')->url(
+                                                                        $product_detail->videos,
+                                                                    );
+                                                                @endphp
                                                                 <video width="100%" height="150" controls
                                                                     style="object-fit: cover;" muted autoplay>
-                                                                    <source src="{{ $product_detail->videos }}"
-                                                                        type="video/mp4">
+                                                                    <source src="{{ $videoPath }}" type="video/mp4">
                                                                     Your browser does not support the video tag.
                                                                 </video>
                                                                 <div class="text-muted fs-8 mt-2">
@@ -365,7 +382,8 @@
                                                     <label class="form-label">SKU</label>
                                                     <input type="text" name="sku"
                                                         class="form-control mb-2 @error('sku') is-invalid @enderror"
-                                                        placeholder="SKU Number" value="{{ old('sku', $product_detail->sku) }}" />
+                                                        placeholder="SKU Number"
+                                                        value="{{ old('sku', $product_detail->sku) }}" />
                                                     @error('sku')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -567,9 +585,9 @@
                     // case 'slug':
                     case 'status':
                     case 'product_name':
-                    // case 'product_description':
-                    // case 'product_tags':
-                    // case 'meta_title':
+                        // case 'product_description':
+                        // case 'product_tags':
+                        // case 'meta_title':
                     case 'meta_description':
                         if (isEmpty(value)) {
                             showError(input, `${formatFieldName(name)} field is required`);

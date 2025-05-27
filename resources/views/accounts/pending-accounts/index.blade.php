@@ -52,13 +52,16 @@
                                 <!-- Profile Image -->
                                 <div class="col-md-auto text-center">
                                     @php
+                                        $userDetail = Auth::user()->userDetail;
                                         $logoUrl =
-                                            Auth::user()->userDetail && Auth::user()->userDetail->company_logo
-                                                ? Auth::user()->userDetail->company_logo
+                                            $userDetail && $userDetail->company_logo
+                                                ? Storage::disk('spaces')->url($userDetail->company_logo)
                                                 : asset('assets/media/avatars/no-profile.png');
                                     @endphp
                                     <div class="symbol symbol-100px symbol-lg-150px symbol-fixed position-relative mx-auto">
-                                        <img src="{{ $logoUrl }}" alt="image" class="img-fluid rounded-circle">
+                                        <img src="{{ $logoUrl }}"
+                                            onerror="this.onerror=null; this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
+                                            alt="image" class="img-fluid rounded-circle">
                                     </div>
                                 </div>
 

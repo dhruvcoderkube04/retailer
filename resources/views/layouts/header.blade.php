@@ -18,11 +18,15 @@
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
             <a href="#" class="d-lg-none">
                 @php
-                    $logoUrl = Auth::user()->userDetail && Auth::user()->userDetail->company_logo
-                        ? Auth::user()->userDetail->company_logo // Use URL directly
-                        : asset('assets/media/avatars/no-profile.png'); // Default image path
+                    $userDetail = Auth::user()->userDetail;
+                    $logoUrl =
+                        $userDetail && $userDetail->company_logo
+                            ? Storage::disk('spaces')->url($userDetail->company_logo)
+                            : asset('assets/media/avatars/no-profile.png');
                 @endphp
-                <img src="{{ $logoUrl }}" class="rounded-3" alt="user" height="20" />
+                <img src="{{ $logoUrl }}"
+                    onerror="this.onerror=null;this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
+                    class="rounded-3" alt="user" height="20" />
                 <br />
                 {{ Auth::user()->firstname }}
             </a>
