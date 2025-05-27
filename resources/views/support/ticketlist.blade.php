@@ -84,11 +84,15 @@
                                         </div>
                                         <!--end::Status Filter-->
                                     <!--begin::Add subscription-->
-                                    <button class="btn btn-primary" data-bs-toggle="modal"
+                                    {{-- <button class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#kt_modal_add_ticket">
                                         <i class="ki-duotone ki-plus fs-2"></i>
                                         Create Ticket
-                                    </button>
+                                    </button> --}}
+                                    <a href="{{route('retailer.create.ticket')}}" class="btn btn-primary" >
+                                        <i class="ki-duotone ki-plus fs-2"></i>
+                                        Create Ticket
+                                    </a>
                                     <!--end::Add subscription-->
                                 </div>
                                 <!--end::Toolbar-->
@@ -113,13 +117,6 @@
                             <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="w-10px pe-2">
-                                            <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                                <input class="form-check-input" type="checkbox" data-kt-check="true"
-                                                    data-kt-check-target="#kt_subscriptions_table .form-check-input"
-                                                    value="1" />
-                                            </div>
-                                        </th>
                                         <th class="min-w-125px">Ticket ID</th>
                                         <th class="min-w-125px">Message</th>
                                         <th class="min-w-125px">Description</th>
@@ -245,7 +242,7 @@
                     }
                 },
                 columns: [
-                    { data: 'checkbox', orderable: false, searchable: false },
+                    // { data: 'checkbox', orderable: false, searchable: false },
                     { data: 'ticket_id' },
                     { data: 'subject' },
                     { data: 'description' },

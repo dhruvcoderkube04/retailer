@@ -226,10 +226,9 @@
                 request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
                 xhr.done(function(mydata) {
                     Swal.fire({
-                        icon:'success',
                         title: 'Subcategory Added Successfully!',
-                        showCancelButton: true
-                    })
+                        icon: 'success',
+                    });
 
                     $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
                     // Reset form

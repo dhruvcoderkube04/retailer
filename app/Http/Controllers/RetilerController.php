@@ -643,7 +643,7 @@ class RetilerController extends Controller
                           </div>';
 
             $wholesaler_detail = '<div class="ms-5">
-                            <a href="' . route('retailer.view-category-margin', $product->wholesaler_id ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
+                            <a href="' . route('retailer.view-category-margin', encryptId($product->wholesaler_id) ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
                         </div>';
 
             $new_price = '<div class="badge badge-light-primary">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';

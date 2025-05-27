@@ -451,7 +451,7 @@
                                     </div>
 
                                     <!-- Status -->
-                                    <div class="mb-6">
+                                    {{-- <div class="mb-6">
                                         <label class="form-label d-block mb-2">Status</label>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" name="status" type="radio" value="1" checked />
@@ -461,7 +461,7 @@
                                             <input class="form-check-input" name="status" type="radio" value="0" />
                                             <label class="form-check-label">Inactive</label>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="text-end">
                                         <button class="btn btn-primary">Save Change</button>

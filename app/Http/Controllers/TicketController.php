@@ -17,7 +17,12 @@ class TicketController extends Controller
         return view('support.ticketlist', compact('tickets'));
     }
 
-   public function FetchticketList(Request $request)
+    public function createTicket()
+    {
+        return view('support.create-ticket');
+    }
+
+    public function FetchticketList(Request $request)
     {
         $user_id = Auth::id();
         $search = $request->input('search');
@@ -48,7 +53,16 @@ class TicketController extends Controller
             ->get();
 
         $data = [];
+
         foreach ($tickets as $ticket) {
+            $images = explode(',', $ticket->ref_image);
+            $firstImage = $images[0] ?? null;  // splits into array
+            if ($firstImage) {
+                $imageUrl = 'https://techsell.blr1.cdn.digitaloceanspaces.com/tickets/' . $firstImage;
+            } else {
+                $imageUrl = null; // or some placeholder image URL
+            }
+
             $statusClass = match (strtolower($ticket->status)) {
                 'open' => 'badge badge-danger',
                 'in progress' => 'badge badge-info',
@@ -60,20 +74,18 @@ class TicketController extends Controller
             $dropdown = '';
             if ($ticket->status == 'Closed') {
                 $dropdown = '<select class="form-select form-select-sm ticket-status"
-                                data-ticket-id="' . $ticket->ticket_id . '">
+                                data-ticket-id="' . encryptId($ticket->ticket_id) . '">
                                 <option value="">Action</option>
                                 <option value="Open">Open</option>
                             </select>';
             }
 
             $data[] = [
-                'checkbox' => '<div class="form-check form-check-sm form-check-custom form-check-solid">
-                                <input class="form-check-input" type="checkbox" value="' . $ticket->id . '" />
-                            </div>',
-                'ticket_id' => '<a href="#" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
+                'ticket_id' => '<a href="' . route('retailer.ticket.details', encryptId($ticket->ticket_id)) . '" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
+                // 'ticket_id' => '<a href="" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
                 'subject' => e($ticket->subject),
                 'description' => e($ticket->description),
-                'ref_image' => '<img src="' . asset($ticket->ref_image) . '" width="50">',
+                'ref_image' => '<img src="' . asset($imageUrl) . '" width="50">',
                 'status' => '<span class="' . $statusClass . '" data-status="' . $ticket->status . '">' . ucfirst($ticket->status) . '</span>',
                 'created_at' => '<div class="badge badge-light">' . $ticket->created_at->diffForHumans() . '</div>',
                 'actions' => $dropdown,
@@ -90,9 +102,10 @@ class TicketController extends Controller
 
     public function updateTicketStatus(Request $request, $ticket_id)
     {
+        $ticket_id = decryptId($ticket_id);
         // Validate the request
         $request->validate([
-            'status' => 'required|in:Open,In Progress,Resolved,Closed',
+            'status' => 'required|in:Open',
         ]);
 
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
@@ -115,36 +128,51 @@ class TicketController extends Controller
 
     public function generateTicket(Request $request)
     {
-        $request->validate([
-            'subject' => 'required|string|max:255',
-            'ticket_description' => 'required|string',
-            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
-        ]);
+        try {
+            $request->validate([
+                'subject' => 'required|string|max:255',
+                'ticket_description' => 'required|string',
+                'ticket_image_ref' => 'nullable|array|max:3', // max 3 images
+                'ticket_image_ref.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2MB max
+            ]);
 
-        // Genrate random tikcet id 10 digit  with  TM add tm in prefix
-        $ticket_id = 'TM' . mt_rand(100000, 999999);
+            $ticket_id = 'TM' . mt_rand(100000, 999999);
 
-        // Create a new ticket
-        $ticket = new Ticket;
-        $ticket->subject = $request->subject;
-        $ticket->description = $request->ticket_description;
-        $ticket->status = 'Open';
-        $ticket->category = '';
-        $ticket->ticket_id = $ticket_id;
+            $ticket = new Ticket();
+            $ticket->subject = $request->subject;
+            $ticket->description = $request->ticket_description;
+            $ticket->status = 'Open';
+            $ticket->category = '';
+            $ticket->ticket_id = $ticket_id;
+            $ticket->user_id = Auth::id();
 
-        $ticket->user_id = Auth::user()->id;
+            $filenames = [];
 
-        if ($request->hasFile('ticket_image_ref')) {
-            $file = $request->file('ticket_image_ref');
-            $path = $file->storePublicly('tickets', 'spaces'); // 'tickets' is the folder in your Space
+            if ($request->hasFile('ticket_image_ref')) {
+                foreach ($request->file('ticket_image_ref') as $file) {
+                    $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('tickets', $filename, 'spaces');
+                    $filenames[] = $filename;
+                }
+            }
 
-            // Save URL to DB or return to client
-            $ticket->ref_image = Storage::disk('spaces')->url($path); // Store full URL
+            $ticket->ref_image = implode(',', $filenames);
+            $ticket->save();
+
+            return redirect()->back()->with('success', 'Ticket Created Successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            // Log the error if needed: Log::error($e);
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage())->withInput();
         }
+    }
 
-        $ticket->save();
-
-        // Return JSON response
-        return response()->json(['success' => true, 'message' => 'Ticket Created Successfully', 'ticket' => $ticket]);
+    public function ticketDetail(Request $request,$ticket_id)
+    {
+        $ticket_id = decryptId($ticket_id);
+        $user_id = Auth::user()->id;
+        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$ticket_id)->first();
+        return view('support.ticket-detail-show',compact('ticket'));
     }
 }

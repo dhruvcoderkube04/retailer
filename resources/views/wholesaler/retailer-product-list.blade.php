@@ -15,7 +15,7 @@
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
                         <h1 class="page-heading text-gray-900 fw-bold fs-2 flex-column justify-content-center my-0">
-                            {{ $wholesaler->company_name }}
+                            {{ @$wholesaler->company_name }}
                         </h1>
                         <!-- <h3 class="page-heading d-flex text-gray-900 fw-bold fs-7 mt-2 flex-column justify-content-center my-0"></h3> -->
                         <!--end::Title-->
@@ -60,7 +60,7 @@
                     @endif
 
                     <form id="kt_ecommerce_add_product_form" class="form d-flex flex-column flex-lg-row"
-                        action="{{ route('retailer.add-category-margin', encryptId($wholesaler->user_id)) }}" method="post"
+                        action="{{ route('retailer.add-category-margin', encryptId(@$wholesaler->user_id)) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
@@ -247,7 +247,7 @@
                         @csrf
                         <input type="hidden" id="edit_wholesaler_id" name="wholesaler_id">
                         <input type="hidden" id="edit_margin_id" name="margin_id">
-    
+
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <select class="form-select" id="edit_category_id" name="category_id" data-control="select2">
@@ -257,12 +257,12 @@
                                 @endforeach
                             </select>
                         </div>
-    
+
                         <div class="mb-3">
                             <label class="form-label">Margin</label>
                             <input type="number" min="1" class="form-control" id="edit_margin_value" name="margin">
                         </div>
-    
+
                         <div class="mb-3">
                             <label class="form-label">Payment Method</label>
                             <div class="form-check mt-1">
@@ -278,7 +278,7 @@
                                 <label class="form-check-label mt-1" for="edit_payment_semi">Semi</label>
                             </div>
                         </div>
-    
+
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Update Margin</button>
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
@@ -288,7 +288,7 @@
             </div>
         </div>
     </div>
-    
+
 @endsection
 
 @section('script')
