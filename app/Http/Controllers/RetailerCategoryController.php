@@ -173,9 +173,13 @@ class RetailerCategoryController extends Controller
         foreach ($myCategories as $key => $item) {
             $i++;
 
-            $image = $item->category_image ?? asset('assets/media/images/no_image.jpg');
             $sub_category_image = '
-            <img src="' . $image . '" class="w-40px me-3" alt="sub-category-image" />
+                <img src="' . ($item->category_image
+                ? Storage::disk('spaces')->url($item->category_image)
+                : asset('assets/media/images/no_image.jpg')) . '" 
+                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
+                    class="w-40px me-3" 
+                    alt="sub-category-image" />
             ';
 
             $action = '
@@ -194,7 +198,10 @@ class RetailerCategoryController extends Controller
                 <button class="btn btn-icon btn-light-secondary w-30px h-30px"
                     id="image-upload"
                     data-id="' . $item->id . '"
-                    data-image="' . $item->category_image . '"
+                    data-image="' . ($item->category_image
+                ? Storage::disk('spaces')->url($item->category_image)
+                : asset('assets/media/images/no_image.jpg')
+            ) . '"
                     data-bs-toggle="tooltip"
                     aria-label="Image Upload">
                     <i class="ki-duotone ki-setting-3 fs-3">
@@ -223,7 +230,14 @@ class RetailerCategoryController extends Controller
 
         DB::beginTransaction();
         try {
-            RetailerCategory::where('retailer_id', $user)->where('category_id', $category_id)->where('sub_category_id', $sub_category)->delete();
+            $retailerCategory = RetailerCategory::where('retailer_id', $user)->where('category_id', $category_id)->where('sub_category_id', $sub_category)->first();
+
+            if ($retailerCategory->category_image) {
+                deleteImageToSpaces($retailerCategory->category_image);
+            }
+
+            $retailerCategory->delete();
+
             DB::commit();
             return response()->json(['status' => true, 'msg' => 'Removed successfully']);
         } catch (Exception $e) {
@@ -246,59 +260,11 @@ class RetailerCategoryController extends Controller
         try {
             $retailerCategory = RetailerCategory::findOrFail($id);
 
-            // old store
-            // if ($request->hasFile('category_image')) {
-            //     $file = $request->file('category_image');
-            //     $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-            //     $uploadPath = public_path('uploads/retailer_category/');
-
-            //     // Ensure directory exists
-            //     if (!File::exists($uploadPath)) {
-            //         File::makeDirectory($uploadPath, 0777, true, true);
-            //     }
-
-            //     // Delete old image if it exists
-            //     if (!empty($retailerCategory->category_image)) {
-            //         $oldImagePath = public_path('uploads/' . $retailerCategory->category_image);
-            //         if (File::exists($oldImagePath)) {
-            //             File::delete($oldImagePath);
-            //         }
-            //     }
-
-            //     // Move new image to directory
-            //     $file->move($uploadPath, $fileName);
-            //     $retailerCategory->category_image = "retailer_category/" . $fileName;
-            // }
-
             // store in digital ocean
             if ($request->hasFile('category_image')) {
                 try {
                     $file = $request->file('category_image');
-                    $originalExtension = $file->getClientOriginalExtension();
-                    $fileName = 'category_image_' . now()->timestamp . '_' . uniqid() . '.' . $originalExtension;
-                    $directory = 'retailer_category/'; // Directory in DigitalOcean Spaces
-
-                    $path = $directory . $fileName;
-
-                    // Delete old image if it exists
-                    if (!empty($retailerCategory->category_image)) {
-                        try {
-                            // Extract path from stored url.
-                            $oldPath = str_replace(Storage::disk('spaces')->url(''), '', $retailerCategory->category_image);
-                            Storage::disk('spaces')->delete($oldPath);
-                            Log::info('Old Category Image Removed: ' . $oldPath);
-                        } catch (\Exception $deleteException) {
-                            Log::error('Failed to Remove Old Category Image: ' . $deleteException->getMessage());
-                        }
-                    }
-
-                    // Upload new image to DigitalOcean Spaces
-                    Storage::disk('spaces')->putFileAs($directory, $file, $fileName, 'public');
-
-                    // Store the URL of the uploaded file
-                    $fileUrl = Storage::disk('spaces')->url($path);
-                    $retailerCategory->category_image = $fileUrl; // Store URL, not relative path.
-
+                    $retailerCategory->category_image = uploadOrUpdateImageToSpaces($file, 'retailer_category', $retailerCategory->category_image);
                 } catch (\Illuminate\Validation\ValidationException $validationException) {
                     // Handle validation errors
                     Log::error('Category Image Validation Failed: ' . $validationException->getMessage());

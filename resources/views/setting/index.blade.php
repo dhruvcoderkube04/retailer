@@ -97,7 +97,7 @@
                                                 style="background-image: url('assets/media/svg/avatars/blank.svg')">
                                                 <!--begin::Preview existing avatar-->
                                                 <div class="image-input-wrapper w-125px h-125px"
-                                                    style="background-image: url('{{ $store->logo ? asset($store->logo) : asset('uploads/company_logo/default.png') }}')">
+                                                    style="background-image: url('{{ $store->logo ? Storage::disk('spaces')->url($store->logo) : asset('uploads/company_logo/default.png') }}')">
                                                 </div>
 
                                                 {{-- <div class="image-input-wrapper w-125px h-125px" style="background-image: url(assets/media/avatars/300-1.jpg)"></div> --}}
@@ -174,8 +174,8 @@
                                     </div>
                                     <!--end::Input group-->
 
-                                     <!--begin::Input group-->
-                                     <div class="row mb-6">
+                                    <!--begin::Input group-->
+                                    <div class="row mb-6">
                                         <!--begin::Label-->
                                         <label class="col-lg-4 col-form-label required fw-semibold fs-6">Web Token</label>
                                         <!--end::Label-->
@@ -185,9 +185,9 @@
                                             <div class="row">
                                                 <!--begin::Col-->
                                                 <div class="col-lg-12 fv-row">
-                                                    <input type="text"  value="{{ $store->product_listing_key }}"
+                                                    <input type="text" value="{{ $store->product_listing_key }}"
                                                         class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
-                                                         disabled />
+                                                        disabled />
                                                 </div>
                                                 <!--end::Col-->
                                             </div>
@@ -273,13 +273,24 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label class="form-label">Favicon</label>
-                                                <input type="file" class="form-control" id="favicon" name="favicon" accept="image/x-icon,image/png,image/jpeg" onchange="previewFavicon(event)">
-                                                <small class="text-muted">Upload a favicon (Recommended: 32x32 or 64x64, .ico or .png)</small>
+                                                <input type="file" class="form-control" id="favicon" name="favicon"
+                                                    accept="image/x-icon,image/png,image/jpeg"
+                                                    onchange="previewFavicon(event)">
+                                                <small class="text-muted">Upload a favicon (Recommended: 32x32 or 64x64,
+                                                    .ico or .png)</small>
                                             </div>
                                             {{-- Favicon preview --}}
                                             <div id="favicon-preview-container" class="d-flex gap-2 mt-2">
+                                                @php
+                                                    $defaultFavicon = asset('assets/media/images/no_image.jpg');
+                                                    $faviconUrl = !empty($store->favicon)
+                                                        ? Storage::disk('spaces')->url($store->favicon)
+                                                        : $defaultFavicon;
+                                                @endphp
                                                 @if (!empty($store->favicon))
-                                                    <img src="{{ asset($store->favicon) }}" alt="Favicon Preview" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">
+                                                    <img src="{{ $faviconUrl }}" alt="Favicon Preview"
+                                                        style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;"
+                                                        onerror="this.onerror=null;this.src='{{ $defaultFavicon }}';" />
                                                 @endif
                                             </div>
 
@@ -288,13 +299,22 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label class="form-label">Website Banner</label>
-                                                <input type="file" class="form-control" id="banner" name="banner" accept="image/*" onchange="previewBanner(event)">
+                                                <input type="file" class="form-control" id="banner" name="banner"
+                                                    accept="image/*" onchange="previewBanner(event)">
                                                 <small class="text-muted">Recommended size: 1200x300 pixels</small>
                                             </div>
                                             {{-- Banner preview --}}
                                             <div id="banner-preview-container" class="mt-3">
+                                                @php
+                                                    $defaultBanner = asset('assets/media/images/no_image.jpg');
+                                                    $bannerUrl = !empty($store->banner)
+                                                        ? Storage::disk('spaces')->url($store->banner)
+                                                        : $defaultBanner;
+                                                @endphp
                                                 @if (!empty($store->banner))
-                                                    <img src="{{ asset($store->banner) }}" alt="Banner Preview" style="max-width: 100%; width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
+                                                    <img src="{{ $bannerUrl }}" alt="Banner Preview"
+                                                        style="max-width: 100%; width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;"
+                                                        onerror="this.onerror=null;this.src='{{ $defaultBanner }}';" />
                                                 @endif
                                             </div>
                                             {{-- <div id="banner-preview-container" class="mt-3"></div> --}}
@@ -302,14 +322,13 @@
                                         </div>
                                     </div>
 
-                                     <!--begin::Input group-->
-                                     <div class="row mb-6">
+                                    <!--begin::Input group-->
+                                    <div class="row mb-6">
                                         <!--begin::Label-->
                                         <div class="col-md-6">
                                             <label class="col-lg-4 col-form-label fw-semibold fs-6">
                                                 <span class="required"> Offer Text </span>
-                                                <span class="ms-1" data-bs-toggle="tooltip"
-                                                    title="">
+                                                <span class="ms-1" data-bs-toggle="tooltip" title="">
                                                     <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
                                                         <span class="path1"></span>
                                                         <span class="path2"></span>
@@ -320,8 +339,7 @@
                                             <!--end::Label-->
                                             <!--begin::Col-->
                                             <div class="col-lg-8 fv-row">
-                                                <input type="text" name="offer_text"
-                                                    value="{{ $store->offer_text }}"
+                                                <input type="text" name="offer_text" value="{{ $store->offer_text }}"
                                                     class="form-control form-control-lg form-control-solid"
                                                     placeholder="" />
                                             </div>
@@ -332,8 +350,7 @@
                                         <div class="col-md-6">
                                             <label class="col-lg-4 col-form-label fw-semibold fs-6">
                                                 <span class="required"> Banner Title </span>
-                                                <span class="ms-1" data-bs-toggle="tooltip"
-                                                    title="">
+                                                <span class="ms-1" data-bs-toggle="tooltip" title="">
                                                     <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
                                                         <span class="path1"></span>
                                                         <span class="path2"></span>
@@ -345,7 +362,7 @@
                                             <!--begin::Col-->
                                             <div class="col-lg-8 fv-row">
                                                 <input type="text" name="banner_title"
-                                                    value="{{ $store->banner_title  }}"
+                                                    value="{{ $store->banner_title }}"
                                                     class="form-control form-control-lg form-control-solid"
                                                     placeholder="" />
                                             </div>
@@ -357,14 +374,13 @@
                                     </div>
                                     <!--end::Input group-->
 
-                                     <!--begin::Input group-->
-                                     <div class="row mb-6">
+                                    <!--begin::Input group-->
+                                    <div class="row mb-6">
                                         <!--begin::Label-->
                                         <div class="col-md-6">
                                             <label class="col-lg-4 col-form-label fw-semibold fs-6">
                                                 <span class="required"> Banner Sub Title </span>
-                                                <span class="ms-1" data-bs-toggle="tooltip"
-                                                    title="">
+                                                <span class="ms-1" data-bs-toggle="tooltip" title="">
                                                     <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
                                                         <span class="path1"></span>
                                                         <span class="path2"></span>
@@ -387,8 +403,7 @@
                                         <div class="col-md-6">
                                             <label class="col-lg-4 col-form-label fw-semibold fs-6">
                                                 <span class="required"> Banner Button Title</span>
-                                                <span class="ms-1" data-bs-toggle="tooltip"
-                                                    title="">
+                                                <span class="ms-1" data-bs-toggle="tooltip" title="">
                                                     <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
                                                         <span class="path1"></span>
                                                         <span class="path2"></span>
@@ -997,7 +1012,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.style.width = '32px'; // Typical favicon size
@@ -1018,7 +1033,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.style.width = '100%'; // Full width for preview

@@ -172,16 +172,7 @@ class ShippingController extends Controller
 
         if ($request->hasFile('product_image')) {
             $file = $request->file('product_image');
-
-            $filename = 'product_image_' . now()->timestamp . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $directory = 'products/images/';
-            $path = $directory . $filename;
-
-            // Store image to 'spaces' disk
-            Storage::disk('spaces')->putFileAs($directory, $file, $filename, 'public');
-
-            // Store the public URL in the product's images field
-            $product->images = Storage::disk('spaces')->url($path);
+            $product->images = uploadOrUpdateImageToSpaces($file, 'products/images');
         }
 
         $subCategory = SubCategory::findOrFail($request->sub_category_id);

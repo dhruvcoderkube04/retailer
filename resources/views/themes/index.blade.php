@@ -35,11 +35,19 @@
                                 @foreach ($themes as $key => $theme)
                                     <div class="col-md-3 mb-4">
                                         <div class="card shadow-sm border-0">
+                                            @php
+                                                $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                $themeImageUrl = $theme->theme_image
+                                                    ? Storage::disk('spaces')->url($theme->theme_image)
+                                                    : $defaultImage;
+                                            @endphp
                                             <div class="card-img-top">
-                                                <img src="{{ $theme->theme_image }}" alt="{{ $theme->theme_name }} Theme"
+                                                <img src="{{ $themeImageUrl }}" alt="{{ $theme->theme_name }} Theme"
                                                     class="img-fluid rounded-top"
-                                                    style="height:180px; object-fit:cover; width:100%;">
+                                                    style="height:180px; object-fit:cover; width:100%;"
+                                                    onerror="this.onerror=null;this.src='{{ $defaultImage }}';">
                                             </div>
+
                                             <div class="card-body text-center">
                                                 <h5 class="card-title">{{ $theme->theme_name }}</h5>
                                                 @if ($webManagement->theme == $theme->id)

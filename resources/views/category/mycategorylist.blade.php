@@ -231,14 +231,18 @@
             $(document).on("click", "#image-upload", function() {
                 let categoryId = $(this).data("id");
                 let imageUrl = $(this).data("image");
+                let fallbackImage = "{{ asset('assets/media/images/no_image.jpg') }}";
 
                 $("#retailer_category_id").val(categoryId);
 
-                if (imageUrl) {
-                    $("#image-preview").attr("src", imageUrl).show();
-                } else {
-                    $("#image-preview").attr("src", 'assets/media/images/no_image.jpg').show();
-                }
+                $("#image-preview")
+                    .off("error") // remove previous error handlers just in case
+                    .on("error", function() {
+                        $(this).off("error");
+                        $(this).attr("src", fallbackImage);
+                    })
+                    .attr("src", imageUrl || fallbackImage)
+                    .show();
 
                 $("#category-image-update").modal("show");
             });

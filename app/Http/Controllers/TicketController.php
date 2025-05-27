@@ -13,11 +13,11 @@ class TicketController extends Controller
     public function ticketList()
     {
         $user_id = Auth::user()->id;
-        $tickets = Ticket::where('user_id',$user_id)->get();
+        $tickets = Ticket::where('user_id', $user_id)->get();
         return view('support.ticketlist', compact('tickets'));
     }
 
-   public function FetchticketList(Request $request)
+    public function FetchticketList(Request $request)
     {
         $user_id = Auth::id();
         $search = $request->input('search');
@@ -73,7 +73,11 @@ class TicketController extends Controller
                 'ticket_id' => '<a href="#" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
                 'subject' => e($ticket->subject),
                 'description' => e($ticket->description),
-                'ref_image' => '<img src="' . asset($ticket->ref_image) . '" width="50">',
+                'ref_image' => '<img src="' . ($ticket->ref_image
+                    ? Storage::disk('spaces')->url($ticket->ref_image)
+                    : asset('assets/media/images/no_image.jpg')) . '" 
+                    width="50" 
+                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';">',
                 'status' => '<span class="' . $statusClass . '" data-status="' . $ticket->status . '">' . ucfirst($ticket->status) . '</span>',
                 'created_at' => '<div class="badge badge-light">' . $ticket->created_at->diffForHumans() . '</div>',
                 'actions' => $dropdown,

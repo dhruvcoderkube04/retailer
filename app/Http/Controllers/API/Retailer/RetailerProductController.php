@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RetailerProductController extends Controller
@@ -76,12 +77,17 @@ class RetailerProductController extends Controller
                 'banner_button_title',
                 'theme',
             )
-            ->with('theme:id,theme_name,theme_image')
-            ->where('product_listing_key', $apiKey)->first();
+                ->with('theme_data:id,theme_name,theme_image')
+                ->where('product_listing_key', $apiKey)->first();
             if (!$storeinfo) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
-
+            $storeinfo->logo = $storeinfo->logo ? Storage::disk('spaces')->url($storeinfo->logo) : null;
+            $storeinfo->favicon = $storeinfo->favicon ? Storage::disk('spaces')->url($storeinfo->favicon) : null;
+            $storeinfo->banner = $storeinfo->banner ? Storage::disk('spaces')->url($storeinfo->banner) : null;
+            if ($storeinfo->theme_data) {
+                $storeinfo->theme_data->theme_image = $storeinfo->theme_data->theme_image ? Storage::disk('spaces')->url($storeinfo->theme_data->theme_image) : null;
+            }
 
             $categoryIds = RetailerCategory::where('retailer_id', $storeinfo->retailer_id)
                 ->pluck('category_id')
@@ -103,7 +109,7 @@ class RetailerProductController extends Controller
                         return [
                             'id' => $sub->id,
                             'name' => $sub->sub_category_name,
-                            'image' => $sub->sub_category_image ?? null,
+                            'image' => $sub->sub_category_image ? Storage::disk('spaces')->url($sub->sub_category_image) : null,
                         ];
                     })
                     ->values()
@@ -112,7 +118,7 @@ class RetailerProductController extends Controller
                 $categoryList[] = [
                     'id' => $category->id,
                     'name' => $category->category_name,
-                    'image' => $category->category_image ?? null,
+                    'image' => $category->category_image ? Storage::disk('spaces')->url($category->category_image) : null,
                     'sub_category_list' => $subList,
                 ];
             }
@@ -124,7 +130,7 @@ class RetailerProductController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error fetching retailer company info: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Something went wrong!'], 500);
         }
     }
 
@@ -311,6 +317,21 @@ class RetailerProductController extends Controller
             $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
             $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
             $paginatedProducts->setPath(url()->current());
+
+            // Image processing
+            $items = $paginatedProducts->items();
+            foreach ($items as &$product) {
+                $product_image = explode(',', $product['product_images'] ?? '');
+                $product_image_array = [];
+
+                foreach ($product_image as $image) {
+                    $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+                }
+
+                $product['product_images'] = implode(',', $product_image_array);
+                $product['product_video'] = $product['product_video'] ? Storage::disk('spaces')->url($product['product_video']) : null;
+            }
+            $paginatedProducts->setCollection(collect($items));
 
             return response()->json([
                 'success'    => true,
@@ -599,6 +620,13 @@ class RetailerProductController extends Controller
         $newfinalPrice = $product->new_price + $retailerProduct->margin;
         $oldfinalPrice = $product->old_price + $retailerProduct->margin;
 
+        $product_image = explode(',', $product->images);
+        $product_image_array = [];
+        foreach ($product_image as $image) {
+            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+        }
+        $product_images_implode = implode(',', $product_image_array);
+
         return [
             'id'              => $product->id,
             'sku'             => $product->sku,
@@ -614,8 +642,8 @@ class RetailerProductController extends Controller
             'new_price'       => $product->new_price,
             'final_price'     => $newfinalPrice,
             'quantity'        => $product->quantity,
-            'product_images'  => $product->images ?? null,
-            'product_video'   => $product->videos ?? null,
+            'product_images'  => $product_images_implode,
+            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : null,
             'product_url'     => $product->url,
             'status'            => $product->status,
             // 'color'           => $product->color ?? null,
@@ -631,6 +659,13 @@ class RetailerProductController extends Controller
     {
         $newfinalPrice = $cloneProduct->new_price + $cloneProduct->margin;
         $oldfinalPrice = $cloneProduct->old_price + $cloneProduct->margin;
+
+        $product_image = explode(',', $cloneProduct->images);
+        $product_image_array = [];
+        foreach ($product_image as $image) {
+            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+        }
+        $product_images_implode = implode(',', $product_image_array);
 
         return [
             'id'              => $cloneProduct->id,
@@ -648,8 +683,8 @@ class RetailerProductController extends Controller
             'new_price'       => $cloneProduct->new_price,
             'final_price'     => $newfinalPrice,
             'quantity'        => $cloneProduct->quantity,
-            'product_images'  => $cloneProduct->images ?? null,
-            'product_video'   => $cloneProduct->videos ?? null,
+            'product_images'  => $product_images_implode,
+            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : null,
             'product_url'     => $cloneProduct->url,
             'status'            => $cloneProduct->status,
             // 'color'           => $cloneProduct->color ?? null,
@@ -669,6 +704,13 @@ class RetailerProductController extends Controller
         $newfinalPrice = $product->new_price + $retailerProduct->margin;
         $oldfinalPrice = $product->old_price + $retailerProduct->margin;
 
+        $product_image = explode(',', $product->images);
+        $product_image_array = [];
+        foreach ($product_image as $image) {
+            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+        }
+        $product_images_implode = implode(',', $product_image_array);
+
         return [
             'id'              => $product->id,
             'sku'             => $product->sku,
@@ -684,8 +726,8 @@ class RetailerProductController extends Controller
             'new_price'       => $product->new_price,
             'final_price'     => $newfinalPrice,
             'quantity'        => $product->quantity,
-            'product_images'  => $product->images ?? null,
-            'product_video'   => $product->videos ?? null,
+            'product_images'  => $product_images_implode,
+            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : null,
             'product_url'     => $product->url,
             'status'     => $product->status,
             'specifications'  => $product->specifications,
@@ -705,6 +747,13 @@ class RetailerProductController extends Controller
         $newfinalPrice = $cloneProduct->new_price + $cloneProduct->margin;
         $oldfinalPrice = $cloneProduct->old_price + $cloneProduct->margin;
 
+        $product_image = explode(',', $cloneProduct->images);
+        $product_image_array = [];
+        foreach ($product_image as $image) {
+            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+        }
+        $product_images_implode = implode(',', $product_image_array);
+
         return [
             'id'              => $cloneProduct->id,
             'sku'             => $cloneProduct->sku,
@@ -719,8 +768,8 @@ class RetailerProductController extends Controller
             'new_price'       => $cloneProduct->new_price,
             'final_price'     => $newfinalPrice,
             'quantity'        => $cloneProduct->quantity,
-            'product_images'  => $cloneProduct->images ?? null,
-            'product_video'   => $cloneProduct->videos ?? null,
+            'product_images'  => $product_images_implode,
+            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : null,
             'product_url'     => $cloneProduct->url,
             'status'     => $cloneProduct->status,
             'specifications'  => $cloneProduct->specifications,

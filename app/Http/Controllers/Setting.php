@@ -66,27 +66,8 @@ class Setting extends Controller
         // Handle logo upload
         if ($request->hasFile('logo')) {
             try {
-                $uploadedImage = $request->file('logo');
-                $originalExtension = $uploadedImage->getClientOriginalExtension();
-                $timestamp = now()->timestamp;
-                $logoName = 'logo_' . $timestamp . '.' . $originalExtension;
-                $directory = 'all/';
-                $path = $directory . $logoName;
-
-                $request->validate([
-                    'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                ]);
-
-                Log::info('Attempting to upload logo: ' . $path);
-                Log::info('File Size: ' . $uploadedImage->getSize());
-
-                $uploadResult = Storage::disk('spaces')->putFileAs($directory, $uploadedImage, $logoName, 'public');
-
-                Log::info('Upload result: ' . ($uploadResult ? 'Success' : 'Failure'));
-                Log::info('Spaces URL: ' . Storage::disk('spaces')->url($path));
-
-                $validatedData['logo'] = Storage::disk('spaces')->url($path);
-
+                $file = $request->file('logo');
+                $validatedData['logo'] = uploadOrUpdateImageToSpaces($file, 'company_logos', $retailer->logo);
             } catch (\Illuminate\Validation\ValidationException $validationException) {
                 Log::error('Logo Validation Failed: ' . $validationException->getMessage());
                 return back()->withErrors($validationException->errors())->withInput();
@@ -99,27 +80,8 @@ class Setting extends Controller
         // Handle favicon upload
         if ($request->hasFile('favicon')) {
             try {
-                $uploadedImage = $request->file('favicon');
-                $originalExtension = $uploadedImage->getClientOriginalExtension();
-                $timestamp = now()->timestamp;
-                $faviconName = 'favicon_' . $timestamp . '.' . $originalExtension;
-                $directory = 'all/';
-                $path = $directory . $faviconName;
-
-                $request->validate([
-                    'favicon' => 'required|image|mimes:ico,png,jpg|max:2048', // Added ico mime type
-                ]);
-
-                Log::info('Attempting to upload favicon: ' . $path);
-                Log::info('File Size: ' . $uploadedImage->getSize());
-
-                $uploadResult = Storage::disk('spaces')->putFileAs($directory, $uploadedImage, $faviconName, 'public');
-
-                Log::info('Upload result: ' . ($uploadResult ? 'Success' : 'Failure'));
-                Log::info('Spaces URL: ' . Storage::disk('spaces')->url($path));
-
-                $validatedData['favicon'] = Storage::disk('spaces')->url($path);
-
+                $file = $request->file('favicon');
+                $validatedData['favicon'] = uploadOrUpdateImageToSpaces($file, 'favicons', $retailer->favicon);
             } catch (\Illuminate\Validation\ValidationException $validationException) {
                 Log::error('Favicon Validation Failed: ' . $validationException->getMessage());
                 return back()->withErrors($validationException->errors())->withInput();
@@ -132,27 +94,8 @@ class Setting extends Controller
         // Handle banner upload
         if ($request->hasFile('banner')) {
             try {
-                $uploadedImage = $request->file('banner');
-                $originalExtension = $uploadedImage->getClientOriginalExtension();
-                $timestamp = now()->timestamp;
-                $bannerName = 'banner_' . $timestamp . '.' . $originalExtension;
-                $directory = 'all/';
-                $path = $directory . $bannerName;
-
-                $request->validate([
-                    'banner' => 'required|image|mimes:jpeg,png,jpg,gif|max:8192', // Increased max size
-                ]);
-
-                Log::info('Attempting to upload banner: ' . $path);
-                Log::info('File Size: ' . $uploadedImage->getSize());
-
-                $uploadResult = Storage::disk('spaces')->putFileAs($directory, $uploadedImage, $bannerName, 'public');
-
-                Log::info('Upload result: ' . ($uploadResult ? 'Success' : 'Failure'));
-                Log::info('Spaces URL: ' . Storage::disk('spaces')->url($path));
-
-                $validatedData['banner'] = Storage::disk('spaces')->url($path);
-
+                $file = $request->file('banner');
+                $validatedData['banner'] = uploadOrUpdateImageToSpaces($file, 'banners', $retailer->favicon);
             } catch (\Illuminate\Validation\ValidationException $validationException) {
                 Log::error('Banner Validation Failed: ' . $validationException->getMessage());
                 return back()->withErrors($validationException->errors())->withInput();
