@@ -70,7 +70,7 @@
                                         <!--begin::Table-->
                                         <div class="mb-14">
                                             <div class="table-responsive">
-                                                <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+                                                <table class="table table-row-dashed table-row-gray-300 align-middle fs-7">
                                                     <thead>
                                                         <tr class="fw-bold fs-6 text-gray-800 text-center border-0 bg-light">
                                                             <th class="min-w-200px rounded-start"></th>

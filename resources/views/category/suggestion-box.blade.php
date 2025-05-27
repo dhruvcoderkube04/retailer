@@ -67,7 +67,7 @@
                                 <!--begin::Table wrapper-->
                                 <div class="table-responsive">
                                     <!--begin::Table-->
-                                    <table class="table align-middle table-row-bordered table-row-solid gy-4 gs-9" id="kt_categroy_table">
+                                    <table class="table align-middle table-row-bordered table-row-solid fs-7" id="kt_categroy_table">
                                         <!--begin::Thead-->
                                         <thead class="border-gray-200 fs-5 fw-semibold bg-lighten">
                                             <tr>

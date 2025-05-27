@@ -97,7 +97,7 @@
                         <!--begin::Card body-->
                         <div class="card-body pt-0">
                             <!--begin::Table-->
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_subscriptions_table">
+                            <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                                         <th class="w-10px pe-2">

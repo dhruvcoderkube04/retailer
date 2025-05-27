@@ -314,7 +314,7 @@
                                         <div class="tab-pane fade show active" id="kt_stats_widget_2_tab_1"
                                             role="tabpanel">
                                             <div class="table-responsive">
-                                                <table class="table table-row-dashed align-middle gs-0 gy-4 my-0">
+                                                <table class="table table-row-dashed align-middle fs-7 my-0">
                                                     <thead>
                                                         <tr
                                                             class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">

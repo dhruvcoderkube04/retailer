@@ -30,7 +30,7 @@
                     <div class="card card-flush">
                         <div class="card-body mt-1">
                             <div class="tab-content">
-                                <table class="table align-middle table-row-dashed fs-6 gy-5"
+                                <table class="table align-middle table-row-dashed fs-7"
                                     id="kt_datatable_customer_list">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">

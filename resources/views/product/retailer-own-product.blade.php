@@ -72,7 +72,7 @@
 
                                 {{-- margin added products --}}
                                 <div class="tab-pane fade show active" id="kt_tab_pane_1" role="tabpanel">
-                                    <table class="table align-middle table-row-dashed fs-6 gy-5"
+                                    <table class="table align-middle table-row-dashed fs-7"
                                         id="kt_datatable_margin_added_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -99,7 +99,7 @@
 
                                 {{-- clone products --}}
                                 <div class="tab-pane fade" id="kt_tab_pane_2" role="tabpanel">
-                                    <table class="table align-middle table-row-dashed fs-6 gy-5"
+                                    <table class="table align-middle table-row-dashed fs-7"
                                         id="kt_datatable_retailer_clone_products">
                                         <thead>
                                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">

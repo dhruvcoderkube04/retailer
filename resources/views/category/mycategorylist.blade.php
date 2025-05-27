@@ -28,7 +28,7 @@
                 <div id="kt_app_content_container" class="app-container container-xxl">
                     <div class="card">
                         <div class="card-body p-5">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_datatable_my_categroy_list">
+                            <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_my_categroy_list">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center min-w-100px">Images</th>

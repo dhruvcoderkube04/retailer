@@ -84,7 +84,7 @@
                                         </div>
 
                                         <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3 mt-3">
-    
+
                                           <!-- Withdrawal Request Button -->
                                           <button type="button"
                                               class="btn btn-sm btn-primary d-flex align-items-center gap-2"
@@ -95,12 +95,12 @@
                                               </i>
                                               Withdrawal Request
                                           </button>
-                                      
+
                                           <!-- Date Range Picker -->
                                           <div class="input-group mw-250px bg-secondary">
-                                              <input type="text" 
-                                                  class="form-control form-control-solid bg-secondary border-0" 
-                                                  placeholder="Pick date range" 
+                                              <input type="text"
+                                                  class="form-control form-control-solid bg-secondary border-0"
+                                                  placeholder="Pick date range"
                                                   id="kt_daterangepicker_withdrawal_transactions">
                                               <span class="input-group-text bg-secondary border-0">
                                                   <i class="ki-duotone ki-calendar-8 fs-2">
@@ -113,7 +113,7 @@
                                                   </i>
                                               </span>
                                           </div>
-                                      </div>                                      
+                                      </div>
                                     </div>
                                 </div>
 
@@ -124,7 +124,7 @@
                     <div class="card card-flush">
                         <div class="card-body mt-1">
                             <div class="tab-content">
-                                <table class="table align-middle table-row-dashed fs-6 gy-5"
+                                <table class="table align-middle table-row-dashed fs-7"
                                     id="kt_datatable_withdrawal_transactions">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
