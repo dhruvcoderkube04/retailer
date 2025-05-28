@@ -251,3 +251,12 @@ Route::get('/cc', function() {
 
     return 'DONE';
 });
+
+Route::get('/run-queue/{key}', function ($key) {
+    if ($key !== 'retailer') { // secret key is retailer
+        abort(403, 'Unauthorized');
+    }
+
+    Artisan::call('queue:work --stop-when-empty');
+    return 'Queue executed.';
+});

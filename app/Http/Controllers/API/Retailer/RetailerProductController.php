@@ -82,11 +82,11 @@ class RetailerProductController extends Controller
             if (!$storeinfo) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
-            $storeinfo->logo = $storeinfo->logo ? Storage::disk('spaces')->url($storeinfo->logo) : null;
-            $storeinfo->favicon = $storeinfo->favicon ? Storage::disk('spaces')->url($storeinfo->favicon) : null;
-            $storeinfo->banner = $storeinfo->banner ? Storage::disk('spaces')->url($storeinfo->banner) : null;
+            $storeinfo->logo = $storeinfo->logo ? Storage::disk('spaces')->url($storeinfo->logo) : '';
+            $storeinfo->favicon = $storeinfo->favicon ? Storage::disk('spaces')->url($storeinfo->favicon) : '';
+            $storeinfo->banner = $storeinfo->banner ? Storage::disk('spaces')->url($storeinfo->banner) : '';
             if ($storeinfo->theme_data) {
-                $storeinfo->theme_data->theme_image = $storeinfo->theme_data->theme_image ? Storage::disk('spaces')->url($storeinfo->theme_data->theme_image) : null;
+                $storeinfo->theme_data->theme_image = $storeinfo->theme_data->theme_image ? Storage::disk('spaces')->url($storeinfo->theme_data->theme_image) : '';
             }
 
             $categoryIds = RetailerCategory::where('retailer_id', $storeinfo->retailer_id)
@@ -109,7 +109,7 @@ class RetailerProductController extends Controller
                         return [
                             'id' => $sub->id,
                             'name' => $sub->sub_category_name,
-                            'image' => $sub->sub_category_image ? Storage::disk('spaces')->url($sub->sub_category_image) : null,
+                            'image' => $sub->sub_category_image ? Storage::disk('spaces')->url($sub->sub_category_image) : '',
                         ];
                     })
                     ->values()
@@ -118,7 +118,7 @@ class RetailerProductController extends Controller
                 $categoryList[] = [
                     'id' => $category->id,
                     'name' => $category->category_name,
-                    'image' => $category->category_image ? Storage::disk('spaces')->url($category->category_image) : null,
+                    'image' => $category->category_image ? Storage::disk('spaces')->url($category->category_image) : '',
                     'sub_category_list' => $subList,
                 ];
             }
@@ -325,11 +325,13 @@ class RetailerProductController extends Controller
                 $product_image_array = [];
 
                 foreach ($product_image as $image) {
-                    $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+                    if (!empty($image)) {
+                        $product_image_array[] = Storage::disk('spaces')->url($image);
+                    }
                 }
 
                 $product['product_images'] = implode(',', $product_image_array);
-                $product['product_video'] = $product['product_video'] ? Storage::disk('spaces')->url($product['product_video']) : null;
+                $product['product_video'] = $product['product_video'] ? Storage::disk('spaces')->url($product['product_video']) : '';
             }
             $paginatedProducts->setCollection(collect($items));
 
@@ -623,7 +625,9 @@ class RetailerProductController extends Controller
         $product_image = explode(',', $product->images);
         $product_image_array = [];
         foreach ($product_image as $image) {
-            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+            if (!empty($image)) {
+                $product_image_array[] = Storage::disk('spaces')->url($image);
+            }
         }
         $product_images_implode = implode(',', $product_image_array);
 
@@ -643,7 +647,7 @@ class RetailerProductController extends Controller
             'final_price'     => $newfinalPrice,
             'quantity'        => $product->quantity,
             'product_images'  => $product_images_implode,
-            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : null,
+            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : '',
             'product_url'     => $product->url,
             'status'            => $product->status,
             // 'color'           => $product->color ?? null,
@@ -663,7 +667,9 @@ class RetailerProductController extends Controller
         $product_image = explode(',', $cloneProduct->images);
         $product_image_array = [];
         foreach ($product_image as $image) {
-            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+            if (!empty($image)) {
+                $product_image_array[] = Storage::disk('spaces')->url($image);
+            }
         }
         $product_images_implode = implode(',', $product_image_array);
 
@@ -684,7 +690,7 @@ class RetailerProductController extends Controller
             'final_price'     => $newfinalPrice,
             'quantity'        => $cloneProduct->quantity,
             'product_images'  => $product_images_implode,
-            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : null,
+            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : '',
             'product_url'     => $cloneProduct->url,
             'status'            => $cloneProduct->status,
             // 'color'           => $cloneProduct->color ?? null,
@@ -707,7 +713,9 @@ class RetailerProductController extends Controller
         $product_image = explode(',', $product->images);
         $product_image_array = [];
         foreach ($product_image as $image) {
-            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+            if (!empty($image)) {
+                $product_image_array[] = Storage::disk('spaces')->url($image);
+            }
         }
         $product_images_implode = implode(',', $product_image_array);
 
@@ -727,7 +735,7 @@ class RetailerProductController extends Controller
             'final_price'     => $newfinalPrice,
             'quantity'        => $product->quantity,
             'product_images'  => $product_images_implode,
-            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : null,
+            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : '',
             'product_url'     => $product->url,
             'status'     => $product->status,
             'specifications'  => $product->specifications,
@@ -750,7 +758,9 @@ class RetailerProductController extends Controller
         $product_image = explode(',', $cloneProduct->images);
         $product_image_array = [];
         foreach ($product_image as $image) {
-            $product_image_array[] = $image ? Storage::disk('spaces')->url($image) : null;
+            if (!empty($image)) {
+                $product_image_array[] = Storage::disk('spaces')->url($image);
+            }
         }
         $product_images_implode = implode(',', $product_image_array);
 
@@ -769,7 +779,7 @@ class RetailerProductController extends Controller
             'final_price'     => $newfinalPrice,
             'quantity'        => $cloneProduct->quantity,
             'product_images'  => $product_images_implode,
-            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : null,
+            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : '',
             'product_url'     => $cloneProduct->url,
             'status'     => $cloneProduct->status,
             'specifications'  => $cloneProduct->specifications,

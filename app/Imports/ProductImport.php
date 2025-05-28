@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Jobs\ProcessImportProductImagesAndVideos;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -65,21 +66,35 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
             }
             //<-------- END : Missing data validation ---------->
 
+            // images
             $allImages = array_filter(array_merge(
                 [$row['images']],
                 isset($row['images1']) ? explode('|', $row['images1']) : []
             ));
+
+            // sku
             $sku = $this->generateUniqueSku();
+
+            // slug
             $slug = Str::slug($row['product_name']) . '-' . now()->timestamp . '-' . uniqid();
 
-            RetailerCloneProduct::updateOrCreate([
+            // tags
+            $tagsString = $row['product_tags'] ?? null;
+            $tags = collect(explode(',', $tagsString))
+                ->map(function ($tag) {
+                    return ['value' => trim($tag)];
+                })
+                ->values()
+                ->toJson();
+
+            $product = RetailerCloneProduct::updateOrCreate([
                 'retailer_id' => $retailer->id,
                 'name' => $row['product_name'],
             ], [
                 'sku' => $sku,
                 'slug' => $slug,
                 'description' => $row['product_description'] ?? null,
-                'tags' => $row['product_tags'] ?? null,
+                'tags' => $tags,
                 'quantity' => $row['quantity'],
                 'new_price' => $row['new_price'],
                 'old_price' => $row['old_price'],
@@ -95,6 +110,8 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
 
             $validRows[] = $row;
             DB::commit();
+
+            ProcessImportProductImagesAndVideos::dispatch($product->id);
         }
 
         return [

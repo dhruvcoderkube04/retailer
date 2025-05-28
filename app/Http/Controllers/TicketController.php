@@ -57,11 +57,6 @@ class TicketController extends Controller
         foreach ($tickets as $ticket) {
             $images = explode(',', $ticket->ref_image);
             $firstImage = $images[0] ?? null;  // splits into array
-            if ($firstImage) {
-                $imageUrl = 'https://techsell.blr1.cdn.digitaloceanspaces.com/tickets/' . $firstImage;
-            } else {
-                $imageUrl = null; // or some placeholder image URL
-            }
 
             $statusClass = match (strtolower($ticket->status)) {
                 'open' => 'badge badge-danger',
@@ -85,8 +80,8 @@ class TicketController extends Controller
                 // 'ticket_id' => '<a href="" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
                 'subject' => e($ticket->subject),
                 'description' => e($ticket->description),
-                'ref_image' => '<img src="' . ($ticket->ref_image
-                    ? Storage::disk('spaces')->url($ticket->ref_image)
+                'ref_image' => '<img src="' . ($firstImage
+                    ? Storage::disk('spaces')->url($firstImage)
                     : asset('assets/media/images/no_image.jpg')) . '" 
                     width="50" 
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';">',
