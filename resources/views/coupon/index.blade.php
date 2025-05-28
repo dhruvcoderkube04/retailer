@@ -90,20 +90,15 @@
                         <!--begin::Card body-->
                         <div class="card-body pt-0">
                             <!--begin::Table-->
-                            <table class="table align-middle table-row-dashed fs-7 id="kt_subscriptions_table">
+                            <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="w-10px pe-2">
-                                            <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                                <input class="form-check-input" type="checkbox" data-kt-check="true" data-kt-check-target="#kt_subscriptions_table .form-check-input" value="1" />
-                                            </div>
-                                        </th>
+                                        <th class="min-w-125px">Actions</th>
                                         <th class="min-w-125px">Name</th>
                                         <th class="min-w-125px">Status</th>
                                         <th class="min-w-125px">Coupon Code</th>
                                         <th class="min-w-125px">Disount Price</th>
                                         <th class="min-w-125px">Created Date</th>
-                                        <th class="text-end min-w-70px">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-600 fw-semibold">
@@ -262,13 +257,12 @@
                 }
             },
             columns: [
-                { data: 'checkbox', orderable: false, searchable: false },
+                { data: 'actions', orderable: false, searchable: false }
                 { data: 'coupon_name' },
                 { data: 'status' },
                 { data: 'coupon_code' },
                 { data: 'discount' },
                 { data: 'created_at' },
-                { data: 'actions', orderable: false, searchable: false }
             ]
         });
 

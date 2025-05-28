@@ -226,7 +226,7 @@ class RetilerController extends Controller
                     </div>
                 </div>';
 
-            if ($item->userDetail->company_logo && Storage::disk('spaces')->exists($item->userDetail->company_logo)) {
+            if (@$item->userDetail->company_logo && Storage::disk('spaces')->exists($item->userDetail->company_logo)) {
                 $imagePath = Storage::disk('spaces')->url($item->userDetail->company_logo);
             } else {
                 $imagePath = asset('/assets/media/avatars/no-profile.png');
@@ -313,8 +313,8 @@ class RetilerController extends Controller
             $category_image = '<div>
                 <img src="' . ($item->category->category_image
                 ? Storage::disk('spaces')->url($item->category->category_image)
-                : asset('assets/media/images/no_image.jpg')) . '" 
-                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';" 
+                : asset('assets/media/images/no_image.jpg')) . '"
+                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
                     style="height: 75px; width: 75px;" />
             </div>';
 
@@ -636,9 +636,9 @@ class RetilerController extends Controller
             $product_detail = '<div class="d-flex align-items-center ms-4">
                 <div class="symbol symbol-50px">
                     <span class="symbol-label">
-                        <img src="' . $imageUrl . '" 
-                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" 
-                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" 
+                        <img src="' . $imageUrl . '"
+                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';"
+                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
                             alt="Product Image">
                     </span>
                 </div>
@@ -748,9 +748,9 @@ class RetilerController extends Controller
             $product_detail = '<div class="d-flex align-items-center ms-4">
                 <div class="symbol symbol-50px">
                     <span class="symbol-label">
-                        <img src="' . $imageUrl . '" 
-                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" 
-                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" 
+                        <img src="' . $imageUrl . '"
+                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';"
+                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
                             alt="Product Image">
                     </span>
                 </div>

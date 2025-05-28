@@ -46,11 +46,11 @@
                                     id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle min-w-100px">Action</th>
                                             <th class="text-center align-middle min-w-50px"></th>
                                             <th class="text-center align-middle min-w-100px">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px">Name</th>
                                             <th class="text-center align-middle min-w-80px">Details</th>
-                                            <th class="text-center align-middle min-w-100px">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
@@ -118,7 +118,14 @@
                 }
             },
             order: [],
-            columns: [{
+            columns: [
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'company_logo',
                     className: 'text-end',
                     orderable: false,
@@ -138,12 +145,6 @@
                     data: 'details',
                     className: 'text-center',
                     orderable: false,
-                },
-                {
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
                 },
             ],
             initComplete: function() {

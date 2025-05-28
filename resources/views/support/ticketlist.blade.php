@@ -117,13 +117,13 @@
                             <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                                        <th class="min-w-125px">Actions</th>
                                         <th class="min-w-125px">Ticket ID</th>
                                         <th class="min-w-125px">Message</th>
                                         <th class="min-w-125px">Description</th>
                                         <th class="min-w-125px">Image Ref</th>
                                         <th class="min-w-125px">Status</th>
                                         <th class="min-w-125px">Created Date</th>
-                                        <th class="text-end min-w-70px">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-600 fw-semibold">
@@ -243,13 +243,13 @@
                 },
                 columns: [
                     // { data: 'checkbox', orderable: false, searchable: false },
+                    { data: 'actions', orderable: false, searchable: false },
                     { data: 'ticket_id' },
                     { data: 'subject' },
                     { data: 'description' },
                     { data: 'ref_image', orderable: false, searchable: false },
                     { data: 'status' },
                     { data: 'created_at' },
-                    { data: 'actions', orderable: false, searchable: false }
                 ]
             });
 

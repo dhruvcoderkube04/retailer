@@ -31,11 +31,11 @@
                             <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_my_categroy_list">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                        <th class="text-center min-w-100px">Action</th>
                                         <th class="text-center min-w-100px">Images</th>
                                         <th class="text-center min-w-175px">Category</th>
                                         <th class="text-center min-w-250px">Sub Category</th>
                                         <th class="text-center min-w-150px">Created</th>
-                                        <th class="text-center min-w-100px">Action</th>
                                     </tr>
                                 </thead>
 
@@ -120,7 +120,14 @@
                 }
             },
             order: [],
-            columns: [{
+            columns: [
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'sub_category_image',
                     className: 'text-center',
                     orderable: false,
@@ -139,13 +146,7 @@
                     data: 'created_at',
                     className: 'text-center',
                     orderable: true,
-                },
-                {
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
+                }
             ],
             initComplete: function() {
                 let searchBox = $('.datatable-search-section input');

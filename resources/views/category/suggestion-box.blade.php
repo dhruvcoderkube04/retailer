@@ -71,11 +71,11 @@
                                         <!--begin::Thead-->
                                         <thead class="border-gray-200 fs-5 fw-semibold bg-lighten">
                                             <tr>
+                                                <th class="min-w-250px px-10">Action</th>
                                                 <th class="min-w-175px ps-9">Category</th>
                                                 <th class="min-w-250px px-0">Sub Category</th>
                                                 <th class="min-w-250px px-0">Status</th>
                                                 <th class="min-w-100px">Created</th>
-                                                <th class="min-w-250px px-0">Action</th>
                                             </tr>
                                         </thead>
                                         <!--end::Thead-->
@@ -84,17 +84,16 @@
                                             @if (count($category_suggestion) > 0)
                                                 @foreach ($category_suggestion as $category)
                                                     <tr class="data-load" data-id="{{$category->id}}">
-                                                        <td class="ps-9">{{ strtoupper($category->category_name)}}</td>
-                                                        <td data-bs-target="license" class="ps-0">{{ strtoupper($category->sub_category_name)}}</td>
-                                                        <td>{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
-                                                        <td>{{$category->created_at}}</td>
-
-                                                        <td>
+                                                        <td class="ps-9">
                                                             <button class="btn btn-icon btn-light-danger w-30px h-30px me-3" id="remove-btn" data-id="{{$category->id}}"   data-bs-toggle="tooltip"  aria-label="Delete">
                                                                 <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span>
                                                                 <span class="path4"></span><span class="path5"></span></i>
                                                             </button>
                                                         </td>
+                                                        <td  class="ps-9">{{ strtoupper($category->category_name)}}</td>
+                                                        <td data-bs-target="license" class="ps-0">{{ strtoupper($category->sub_category_name)}}</td>
+                                                        <td>{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
+                                                        <td>{{$category->created_at}}</td>
                                                     </tr>
                                                 @endforeach
                                             @else

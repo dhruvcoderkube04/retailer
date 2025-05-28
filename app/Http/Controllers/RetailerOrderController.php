@@ -376,87 +376,63 @@ class RetailerOrderController extends Controller
             $i++;
 
             $stageDateField = $stageDateMap[$type];
-            $order_date = '<div>';
+            $order_date = '<div class="row">
+                <div class="col-12 mb-2">
+                    <strong>Order Date:</strong><br>
+                    <span>' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
+                </div>';
+
             if ($type !== 'new') {
-                $order_date .= '<div class="mb-7">
-                    <div class="fw-bold">' . $typeNameMap[$type] . ' At:</div>
-                    <div>' . date('F d, Y, h:i a', strtotime($item->$stageDateField)) . '</div>
+                $order_date .= '
+                <div class="col-12">
+                    <strong>' . $typeNameMap[$type] . ' At:</strong><br>
+                    <span>' . date('F d, Y, h:i a', strtotime($item->$stageDateField)) . '</span>
                 </div>';
             }
-            $order_date .= '<div>
-                    <div class="fw-bold">Order Date:</div>
-                    <div>' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</div>
-                </div>
-            </div>';
+            $order_date .= '</div>';
 
-            $order_detail = '<div>
-            <div class="my-2">
-                <strong>Order Id:</strong> ' . $item->order_id . '
-            </div>
-            <div class="my-2">
-                <strong>Name:</strong> ' . ($item?->order_product_detail?->name ?? '') . '
-            </div>
-            <div class="my-2">
-                <strong>Quantity:</strong> Qty: ' . $item->quantity . ' ' . ($item->size ? '| Size: ' . $item->size : '') . '
-            </div>
-            <div class="my-2">
-                <strong>Amount:</strong> ₹' . $item?->final_amount . '
-            </div>
-            <div class="my-2">
-                <strong>Payment:</strong> ' . strtoupper($item->payment_method) . '
-            </div>
-            <div class="my-2">
-                <strong>Order Status:</strong>
-                <span class="badge badge-' . $typeColorMap[$type] . '">
-                    ' . order_status($item->status) . '
-                </span>
-            </div>
-            <div class="my-2">
-                <strong>Tracking Id:</strong> ' . ($item->tracking_number ?? '') . '
-            </div>
-            <div class="my-2">
-                <strong>API Order Id:</strong> ' . ($item->api_order_id ?? '') . '
-            </div>';
+            $order_detail = '<div class="row">
+                <div class="col-12 mb-1"><strong>Order Id:</strong> ' . $item->order_id . '</div>
+                <div class="col-12 mb-1"><strong>Name:</strong> ' . ($item?->order_product_detail?->name ?? '') . '</div>
+                <div class="col-12 mb-1"><strong>Quantity:</strong> Qty: ' . $item->quantity . ' ' . ($item->size ? '| Size: ' . $item->size : '') . '</div>
+                <div class="col-12 mb-1"><strong>Amount:</strong> ₹' . $item?->final_amount . '</div>
+                <div class="col-12 mb-1"><strong>Payment:</strong> ' . strtoupper($item->payment_method) . '</div>
+                <div class="col-12 mb-1"><strong>Order Status:</strong> <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span></div>
+                <div class="col-12 mb-1"><strong>Tracking Id:</strong> ' . ($item->tracking_number ?? '-') . '</div>
+                <div class="col-12 mb-1"><strong>API Order Id:</strong> ' . ($item->api_order_id ?? '-') . '</div>';
+
             if ($item->status == 'pickup' && $item->shipping_label_url) {
                 $order_detail .= '
-                    <div class="my-2">
-                        <a href="' . $item->shipping_label_url . '" target="_blank">
-                            <i class="fa-solid fa-download"></i> Shipping Label
-                        </a>
-                    </div>
-                    <div class="my-2">
-                        <a href="javascript:void(0)" id="uploadPickupImage" data-order-id="' . $item->id . '">
-                            <i class="fa-solid fa-upload"></i> Upload Pickup Image
-                        </a>
-                    </div>';
+                <div class="col-12 mb-1">
+                    <a href="' . $item->shipping_label_url . '" target="_blank">
+                        <i class="fa-solid fa-download me-1"></i> Shipping Label
+                    </a>
+                </div>
+                <div class="col-12 mb-1">
+                    <a href="javascript:void(0)" id="uploadPickupImage" data-order-id="' . $item->id . '">
+                        <i class="fa-solid fa-upload me-1"></i> Upload Pickup Image
+                    </a>
+                </div>';
             }
             $order_detail .= '</div>';
 
-            $imagePath = explode(',', $item->order_product_detail->images)[0];
-            $media = '<div class="mt-2">
-                    <img src="' . ($imagePath
-                ? Storage::disk('spaces')->url($imagePath)
-                : asset('assets/media/images/no_image.jpg')) . '" 
-                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';" alt="Product Image" style="width: 100px; height: auto; border-radius: 5px;">
-                </div>';
 
-            $customer_detail = '<div class="my-2">
-                <strong>Name:</strong> ' . $item->customer->firstname . ' ' . $item->customer->lastname . '
-            </div>
-            <div class="my-2">
-                <strong>Email Id:</strong> ' . $item->customer->email . '
-            </div>
-            <div class="my-2">
-                <strong>Address:</strong> ' . $item->customer->address . '
-            </div>
-            <div class="my-2">
-                <strong>Pin Code:</strong> ' . $item->customer->pincode . '
-            </div>
-            <div class="my-2">
-                <strong>City:</strong> ' . $item->customer->city . '
-            </div>
-            <div class="my-2">
-                <strong>Mobile no:</strong> ' . $item->customer->phone_number . '
+            $imagePath = explode(',', $item->order_product_detail->images)[0];
+            $media = '<div class="text-center">
+                <img src="' . ($imagePath ? Storage::disk('spaces')->url($imagePath) : asset('assets/media/images/no_image.jpg')) . '"
+                    onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
+                    alt="Product Image"
+                    class="img-fluid rounded" style="max-width: 100px;">
+            </div>';
+
+
+            $customer_detail = '<div class="row">
+                <div class="col-12 mb-1"><strong>Name:</strong> ' . $item->customer->firstname . ' ' . $item->customer->lastname . '</div>
+                <div class="col-12 mb-1"><strong>Email Id:</strong> ' . $item->customer->email . '</div>
+                <div class="col-12 mb-1"><strong>Address:</strong> ' . $item->customer->address . '</div>
+                <div class="col-12 mb-1"><strong>Pin Code:</strong> ' . $item->customer->pincode . '</div>
+                <div class="col-12 mb-1"><strong>City:</strong> ' . $item->customer->city . '</div>
+                <div class="col-12 mb-1"><strong>Mobile no:</strong> ' . $item->customer->phone_number . '</div>
             </div>';
 
             $action = '';
@@ -1254,8 +1230,8 @@ class RetailerOrderController extends Controller
                     'order_detail' => $orderDetailHTML,
                     'media' => "<img src='" . ($imagePath
                         ? Storage::disk('spaces')->url($imagePath)
-                        : asset('assets/media/images/no_image.jpg')) . "' 
-                        onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";' 
+                        : asset('assets/media/images/no_image.jpg')) . "'
+                        onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";'
                         width='100' style='border-radius: 5px;'>",
                     'wholesaler_detail' => $wholesaler ? "
                         <strong>Name:</strong> {$wholesaler->company_name}<br>

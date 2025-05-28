@@ -171,11 +171,11 @@
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center min-w-50px">SR NO</th>
+                                        <th class="text-center min-w-70px">ACTION</th>
                                         <th class="text-center min-w-200px">ORDER DATE</th>
                                         <th class="text-center min-w-300px">ORDER DETAIL</th>
                                         <th class="text-center min-w-150px">MEDIA</th>
                                         <th class="text-center min-w-300px">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-70px">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
@@ -916,6 +916,12 @@
                     orderable: false,
                 },
                 {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'order_date',
                     className: 'text-center',
                     orderable: true,
@@ -935,13 +941,8 @@
                     className: 'text-start',
                     orderable: false,
                 },
-                {
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
             ],
+
             initComplete: function() {
                 let searchBox = $('.datatable-search-section input');
                 let searchLabel = $('.datatable-search-section label');
