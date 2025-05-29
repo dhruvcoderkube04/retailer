@@ -160,14 +160,25 @@
                                         </select>
                                         <span class="invalid-feedback d-block" id="sub_category_error"></span>
                                     </div>
-                                    <div class="mb-10 fv-row">
-                                        <a href="{{ route('retailer.download-stock-sample') }}">Download Sample Product
-                                            File </a>
-                                        <p class="text-danger">(Only accepted .xlsx formate)</p>
-                                    </div>
-                                    <div
-                                        class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
-                                    </div>
+                                </div>
+
+                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                    <label class="form-check form-check-custom form-check-solid">
+                                        <input class="form-check-input" style="border: 1px solid rgb(192, 192, 192)" type="checkbox" name="images_and_video_update"
+                                            id="images_and_video_update" value="1">
+                                        <span class="form-label ms-4 mt-3" for="images_and_video_update">
+                                            Want to update images & videos?
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="mb-10 fv-row">
+                                    <a href="{{ route('retailer.download-stock-sample') }}">Download Sample Product
+                                        File </a>
+                                    <p class="text-danger">(Only accepted .xlsx formate)</p>
+                                </div>
+                                <div
+                                    class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
                                 </div>
 
                                 <div class="text-center">

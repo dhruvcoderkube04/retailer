@@ -2,14 +2,12 @@
 
 namespace App\Imports;
 
-use App\Jobs\ProcessImportProductImagesAndVideos;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Models\RetailerCloneProduct;
 use App\Models\SubCategory;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -27,10 +25,12 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
     ];
 
     protected $subcategoryId;
+    protected $images_and_video_update;
 
-    public function __construct($subcategoryId)
+    public function __construct($subcategoryId, $images_and_video_update)
     {
         $this->subcategoryId = $subcategoryId;
+        $this->images_and_video_update = $images_and_video_update;
     }
 
     public function collection(Collection $rows)
@@ -87,31 +87,32 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
                 ->values()
                 ->toJson();
 
-            $product = RetailerCloneProduct::updateOrCreate([
+            $product = RetailerCloneProduct::firstOrNew([
                 'retailer_id' => $retailer->id,
                 'name' => $row['product_name'],
-            ], [
-                'sku' => $sku,
-                'slug' => $slug,
-                'description' => $row['product_description'] ?? null,
-                'tags' => $tags,
-                'quantity' => $row['quantity'],
-                'new_price' => $row['new_price'],
-                'old_price' => $row['old_price'],
-                'status' => $row['status'],
-                'images' => implode(',', $allImages),
-                'videos' => $row['videos'] ?? null,
-                'category_id' => $sub_category->category_id,
-                'sub_category_id' => $sub_category->id,
-                'meta_title' => $row['meta_title'] ?? null,
-                'meta_description' => $row['meta_description'] ?? null,
-                'meta_keywords' => $row['meta_keywords'] ?? null,
             ]);
+
+            $product->sku = $sku;
+            $product->slug = $slug;
+            $product->description = $row['product_description'] ?? null;
+            $product->tags = $tags;
+            $product->quantity = $row['quantity'];
+            $product->new_price = $row['new_price'];
+            $product->old_price = $row['old_price'];
+            $product->status = $row['status'];
+            $product->category_id = $sub_category->category_id;
+            $product->sub_category_id = $sub_category->id;
+            $product->meta_title = $row['meta_title'] ?? null;
+            $product->meta_description = $row['meta_description'] ?? null;
+            $product->meta_keywords = $row['meta_keywords'] ?? null;
+            if ($this->images_and_video_update || !$product->exists) {
+                $product->images = implode(',', $allImages);
+                $product->videos = $row['videos'] ?? null;
+            }
+            $product->save();
 
             $validRows[] = $row;
             DB::commit();
-
-            ProcessImportProductImagesAndVideos::dispatch($product->id);
         }
 
         return [

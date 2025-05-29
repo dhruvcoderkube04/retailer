@@ -1455,9 +1455,10 @@ class RetilerController extends Controller
 
         $file = $request->file('product_file');
         $subCategoryId = $request->input('sub_category');
+        $images_and_video_update = $request->images_and_video_update ? true : false;
 
         try {
-            $import = new ProductImport($subCategoryId);
+            $import = new ProductImport($subCategoryId, $images_and_video_update);
 
             // Check headers (column names)
             $excelData = Excel::toArray($import, $file);
