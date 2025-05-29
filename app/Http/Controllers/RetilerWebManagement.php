@@ -8,6 +8,9 @@ use App\Models\Theme;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class RetilerWebManagement extends Controller
@@ -23,38 +26,47 @@ class RetilerWebManagement extends Controller
     public function webSettingSetup(Request $request)
     {
         $id = Auth::user()->id;
-        $reatiler_details = User::where('id',$id)->first();
+        $retailerUser = User::with('userDetail')->find($id);
 
-        $company_name = !empty(@$reatiler_details->userDetail->company_name) ? @$reatiler_details->userDetail->company_name : '';
-        $clean_name = strtolower(trim(str_replace(' ', '', $company_name))); // make lowercase and remove spaces
-
+        $company_name = $retailerUser->userDetail->company_name ?? '';
+        $clean_name = strtolower(trim(str_replace(' ', '', $company_name)));
         $product_list_key = Str::uuid();
-        $retailer_subdomain = 'http://trendmart-retailer-website-v2.vercel.app/';
+        $theme = Theme::whereIn('theme_type', ['retailer', 'both'])->where('status', 1)->first();
 
-        $theme = Theme::whereIn('theme_type', ['retailer', 'both'])
-            ->where('status', 1)
-            ->first();
+        if (empty($company_name)) {
+            return back()->with('error', 'Please update your Company Name first.');
+        }
 
-        if (!empty($company_name))
-        {
-            RetailerWeb::create([
-                'retailer_id'=> $id,
-                'store_name'=>$company_name,
-                'theme'=>$theme->id ?? '',
-                'subdomain'=> $retailer_subdomain,
-                'product_listing_key'=>$product_list_key,
-                // 'is_active'=> $request->status == null ? 0:1,
-                'is_active'=> 1,
-                'settings'=>'',
+        DB::beginTransaction();
+        try {
+            $store = RetailerWeb::create([
+                'retailer_id'         => $id,
+                'store_name'          => $company_name,
+                'theme'               => $theme->id ?? '',
+                'subdomain'           => $clean_name,
+                'product_listing_key' => $product_list_key,
+                'is_active'           => 0,
+                'settings'            => '',
             ]);
 
-            return back()->with('success', 'Congratulation Your Website On Internet Shortly !');
-        }
-        else
-        {
-            return back()->with('error', 'Update Your Company Name !');
-        }
+            // Send email to admin
+            Mail::send('emails.store-request', [
+                'user' => $retailerUser,
+                'subdomain' => $clean_name
+            ], function ($message) {
+                $message->to('info@techtrendmart.in')
+                        ->subject('Retailer Store Creation Request');
+            });
 
+            DB::commit();
+
+            return back()->with('success', 'Congratulations! Your website request has been submitted.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating store: ' . $e->getMessage());
+
+            return back()->with('error', 'Something went wrong. Please try again later.');
+        }
     }
 
     public function chnageStatus(Request $request)

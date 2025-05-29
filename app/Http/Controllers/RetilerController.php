@@ -737,6 +737,13 @@ class RetilerController extends Controller
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </a>
+                <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
+                    class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                    <i class="ki-duotone ki-eye fs-4">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </a>
             </div>';
 
             $image = explode(',', $product->images)[0] ?? '';
@@ -957,6 +964,36 @@ class RetilerController extends Controller
                 ->get();
 
             return view('product.edit-product-view', compact('product_detail', 'sub_category_list'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error in retailerEditProduct: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong!');
+        }
+    }
+
+    // product details page
+    public function retailerDetailsProduct(Request $request, $product_id)
+    {
+         try {
+            $product_id = decryptId($product_id);
+            $retailer = Auth::user();
+
+            $product_detail = RetailerCloneProduct::with('productVariations')
+                ->where('retailer_id', $retailer->id)
+                ->where('id', $product_id)
+                ->first();
+
+            // Get category_ids linked to this retailer
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer->id)
+                ->pluck('sub_category_id');
+
+            // Fetch only categories which are active and assigned to this retailer
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
+                ->get();
+
+            return view('product.product-view-page', compact('product_detail', 'sub_category_list'));
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error in retailerEditProduct: ' . $e->getMessage());

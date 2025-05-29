@@ -52,7 +52,7 @@
             <!--begin::Navbar-->
             <div class="app-navbar flex-shrink-0">
 
-                @if (isset($retailer))
+                @if (isset($retailer) && $retailer->is_active ==1)
                     <div class="app-navbar-item ms-1 ms-md-4">
                         <a href="{{ $retailer->subdomain }}" target="_blank"
                             class="btn btn-light-success btn-active-light-light">

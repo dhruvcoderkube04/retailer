@@ -76,6 +76,7 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/retailer-add-product', [RetilerController::class, 'retailerAddProduct'])->name('retailer.add.product'); // product add view
     Route::post('/retailer-store-product', [RetilerController::class, 'retailerPostProduct'])->name('retailer.post.product'); // product store
     Route::get('/retailer-edit-product/{product_id}', [RetilerController::class, 'retailerEditProduct'])->name('retailer.edit.product'); // product edit view // encrypted
+    Route::get('/retailer-details-product/{product_id}', [RetilerController::class, 'retailerDetailsProduct'])->name('retailer.details.product'); // product edit view // encrypted
     Route::post('/retailer-update-product/{product_id}', [RetilerController::class, 'retailerUpdateProduct'])->name('retailer.update.products'); // product update // encrypted
 
     Route::get('/get-sub-category-variations', [RetilerController::class, 'getSubCategoryVariations'])->name('retailer.products.get-sub-category-variations'); // ajax

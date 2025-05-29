@@ -42,7 +42,7 @@
                                     <p class="fs-6 fw-semibold text-gray-600 py-2">Set up your online store effortlessly. Customize your website, showcase products, and start selling in no time.</p>
 
                                     <button type="submit" class="btn btn-success btn-active-light-light" {{!empty($reatiler) ? 'disabled' : '' }}>Create Your Website</button>
-                                    @if (!empty($reatiler))
+                                    @if (!empty($reatiler) && $reatiler->is_active ==1)
                                         <a href="{{ $reatiler->subdomain }}" target="_blank" class="btn btn-primary btn-active-light-light" >View Your Site</a>
                                     @endif
                                 </div>
