@@ -172,28 +172,17 @@
                             <table class="table align-middle table-row-dashed fs-7" id="kt_retailer_margin_details">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                        <th class="text-center min-w-100px">Actions</th>
                                         <th class="text-center min-w-200px">Category</th>
                                         <th class="text-center min-w-200px">Payment Method</th>
                                         <th class="text-center min-w-70px">Margin
                                             <br> <span class="text-capitalize fs-9">(In Rs.)</span>
                                         </th>
-                                        <th class="text-center min-w-100px">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
                                     @foreach ($addedMarginDetails as $marginDetail)
                                         <tr>
-                                            <td class="text-center" data-order="0">
-                                                {{ $marginDetail->category->category_name }}
-                                            </td>
-                                            <td class="text-center pe-0" data-order="1">
-                                                {{ $marginDetail->payment_method }}
-                                            </td>
-                                            <td class="text-center pe-0" data-order="2">
-                                                <div class="badge badge-light-success">
-                                                    {{ $marginDetail->margin }}
-                                                </div>
-                                            </td>
                                             <td class="text-center pe-0">
                                                 <button
                                                     class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-margin-btn"
@@ -220,6 +209,17 @@
                                                         <span class="path5"></span>
                                                     </i>
                                                 </button>
+                                            </td>
+                                            <td class="text-center" data-order="0">
+                                                {{ $marginDetail->category->category_name }}
+                                            </td>
+                                            <td class="text-center pe-0" data-order="1">
+                                                {{ $marginDetail->payment_method }}
+                                            </td>
+                                            <td class="text-center pe-0" data-order="2">
+                                                <div class="badge badge-light-success">
+                                                    {{ $marginDetail->margin }}
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach

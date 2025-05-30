@@ -46,7 +46,8 @@
                                     id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle min-w-50px"></th>
+                                            <th class="text-center align-middle min-w-50px">Action</th>
+                                            <th class="text-center align-middle min-w-50px">Media</th>
                                             <th class="text-center align-middle min-w-100px">Category</th>
                                             <th class="text-center align-middle min-w-100px">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px">Payment Method</th>
@@ -90,7 +91,63 @@
             </div>
         </div>
     @endif
+    <div class="modal fade" id="kt_modal_edit_margin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Update Margin</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1"></i>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                    <form id="marginupdateform" class="form" method="POST" action="{{ route('retailer.update-category-margin') }}">
+                        @csrf
+                        <input type="hidden" id="edit_wholesaler_id" name="wholesaler_id">
+                        <input type="hidden" id="edit_margin_id" name="margin_id">
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="edit_category_id" name="category_id" data-control="select2">
+                                <option value="">Select Category</option>
+                                {{-- @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                @endforeach --}}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Margin</label>
+                            <input type="number" min="1" class="form-control" id="edit_margin_value" name="margin">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <div class="form-check mt-1">
+                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_cod" name="payment_method[]" value="COD">
+                                <label class="form-check-label mt-1" for="edit_payment_cod">COD</label>
+                            </div>
+                            <div class="form-check mt-1">
+                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_prepaid" name="payment_method[]" value="Prepaid">
+                                <label class="form-check-label mt-1" for="edit_payment_prepaid">Prepaid</label>
+                            </div>
+                            <div class="form-check mt-1">
+                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_semi" name="payment_method[]" value="Semi">
+                                <label class="form-check-label mt-1" for="edit_payment_semi">Semi</label>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Update Margin</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
 
 @section('script')
     <script>
@@ -120,9 +177,16 @@
                 }
             },
             order: [],
-            columns: [{
+            columns: [
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'category_image',
-                    className: 'text-end',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false
                 },
@@ -177,5 +241,141 @@
             }
         });
         //<------------- END : server-side transaction datatable ------------->
+
+        // DELETE margin with Swal confirmation
+        $(document).on('click', '.delete-margin-btn', function () {
+            const url = $(this).data('url');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            _method: 'DELETE'
+                        },
+                        success: function (response) {
+                            Swal.fire('Deleted!', 'Margin has been removed.', 'success').then(() => {
+                                location.reload(); // Reload page or use table.row(...).remove().draw() if dynamic
+                            });
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'Something went wrong.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-margin-btn', function () {
+            const wholesalerId = $(this).data('wholesaler-id');
+            const marginId = $(this).data('margin-id');
+
+            $.ajax({
+                url: "{{ route('retailer.edit-category-margin') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    wholesaler_id: wholesalerId,
+                    margin_id: marginId
+                },
+                success: function (response) {
+
+                    if (response.success) {
+
+                        const data = response.data;
+
+                        const categories = response.categories;
+
+                        let $select = $('#edit_category_id');
+
+                        $select.empty().append('<option value="">Select Category</option>');
+
+                        categories.forEach(category => {
+
+                            let selected = category.id === data.category_id ? 'selected' : '';
+
+                            $select.append(`<option value="${category.id}" ${selected}>${category.category_name}</option>`);
+
+                        });
+
+                        $('#edit_margin_value').val(data.margin);
+
+                        $('#edit_margin_id').val(data.id);
+
+                        $('#edit_wholesaler_id').val(data.wholesaler_id);
+
+                        let paymentMethods = data.payment_method ?? [];
+
+                        ['COD', 'Prepaid', 'Semi'].forEach(method => {
+
+                            $('#edit_payment_' + method.toLowerCase()).prop('checked', paymentMethods.includes(method));
+
+                        });
+
+                        $('#kt_modal_edit_margin').modal('show');
+
+                    }
+
+                }
+
+            });
+        });
+
+        $('#marginupdateform').on('submit', function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            $.ajax({
+                url: "{{ route('retailer.update-category-margin') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Margin Update successfully!",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            // form reset
+                            document.getElementById('marginupdateform').reset();
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Something went wrong!",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorMsg = "";
+                    $.each(errors, function(key, value) {
+                        errorMsg += value[0] + "\n";
+                    });
+
+                    Swal.fire({
+                        title: "Validation Error",
+                        text: errorMsg,
+                        icon: "warning",
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+        });
     </script>
 @endsection

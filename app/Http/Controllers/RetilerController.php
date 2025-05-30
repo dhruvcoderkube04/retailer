@@ -255,7 +255,6 @@ class RetilerController extends Controller
     public function subscribedCategoryIndex()
     {
         $isAllWholesalerVisibleCheck = Auth::user()->is_all_wholesaler_visible;
-
         return view('subscribed-category.index', ['is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck]);
     }
 
@@ -309,6 +308,41 @@ class RetilerController extends Controller
         $i = $page;
         foreach ($subscribedCategories as $key => $item) {
             $i++;
+           $action = '
+            <div class="text-center d-flex justify-content-center align-items-center gap-2">
+                <button
+                    class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-margin-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#kt_modal_edit_ticket"
+                    data-wholesaler-id="' . $item->wholesaler_id . '"
+                    data-margin-id="' . $item->id . '"
+                    title="Edit"
+                >
+                    <i class="ki-duotone ki-pencil">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-margin-btn"
+                    data-url="' . route('retailer.remove-category-margin', [
+                        'wholesaler_id' => $item->wholesaler_id,
+                        'margin_id' => $item->id
+                    ]) . '"
+                    title="Delete"
+                >
+                    <i class="ki-duotone ki-trash">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                        <span class="path4"></span>
+                        <span class="path5"></span>
+                    </i>
+                </button>
+            </div>';
+
 
             $category_image = '<div>
                 <img src="' . ($item->category->category_image
@@ -323,6 +357,7 @@ class RetilerController extends Controller
                         </div>';
 
             $data[] = array(
+                "action"=>  $action,
                 "category_image" => $category_image,
                 "category_name" => $item->category->category_name,
                 "wholesaler_name" => $item->wholesaler->userDetail->company_name,
