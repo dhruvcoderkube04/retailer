@@ -356,28 +356,34 @@
                                     <h5 class="fw-bold text-gray-800 mb-3">
                                         <i class="bi bi-geo-alt text-primary me-2 fs-4"></i> Select Pickup Location
                                     </h5>
-                                    <div class="card shadow-sm border-0">
+                                    <div class="card shadow-sm bder-0">
                                         <div class="card-body p-3">
-                                            {{-- <label class="form-label fw-semibold text-gray-700">Choose a location:</label> --}}
-                                            <select name="pickup_address_id" class="form-select form-select-lg"
-                                                id="pickup_address_id" data-control="select2">
-                                                <option value="" disabled selected>-- Select Pickup Location --
-                                                </option>
-                                                @foreach ($pickupAddress as $address)
-                                                    <option value="{{ $address->id }}"
-                                                        data-pincode="{{ $address->pincode }}"
-                                                        data-warehouse-id="{{ $address->warehouse_id }}">
-                                                        📍 {{ $address->first_name }} {{ $address->last_name }} -
-                                                        {{ $address->address }}, {{ $address->state }},
-                                                        {{ $address->city }} -
-                                                        {{ $address->pincode }}</option>
-                                                @endforeach
-                                            </select>
-                                            <span class="text-danger mt-5 pickup-address-error-section"
-                                                style="display: none;">
-                                                <i class="bi bi-exclamation-triangle"></i>
-                                                <span class="pickup-address-error"></span>
-                                            </span>
+                                            @if ($pickupAddress->isNotEmpty())
+                                                <select name="pickup_address_id" class="form-select form-select-lg"
+                                                    id="pickup_address_id" data-control="select2">
+                                                    <option value="" disabled selected>-- Select Pickup Location --</option>
+                                                    @foreach ($pickupAddress as $address)
+                                                        <option value="{{ $address->id }}"
+                                                            data-pincode="{{ $address->pincode }}"
+                                                            data-warehouse-id="{{ $address->warehouse_id }}">
+                                                            📍 {{ $address->first_name }} {{ $address->last_name }} -
+                                                            {{ $address->address }}, {{ $address->state }},
+                                                            {{ $address->city }} - {{ $address->pincode }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <span class="text-danger mt-5 pickup-address-error-section" style="display: none;">
+                                                    <i class="bi bi-exclamation-triangle"></i>
+                                                    <span class="pickup-address-error"></span>
+                                                </span>
+                                            @else
+                                                <div class="text-center">
+                                                    <p class="text-danger mb-2">No Pickup Address Found</p>
+                                                    <a href="{{ route('retailer.pickaddress.list') }}" class="btn btn-sm btn-primary">
+                                                        Add Pickup Address
+                                                    </a>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -391,7 +397,7 @@
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            <select name="product_weight" class="form-select form-select-lg"
+                                            {{-- <select name="product_weight" class="form-select form-select-lg"
                                                 id="product_weight" data-control="select2">
                                                 <option value="" disabled selected>-- Select Product Weight --
                                                 </option>
@@ -400,7 +406,14 @@
                                                 <option value="1.5">1.5KG</option> <!-- 1.5KG -->
                                                 <option value="2">2KG</option> <!-- 2KG -->
                                                 <option value="2.5">2.5KG</option> <!-- 2.5KG -->
+                                            </select> --}}
+                                            <select name="product_weight" class="form-select form-select-lg" id="product_weight" data-control="select2">
+                                                <option value="" disabled selected>-- Select Product Weight --</option>
+                                                @for ($i = 0.5; $i <= 100; $i += 0.5)
+                                                    <option value="{{ $i }}">{{ rtrim(rtrim(number_format($i, 1), '0'), '.') }}{{ $i < 1 ? ' KG' : ' KG' }}</option>
+                                                @endfor
                                             </select>
+
                                             {{-- <input type="number" class="form-control" name="product_weight"
                                                 id="product_weight" min="1" placeholder="Enter weight in grams"> --}}
 
@@ -445,7 +458,7 @@
                             </div>
 
                             {{-- RTO Address --}}
-                            <div class="col-md-6">
+                            {{-- <div class="col-md-6">
                                 <div class="mt-5 mx-7" id="rtoAddressContainer" style="display: none;">
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
@@ -458,7 +471,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="row mt-12">
@@ -1105,6 +1118,7 @@
                 });
                 $('#courierDetailsBody').html(tableBody);
             }
+
 
             // Function to populate the courier modal table  for lorrigo
             function populateModalTableLorrigo(shipmentRates) {

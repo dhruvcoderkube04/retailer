@@ -44,7 +44,6 @@
                 <!--begin::Menu-->
                 <div class="menu menu-rounded menu-column menu-lg-row my-5 my-lg-0 align-items-stretch fw-semibold px-2 px-lg-0"
                     id="kt_app_header_menu" data-kt-menu="true">
-
                 </div>
                 <!--end::Menu-->
             </div>
@@ -153,7 +152,7 @@
                     </div>
                     <a href="{{ route('retailer.profile') }}">
                         <div class="mt-2 ms-2 fs-4 fw-semibold text-dark d-none d-lg-block">
-                            {{ Auth::user()->firstname }} {{ Auth::user()->lastname }}
+                            {{ Auth::user()->userDetail->company_name }}
                         </div>
                     </a>
 
@@ -170,7 +169,7 @@
                                 <!--end::Avatar-->
                                 <!--begin::Username-->
                                 <div class="d-flex flex-column">
-                                    <div class="fw-bold d-flex align-items-center fs-5">{{ Auth::user()->firstname }}
+                                    <div class="fw-bold d-flex align-items-center fs-5"> {{ Auth::user()->userDetail->company_name }}
                                         <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2"></span>
                                     </div>
                                     <a href="#"
