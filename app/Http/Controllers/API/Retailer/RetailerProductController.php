@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Retailer;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RetailerOrderMail;
 use App\Models\Category;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
@@ -26,6 +27,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class RetailerProductController extends Controller
 {
@@ -669,7 +671,7 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'API Key is required.'], 401);
         }
 
-        $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
+        $retailer = RetailerWebManagement::with('retailer')->where('product_listing_key', $apiKey)->first();
         if (!$retailer) {
             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
         }
@@ -690,6 +692,7 @@ class RetailerProductController extends Controller
 
             $orderItems = [];
             $orderIDs = [];
+            $orderItemsForMail = [];
 
             foreach ($request->products as $product) {
                 $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
@@ -810,11 +813,32 @@ class RetailerProductController extends Controller
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
+
+                $orderItemsForMail[] = [
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'phone_number' => $request->phone_number,
+                    'email' => $request->email ?? null,
+                    'address' => $request->address,
+                    'state' => $request->state,
+                    'city' => $request->city,
+                    'pincode' => $request->pincode,
+                    'order_id' => $orderID,
+                    'product_name' => $orderProductDetails->name,
+                    'product_image' => $orderProductDetails->images,
+                    'quantity' => $quantity,
+                    'final_amount' => $product['final_amount'],
+                    'payment_method' => $request->payment_method,
+                ];
             }
 
             CustomerOrders::insert($orderItems);
 
             DB::commit();
+
+            if (!empty($retailer->retailer->email)) {
+                Mail::to($retailer->retailer->email)->send(new RetailerOrderMail($orderItemsForMail, $retailer->retailer));
+            }
 
             return response()->json([
                 'success' => true,
