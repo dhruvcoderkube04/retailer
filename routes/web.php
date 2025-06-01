@@ -70,6 +70,10 @@ Route::middleware(['retailer'])->group(function () {
 
     //<-------------------- START : retailer product -------------------->
     Route::get('/retailer-product', [RetilerController::class, 'retailerProduct'])->name('retailer.product'); // product list view
+
+    Route::get('/my-product', [RetilerController::class, 'myProduct'])->name('retailer.my.product'); // product list view
+    Route::get('/my-wholesaler-product', [RetilerController::class, 'myWholesalerProduct'])->name('retailer.my.wholesaler.product'); // product list view
+
     Route::post('/wholesalers-product/fetch-record', [RetilerController::class, 'fetchRecordWholesalersProduct'])->name('retailer.wholesalers-product.fetch-record'); // AJAX : datatable - wholesaler's product
     Route::post('/retailer-clone-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneProduct'])->name('retailer.retailer-clone-product.fetch-record'); // AJAX : datatable - retailer's clone/own product
 

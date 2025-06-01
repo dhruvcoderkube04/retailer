@@ -1831,4 +1831,49 @@ class RetilerController extends Controller
         return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
     }
     //<----------------------- END : Customer ---------------------->
+
+    public function myProduct()
+    {
+        try {
+            $retailer = Auth::user()->id;
+            // sub_category_list
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
+                ->pluck('sub_category_id');
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
+                ->get();
+
+            return view('product.my-product', [
+                'sub_category_list' => $sub_category_list
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in retailerProduct: ' . $e->getMessage());
+            session()->flash('error', 'Something went wrong');
+            return redirect()->back()->with('error', 'An error occurred. Please try again.');
+        }
+    }
+
+    public function myWholesalerProduct()
+    {
+        try {
+            $retailer = Auth::user()->id;
+
+            // sub_category_list
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
+                ->pluck('sub_category_id');
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
+                ->get();
+
+            return view('product.my-wholesaler-product', [
+                'sub_category_list' => $sub_category_list
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in retailerProduct: ' . $e->getMessage());
+            session()->flash('error', 'Something went wrong');
+            return redirect()->back()->with('error', 'An error occurred. Please try again.');
+        }
+    }
 }

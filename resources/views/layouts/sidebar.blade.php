@@ -174,6 +174,55 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product','retailer-edit-product/*','retailer-details-product/*']) ? 'show' : '' }}">
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                             <span class="menu-icon">
+                                <i class="ki-duotone ki-cube-2 fs-1">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Product</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is('my-product') ? 'active' : '' }}"
+                                    href="{{ route('retailer.my.product') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">My Product</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is('my-wholesaler-product') ? 'active' : '' }}"
+                                    href="{{ route('retailer.my.wholesaler.product') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Wholesaer Product</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
                     {{-- <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link {{request()->is('place-order') ? 'active':''}}" href="{{route('retailer.place-order-view')}}">
