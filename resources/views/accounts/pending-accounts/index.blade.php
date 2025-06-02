@@ -24,24 +24,6 @@
                 </div>
             </div>
 
-            @php
-                $total_credit = 0;
-                $total_debit = 0;
-                $total_income = 0;
-            @endphp
-            @foreach ($transactions as $transaction)
-                @php
-                    if ($transaction->final_transaction_amount > 0) {
-                        $total_credit += $transaction->final_transaction_amount;
-                    } elseif ($transaction->final_transaction_amount < 0) {
-                        $total_debit += $transaction->final_transaction_amount;
-                    }
-                    $total_income += $transaction->final_transaction_amount;
-                @endphp
-            @endforeach
-            @php
-            @endphp
-
             <div id="kt_app_content" class="app-content flex-column-fluid">
                 <div id="kt_app_content_container" class="app-container container-xxl">
 
@@ -107,7 +89,7 @@
                                                     <span class="path2"></span>
                                                 </i>
                                                 <div class="fs-4 fw-bold" id="total_credit_section">
-                                                    <span class="fs-7">₹ </span>{{ $total_credit }}
+                                                    <span class="fs-7">₹ </span>0
                                                 </div>
                                             </div>
                                             <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
@@ -122,7 +104,7 @@
                                                     <span class="path2"></span>
                                                 </i>
                                                 <div class="fs-4 fw-bold" id="total_debit_section">
-                                                    <span class="fs-7">₹ </span>{{ $total_debit }}
+                                                    <span class="fs-7">₹ </span>0
                                                 </div>
                                             </div>
                                             <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
@@ -133,24 +115,8 @@
                                             class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
                                             <div class="d-flex align-items-center justify-content-center mb-1"
                                                 id="total_income_section">
-                                                @if ($total_income > 0)
-                                                    <i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                @elseif ($total_income < 0)
-                                                    <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                @else
-                                                    <i class="ki-duotone ki-information fs-4 text-muted me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                @endif
                                                 <div class="fs-4 fw-bold">
-                                                    <span class="fs-7">₹ </span>{{ $total_income }}
+                                                    <span class="fs-7">₹ </span>0
                                                 </div>
                                             </div>
                                             <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
@@ -350,6 +316,30 @@
                     d.columns = d.columns; // Add columns data
                 },
                 dataSrc: function(json) {
+                    $('#total_credit_section').html('<span class="fs-7">₹ </span>' + json.totals.total_credit);
+                    $('#total_debit_section').html('<span class="fs-7">₹ </span>' + json.totals.total_debit);
+
+                    let icon = '';
+                    let income = parseFloat(json.totals.total_income);
+
+                    if (income > 0) {
+                        icon = `<i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
+                                    <span class="path1"></span><span class="path2"></span>
+                                </i>`;
+                    } else if (income < 0) {
+                        icon = `<i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
+                                    <span class="path1"></span><span class="path2"></span>
+                                </i>`;
+                    } else {
+                        icon = `<i class="ki-duotone ki-information fs-4 text-muted me-2">
+                                    <span class="path1"></span><span class="path2"></span>
+                                </i>`;
+                    }
+
+                    $('#total_income_section').html(
+                        icon + `<div class="fs-4 fw-bold"><span class="fs-7">₹ </span>${income}</div>`
+                    );
+
                     return json.data;
                 }
             },

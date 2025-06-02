@@ -79,8 +79,19 @@ class RetailerAccountTransactionController extends Controller
 
         $data = [];
         $i = $page;
+        $total_credit = 0;
+        $total_debit = 0;
+        $total_income = 0;
         foreach ($transactions as $item) {
             $i++;
+
+            if ($item->final_transaction_amount > 0) {
+                $total_credit += $item->final_transaction_amount;
+            }
+            if ($item->final_transaction_amount < 0) {
+                $total_debit += $item->final_transaction_amount;
+            }
+            $total_income += $item->final_transaction_amount;
 
             $transaction_type = '';
             if ($item->final_transaction_amount > 0) {
@@ -137,7 +148,17 @@ class RetailerAccountTransactionController extends Controller
                 "info" => $info
             );
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+        return response()->json([
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $queryTotal,
+            "recordsFiltered" => $cntFilter->count(),
+            'data' => $data,
+            "totals" => [
+                "total_credit" => $total_credit,
+                "total_debit" => $total_debit,
+                "total_income" => $total_income,
+            ]
+        ]);
     }
 
     // index - pending account transactions
@@ -204,8 +225,19 @@ class RetailerAccountTransactionController extends Controller
 
         $data = [];
         $i = $page;
+        $total_credit = 0;
+        $total_debit = 0;
+        $total_income = 0;
         foreach ($transactions as $item) {
             $i++;
+
+            if ($item->final_transaction_amount > 0) {
+                $total_credit += $item->final_transaction_amount;
+            }
+            if ($item->final_transaction_amount < 0) {
+                $total_debit += $item->final_transaction_amount;
+            }
+            $total_income += $item->final_transaction_amount;
 
             $transaction_type = '';
             if ($item->final_transaction_amount > 0) {
@@ -262,7 +294,17 @@ class RetailerAccountTransactionController extends Controller
                 "info" => $info
             );
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+        return response()->json([
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $queryTotal,
+            "recordsFiltered" => $cntFilter->count(),
+            'data' => $data,
+            "totals" => [
+                "total_credit" => $total_credit,
+                "total_debit" => $total_debit,
+                "total_income" => $total_income,
+            ]
+        ]);
     }
 
     // AJAX - transaction info

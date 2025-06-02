@@ -403,7 +403,12 @@ class RetailerProductController extends Controller
             $maxPrice        = $request->max_price;
 
             $products = $allProducts->flatMap(function ($item) use (
-                $categoryName, $subCategoryName, $color, $size, $minPrice, $maxPrice
+                $categoryName,
+                $subCategoryName,
+                $color,
+                $size,
+                $minPrice,
+                $maxPrice
             ) {
                 if ($item instanceof RetailerProducts) {
                     if (!$item->wholesaler || !$item->wholesaler->products) {
@@ -411,7 +416,13 @@ class RetailerProductController extends Controller
                     }
 
                     return $item->wholesaler->products->filter(function ($product) use (
-                        $item, $categoryName, $subCategoryName, $color, $size, $minPrice, $maxPrice
+                        $item,
+                        $categoryName,
+                        $subCategoryName,
+                        $color,
+                        $size,
+                        $minPrice,
+                        $maxPrice
                     ) {
                         $finalPrice = $product->new_price + $item->margin;
 
@@ -543,13 +554,13 @@ class RetailerProductController extends Controller
     public function searchProducts(Request $request)
     {
         try {
-            // Step 1: Validate API Key
+            // validate API key
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
                 return response()->json(['error' => 'API Key is required.'], 401);
             }
 
-            // Step 2: Validate Retailer
+            // validate retailer
             $retailer = RetailerWebManagement::where('product_listing_key', $apiKey)->first();
             if (!$retailer) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
@@ -563,72 +574,40 @@ class RetailerProductController extends Controller
 
             $retailerProducts = collect();
             if ($retailerUser->is_all_wholesaler_visible == 1) {
-                $retailerProducts = RetailerProducts::with(['wholesaler.products'])
-                    ->where('retailer_id', $retailerId)
+                $pairs = RetailerProducts::where('retailer_id', $retailerId)
+                    ->select('wholesaler_id', 'category_id')
                     ->get();
 
-                $retailerProducts = $retailerProducts->map(function ($retailerProduct) {
-                    if ($retailerProduct->wholesaler && $retailerProduct->wholesaler->products) {
-                        $filtered = $retailerProduct->wholesaler->products->where('category_id', $retailerProduct->category_id);
-                        $retailerProduct->wholesaler->setRelation('products', $filtered);
-                    }
-                    return $retailerProduct;
-                });
-            }
-
-            $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailerId)->get();
-            $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
-
-            if ($request->has('product_id')) {
-                $productId = $request->product_id;
-                $allProducts = $allProducts->filter(fn($item) => $item->id == $productId);
-            }
-
-            $searchName = $request->search;
-
-            $products = $allProducts->flatMap(function ($item) use ($searchName) {
-                if ($item instanceof RetailerProducts) {
-                    if (!$item->wholesaler || !$item->wholesaler->products) {
-                        return [];
-                    }
-
-                    return $item->wholesaler->products->filter(function ($product) use ($searchName) {
-                        if ($searchName && stripos($product->name, $searchName) === false) {
-                            return false;
+                $sqlRetailerProducts = Product::with('wholesaler')
+                    ->where(function ($query) use ($pairs) {
+                        foreach ($pairs as $pair) {
+                            $query->orWhere(function ($q) use ($pair) {
+                                $q->where('wholesaler_id', $pair->wholesaler_id)
+                                    ->where('category_id', $pair->category_id);
+                            });
                         }
-                        return true;
-                    })->map(function ($product) use ($item) {
-                        return $this->formatProductFromRetailerProduct($product, $item);
                     });
 
-                } else {
-                    // RetailerCloneProduct
-                    if ($searchName && stripos($item->product_name, $searchName) === false) {
-                        return [];
-                    }
-
-                    return [$this->formatProductFromClone($item)];
+                if ($request->search) {
+                    $sqlRetailerProducts->where('name', 'like', '%' . $request->search . '%');
                 }
-            })->values();
 
-            // Step 7: Extract unique categories
+                $retailerProducts = $sqlRetailerProducts->where('status', 'active')->get();
+            }
+
+            $sqlRetailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailerId);
+            if ($request->search) {
+                $sqlRetailerCloneProducts->where('name', 'like', '%' . $request->search . '%');
+            }
+            $retailerCloneProducts = $sqlRetailerCloneProducts->where('status', 'active')->get();
+
+            $products = $retailerProducts->concat($retailerCloneProducts);
+
+            // extract unique categories
             $categoryIds = $products->pluck('category_id')->filter()->unique();
             $categories = Category::whereIn('id', $categoryIds)->pluck('category_name')->toArray();
 
-            // Step 8: Handle single product response
-            if ($request->has('product_id')) {
-                $single = $products->first();
-                if (!$single) {
-                    return response()->json(['error' => 'Product not found.'], 404);
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'product' => $single,
-                ]);
-            }
-
-            // Step 9: Paginate
+            // paginate
             $perPage = 12;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
             $productsCollection = new Collection($products);
@@ -636,10 +615,10 @@ class RetailerProductController extends Controller
             $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
             $paginatedProducts->setPath(url()->current());
 
-            // Image processing
+            // image processing
             $items = $paginatedProducts->items();
             foreach ($items as &$product) {
-                $product_image = explode(',', $product['product_images'] ?? '');
+                $product_image = explode(',', $product['images'] ?? '');
                 $product_image_array = [];
 
                 foreach ($product_image as $image) {
@@ -648,8 +627,8 @@ class RetailerProductController extends Controller
                     }
                 }
 
-                $product['product_images'] = implode(',', $product_image_array);
-                $product['product_video'] = $product['product_video'] ? Storage::disk('spaces')->url($product['product_video']) : '';
+                $product['images'] = implode(',', $product_image_array);
+                $product['videos'] = $product['videos'] ? Storage::disk('spaces')->url($product['videos']) : '';
             }
             $paginatedProducts->setCollection(collect($items));
 
