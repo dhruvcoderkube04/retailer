@@ -120,7 +120,6 @@ class RetailerAuthController extends Controller
         }
     }
 
-
     public function forgetPassword()
     {
         // forget password
@@ -131,6 +130,10 @@ class RetailerAuthController extends Controller
         $request->validate(['email' => 'required|email']);
 
         $user = User::where('email', $request->email)->where('user_type',3)->first();
+
+        if ($user->is_delete == 1) {
+            return back()->with('error', 'You Have deleted Your Account. Please contact our support team.');
+        }
 
         if (!$user) {
             return back()->with('error', 'This email is not registered with us.');
@@ -200,6 +203,10 @@ class RetailerAuthController extends Controller
             // Find user by email
             $user = User::where('email', $resetEntry->email)->where('user_type',3)->first();
 
+            if ($user->is_delete == 1) {
+                return back()->with('error', 'You Have deleted Your Account. Please contact our support team.');
+            }
+
             if (!$user) {
                 return back()->withErrors(['error' => 'No user found for this email.']);
             }
@@ -233,6 +240,12 @@ class RetailerAuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
+
+        // Check if account is inactive
+        if ($user->is_delete == 1) {
+            session()->flash('error', 'You Have Deleted Your account. Please contact support for assistance.');
+            return redirect()->route('retailer.login');
+        }
 
         // First: Check if user exists and password is correct
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -269,7 +282,6 @@ class RetailerAuthController extends Controller
         $user->update(['login_attempt' => 0, 'locked_until' => null]); // Reset login attempts
         return redirect()->route('retailer.dashboard');
     }
-
 
     public function logout()
     {

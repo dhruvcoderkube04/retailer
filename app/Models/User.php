@@ -33,7 +33,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified',
         'login_attempt',
         'locked_until',
-        'is_all_wholesaler_visible'
+        'is_all_wholesaler_visible',
+        'is_delete'
     ];
 
     /**
