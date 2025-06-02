@@ -154,9 +154,9 @@ Route::middleware(['retailer'])->group(function () {
     // Generate ticket
     Route::get('/ticket-list', [TicketController::class, 'ticketList'])->name('retailer.ticket.list');
     Route::get('/create-ticket', [TicketController::class, 'createTicket'])->name('retailer.create.ticket');
-    Route::get('/ticket-detail/{ticket_id}', [TicketController::class, 'ticketDetail'])->name('retailer.ticket.details');
     Route::post('/fetch-ticket-list', [TicketController::class, 'FetchticketList'])->name('fetch.retailer.ticket.list');
     Route::post('/generate-ticket', [TicketController::class, 'generateTicket'])->name('retailer.generate.ticket');
+    Route::get('/ticket-detail/{ticket_id}', [TicketController::class, 'ticketDetail'])->name('retailer.ticket.details');
     Route::post('/ticket/{ticket_id}/update-status', [TicketController::class, 'updateTicketStatus'])->name('retailer.ticket.status.update');
     // Route::post('/delete-ticket', [TicketController::class, 'deleteTicket'])->name('retailer.ticket.delete');
     // Route::get('/edit-ticket/{ticket_id}', [TicketController::class, 'editTicket'])->name('retailer.ticket.edit');

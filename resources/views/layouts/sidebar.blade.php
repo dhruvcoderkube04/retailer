@@ -194,25 +194,25 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is('my-product') ? 'active' : '' }}"
-                                    href="{{ route('retailer.my.product') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">My Product</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is('my-wholesaler-product') ? 'active' : '' }}"
                                     href="{{ route('retailer.my.wholesaler.product') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
                                     <span class="menu-title">Wholesaer Product</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                               <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is('my-product') ? 'active' : '' }}"
+                                    href="{{ route('retailer.my.product') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">My Product</span>
                                 </a>
                                 <!--end:Menu link-->
                             </div>

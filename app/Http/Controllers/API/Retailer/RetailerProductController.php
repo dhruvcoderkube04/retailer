@@ -399,8 +399,8 @@ class RetailerProductController extends Controller
             $subCategoryName = $request->sub_category;
             $color           = $request->color;
             $size            = $request->size;
-            $minPrice        = $request->min;
-            $maxPrice        = $request->max;
+            $minPrice        = $request->min_price;
+            $maxPrice        = $request->max_price;
 
             $products = $allProducts->flatMap(function ($item) use (
                 $categoryName, $subCategoryName, $color, $size, $minPrice, $maxPrice
@@ -577,7 +577,6 @@ class RetailerProductController extends Controller
             }
 
             $retailerCloneProducts = RetailerCloneProduct::where('retailer_id', $retailerId)->get();
-
             $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
 
             if ($request->has('product_id')) {
@@ -585,71 +584,18 @@ class RetailerProductController extends Controller
                 $allProducts = $allProducts->filter(fn($item) => $item->id == $productId);
             }
 
-            $categoryName    = $request->category;
-            $subCategoryName = $request->sub_category;
-            $color           = $request->color;
-            $size            = $request->size;
-            $minPrice        = $request->min_price;
-            $maxPrice        = $request->max_price;
-            $searchName      = $request->search;
+            $searchName = $request->search;
 
-            $products = $allProducts->flatMap(function ($item) use (
-                $categoryName,
-                $subCategoryName,
-                $color,
-                $size,
-                $minPrice,
-                $maxPrice,
-                $searchName
-            ) {
+            $products = $allProducts->flatMap(function ($item) use ($searchName) {
                 if ($item instanceof RetailerProducts) {
                     if (!$item->wholesaler || !$item->wholesaler->products) {
                         return [];
                     }
 
-                    return $item->wholesaler->products->filter(function ($product) use (
-                        $categoryName,
-                        $subCategoryName,
-                        $color,
-                        $size,
-                        $minPrice,
-                        $maxPrice,
-                        $searchName
-                    ) {
-                        if ($searchName && !Str::contains(strtolower($product->name), strtolower($searchName))) {
+                    return $item->wholesaler->products->filter(function ($product) use ($searchName) {
+                        if ($searchName && stripos($product->name, $searchName) === false) {
                             return false;
                         }
-
-                        // if ($categoryName) {
-                        //     $cat = Category::find($product->category_id);
-                        //     if (!$cat || !Str::contains(strtolower($cat->category_name), strtolower($categoryName))) {
-                        //         return false;
-                        //     }
-                        // }
-
-                        // if ($subCategoryName) {
-                        //     $sub = SubCategory::find($product->sub_category_id);
-                        //     if (!$sub || !Str::contains(strtolower($sub->sub_category_name), strtolower($subCategoryName))) {
-                        //         return false;
-                        //     }
-                        // }
-
-                        // if ($color && strtolower($product->color) !== strtolower($color)) {
-                        //     return false;
-                        // }
-
-                        // if ($size && strtolower($product->size) !== strtolower($size)) {
-                        //     return false;
-                        // }
-
-                        // if ($minPrice && $product->new_price < $minPrice) {
-                        //     return false;
-                        // }
-
-                        // if ($maxPrice && $product->new_price > $maxPrice) {
-                        //     return false;
-                        // }
-
                         return true;
                     })->map(function ($product) use ($item) {
                         return $this->formatProductFromRetailerProduct($product, $item);
@@ -657,37 +603,7 @@ class RetailerProductController extends Controller
 
                 } else {
                     // RetailerCloneProduct
-                    if ($searchName && !Str::contains(strtolower($item->product_name), strtolower($searchName))) {
-                        return [];
-                    }
-
-                    if ($categoryName) {
-                        $cat = Category::find($item->category_id);
-                        if (!$cat || !Str::contains(strtolower($cat->category_name), strtolower($categoryName))) {
-                            return [];
-                        }
-                    }
-
-                    if ($subCategoryName) {
-                        $sub = SubCategory::find($item->sub_category_id);
-                        if (!$sub || !Str::contains(strtolower($sub->sub_category_name), strtolower($subCategoryName))) {
-                            return [];
-                        }
-                    }
-
-                    if ($color && strtolower($item->color) !== strtolower($color)) {
-                        return [];
-                    }
-
-                    if ($size && strtolower($item->size) !== strtolower($size)) {
-                        return [];
-                    }
-
-                    if ($minPrice && $item->price < $minPrice) {
-                        return [];
-                    }
-
-                    if ($maxPrice && $item->price > $maxPrice) {
+                    if ($searchName && stripos($item->product_name, $searchName) === false) {
                         return [];
                     }
 
@@ -752,6 +668,7 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
+
 
     public function getSingalProductDetails(Request $request)
     {
