@@ -38,29 +38,50 @@ class RetilerController extends Controller
 {
     public function retailerDashboard()
     {
-        $from = Carbon::now()->startOfMonth();
-        $to = Carbon::now()->endOfMonth();
+        $from = Carbon::today()->subDays(29)->startOfDay();
+        $to = Carbon::today()->endOfDay();
         $user = Auth::user();
 
         $data = [
-            'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
+            'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'pending')
                 ->where('order_process_by', 'retailer')
                 ->whereBetween('created_at', [$from, $to])
                 ->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'approved_by_retailer')
-                ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])
+            'transfered_retailer_to_wholesaler_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'transfered_retailer_to_wholesaler')
+                ->whereBetween('transfered_retailer_to_wholesaler_at', [$from, $to])
                 ->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pickup')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'approved_by_retailer')
                 ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])
+                ->whereBetween('approved_by_retailer_at', [$from, $to])
                 ->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'pickup')
                 ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])
+                ->whereBetween('pickup_at', [$from, $to])
+                ->count(),
+
+            'in_transit_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'in_transit')
+                ->where('order_process_by', 'retailer')
+                ->whereBetween('in_transit_at', [$from, $to])
+                ->count(),
+
+            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'delivered')
+                ->where('order_process_by', 'retailer')
+                ->whereBetween('delivered_at', [$from, $to])
+                ->count(),
+
+            'cancelled_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'cancel')
+                ->where('order_process_by', 'retailer')
+                ->whereBetween('cancel_at', [$from, $to])
                 ->count(),
 
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])
@@ -119,21 +140,46 @@ class RetilerController extends Controller
         $user = Auth::user();
 
         $data = [
-            'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'pending')
+            'new_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'pending')
                 ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])->count(),
+                ->whereBetween('created_at', [$from, $to])
+                ->count(),
 
-            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'approved_by_retailer')
-                ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])->count(),
+            'transfered_retailer_to_wholesaler_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'transfered_retailer_to_wholesaler')
+                ->whereBetween('transfered_retailer_to_wholesaler_at', [$from, $to])
+                ->count(),
 
-            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('retailer_id', $user->id)->where('status', 'pickup')
+            'confirmed_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'approved_by_retailer')
                 ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])->count(),
+                ->whereBetween('approved_by_retailer_at', [$from, $to])
+                ->count(),
 
-            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)->where('status', 'delivered')
+            'ready_for_ship_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'pickup')
                 ->where('order_process_by', 'retailer')
-                ->whereBetween('created_at', [$from, $to])->count(),
+                ->whereBetween('pickup_at', [$from, $to])
+                ->count(),
+
+            'in_transit_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'in_transit')
+                ->where('order_process_by', 'retailer')
+                ->whereBetween('in_transit_at', [$from, $to])
+                ->count(),
+
+            'delivered_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'delivered')
+                ->where('order_process_by', 'retailer')
+                ->whereBetween('delivered_at', [$from, $to])
+                ->count(),
+
+            'cancelled_orders_count' => CustomerOrders::where('retailer_id', $user->id)
+                ->where('status', 'cancel')
+                ->where('order_process_by', 'retailer')
+                ->whereBetween('cancel_at', [$from, $to])
+                ->count(),
 
             'total_sales' => CustomerOrders::where('retailer_id', $user->id)->whereBetween('created_at', [$from, $to])->whereIn('status', ['delivered', 'close'])->where('order_process_by', 'retailer')->sum('final_amount'),
         ];
@@ -308,7 +354,7 @@ class RetilerController extends Controller
         $i = $page;
         foreach ($subscribedCategories as $key => $item) {
             $i++;
-           $action = '
+            $action = '
             <div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button
                     class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-margin-btn"
@@ -328,9 +374,9 @@ class RetilerController extends Controller
                     type="button"
                     class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-margin-btn"
                     data-url="' . route('retailer.remove-category-margin', [
-                        'wholesaler_id' => $item->wholesaler_id,
-                        'margin_id' => $item->id
-                    ]) . '"
+                'wholesaler_id' => $item->wholesaler_id,
+                'margin_id' => $item->id
+            ]) . '"
                     title="Delete"
                 >
                     <i class="ki-duotone ki-trash">
@@ -357,7 +403,7 @@ class RetilerController extends Controller
                         </div>';
 
             $data[] = array(
-                "action"=>  $action,
+                "action" =>  $action,
                 "category_image" => $category_image,
                 "category_name" => $item->category->category_name,
                 "wholesaler_name" => $item->wholesaler->userDetail->company_name,
@@ -1009,7 +1055,7 @@ class RetilerController extends Controller
     // product details page
     public function retailerDetailsProduct(Request $request, $product_id)
     {
-         try {
+        try {
             $product_id = decryptId($product_id);
             $retailer = Auth::user();
 
@@ -1777,7 +1823,6 @@ class RetilerController extends Controller
             'customer_details.pincode'
         )
             ->join('customer_orders', 'customer_orders.customer_id', '=', 'customer_details.id')
-            ->where('customer_orders.order_process_by', 'retailer')
             ->where('customer_orders.retailer_id', $retailer->id)
             ->distinct();
 

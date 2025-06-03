@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CancelOrderMailToCustomer;
 use App\Models\AccountTransaction;
 use App\Models\COrders;
 use App\Models\CourierPartner;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class RetailerOrderController extends Controller
 {
@@ -500,6 +502,19 @@ class RetailerOrderController extends Controller
 
             if ($success) {
                 DB::commit();
+
+                if ($request->status == 'cancel') {
+                    $cancelled_reason = ($request->reject_reason_select == 'Other')
+                        ? $request->reject_reason_input
+                        : $request->reject_reason_select;
+
+                    $customer = [
+                        'name' => $customerOrder->customer->firstname,
+                        'email' => $customerOrder->customer->email,
+                    ];
+                    Mail::to($customerOrder->customer->email)->send(new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason));
+                }
+
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
                 DB::rollBack();
@@ -544,6 +559,19 @@ class RetailerOrderController extends Controller
 
             if ($success) {
                 DB::commit();
+
+                if ($request->status == 'cancel') {
+                    $cancelled_reason = ($request->reject_reason_select == 'Other')
+                        ? $request->reject_reason_input
+                        : $request->reject_reason_select;
+
+                    $customer = [
+                        'name' => $customerOrder->customer->firstname,
+                        'email' => $customerOrder->customer->email,
+                    ];
+                    Mail::to($customerOrder->customer->email)->send(new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason));
+                }
+
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
                 DB::rollBack();
@@ -584,6 +612,19 @@ class RetailerOrderController extends Controller
 
             if ($success) {
                 DB::commit();
+
+                if ($request->status == 'cancel') {
+                    $cancelled_reason = ($request->reject_reason_select == 'Other')
+                        ? $request->reject_reason_input
+                        : $request->reject_reason_select;
+
+                    $customer = [
+                        'name' => $customerOrder->customer->firstname,
+                        'email' => $customerOrder->customer->email,
+                    ];
+                    Mail::to($customerOrder->customer->email)->send(new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason));
+                }
+
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
                 DB::rollBack();
@@ -673,6 +714,19 @@ class RetailerOrderController extends Controller
 
             if ($success) {
                 DB::commit();
+
+                if ($request->status == 'cancel') {
+                    $cancelled_reason = ($request->reject_reason_select == 'Other')
+                        ? $request->reject_reason_input
+                        : $request->reject_reason_select;
+
+                    $customer = [
+                        'name' => $customerOrder->customer->firstname,
+                        'email' => $customerOrder->customer->email,
+                    ];
+                    Mail::to($customerOrder->customer->email)->send(new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason));
+                }
+
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
                 DB::rollBack();

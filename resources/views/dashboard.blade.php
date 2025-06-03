@@ -68,7 +68,7 @@
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'new') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                                        <i class="ki-duotone ki-add-files fs-2hx text-danger mb-3">
+                                        <i class="ki-duotone ki-add-files fs-2hx text-primary mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
                                         </i>
@@ -86,7 +86,7 @@
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'approved-by-retailer') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                                        <i class="ki-duotone ki-tablet-ok fs-2hx text-primary mb-3">
+                                        <i class="ki-duotone ki-tablet-ok fs-2hx text-info mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
                                         </i>
@@ -96,6 +96,23 @@
                                         <span class="fw-semibold fs-5 text-gray-500 mt-2">Confirmed Orders</span>
                                     </div>
                                 </a>
+                            </div>
+                        </div>
+
+                        <!-- Transfer Retailer To Wholesaler Orders -->
+                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                            <div class="card h-100 text-center">
+                                <div>
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                        <i class="ki-duotone ki-exit-right fs-2hx text-primary mb-3">
+                                            <span class="path1"></span><span class="path2"></span>
+                                        </i>
+                                        <span class="fw-semibold fs-3x text-gray-800" id="transfered_retailer_to_wholesaler">
+                                            {{ $data['transfered_retailer_to_wholesaler_orders_count'] ?? 0 }}
+                                        </span>
+                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Transfer To Wholesaler</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -118,12 +135,31 @@
                             </div>
                         </div>
 
+                        <!-- In Transit -->
+                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                            <div class="card h-100 text-center">
+                                <a href="{{ route('retailer.order.list', 'in-transit') }}">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                        <i class="ki-duotone ki-delivery fs-2hx text-warning mb-3">
+                                            <span class="path1"></span><span class="path2"></span><span
+                                                class="path3"></span>
+                                            <span class="path4"></span><span class="path5"></span>
+                                        </i>
+                                        <span class="fw-semibold fs-3x text-gray-800" id="in_transit">
+                                            {{ $data['in_transit_orders_count'] ?? 0 }}
+                                        </span>
+                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">In Transit</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
                         <!-- Delivered -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'delivered') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                                        <i class="ki-duotone ki-delivery-3 fs-2hx text-info mb-3">
+                                        <i class="ki-duotone ki-delivery-3 fs-2hx text-success mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
                                         </i>
@@ -131,6 +167,23 @@
                                             {{ $data['delivered_orders_count'] ?? 0 }}
                                         </span>
                                         <span class="fw-semibold fs-5 text-gray-500 mt-2">Delivered</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Cancelled -->
+                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                            <div class="card h-100 text-center">
+                                <a href="{{ route('retailer.order.list', 'cancel') }}">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                        <i class="ki-duotone ki-cross-square fs-2hx text-danger mb-3">
+                                            <span class="path1"></span><span class="path2"></span>
+                                        </i>
+                                        <span class="fw-semibold fs-3x text-gray-800" id="cancel">
+                                            {{ $data['cancelled_orders_count'] ?? 0 }}
+                                        </span>
+                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Cancelled</span>
                                     </div>
                                 </a>
                             </div>
@@ -471,9 +524,12 @@
                         $('#new_orders_badge').text(response.data.new_orders_count);
                         $('#new_orders').text(response.data.new_orders_count);
                         $('#new_orderss').text(response.data.new_orders_count);
+                        $('#transfered_retailer_to_wholesaler').text(response.data.transfered_retailer_to_wholesaler_orders_count);
                         $('#confirmed_orders').text(response.data.confirmed_orders_count);
                         $('#ready_for_ship').text(response.data.ready_for_ship_orders_count);
+                        $('#in_transit').text(response.data.in_transit_orders_count);
                         $('#delivered').text(response.data.delivered_orders_count);
+                        $('#cancel').text(response.data.cancelled_orders_count);
                         $('#total_sales').text(response.data.total_sales);
                         $('#total_earning').text(response.data.total_earning);
                     } else {
