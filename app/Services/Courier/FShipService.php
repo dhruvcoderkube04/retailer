@@ -2,6 +2,7 @@
 
 namespace App\Services\Courier;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -266,7 +267,25 @@ class FShipService implements CourierInterface
             'signature' => $this->signature,
         ])->post($this->apiUrl . '/ratecalculator', $validatedData);
 
-        return $response->json();
+        $data = $response->json();
+
+        if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
+            // $marginPercentage = 0.0;
+            $marginPercentage = (float) (Auth::user()->userDetail->margin_percentage_tag ?? 0);
+            foreach ($data['shipment_rates'] as &$rate) {
+                foreach ($rate as $key => $value) {
+                    if ($key !== 'courier_name' && is_numeric($value)) {
+                        $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                    }
+                }
+            }
+            unset($rate);
+        }
+
+        return [
+            'status' => true,
+            'shipment_rates' => $data['shipment_rates'] ?? [],
+        ];
     }
 
     public function cancelShipment(array $data): array

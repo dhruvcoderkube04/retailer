@@ -156,7 +156,7 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    {{-- <div data-kt-menu-trigger="click" class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['retailer-product', 'add-product/*', 'remove-product/*', 'retailer-add-product', 'retailer-store-product', 'retailer-edit-product/*', 'retailer-update-product/*']) ? 'active' : '' }}"
                             href="{{ route('retailer.product') }}">
@@ -170,7 +170,7 @@
                             <span class="menu-title">Products</span>
                         </a>
                         <!--end:Menu link-->
-                    </div>
+                    </div> --}}
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->

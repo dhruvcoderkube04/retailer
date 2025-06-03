@@ -3,6 +3,7 @@
 namespace App\Services\Courier;
 
 use App\Models\LorrigoCarrier;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -316,7 +317,24 @@ class LorrigoService implements CourierInterface
             ])->post($this->apiUrl . '/api/ratecalculator', $payload);
 
             if ($response->successful()) {
-                return $response->json();
+                // return $response->json();
+                    $responseData = $response->json();
+                    $marginPercentage = (float) (Auth::user()->userDetail->margin_percentage_tag ?? 0);
+                    if (!empty($responseData['rates']) && is_array($responseData['rates'])) {
+                        foreach ($responseData['rates'] as &$rate) {
+                            foreach ($rate as $key => $value) {
+                                if ($key !== 'name' && is_numeric($value)) {
+                                    $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                                }
+                            }
+                        }
+                        unset($rate); // good practice
+                    }
+
+                    return [
+                        'status' => true,
+                        'rates' => $responseData['rates'],
+                    ];
             } else {
                 Log::error('Lorrigo Rate Calculation failed', ['response' => $response->body()]);
                 return ['status' => false, 'message' => 'Failed to calculate rate.'];
