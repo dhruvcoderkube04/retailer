@@ -1806,74 +1806,71 @@ class RetilerController extends Controller
     // AJAX : server side data-table fetch-record
     public function fetchRecordsCustomers(Request $request)
     {
-        $limit = ($request->has('length') ? $request->input('length') : 10);
-        $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $limit = $request->input('length', 10);
+        $start = $request->input('start', 0);
+        $search = $request->input('search.value', '');
 
         $retailer = Auth::user();
 
-        $query = CustomerDetails::select(
-            'customer_details.id',
-            'customer_details.firstname',
-            'customer_details.lastname',
-            'customer_details.phone_number',
-            'customer_details.email',
-            'customer_details.state',
-            'customer_details.city',
-            'customer_details.pincode'
-        )
-            ->join('customer_orders', 'customer_orders.customer_id', '=', 'customer_details.id')
-            ->where('customer_orders.retailer_id', $retailer->id)
-            ->distinct();
+        $baseQuery = CustomerOrders::select('customer_id')
+            ->with('customer')
+            ->where('retailer_id', $retailer->id)
+            ->where('order_process_by', 'retailer')
+            ->groupBy('customer_id');
 
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('customer_details.firstname', 'like', '%' . $search . '%')
-                    ->orWhere('customer_details.lastname', 'like', '%' . $search . '%')
-                    ->orWhere('customer_details.phone_number', 'like', '%' . $search . '%')
-                    ->orWhere('customer_details.email', 'like', '%' . $search . '%')
-                    ->orWhere('customer_details.state', 'like', '%' . $search . '%')
-                    ->orWhere('customer_details.city', 'like', '%' . $search . '%')
-                    ->orWhere('customer_details.pincode', 'like', '%' . $search . '%');
+            $baseQuery->whereHas('customer', function ($q) use ($search) {
+                $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'like', "%$search%")
+                    ->orWhere('phone_number', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('state', 'like', "%$search%")
+                    ->orWhere('city', 'like', "%$search%")
+                    ->orWhere('pincode', 'like', "%$search%");
             });
         }
 
-        if ($request->has('order') && isset($request->order[0])) {
-            $columnIndex = $request->order[0]['column'];  // get column index
-            $columnName = $request->columns[$columnIndex]['data'];  // get column name
-            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+        // Count after filtering
+        $filteredCount = $baseQuery->get()->count();
 
-            $query->orderBy("customer_details.$columnName", $direction);
-        } else {
-            $query->orderBy('customer_details.id', 'desc');
-        }
+        // Apply pagination
+        $customers = (clone $baseQuery)
+            ->skip($start)
+            ->take($limit)
+            ->get();
 
-        $cntFilter = clone $query;
-        $query->offset($page)->limit($limit);
-        $customers = $query->get();
-
-        $queryTotal = CustomerDetails::join('customer_orders', 'customer_orders.customer_id', '=', 'customer_details.id')
-            ->where('customer_orders.order_process_by', 'retailer')
-            ->where('customer_orders.retailer_id', $retailer->id)
-            ->distinct('customer_details.id')
-            ->count('customer_details.id');
+        // Count total distinct customers before any search
+        $totalCount = CustomerOrders::where('retailer_id', $retailer->id)
+            ->where('order_process_by', 'retailer')
+            ->select('customer_id')
+            ->groupBy('customer_id')
+            ->get()
+            ->count();
 
         $data = [];
-        $i = $page;
+        $sr_no = $start;
         foreach ($customers as $item) {
-            $i++;
+            $customer = $item->customer;
 
-            $data[] = array(
-                "sr_no" => $i,
-                "name" => $item->firstname . ' ' . $item->lastname,
-                "mobile_no" => $item->phone_number,
-                "email" => $item->email,
-                "state" => $item->state,
-                "city" => $item->city,
-                "pincode" => $item->pincode
-            );
+            if ($customer) {
+                $sr_no++;
+                $data[] = [
+                    "sr_no" => $sr_no,
+                    "name" => $customer->firstname ? ($customer->firstname  . ' ' . $customer->lastname) : 'N/A',
+                    "mobile_no" => $customer->phone_number ?? 'N/A',
+                    "email" => $customer->email ?? 'N/A',
+                    "state" => $customer->state ?? 'N/A',
+                    "city" => $customer->city ?? 'N/A',
+                    "pincode" => $customer->pincode ?? 'N/A',
+                ];
+            }
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+
+        return response()->json([
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => $totalCount,
+            "recordsFiltered" => $filteredCount,
+            "data" => $data
+        ]);
     }
     //<----------------------- END : Customer ---------------------->
 
