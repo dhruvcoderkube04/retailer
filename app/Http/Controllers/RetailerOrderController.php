@@ -772,6 +772,19 @@ class RetailerOrderController extends Controller
         $productSku = $customerOrder->order_product_detail->sku ?? 'N/A';
 
         $user = Auth::user();
+        $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
+
+        // calculate base and profit
+        $finalShipping = (float) $request->shipping_charge;
+        $finalCod = (float) $request->cod_charge;
+        $finalRto = (float) $request->rto_charge;
+        $divider = 1 + ($marginPercentage / 100);
+        $shippingBase   = round($finalShipping / $divider, 2);
+        $shippingProfit = round($finalShipping - $shippingBase, 2);
+        $codBase   = round($finalCod / $divider, 2);
+        $codProfit = round($finalCod - $codBase, 2);
+        $rtoBase   = round($finalRto / $divider, 2);
+        $rtoProfit = round($finalRto - $rtoBase, 2);
 
         $updateData = [
             'status' => $request->status,
@@ -779,9 +792,12 @@ class RetailerOrderController extends Controller
             'pickup_address_id' => $request->pickup_address_id,
             'product_weight' => $request->product_weight,
             'service_mode' => $request->service_mode,
-            'shipping_charge' => $request->shipping_charge,
-            'cod_charge' => $request->cod_charge,
-            'rto_charge' => $request->rto_charge,
+            'shipping_charge' => $shippingBase,
+            'cod_charge' => $codBase,
+            'rto_charge' => $rtoBase,
+            'shipping_charge_profit' => $shippingProfit,
+            'cod_charge_profit' => $codProfit,
+            'rto_charge_profit' => $rtoProfit,
         ];
 
         $active_courier_partners = CourierPartner::where('is_active', 1)->first();
@@ -1001,12 +1017,15 @@ class RetailerOrderController extends Controller
 
         $total_charges = ($customerOrder->shipping_charge ?? 0) +
             ($customerOrder->cod_charge ?? 0) +
-            ($customerOrder->rto_charge ?? 0);
+            ($customerOrder->rto_charge ?? 0) +
+            ($customerOrder->shipping_charge_profit ?? 0) +
+            ($customerOrder->cod_charge_profit ?? 0) +
+            ($customerOrder->rto_charge_profit ?? 0);
 
         $charges = [
-            'Shipping Charge' => $customerOrder->shipping_charge,
-            'COD Charge' => $customerOrder->cod_charge,
-            'RTO Charge' => $customerOrder->rto_charge,
+            'Shipping Charge' => ($customerOrder->shipping_charge ?? 0) + ($customerOrder->shipping_charge_profit ?? 0),
+            'COD Charge' => ($customerOrder->cod_charge ?? 0) + ($customerOrder->cod_charge_profit ?? 0),
+            'RTO Charge' => ($customerOrder->rto_charge ?? 0) + ($customerOrder->rto_charge_profit ?? 0),
         ];
 
         // wholesaler product
@@ -1135,14 +1154,16 @@ class RetailerOrderController extends Controller
 
         $total_charges = ($customerOrder->shipping_charge ?? 0) +
             ($customerOrder->cod_charge ?? 0) +
-            ($customerOrder->rto_charge ?? 0);
+            ($customerOrder->rto_charge ?? 0) +
+            ($customerOrder->shipping_charge_profit ?? 0) +
+            ($customerOrder->cod_charge_profit ?? 0) +
+            ($customerOrder->rto_charge_profit ?? 0);
 
         $charges = [
-            'Shipping Charge' => $customerOrder->shipping_charge,
-            'COD Charge' => $customerOrder->cod_charge,
-            'RTO Charge' => $customerOrder->rto_charge,
+            'Shipping Charge' => ($customerOrder->shipping_charge ?? 0) + ($customerOrder->shipping_charge_profit ?? 0),
+            'COD Charge'      => ($customerOrder->cod_charge ?? 0) + ($customerOrder->cod_charge_profit ?? 0),
+            'RTO Charge'      => ($customerOrder->rto_charge ?? 0) + ($customerOrder->rto_charge_profit ?? 0),
         ];
-
 
         // retailer entry
         AccountTransaction::create([

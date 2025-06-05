@@ -46,7 +46,10 @@ class CustomerOrders extends Model
         'shipping_charge',
         'cod_charge',
         'rto_charge',
-        'charges',
+        'shipping_charge_profit',
+        'cod_charge_profit',
+        'rto_charge_profit',
+        'final_charges',
         'expected_delivery',
         'payment_status',
         'payment_method',
@@ -60,7 +63,7 @@ class CustomerOrders extends Model
     ];
 
     protected $casts = [
-        'charges' => 'array',
+        'final_charges' => 'array',
     ];
 
     public function customer()
