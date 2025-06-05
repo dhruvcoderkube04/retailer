@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AbandonardCard;
+use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
 use App\Http\Controllers\Coupan;
@@ -36,10 +37,10 @@ Route::controller(RetailerAuthController::class)->group(function () {
     Route::post('logout', 'logout')->name('retailer.logout')->middleware('auth'); // Use retailer guard
 });
 
-    // Email Verification Routes
-    Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed'])->name('verification.verify');
-    Route::post('/email/resend', [VerificationController::class, 'resend'])->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
+// Email Verification Routes
+Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed'])->name('verification.verify');
+Route::post('/email/resend', [VerificationController::class, 'resend'])->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
 Route::middleware(['retailer'])->group(function () {
     Route::get('/dashboard', [RetilerController::class, 'retailerDashboard'])->name('retailer.dashboard');
@@ -246,6 +247,8 @@ Route::middleware(['retailer'])->group(function () {
         Route::post('/fetch-record', [RetilerController::class, 'fetchRecordsCustomers'])->name('retailer.customers.fetch-record');
     });
 });
+// autologin
+Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);
 
 Route::get('/cc', function() {
     Artisan::call('config:cache');
