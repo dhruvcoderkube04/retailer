@@ -2,6 +2,7 @@
 
 namespace App\Services\Courier;
 
+use App\Models\MarginManagement;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -271,15 +272,26 @@ class FShipService implements CourierInterface
 
         if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
             // $marginPercentage = 0.0;
-            $marginPercentage = (float) (Auth::user()->userDetail->margin_percentage_tag ?? 0);
-            foreach ($data['shipment_rates'] as &$rate) {
-                foreach ($rate as $key => $value) {
-                    if ($key !== 'courier_name' && is_numeric($value)) {
-                        $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+            $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+            $margin_tag_name = Auth::user()->userDetail->margin_tag_name;
+
+            $getMargin = MarginManagement::where('margin_name', $margin_tag_name)->first();
+            if ($getMargin) {
+                $marginType = $getMargin->type; // either 'percentage' or 'flat'
+                $flatAmount = (float)($getMargin->flat_percentage ?? 0);
+                foreach ($data['shipment_rates'] as &$rate) {
+                    foreach ($rate as $key => $value) {
+                        if ($key !== 'courier_name' && is_numeric($value)) {
+                            if ($marginType === 'percentage') {
+                                $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                            } elseif ($marginType === 'flat') {
+                                $rate[$key] = round($value + $flatAmount, 2);
+                            }
+                        }
                     }
                 }
+                unset($rate);
             }
-            unset($rate);
         }
 
         return [

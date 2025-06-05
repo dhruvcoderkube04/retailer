@@ -570,11 +570,11 @@
                     <table class="table table-bordered" id="courierDetailsTable">
                         <thead>
                             <tr>
+                                <th>Service Mode</th>
                                 <th>Courier Name</th>
                                 <th>Shipping Charge</th>
                                 <th>COD Charge</th>
-                                <th>RTO Charge</th>
-                                <th>Service Mode</th>
+                                {{-- <th>RTO Charge</th> --}}
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -1086,6 +1086,7 @@
             }
 
             // Function to populate the courier modal table  for fship
+            // <td>₹${(courier.rto_charge || 0).toFixed(2)}</td>  remove
             function populateModalTable(shipmentRates) {
                 let tableBody = '';
                 shipmentRates.forEach(function(courier) {
@@ -1093,14 +1094,14 @@
                         .courier_name) || {};
                     tableBody += `
                         <tr>
+                            <td>${courier.service_mode || 'N/A'}</td>
                             <td>
                                 ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
                                 ${courier.courier_name}
                             </td>
                             <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
                             <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
-                            <td>₹${(courier.rto_charge || 0).toFixed(2)}</td>
-                            <td>${courier.service_mode || 'N/A'}</td>
+
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.courier_name}"
@@ -1119,8 +1120,8 @@
                 $('#courierDetailsBody').html(tableBody);
             }
 
-
             // Function to populate the courier modal table  for lorrigo
+              // <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
             function populateModalTableLorrigo(shipmentRates) {
                 let tableBody = '';
                 shipmentRates.forEach(function(courier) {
@@ -1129,14 +1130,13 @@
                         .courier_name) || {};
                     tableBody += `
                         <tr>
+                            <td>${courier.type || 'N/A'}</td>
                             <td>
                                 ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
                                 ${courier.name}
                             </td>
                             <td>₹${(courier.charge || 0).toFixed(2)}</td>
                             <td>₹${(courier.cod || 0).toFixed(2)}</td>
-                            <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
-                            <td>${courier.type || 'N/A'}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.name}"

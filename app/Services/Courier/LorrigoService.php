@@ -3,6 +3,7 @@
 namespace App\Services\Courier;
 
 use App\Models\LorrigoCarrier;
+use App\Models\MarginManagement;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -319,12 +320,23 @@ class LorrigoService implements CourierInterface
             if ($response->successful()) {
                 // return $response->json();
                     $responseData = $response->json();
-                    $marginPercentage = (float) (Auth::user()->userDetail->margin_percentage_tag ?? 0);
-                    if (!empty($responseData['rates']) && is_array($responseData['rates'])) {
+                    $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+                    $marginTagName = Auth::user()->userDetail->margin_tag_name;
+
+                    $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+
+                    if (!empty($responseData['rates']) && is_array($responseData['rates']) && $getMargin) {
+                        $marginType = $getMargin->type; // 'percentage' or 'flat'
+                        $flatAmount = (float)($getMargin->flat_percentage ?? 0);
+
                         foreach ($responseData['rates'] as &$rate) {
                             foreach ($rate as $key => $value) {
                                 if ($key !== 'name' && is_numeric($value)) {
-                                    $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                                    if ($marginType === 'percentage') {
+                                        $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                                    } elseif ($marginType === 'flat') {
+                                        $rate[$key] = round($value + $flatAmount, 2);
+                                    }
                                 }
                             }
                         }
