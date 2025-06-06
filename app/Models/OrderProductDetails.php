@@ -19,6 +19,7 @@ class OrderProductDetails extends Model
         'description',
         'brand_name',
         'tags',
+        'product_variation',
         'quantity',
         'old_price',
         'new_price',

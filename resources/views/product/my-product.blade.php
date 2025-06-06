@@ -54,16 +54,38 @@
                         </div>
                     @endif
                     <div class="card card-flush">
-                        <div class="card-body pt-5">
+                        <div class="row mx-5 mt-5">
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                <label for="sub_category_filter" class="form-label fw-semibold mb-1">
+                                    Sub Category
+                                </label>
+                                <select id="sub_category_filter" class="form-select form-select-solid bg-secondary"
+                                    data-control="select2" data-placeholder="Select Type">
+                                    <option value="all">All</option>
+                                    @foreach ($sub_category_filter as $sub_category)
+                                        <option value="{{ $sub_category->id }}">
+                                            {{ $sub_category->sub_category_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="card-body pt-1">
                             {{-- Clone Products Table --}}
                             <table class="table align-middle table-row-dashed fs-7"
                                 id="kt_datatable_retailer_clone_products">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center align-middle min-w-70px">Actions</th>
+                                        <th class="text-center align-middle min-w-100px">Actions</th>
+                                        <th class="text-center align-middle min-w-70px">Image</th>
                                         <th class="text-center align-middle min-w-200px">Product</th>
-                                        <th class="text-center align-middle min-w-150px">SKU</th>
                                         <th class="text-center align-middle min-w-100px">Sub Category</th>
+                                        <th class="text-center align-middle min-w-100px">SKU</th>
+                                        <th class="text-center align-middle min-w-70px">Qty</th>
+                                        <th class="text-center align-middle min-w-100px">Old Price
+                                            <br> <span class="text-capitalize fs-9">(Per Piece)</span>
+                                        </th>
                                         <th class="text-center align-middle min-w-100px">New Price
                                             <br> <span class="text-capitalize fs-9">(Per Piece)</span>
                                         </th>
@@ -116,8 +138,9 @@
                                 </div>
                                 <div class="fv-row mb-7 fv-plugins-icon-container">
                                     <label class="form-check form-check-custom form-check-solid">
-                                        <input class="form-check-input" style="border: 1px solid rgb(192, 192, 192)" type="checkbox"
-                                            name="images_and_video_update" id="images_and_video_update" value="1">
+                                        <input class="form-check-input" style="border: 1px solid rgb(192, 192, 192)"
+                                            type="checkbox" name="images_and_video_update" id="images_and_video_update"
+                                            value="1">
                                         <span class="form-label ms-4 mt-3" for="images_and_video_update">
                                             Want to update images & videos?
                                         </span>
@@ -170,6 +193,7 @@
                     type: "POST",
                     data: function(d) {
                         d._token = '{{ csrf_token() }}';
+                        d.sub_category_filter = $('#sub_category_filter').val();
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
                     },
@@ -185,8 +209,18 @@
                         searchable: false,
                     },
                     {
+                        data: 'image',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
                         data: 'product',
                         className: 'text-start',
+                        orderable: false,
+                    },
+                    {
+                        data: 'sub_category',
+                        className: 'text-center',
                         orderable: false,
                     },
                     {
@@ -195,9 +229,14 @@
                         orderable: false,
                     },
                     {
-                        data: 'sub_category',
+                        data: 'quantity',
                         className: 'text-center',
                         orderable: false,
+                    },
+                    {
+                        data: 'old_price',
+                        className: 'text-end',
+                        orderable: true,
                     },
                     {
                         data: 'new_price',
@@ -236,6 +275,10 @@
                         'font-size': '14px',
                     });
                 }
+            });
+
+            $(document).on('change', '#sub_category_filter', function() {
+                dataTable.draw();
             });
             //<------------- END : server-side datatable for clone products ------------->
 
@@ -291,11 +334,13 @@
                                 if (response.errors) {
                                     // Laravel validator errors
                                     if (response.errors.product_file) {
-                                        $('#product_file_error').text(response.errors.product_file[0]);
+                                        $('#product_file_error').text(response.errors.product_file[
+                                            0]);
                                         $('input[name="product_file"]').addClass('is-invalid');
                                     }
                                     if (response.errors.sub_category) {
-                                        $('#sub_category_error').text(response.errors.sub_category[0]);
+                                        $('#sub_category_error').text(response.errors.sub_category[
+                                            0]);
                                         $('select[name="sub_category"]').addClass('is-invalid');
                                         $('#sub_category').next('.select2-container')
                                             .find('.select2-selection')
@@ -345,18 +390,23 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $.ajax({
-                                url: "{{ route('retailer.clone-product-remove', '') }}/" + productId,
+                                url: "{{ route('retailer.clone-product-remove', '') }}/" +
+                                    productId,
                                 type: "POST",
                                 data: {
                                     _token: "{{ csrf_token() }}",
                                     _method: "DELETE"
                                 },
                                 success: function(response) {
-                                    Swal.fire("Deleted!", "Product has been removed.", "success");
-                                    location.reload(); // Reload the page to update the table
+                                    Swal.fire("Deleted!", "Product has been removed.",
+                                        "success");
+                                    location
+                                        .reload(); // Reload the page to update the table
                                 },
                                 error: function(xhr) {
-                                    Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                                    Swal.fire("Error!",
+                                        "Something went wrong. Please try again.",
+                                        "error");
                                 }
                             });
                         }

@@ -761,10 +761,11 @@ class RetilerController extends Controller
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
         $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $sub_category_filter = ($request->has('sub_category_filter') ? $request->input('sub_category_filter') : '');
 
         $retailer = Auth::user();
 
-        $query = RetailerCloneProduct::with('category', 'productVariations')
+        $query = RetailerCloneProduct::with('sub_category', 'productVariations')
             ->where('retailer_id', $retailer->id);
 
         if ($search) {
@@ -775,8 +776,18 @@ class RetilerController extends Controller
                     ->orWhere('status', 'like', "%$search%")
                     ->orWhereHas('sub_category', function ($q) use ($search) {
                         $q->where('sub_category_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('productVariations', function ($q) use ($search) {
+                        $q->where('product_variation', 'like', '%' . $search . '%')
+                            ->orWhere('old_price', 'like', "%$search%")
+                            ->orWhere('price', 'like', "%$search%")
+                            ->orWhere('stock', 'like', "%$search%");
                     });
             });
+        }
+
+        if ($sub_category_filter && $sub_category_filter !== 'all') {
+            $query->where('sub_category_id', $sub_category_filter);
         }
 
         $cntFilter = clone $query;
@@ -793,7 +804,7 @@ class RetilerController extends Controller
 
         $products = $query->offset($page)->limit($limit)->get();
 
-        $queryTotal = RetailerCloneProduct::with('category', 'productVariations')
+        $queryTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
             ->where('retailer_id', $retailer->id)
             ->count('id');
 
@@ -801,6 +812,56 @@ class RetilerController extends Controller
         $i = $page;
         foreach ($products as $product) {
             $i++;
+
+            $oldPriceRange = null;
+            $newPriceRange = null;
+            $totalStock = 0;
+            $productVariation = [];
+            if ($product->productVariations->isNotEmpty()) {
+                $oldPrices = $product->productVariations->pluck('old_price')->filter()->map(fn($v) => (float)$v);
+                $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float)$v);
+                $totalStock = $product->productVariations->sum('stock');
+
+                $oldPriceRange = $oldPrices->isNotEmpty()
+                    ? number_format($oldPrices->min(), 2) . ' - ' . number_format($oldPrices->max(), 2)
+                    : null;
+
+                $newPriceRange = $newPrices->isNotEmpty()
+                    ? number_format($newPrices->min(), 2) . ' - ' . number_format($newPrices->max(), 2)
+                    : null;
+
+                $productVariation = $product->productVariations->pluck('product_variation')->filter()->toArray();
+            }
+
+            $product_name = !empty($productVariation)
+                ? '<div>
+                <div>' . e($product->name) . '</div>
+                <div><strong>Variations:</strong> ' . e(implode(', ', $productVariation)) . '</div>
+            </div>'
+                : e($product->name);
+
+            $image = explode(',', $product->images)[0] ?? '';
+            $image = trim(stripslashes($image), "\"' ");
+            $imageUrl = $image
+                ? Storage::disk('spaces')->url($image)
+                : asset('assets/media/images/no_image.jpg');
+            $defaultImage = asset('assets/media/images/no_image.jpg');
+            $product_image = '<img src="' . $imageUrl . '" 
+                        alt="Product Image" 
+                        style="width: 50px; height: 50px; object-fit: cover;" 
+                        onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
+
+            $old_price = '<div class="badge badge-light-primary text-wrap">'
+                . ($oldPriceRange ? '₹ ' . $oldPriceRange : ($product->old_price ? '₹ ' . number_format($product->old_price, 2) : 'N/A'))
+                . '</div>';
+
+            $new_price = '<div class="badge badge-light-primary text-wrap">'
+                . ($newPriceRange ? '₹ ' . $newPriceRange : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
+                . '</div>';
+
+            $status = $product->status === 'active'
+                ? '<div class="badge badge-light-success">Active</div>'
+                : '<div class="badge badge-light-danger">Inactive</div>';
 
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
@@ -827,37 +888,14 @@ class RetilerController extends Controller
                 </a>
             </div>';
 
-            $image = explode(',', $product->images)[0] ?? '';
-            $image = trim(stripslashes($image), "\"' ");
-            $imageUrl = $image
-                ? Storage::disk('spaces')->url($image)
-                : asset('assets/media/images/no_image.jpg');
-            $defaultImage = asset('assets/media/images/no_image.jpg');
-            $product_detail = '<div class="d-flex align-items-center ms-4">
-                <div class="symbol symbol-50px">
-                    <span class="symbol-label">
-                        <img src="' . $imageUrl . '"
-                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';"
-                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
-                            alt="Product Image">
-                    </span>
-                </div>
-                <div class="ms-5">
-                    <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">'
-                . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') .
-                '</div>
-                </div>
-            </div>';
-
-            $new_price = '<div class="badge badge-light-primary">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
-
-            $status = '<div class="badge ' . ($product->status === 'inactive' ? 'badge-light-danger' : 'badge-light-success') . '">' . ucfirst($product->status) . '</div>';
-
             $data[] = [
                 'action' => $action,
-                'product' => $product_detail,
+                'image' => $product_image,
+                'product' => $product_name,
                 'sku' => $product->sku ?? 'N/A',
                 'sub_category' => $product->sub_category->sub_category_name ?? 'N/A',
+                'quantity' => $totalStock ?: ($product->quantity ?? 0),
+                'old_price' => $old_price,
                 'new_price' => $new_price,
                 'status' => $status,
             ];
@@ -887,7 +925,7 @@ class RetilerController extends Controller
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
-            'product_name' => 'required|min:3|max:100',
+            'product_name' => 'required|max:100',
             'slug' => [
                 'required',
                 'string',
@@ -905,16 +943,13 @@ class RetilerController extends Controller
                     }
                 },
             ],
-            // 'categories' => 'required|numeric|exists:categories,id',
             'sub_category_id' => 'required|numeric|exists:sub_categories,id',
             'product_tags' => 'nullable|string|max:255',
             'status' => 'required|string|in:active,inactive',
-            'old_price' => 'required|numeric|min:1|max:99999999.99',
-            'new_price' => 'required|numeric|min:1|max:99999999.99',
             'product_description' => 'nullable|string|max:1000',
             'images' => 'required|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
+            'video' => 'nullable|mimes:mp4|max:10240',
             'sku' => [
                 'nullable',
                 'string',
@@ -932,13 +967,34 @@ class RetilerController extends Controller
                     }
                 },
             ],
-            'quantity' => 'required|integer|min:1|max:999999',
             'meta_title' => 'nullable|string|max:255',
             'product_meta_keywords' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:2000',
-            'variation' => 'array',
-            'variation_price' => 'array'
         ]);
+
+        // Get variation values
+        $hasVariations = $request->filled('variation') && is_array($request->variation) && collect($request->variation)->filter()->count() > 0;
+
+        // Conditionally validate price & quantity fields
+        if (!$hasVariations) {
+            $request->validate([
+                'old_price' => 'required|numeric|min:1|max:99999999.99',
+                'new_price' => 'required|numeric|min:1|max:99999999.99',
+                'quantity'  => 'required|integer|min:1|max:999999',
+            ]);
+        } else {
+            // Validate all variation fields
+            $request->validate([
+                'variation' => 'nullable|array',
+                'variation.*' => 'nullable|string|max:100',
+                'variation_old_price' => 'nullable|array',
+                'variation_old_price.*' => 'nullable|numeric|min:0|max:99999999.99',
+                'variation_new_price' => 'nullable|array',
+                'variation_new_price.*' => 'nullable|numeric|min:0|max:99999999.99',
+                'variation_stock' => 'nullable|array',
+                'variation_stock.*' => 'nullable|integer|min:0|max:999999',
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -988,11 +1044,11 @@ class RetilerController extends Controller
             $product->sub_category_id = $request->sub_category_id;
             $product->tags = $request->product_tags;
             $product->status = $request->status;
-            $product->old_price = $request->old_price;
-            $product->new_price = $request->new_price;
+            $product->old_price = $request->old_price ?? null;
+            $product->new_price = $request->new_price ?? null;
             $product->description = $request->product_description;
             $product->sku = $sku;
-            $product->quantity = $request->quantity;
+            $product->quantity = $request->quantity ?? 0;
             $product->meta_title = $request->meta_title;
             $product->meta_description = $request->meta_description;
             $product->meta_keywords = $request->product_meta_keywords;
@@ -1001,13 +1057,17 @@ class RetilerController extends Controller
             // Store variations
             if (!empty($request->variation)) {
                 foreach ($request->variation as $index => $variation) {
-                    // Only save if price is provided
-                    if (!empty($request->variation_price[$index])) {
+                    $oldPrice = $request->variation_old_price[$index] ?? null;
+                    $newPrice = $request->variation_new_price[$index] ?? null;
+                    $stock = $request->variation_stock[$index] ?? null;
+
+                    if (!empty($variation) && $oldPrice !== null && $newPrice !== null) {
                         ProductVariation::create([
                             'product_id' => $product->id,
                             'product_variation' => $variation,
-                            'price' => $request->variation_price[$index],
-                            'stock' => $request->variation_stock[$index],
+                            'old_price' => $oldPrice,
+                            'price' => $newPrice,
+                            'stock' => $stock ?? 0,
                         ]);
                     }
                 }
@@ -1087,43 +1147,63 @@ class RetilerController extends Controller
     {
         $product_id = decryptId($product_id);
         $request->validate([
-            'product_name' => 'nullable|string|max:255',
-            // 'categories' => 'required|exists:categories,id',
-            'sub_category_id' => 'required|exists:sub_categories,id',
+            'product_name' => 'required|max:100',
+            'sub_category_id' => 'required|numeric|exists:sub_categories,id',
             'product_tags' => 'nullable|string|max:255',
             'status' => 'required|string|in:active,inactive',
-            'old_price' => 'required|numeric|min:1|max:99999999.99',
-            'new_price' => 'required|numeric|min:1|max:99999999.99',
             'product_description' => 'nullable|string|max:1000',
             'images' => 'nullable|array|max:3',
             'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'nullable|mimes:mp4|max:10240',  // Max file size 10MB (10240 KB)
-            // 'sku' => [
-            //     'nullable',
-            //     'string',
-            //     function ($attribute, $value, $fail) use ($product_id) {
-            //         $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
-            //             ->where('sku', $value)
-            //             ->where('id', '!=', $product_id)
-            //             ->exists();
+            'video' => 'nullable|mimes:mp4|max:10240',
+            'sku' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) use ($product_id) {
+                    $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
+                        ->where('sku', $value)
+                        ->where('id', '!=', $product_id)
+                        ->exists();
 
-            //         $existsInProducts = DB::table('products')
-            //             ->where('sku', $value)
-            //             ->where('id', '!=', $product_id)
-            //             ->exists();
+                    $existsInProducts = DB::table('products')
+                        ->where('sku', $value)
+                        ->where('id', '!=', $product_id)
+                        ->exists();
 
-            //         if ($existsInRetailerCloneProduct || $existsInProducts) {
-            //             $fail('The SKU must be unique across all products.');
-            //         }
-            //     },
-            // ],
-            'quantity' => 'nullable|integer|min:1|max:999999',
+                    if ($existsInRetailerCloneProduct || $existsInProducts) {
+                        $fail('The SKU must be unique across all products.');
+                    }
+                },
+            ],
             'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:2000',
             'product_meta_keywords' => 'nullable|string|max:255',
-            'variation' => 'array',
-            'variation_price' => 'array'
+            'meta_description' => 'nullable|string|max:2000',
         ]);
+
+        // Check if variations exist and are not empty
+        $hasVariations = $request->filled('variation')
+            && is_array($request->variation)
+            && collect($request->variation)->filter(fn($v) => !empty($v))->count() > 0;
+
+        if (!$hasVariations) {
+            // Validate price & quantity only if no variations
+            $request->validate([
+                'old_price' => 'required|numeric|min:1|max:99999999.99',
+                'new_price' => 'required|numeric|min:1|max:99999999.99',
+                'quantity'  => 'required|integer|min:1|max:999999',
+            ]);
+        } else {
+            // Validate variations fields
+            $request->validate([
+                'variation' => 'nullable|array',
+                'variation.*' => 'nullable|string|max:100',
+                'variation_old_price' => 'nullable|array',
+                'variation_old_price.*' => 'nullable|numeric|min:0|max:99999999.99',
+                'variation_new_price' => 'nullable|array',
+                'variation_new_price.*' => 'nullable|numeric|min:0|max:99999999.99',
+                'variation_stock' => 'nullable|array',
+                'variation_stock.*' => 'nullable|integer|min:0|max:999999',
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -1192,9 +1272,9 @@ class RetilerController extends Controller
             $product->category_id = $subCategory->category_id ?? null;
             $product->sub_category_id = $request->sub_category_id;
             $product->description = $request->product_description;
-            $product->old_price = $request->old_price;
-            $product->new_price = $request->new_price;
-            $product->quantity = $request->quantity;
+            $product->old_price = !$hasVariations ? $request->old_price : null;
+            $product->new_price = !$hasVariations ? $request->new_price : null;
+            $product->quantity = !$hasVariations ? $request->quantity : 0;
             $product->status = $request->status;
             $product->meta_title = $request->meta_title;
             $product->meta_description = $request->meta_description;
@@ -1205,10 +1285,11 @@ class RetilerController extends Controller
             $product->save();
 
             // Handle Variations
-            if (!empty($request->variation)) {
+            if (!empty($request->variation) && is_array($request->variation)) {
                 $incomingVariations = $request->variation;
-                $variationPrices = $request->variation_price;
-                $variationStocks = $request->variation_stock;
+                $variationOldPrices = $request->variation_old_price ?? [];
+                $variationNewPrices = $request->variation_new_price ?? [];
+                $variationStocks = $request->variation_stock ?? [];
 
                 $existingVariations = ProductVariation::where('product_id', $product->id)
                     ->pluck('product_variation')
@@ -1223,29 +1304,32 @@ class RetilerController extends Controller
                 }
 
                 foreach ($incomingVariations as $index => $variation) {
-                    $price = $variationPrices[$index] ?? null;
-                    $stock = $variationStocks[$index] ?? null;
+                    $oldPrice = $variationOldPrices[$index] ?? null;
+                    $newPrice = $variationNewPrices[$index] ?? null;
+                    $stock = $variationStocks[$index] ?? 0;
 
-                    if (!empty($variation) && !is_null($price)) {
+                    // If variation name is not empty and prices are present
+                    if (!empty($variation) && $oldPrice !== null && $newPrice !== null) {
                         ProductVariation::updateOrCreate(
                             [
                                 'product_id' => $product->id,
                                 'product_variation' => $variation,
                             ],
                             [
-                                'price' => $price,
-                                'stock' => $stock
+                                'old_price' => $oldPrice,
+                                'price' => $newPrice,
+                                'stock' => $stock,
                             ]
                         );
-                    } elseif (!is_null($variation)) {
-                        // Delete if price is missing for this variation
+                    } else {
+                        // If variation exists but missing price info, delete it
                         ProductVariation::where('product_id', $product->id)
                             ->where('product_variation', $variation)
                             ->delete();
                     }
                 }
             } else {
-                // No variation sent, remove all existing
+                // No variations sent: remove all existing variations for this product
                 ProductVariation::where('product_id', $product->id)->delete();
             }
 
@@ -1878,6 +1962,12 @@ class RetilerController extends Controller
     {
         try {
             $retailer = Auth::user()->id;
+
+            $sub_category_filter_ids = RetailerCloneProduct::where('retailer_id', $retailer)->pluck('sub_category_id');
+            $sub_category_filter = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->whereIn('id', $sub_category_filter_ids)
+                ->get();
+
             // sub_category_list
             $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
                 ->pluck('sub_category_id');
@@ -1886,9 +1976,7 @@ class RetilerController extends Controller
                 ->whereIn('id', $sub_category_ids)
                 ->get();
 
-            return view('product.my-product', [
-                'sub_category_list' => $sub_category_list
-            ]);
+            return view('product.my-product', compact('sub_category_list', 'sub_category_filter'));
         } catch (\Exception $e) {
             Log::error('Error in retailerProduct: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong');

@@ -175,7 +175,7 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product','retailer-edit-product/*','retailer-details-product/*']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product','retailer-edit-product/*','retailer-details-product/*','retailer-add-product']) ? 'show' : '' }}">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                              <span class="menu-icon">
@@ -207,7 +207,7 @@
                                <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is('my-product') ? 'active' : '' }}"
+                                <a class="menu-link {{ request()->is(['my-product','retailer-add-product','retailer-edit-product/*']) ? 'active' : '' }}"
                                     href="{{ route('retailer.my.product') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>

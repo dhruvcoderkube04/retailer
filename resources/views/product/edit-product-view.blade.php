@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="d-flex align-items-center gap-2 gap-lg-3">
-                        <a href="{{ route('retailer.product') }}" class="btn btn-primary">
+                        <a href="{{ route('retailer.my.product') }}" class="btn btn-primary">
                             View Product List
                         </a>
                     </div>
@@ -145,7 +145,7 @@
 
                                             {{-- product_variation --}}
                                             <div class="row product-variation-section" style="display: none;">
-                                                <div class="col-lg-10 col-md-12">
+                                                <div class="col-lg-11 col-md-12">
                                                     <div class="mb-10 fv-row" id="add_variation_input">
 
                                                     </div>
@@ -195,7 +195,7 @@
 
                                         <div class="row">
                                             {{-- old_price --}}
-                                            <div class="col-md-6">
+                                            <div class="col-md-6" id="old_price_section">
                                                 <div class="mb-6 fv-row">
                                                     <label class="required form-label">Old Price</label>
                                                     <input type="number" name="old_price"
@@ -209,7 +209,7 @@
                                             </div>
 
                                             {{-- new_price --}}
-                                            <div class="col-md-6">
+                                            <div class="col-md-6" id="new_price_section">
                                                 <div class="mb-6 fv-row">
                                                     <label class="required form-label">New Price</label>
                                                     <input type="number" name="new_price"
@@ -391,7 +391,7 @@
                                             </div>
 
                                             {{-- quantity --}}
-                                            <div class="col-md-6">
+                                            <div class="col-md-6" id="quantity_section">
                                                 <div class="mb-6 fv-row">
                                                     <label class="required form-label">Quantity</label>
                                                     <input type="number" name="quantity"
@@ -579,6 +579,9 @@
             const validateField = (input) => {
                 const name = input.attr('name');
                 const value = input.val();
+                const hasVariations = $('[name^="variation["]').filter(function() {
+                    return $(this).val().trim() !== "";
+                }).length > 0;
 
                 switch (name) {
                     // case 'sku':
@@ -611,10 +614,14 @@
                     case 'new_price':
                     case 'old_price':
                     case 'quantity':
-                        if (isEmpty(value) || isNaN(value) || parseFloat(value) < 1) {
-                            showError(input, `${formatFieldName(name)} must be greater than 0`);
+                        if (!hasVariations) {
+                            if (isEmpty(value) || isNaN(value) || parseFloat(value) < 1) {
+                                showError(input, `${formatFieldName(name)} must be greater than 0`);
+                            } else {
+                                clearError(input);
+                            }
                         } else {
-                            clearError(input);
+                            clearError(input); // not required when variations exist
                         }
                         break;
 
@@ -678,10 +685,12 @@
 
                 // Variation consistency check
                 const variation = $('[name="variation[]"]');
-                const variation_price = $('[name="variation_price[]"]');
+                const variation_old_price = $('[name="variation_old_price[]"]');
+                const variation_new_price = $('[name="variation_new_price[]"]');
                 const variation_quantity = $('[name="variation_quantity[]"]');
                 if (
-                    variation.length !== variation_price.length ||
+                    variation.length !== variation_old_price.length ||
+                    variation.length !== variation_new_price.length ||
                     variation.length !== variation_quantity.length
                 ) {
                     showError(variation, "Variation data mismatch");
@@ -692,16 +701,21 @@
 
             function toggleSubmitButton() {
                 const hasErrors = $('.is-invalid').length > 0;
+                const hasVariations = $('[name^="variation["]').filter(function() {
+                    return $(this).val().trim() !== "";
+                }).length > 0;
+
                 const allRequiredFilled = [
-                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'quantity'
-                ].every(name => {
-                    const input = $(`[name="${name}"]`);
-                    const value = input.val();
-                    if (input.attr('type') === 'file') {
-                        return input[0]?.files.length > 0;
-                    }
-                    return !isEmpty(value);
-                });
+                        'status', 'product_name', 'sub_category_id', 'images[]'
+                    ].concat(hasVariations ? [] : ['new_price', 'old_price', 'quantity'])
+                    .every(name => {
+                        const input = $(`[name="${name}"]`);
+                        const value = input.val();
+                        if (input.attr('type') === 'file') {
+                            return input[0]?.files.length > 0;
+                        }
+                        return !isEmpty(value);
+                    });
 
                 // $('#kt_ecommerce_add_product_submit').prop('disabled', hasErrors || !allRequiredFilled);
             }
@@ -783,6 +797,10 @@
             $('#subCategory').on('change', function() {
                 let subCategoryId = $(this).val();
 
+                $('#old_price_section').show();
+                $('#new_price_section').show();
+                $('#quantity_section').show();
+
                 if (subCategoryId) {
                     $.ajax({
                         url: '{{ route('retailer.products.get-sub-category-variations') }}',
@@ -809,6 +827,7 @@
                                         if (subCategoryId == product_detail
                                             .sub_category_id) {
 
+                                            let old_price = '';
                                             let price = '';
                                             let stock = '';
                                             let matchedVariation = productVariations
@@ -818,31 +837,39 @@
                                                     trimmedVariation
                                                 );
                                             if (matchedVariation) {
+                                                old_price = matchedVariation
+                                                    .old_price ?? '';
                                                 price = matchedVariation.price ?? '';
                                                 stock = matchedVariation.stock ?? '';
                                             }
 
-                                            inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                                <div class="col">
+                                            inputHtml += `<div class="row mb-3">
+                                                <div class="col-12 col-md-6 mb-2 mb-md-0">
                                                     <input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control">
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" value="${price}" ${index === 0 ? 'required' : ''} />
+                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
+                                                    <input type="text" name="variation_old_price[${index}]" class="form-control" placeholder="Old price" value="${old_price}" ${index === 0 ? 'required' : ''} />
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="variation_stock[${index}]" class="form-control" placeholder="Enter stock" value="${stock}" ${index === 0 ? 'required' : ''} />
+                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
+                                                    <input type="text" name="variation_new_price[${index}]" class="form-control" placeholder="New price" value="${price}" ${index === 0 ? 'required' : ''} />
+                                                </div>
+                                                <div class="col-12 col-md-2">
+                                                    <input type="text" name="variation_stock[${index}]" class="form-control" placeholder="Quantity" value="${stock}" ${index === 0 ? 'required' : ''} />
                                                 </div>
                                             </div>`;
                                         } else {
-                                            inputHtml += `<div class="row mb-3 align-items-center gap-3">
-                                                <div class="col">
+                                            inputHtml += `<div class="row mb-3">
+                                                <div class="col-12 col-md-6 mb-2 mb-md-0">
                                                     <input type="text" name="variation[${index}]" value="${trimmedVariation}" readonly class="form-control">
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="variation_price[${index}]" class="form-control" placeholder="Enter price" ${index === 0 ? 'required' : ''} />
+                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
+                                                    <input type="text" name="variation_old_price[${index}]" class="form-control" placeholder="Old price" ${index === 0 ? 'required' : ''} />
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="variation_stock[${index}]" class="form-control" placeholder="Enter stock" ${index === 0 ? 'required' : ''} />
+                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
+                                                    <input type="text" name="variation_new_price[${index}]" class="form-control" placeholder="New price" ${index === 0 ? 'required' : ''} />
+                                                </div>
+                                                <div class="col-12 col-md-2">
+                                                    <input type="text" name="variation_stock[${index}]" class="form-control" placeholder="Quantity" ${index === 0 ? 'required' : ''} />
                                                 </div>
                                             </div>`;
                                         }
@@ -850,6 +877,10 @@
 
                                     $('.product-variation-section').show();
                                     $('#add_variation_input').html(inputHtml);
+
+                                    $('#old_price_section').hide();
+                                    $('#new_price_section').hide();
+                                    $('#quantity_section').hide();
                                 } else {
                                     $('#add_variation_input').html(
                                         '<p class="text-muted">No product variations available.</p>'
