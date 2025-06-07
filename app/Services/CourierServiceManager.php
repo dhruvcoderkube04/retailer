@@ -29,4 +29,28 @@ class CourierServiceManager
             default    => throw new \Exception("Unsupported courier: {$partner->code}")
         };
     }
+
+    public static function getAllServicesForWarehouse(): array
+    {
+        $partners = CourierPartner::all(); // all, not just active
+
+        $services = [];
+
+        foreach ($partners as $partner) {
+            $service = match ($partner->code) {
+                'fship'    => new FShipService($partner->toArray()),
+                'lorrigo'  => new LorrigoService($partner->toArray()),
+                default    => null,
+            };
+
+            if ($service) {
+                $services[] = [
+                    'service' => $service,
+                    'partner' => $partner,
+                ];
+            }
+        }
+
+        return $services;
+    }
 }

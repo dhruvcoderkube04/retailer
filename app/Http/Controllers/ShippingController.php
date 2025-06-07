@@ -217,13 +217,26 @@ class ShippingController extends Controller
     public function labelSetting(){
         return view('shipping.label-setting');
     }
-    public function pickAddressList(){
+    // public function pickAddressList()
+    // {
 
+    //     $user = Auth::user();
+    //     $addresses = PickAddress::where('user_id',$user->id)->get();
+
+    //     return view('shipping.pick-up-address-list',['addresses' => $addresses]);
+    // }
+
+    public function pickAddressList()
+    {
         $user = Auth::user();
-        $addresses = PickAddress::where('user_id',$user->id)->get();
+        $addresses = PickAddress::select('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
+            ->where('user_id', $user->id)
+            ->groupBy('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
+            ->get();
 
         return view('shipping.pick-up-address-list',['addresses' => $addresses]);
     }
+
     public function rtoAddress()
     {
         $user = Auth::user();
@@ -238,9 +251,121 @@ class ShippingController extends Controller
     }
 
     // for muitple courier partner
+    // public function pickAddressStore(Request $request)
+    // {
+    //     // Validate the request
+    //     $request->validate([
+    //         'warehouse_name' => 'required|string|max:255',
+    //         'first_name' => 'required|string|max:255',
+    //         'last_name' => 'required|string|max:255',
+    //         'mobile' => 'required|digits:10',
+    //         'pincode' => 'required|digits:6',
+    //         'address' => 'required|string',
+    //         'state' => 'required|string',
+    //         'city' => 'required|string',
+    //     ]);
+    //     $user = Auth::user();
+
+    //     // Check if warehouse already exists for this retailer with same name
+    //     $courier_id = CourierPartner::select('id')->where('is_active',1)->first();
+
+    //     $existingWarehouse = PickAddress::where('user_id', $user->id)
+    //         ->where('warehouse_name', $request->warehouse_name)->where('courier_partner_id',@$courier_id->id)
+    //         ->first();
+
+    //     $isUpdate = false;
+    //     $warehouseId = null;
+
+    //     $warehouseData = [
+    //         "warehouseName" => $request->warehouse_name,
+    //         "contactName" => $request->first_name,
+    //         "addressLine1" => $request->address,
+    //         "addressLine2" => "",
+    //         "pincode" => $request->pincode,
+    //         "city" => $request->city,
+    //         "phoneNumber" => $request->mobile,
+    //         "email" => $user->email,
+    //     ];
+    //     try {
+    //         // Log warehouse data before the API call
+    //         Log::info('Warehouse Data:', $warehouseData);
+
+    //         // Get the active courier service based on the selected courier partner
+    //         $courierService = CourierServiceManager::getService();
+
+    //         if (!$courierService) {
+    //             // Log if no courier service is found
+    //             Log::error('Courier service not found.');
+    //             return back()->with('error', 'Courier service not found.');
+    //         }
+
+    //         if ($existingWarehouse && $existingWarehouse->warehouse_id) {
+    //             // If name matches and warehouse ID exists, update warehouse
+    //             $warehouseData['warehouseId'] = $existingWarehouse->warehouse_id;
+    //             $response = $courierService->updateWarehouse($warehouseData);
+    //             $isUpdate = true;
+    //         } else {
+    //             // Create new warehouse
+    //             $response = $courierService->addWarehouse($warehouseData);
+    //         }
+    //         // Log the response received
+    //         Log::info('Courier service response:', ['response' => $response]);
+
+    //         // Check if the response is an array or an HTTP response
+    //         if (is_array($response)) {
+    //             $res = $response;
+    //         } else {
+    //             $res = $response->json();
+    //         }
+
+    //         // Log the final response data
+    //         Log::info('Parsed Response:', ['response' => $res]);
+
+    //         // If the status is false, display the error from the API
+    //         if (isset($res['response']['status']) && $res['response']['status'] === false) {
+    //             // Return error if status is false, show message from response
+    //             return back()->with('error', $res['response']['response']); // Show the specific API error message
+    //         }
+
+    //         // If the status is true, continue with saving the warehouse data
+    //         if (isset($res['status']) && $res['status'] === true) {
+    //             $warehouseId = $res['warehouseId'] ?? null;
+
+    //             // Save/update in local DB
+    //             $address = $existingWarehouse ?? new PickAddress();
+    //             $address->warehouse_id = $warehouseId;
+    //             $address->warehouse_name = $request->warehouse_name;
+    //             $address->first_name = $request->first_name;
+    //             $address->last_name = $request->last_name;
+    //             $address->mobile_number = $request->mobile;
+    //             $address->pincode = $request->pincode;
+    //             $address->address = $request->address;
+    //             $address->state = $request->state;
+    //             $address->city = $request->city;
+    //             $address->user_id = $user->id;
+    //             $address->courier_partner_id = @$courier_id->id;
+    //             $address->save();
+
+    //             $message = $isUpdate ? 'Warehouse updated successfully!' : 'Warehouse added successfully!';
+    //             return back()->with('success', $message);
+    //         }
+
+
+    //         $errorMessage = is_array($res['response'] ?? null)
+    //         ? ($res['response']['message'] ?? 'Courier service error.')
+    //         : ($res['response'] ?? 'Courier service error.');
+
+    //         return back()->with('error', $errorMessage);
+    //     } catch (\Exception $e) {
+    //         // Log the exception for better debugging
+    //         Log::error('Error in pickAddressStore:', ['error' => $e->getMessage()]);
+
+    //         return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+    //     }
+    // }
+
     public function pickAddressStore(Request $request)
     {
-        // Validate the request
         $request->validate([
             'warehouse_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
@@ -251,17 +376,8 @@ class ShippingController extends Controller
             'state' => 'required|string',
             'city' => 'required|string',
         ]);
+
         $user = Auth::user();
-
-        // Check if warehouse already exists for this retailer with same name
-        $courier_id = CourierPartner::select('id')->where('is_active',1)->first();
-
-        $existingWarehouse = PickAddress::where('user_id', $user->id)
-            ->where('warehouse_name', $request->warehouse_name)->where('courier_partner_id',@$courier_id->id)
-            ->first();
-
-        $isUpdate = false;
-        $warehouseId = null;
 
         $warehouseData = [
             "warehouseName" => $request->warehouse_name,
@@ -273,51 +389,39 @@ class ShippingController extends Controller
             "phoneNumber" => $request->mobile,
             "email" => $user->email,
         ];
-        try {
-            // Log warehouse data before the API call
-            Log::info('Warehouse Data:', $warehouseData);
 
-            // Get the active courier service based on the selected courier partner
-            $courierService = CourierServiceManager::getService();
-            if (!$courierService) {
-                // Log if no courier service is found
-                Log::error('Courier service not found.');
-                return back()->with('error', 'Courier service not found.');
-            }
+        $services = CourierServiceManager::getAllServicesForWarehouse();
+        $successCount = 0;
+        $errorList = [];
 
-            if ($existingWarehouse && $existingWarehouse->warehouse_id) {
-                // If name matches and warehouse ID exists, update warehouse
-                $warehouseData['warehouseId'] = $existingWarehouse->warehouse_id;
-                $response = $courierService->updateWarehouse($warehouseData);
-                $isUpdate = true;
-            } else {
-                // Create new warehouse
-                $response = $courierService->addWarehouse($warehouseData);
-            }
-            // Log the response received
-            Log::info('Courier service response:', ['response' => $response]);
+        foreach ($services as $entry) {
+            $courierService = $entry['service'];
+            $partner = $entry['partner'];
 
-            // Check if the response is an array or an HTTP response
-            if (is_array($response)) {
-                $res = $response;
-            } else {
-                $res = $response->json();
-            }
+            try {
+                // Check if warehouse already exists for this courier & user
+                $existingWarehouse = PickAddress::where('user_id', $user->id)
+                    ->where('warehouse_name', $request->warehouse_name)
+                    ->where('courier_partner_id', $partner->id)
+                    ->first();
 
-            // Log the final response data
-            Log::info('Parsed Response:', ['response' => $res]);
+                if ($existingWarehouse && $existingWarehouse->warehouse_id) {
+                    $warehouseData['warehouseId'] = $existingWarehouse->warehouse_id;
+                    $response = $courierService->updateWarehouse($warehouseData);
+                } else {
+                    $response = $courierService->addWarehouse($warehouseData);
+                }
 
-            // If the status is false, display the error from the API
-            if (isset($res['response']['status']) && $res['response']['status'] === false) {
-                // Return error if status is false, show message from response
-                return back()->with('error', $res['response']['response']); // Show the specific API error message
-            }
+                $res = is_array($response) ? $response : $response->json();
 
-            // If the status is true, continue with saving the warehouse data
-            if (isset($res['status']) && $res['status'] === true) {
+                if (!($res['status'] ?? false)) {
+                    $errorList[] = "{$partner->name} failed: " . ($res['message'] ?? 'Unknown error');
+                    continue;
+                }
+
                 $warehouseId = $res['warehouseId'] ?? null;
 
-                // Save/update in local DB
+                // Save or update PickAddress
                 $address = $existingWarehouse ?? new PickAddress();
                 $address->warehouse_id = $warehouseId;
                 $address->warehouse_name = $request->warehouse_name;
@@ -329,24 +433,25 @@ class ShippingController extends Controller
                 $address->state = $request->state;
                 $address->city = $request->city;
                 $address->user_id = $user->id;
-                $address->courier_partner_id = @$courier_id->id;
+                $address->courier_partner_id = $partner->id;
                 $address->save();
 
-                $message = $isUpdate ? 'Warehouse updated successfully!' : 'Warehouse added successfully!';
-                return back()->with('success', $message);
+                $successCount++;
+
+            } catch (\Exception $e) {
+                \Log::error("Warehouse add error for {$partner->name}", ['error' => $e->getMessage()]);
+                $errorList[] = "{$partner->name} error: " . $e->getMessage();
             }
+        }
 
-
-            $errorMessage = is_array($res['response'] ?? null)
-            ? ($res['response']['message'] ?? 'Courier service error.')
-            : ($res['response'] ?? 'Courier service error.');
-
-            return back()->with('error', $errorMessage);
-        } catch (\Exception $e) {
-            // Log the exception for better debugging
-            Log::error('Error in pickAddressStore:', ['error' => $e->getMessage()]);
-
-            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        if ($successCount > 0) {
+            return back()
+                ->with('success', "Warehouse saved with {$successCount} courier partners.")
+                ->with('custom_errors', $errorList);
+        } else {
+            return back()
+                ->with('error', 'Failed to add warehouse to all courier partners.')
+                ->with('custom_errors', $errorList);
         }
     }
 
@@ -463,7 +568,6 @@ class ShippingController extends Controller
 
     public function RTOAddressStore(Request $request)
     {
-
         // dd($request->all());
         $request->validate([
             'first_name' => 'required|string|max:255',

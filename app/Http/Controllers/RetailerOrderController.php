@@ -172,7 +172,8 @@ class RetailerOrderController extends Controller
             ->first()->toArray();
 
         // Pickup address
-        $pickupAddress = PickAddress::where('user_id', $retailer->id)->get();
+        $active_courier_partner = CourierPartner::where('is_active',1)->first();
+        $pickupAddress = PickAddress::where('user_id', $retailer->id)->where('courier_partner_id',$active_courier_partner->id)->get();
 
         // Courier list via service manager
         try {

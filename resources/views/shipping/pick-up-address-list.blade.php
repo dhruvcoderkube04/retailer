@@ -63,7 +63,7 @@
                                     </div>
                                     <!--end::Info-->
                                     <!--begin::Actions-->
-                                    <div class="d-flex align-items-center py-2">
+                                    {{-- <div class="d-flex align-items-center py-2">
                                         <button class="btn btn-sm btn-light btn-active-light-primary me-3 delete-address"
                                             data-id="{{ $address->id }}">
                                             <span class="indicator-label">Delete</span>
@@ -77,7 +77,7 @@
                                             data-bs-target="#editAddressModal">
                                             Edit
                                         </button>
-                                    </div>
+                                    </div> --}}
                                     <!--end::Actions-->
                                 </div>
                                 <!--end::Card-->
@@ -127,8 +127,8 @@
     </div>
     <!--end::Content-->
 
-    <div class="modal fade @if ($errors->any()) show d-block @endif" id="addAddressModal" tabindex="-1"
-        aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal fade @if ($errors->any() || session('custom_errors')) show d-block @endif"
+     id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
