@@ -1031,7 +1031,10 @@ class RetilerController extends Controller
                 do {
                     // Generate a 14-digit random number (padded if needed)
                     $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
-                } while (Product::where('sku', $sku)->exists());
+                } while (
+                    Product::where('sku', $sku)->exists() ||
+                    RetailerCloneProduct::where('sku', $sku)->exists()
+                );
             }
 
             // add time stape with uuid in slug
@@ -1257,18 +1260,21 @@ class RetilerController extends Controller
             $subCategory = SubCategory::find($request->sub_category_id);
 
             // SKU number check else generated unique
-            // if ($request->sku) {
-            //     $sku = $request->sku;
-            // } else {
-            //     do {
-            //         // Generate a 14-digit random number (padded if needed)
-            //         $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
-            //     } while (Product::where('sku', $sku)->exists());
-            // }
+            if ($request->sku) {
+                $sku = $request->sku;
+            } else {
+                do {
+                    // Generate a 14-digit random number (padded if needed)
+                    $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+                } while (
+                    Product::where('sku', $sku)->exists() ||
+                    RetailerCloneProduct::where('sku', $sku)->exists()
+                );
+            }
 
             // Update product details
             $product->name = $request->product_name;
-            // $product->sku = $sku;
+            $product->sku = $sku;
             $product->category_id = $subCategory->category_id ?? null;
             $product->sub_category_id = $request->sub_category_id;
             $product->description = $request->product_description;
