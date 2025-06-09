@@ -14,6 +14,7 @@ use App\Models\RetailerWebManagement;
 use App\Models\UserDetail;
 use App\Models\Otp;
 use App\Models\Product;
+use App\Models\ProductVariation;
 use App\Models\User;
 use App\Models\RetailerCategory;
 use App\Models\SubCategory;
@@ -685,7 +686,7 @@ class RetailerProductController extends Controller
             'products.*.product_id' => 'nullable',
             'products.*.retailer_product_id' => 'nullable',
             'products.*.wholesaler_id' => 'nullable',
-            'products.*.retailer_id' => 'nullable',
+            'products.*.retailer_id' => 'required',
             'products.*.quantity' => 'required|integer|min:1',
             'products.*.final_amount' => 'required|numeric|min:0',
         ]);
@@ -702,19 +703,12 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'API Key is required.'], 401);
         }
 
-        $retailer = RetailerWebManagement::with([
-            'retailer' => function ($query) {
-                $query->where('is_delete', 0)
-                    ->where('status', 1);
-            }
-        ])
-            ->whereHas('retailer', function ($query) {
-                $query->where('is_delete', 0)
-                    ->where('status', 1);
-            })->where('product_listing_key', $apiKey)->first();
+        $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
+            $query->where('is_delete', 0)->where('status', 1);
+        }])->whereHas('retailer', function ($query) {
+            $query->where('is_delete', 0)->where('status', 1);
+        })->where('product_listing_key', $apiKey)->first();
 
-
-        // $retailer = RetailerWebManagement::with('retailer')->where('product_listing_key', $apiKey)->first();
         if (!$retailer) {
             return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
         }
@@ -732,7 +726,6 @@ class RetailerProductController extends Controller
                 'pincode' => $request->pincode
             ]);
 
-
             $orderItems = [];
             $orderIDs = [];
             $orderItemsForMail = [];
@@ -743,8 +736,8 @@ class RetailerProductController extends Controller
 
                 $wholesalerId = $product['wholesaler_id'] ?? null;
                 $retailerId = $product['retailer_id'] ?? $retailer->retailer_id;
-                $productId = !empty($product['product_id']) ? $product['product_id'] : null;
-                $cloneId = !empty($product['retailer_product_id']) ? $product['retailer_product_id'] : null;
+                $productId = $product['product_id'] ?? null;
+                $cloneId = $product['retailer_product_id'] ?? null;
                 $quantity = $product['quantity'];
 
                 if (!$productId && !$cloneId) {
@@ -753,24 +746,68 @@ class RetailerProductController extends Controller
                         'message' => 'Either product_id or retailer_product_id must be provided.'
                     ], 404);
                 }
+                if ($productId && !$wholesalerId) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'wholesaler_id is required for Product ID ' . $productId
+                    ], 404);
+                }
 
+                $variation = null;
+                $variationOldPrice = null;
+                $variationNewPrice = null;
+                $variationStock = null;
                 if ($productId) {
-                    // Ensure the product exists
-                    $productModel = Product::find($productId);
+                    $productModel = Product::with('productVariations')
+                        ->where('id', $productId)
+                        ->where('status', 'active')
+                        ->first();
                     if (!$productModel) {
                         return response()->json([
                             'error' => true,
                             'message' => 'Product ID ' . $productId . ' not found.'
                         ], 404);
                     }
-                    if ($productModel->quantity < $quantity) {
-                        return response()->json([
-                            'error' => true,
-                            'message' => 'Insufficient stock for Product ID ' . $productId
-                        ], 404);
+
+                    if ($productModel->productVariations->isNotEmpty()) {
+                        if (empty($product['product_variation'])) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Product variation is required for Product ID ' . $productId
+                            ], 422);
+                        }
+
+                        $productVariation = ProductVariation::where('product_id', $productId)->where('product_variation', $product['product_variation'])->first();
+                        if (!$productVariation) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'There is no any variation as ' . $product['product_variation'] . ' for Product ID ' . $productId
+                            ], 404);
+                        }
+                        if ($productVariation->stock < $quantity) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Insufficient variation stock for Product ID ' . $productId
+                            ], 404);
+                        }
+
+                        $productVariation->stock -= $quantity;
+                        $productVariation->save();
+
+                        $variation = $productVariation->product_variation;
+                        $variationOldPrice = $productVariation->old_price;
+                        $variationNewPrice = $productVariation->price;
+                        $variationStock = $productVariation->stock;
+                    } else {
+                        if ($productModel->quantity < $quantity) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Insufficient stock for Product ID ' . $productId
+                            ], 404);
+                        }
+                        $productModel->quantity -= $quantity;
+                        $productModel->save();
                     }
-                    $productModel->quantity -= $quantity;
-                    $productModel->save();
 
                     // START: clone to order_product_details
                     $orderProductDetails = new OrderProductDetails();
@@ -783,9 +820,10 @@ class RetailerProductController extends Controller
                     $orderProductDetails->description = $productModel->description;
                     $orderProductDetails->brand_name = $productModel->brand_name;
                     $orderProductDetails->tags = $productModel->tags;
-                    $orderProductDetails->quantity = $productModel->quantity;
-                    $orderProductDetails->old_price = $productModel->old_price;
-                    $orderProductDetails->new_price = $productModel->new_price;
+                    $orderProductDetails->product_variation = $variation ?? null;
+                    $orderProductDetails->quantity = $variationStock ? $variationStock : $productModel->quantity;
+                    $orderProductDetails->old_price = $variationOldPrice ? $variationOldPrice : $productModel->old_price;
+                    $orderProductDetails->new_price = $variationNewPrice ? $variationNewPrice : $productModel->new_price;
                     $orderProductDetails->discount_price = $productModel->discount_price;
                     $orderProductDetails->images = $productModel->images;
                     $orderProductDetails->videos = $productModel->videos;
@@ -804,8 +842,10 @@ class RetailerProductController extends Controller
                     $orderProductDetails->save();
                     // END: clone to order_product_details
                 } else {
-                    $retailerProduct = RetailerCloneProduct::where('retailer_id', $retailerId)
+                    $retailerProduct = RetailerCloneProduct::with('productVariations')
                         ->where('id', $cloneId)
+                        ->where('retailer_id', $retailerId)
+                        ->where('status', 'active')
                         ->first();
                     if (!$retailerProduct) {
                         return response()->json([
@@ -813,14 +853,46 @@ class RetailerProductController extends Controller
                             'message' => 'Retailer Product ID ' . $cloneId . ' not found.'
                         ], 404);
                     }
-                    if ($retailerProduct->quantity < $quantity) {
-                        return response()->json([
-                            'error' => true,
-                            'message' => 'Insufficient stock for Retailer Product ID ' . $cloneId
-                        ], 404);
+
+                    if ($retailerProduct->productVariations->isNotEmpty()) {
+                        if (empty($product['product_variation'])) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Product variation is required for Retailer Product ID ' . $cloneId
+                            ], 422);
+                        }
+
+                        $productVariation = ProductVariation::where('product_id', $cloneId)->where('product_variation', $product['product_variation'])->first();
+                        if (!$productVariation) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'There is no any variation as ' . $product['product_variation'] . ' for Retailer Product ID ' . $cloneId
+                            ], 404);
+                        }
+                        if ($productVariation->stock < $quantity) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Insufficient variation stock for Retailer Product ID ' . $cloneId
+                            ], 404);
+                        }
+
+                        $productVariation->stock -= $quantity;
+                        $productVariation->save();
+
+                        $variation = $productVariation->product_variation;
+                        $variationOldPrice = $productVariation->old_price;
+                        $variationNewPrice = $productVariation->price;
+                        $variationStock = $productVariation->stock;
+                    } else {
+                        if ($retailerProduct->quantity < $quantity) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Insufficient stock for Retailer Product ID ' . $cloneId
+                            ], 404);
+                        }
+                        $retailerProduct->quantity -= $quantity;
+                        $retailerProduct->save();
                     }
-                    $retailerProduct->quantity -= $quantity;
-                    $retailerProduct->save();
 
                     // START: clone to order_product_details
                     $orderProductDetails = new OrderProductDetails();
@@ -833,9 +905,10 @@ class RetailerProductController extends Controller
                     $orderProductDetails->description = $retailerProduct->description;
                     $orderProductDetails->brand_name = $retailerProduct->brand_name;
                     $orderProductDetails->tags = $retailerProduct->tags;
-                    $orderProductDetails->quantity = $retailerProduct->quantity;
-                    $orderProductDetails->old_price = $retailerProduct->old_price;
-                    $orderProductDetails->new_price = $retailerProduct->new_price;
+                    $orderProductDetails->product_variation = $variation ?? null;
+                    $orderProductDetails->quantity = $variationStock ? $variationStock : $retailerProduct->quantity;
+                    $orderProductDetails->old_price = $variationOldPrice ? $variationOldPrice : $retailerProduct->old_price;
+                    $orderProductDetails->new_price = $variationNewPrice ? $variationNewPrice : $retailerProduct->new_price;
                     $orderProductDetails->discount_price = $retailerProduct->discount_price;
                     $orderProductDetails->images = $retailerProduct->images;
                     $orderProductDetails->videos = $retailerProduct->videos;
@@ -863,11 +936,11 @@ class RetailerProductController extends Controller
                     'retailer_clone_product_id' => $cloneId,
                     'retailer_id' => $retailerId,
                     'wholesaler_id' => $wholesalerId,
+                    'product_variation' => $variation ?? null,
                     'quantity' => $quantity,
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'variation_id' => !empty($product['variant_id']) && $product['variant_id'] != 0 ? $product['variant_id'] : null,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
@@ -884,6 +957,7 @@ class RetailerProductController extends Controller
                     'order_id' => $orderID,
                     'product_name' => $orderProductDetails->name,
                     'product_image' => $orderProductDetails->images,
+                    'product_variation' => $variation ?? null,
                     'quantity' => $quantity,
                     'final_amount' => $product['final_amount'],
                     'payment_method' => $request->payment_method,

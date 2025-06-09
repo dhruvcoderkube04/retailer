@@ -9,11 +9,13 @@
 </p>
 
 @foreach ($groupedOrders as $orderId => $items)
-    <h3 style="font-family: Arial, sans-serif; background-color: #f1f1f1; padding: 10px; border-left: 5px solid #3498db;">
+    <h3
+        style="font-family: Arial, sans-serif; background-color: #f1f1f1; padding: 10px; border-left: 5px solid #3498db;">
         Order: <span style="color: #2c3e50;">{{ $orderId }}</span> - {{ $items[0]['product_name'] }}
     </h3>
 
-    <table border="1" cellpadding="8" cellspacing="0" width="100%" style="margin-bottom: 30px; font-family: Arial, sans-serif; border-collapse: collapse;">
+    <table border="1" cellpadding="8" cellspacing="0" width="100%"
+        style="margin-bottom: 30px; font-family: Arial, sans-serif; border-collapse: collapse;">
         @foreach ($items as $item)
             <tr style="background-color: #ecf0f1;">
                 <th colspan="2" style="text-align: center;">Product Details</th>
@@ -22,6 +24,12 @@
                 <th style="text-align: left;">Product Name</th>
                 <td>{{ $item['product_name'] }}</td>
             </tr>
+            @if ($item['product_variation'])
+                <tr>
+                    <th style="text-align: left;">Product Variation</th>
+                    <td>{{ $item['product_variation'] }}</td>
+                </tr>
+            @endif
             <tr>
                 <th style="text-align: left;">Image</th>
                 <td>

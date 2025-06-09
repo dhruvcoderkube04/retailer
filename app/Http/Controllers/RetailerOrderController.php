@@ -172,8 +172,8 @@ class RetailerOrderController extends Controller
             ->first()->toArray();
 
         // Pickup address
-        $active_courier_partner = CourierPartner::where('is_active',1)->first();
-        $pickupAddress = PickAddress::where('user_id', $retailer->id)->where('courier_partner_id',$active_courier_partner->id)->get();
+        $active_courier_partner = CourierPartner::where('is_active', 1)->first();
+        $pickupAddress = PickAddress::where('user_id', $retailer->id)->where('courier_partner_id', $active_courier_partner->id)->get();
 
         // Courier list via service manager
         try {
@@ -307,6 +307,7 @@ class RetailerOrderController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', '%' . $search . '%')
+                    ->orWhere('product_variation', 'like', '%' . $search . '%')
                     ->orWhere('quantity', 'like', '%' . $search . '%')
                     ->orWhere('final_amount', 'like', '%' . $search . '%')
                     ->orWhere('shipment_status', 'like', '%' . $search . '%')
@@ -396,9 +397,14 @@ class RetailerOrderController extends Controller
 
             $order_detail = '<div class="row">
                 <div class="col-12 mb-1"><strong>Order Id:</strong> ' . $item->order_id . '</div>
-                <div class="col-12 mb-1"><strong>Name:</strong> ' . ($item?->order_product_detail?->name ?? '') . '</div>
-                <div class="col-12 mb-1"><strong>Quantity:</strong> Qty: ' . $item->quantity . ' ' . ($item->size ? '| Size: ' . $item->size : '') . '</div>
-                <div class="col-12 mb-1"><strong>Amount:</strong> ₹' . $item?->final_amount . '</div>
+                <div class="col-12 mb-1"><strong>Name:</strong> ' . ($item?->order_product_detail?->name ?? 'N/A') . '</div>';
+
+            if ($item->product_variation) {
+                $order_detail .= '<div class="col-12 mb-1"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . ($item->product_variation ?? 'N/A') . '</div></div>';
+            }
+
+            $order_detail .= '<div class="col-12 mb-1"><strong>Quantity:</strong> <div class="badge badge-light-secondary text-wrap">' . $item->quantity . '</div> ' . ($item->size ? '| Size: ' . $item->size : '') . '</div>
+                <div class="col-12 mb-1"><strong>Amount:</strong><div class="badge badge-light-primary text-wrap"> ₹' . $item?->final_amount . ' </div></div>
                 <div class="col-12 mb-1"><strong>Payment:</strong> ' . strtoupper($item->payment_method) . '</div>
                 <div class="col-12 mb-1"><strong>Order Status:</strong> <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span></div>
                 <div class="col-12 mb-1"><strong>Tracking Id:</strong> ' . ($item->tracking_number ?? '-') . '</div>

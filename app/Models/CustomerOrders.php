@@ -8,16 +8,24 @@ class CustomerOrders extends Model
 {
     protected $fillable = [
         'order_id',
+        'checkout_type',
         'customer_id',
         'order_product_id',
         'product_id',
         'retailer_clone_product_id',
         'retailer_id',
         'wholesaler_id',
+        'product_variation',
         'quantity',
         'final_amount',
+        'margin',
         'order_process_by',
         'status',
+        'shipment_status',
+        'fulfilledby',
+        'courier_partner_id',
+        'courier_partner_code',
+        'shipment_status_updated_at',
         'approved_by_retailer_at',
         'transfered_retailer_to_wholesaler_at',
         'approved_by_wholesaler_at',
@@ -53,13 +61,6 @@ class CustomerOrders extends Model
         'expected_delivery',
         'payment_status',
         'payment_method',
-        'variation_id',
-        'shipment_status',
-        'fulfilledby',
-        'shipment_status_updated_at',
-        'courier_partner_id',
-        'courier_partner_code',
-        'checkout_type'
     ];
 
     protected $casts = [
@@ -81,7 +82,8 @@ class CustomerOrders extends Model
         return $this->belongsTo(Product::class, 'product_id');
     }
 
-    public function retailer() {
+    public function retailer()
+    {
         return $this->belongsTo(User::class, 'retailer_id')->where('user_type', 3);
     }
 
