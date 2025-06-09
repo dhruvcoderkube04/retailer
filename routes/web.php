@@ -4,8 +4,7 @@ use App\Http\Controllers\AbandonardCard;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
-use App\Http\Controllers\Coupan;
-use App\Http\Controllers\CoupanController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\RetailerAccountTransactionController;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
@@ -139,12 +138,12 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/cms-page', [CMS::class, 'index'])->name('retailer.cms.index');
 
     // coupan
-    Route::get('/coupan-page', [CoupanController::class, 'index'])->name('retailer.coupon.index');
-    Route::post('/coupons/fetch', [CoupanController::class, 'fetchCouponsRecord'])->name('coupons.fetch');
-    Route::post('/add-coupon', [CoupanController::class, 'AddCoupon'])->name('retailer.coupon.add');
-    Route::post('/delete-coupon', [CoupanController::class, 'deleteCoupon'])->name('retailer.coupon.delete');
-    Route::get('/edit-coupon/{id}', [CoupanController::class, 'editCoupon'])->name('retailer.coupon.edit');
-    Route::post('/update-coupon/{id}', [CoupanController::class, 'updateCoupon'])->name('retailer.coupon.update');
+    Route::get('/coupon-page', [CouponController::class, 'index'])->name('retailer.coupon.index');
+    Route::post('/coupons/fetch', [CouponController::class, 'fetchCouponsRecord'])->name('coupons.fetch');
+    Route::post('/add-coupon', [CouponController::class, 'addCoupon'])->name('retailer.coupon.add');
+    Route::post('/delete-coupon', [CouponController::class, 'deleteCoupon'])->name('retailer.coupon.delete');
+    Route::get('/edit-coupon/{id}', [CouponController::class, 'editCoupon'])->name('retailer.coupon.edit');
+    Route::post('/update-coupon/{id}', [CouponController::class, 'updateCoupon'])->name('retailer.coupon.update');
 
     // setting
     Route::get('/setting-page', [Setting::class, 'index'])->name('retailer.setting.index');

@@ -444,7 +444,7 @@ class RetailerOrderController extends Controller
                 <div class="col-12 mb-1"><strong>Mobile no:</strong> ' . $item->customer->phone_number . '</div>
             </div>';
 
-            $action = '';
+            $action = '<div class="d-flex align-items-center gap-2">';
 
             $common_attrs = '
                 data-order-product-id="' . $item->order_product_id . '"
@@ -466,6 +466,19 @@ class RetailerOrderController extends Controller
             } else {
                 $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
             }
+
+
+          $action .= '<button type="button"
+                class="btn btn-icon btn-dark btn-active-light-dark w-30px h-30px raise-issue"
+                data-id="' . $item->order_id . '">
+                <i class="ki-duotone ki-cheque fs-3">
+                    <span class="path1"></span><span class="path2"></span>
+                    <span class="path3"></span><span class="path4"></span>
+                    <span class="path5"></span><span class="path6"></span><span class="path7"></span>
+                </i>
+            </button>';
+
+            $action .= '</div>';
 
             $data[] = array(
                 'sr_no' => $i,

@@ -80,10 +80,11 @@ class TicketController extends Controller
                 // 'ticket_id' => '<a href="" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
                 'subject' => e($ticket->subject),
                 'description' => e($ticket->description),
+                'category' => e($ticket->category),
                 'ref_image' => '<img src="' . ($firstImage
                     ? Storage::disk('spaces')->url($firstImage)
-                    : asset('assets/media/images/no_image.jpg')) . '" 
-                    width="50" 
+                    : asset('assets/media/images/no_image.jpg')) . '"
+                    width="50"
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';">',
                 'status' => '<span class="' . $statusClass . '" data-status="' . $ticket->status . '">' . ucfirst($ticket->status) . '</span>',
                 'created_at' => '<div class="badge badge-light">' . $ticket->created_at->diffForHumans() . '</div>',
@@ -134,14 +135,13 @@ class TicketController extends Controller
                 'ticket_image_ref' => 'nullable|array|max:3', // max 3 images
                 'ticket_image_ref.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2MB max
             ]);
-
             $ticket_id = 'TM' . mt_rand(100000, 999999);
 
             $ticket = new Ticket();
-            $ticket->subject = $request->subject;
+            $ticket->subject =  $request->subject;
             $ticket->description = $request->ticket_description;
             $ticket->status = 'Open';
-            $ticket->category = '';
+            $ticket->category = ($request->category ?? '') .'-'. ($request->product_id ?? '');
             $ticket->ticket_id = $ticket_id;
             $ticket->user_id = Auth::id();
 

@@ -846,9 +846,9 @@ class RetilerController extends Controller
                 ? Storage::disk('spaces')->url($image)
                 : asset('assets/media/images/no_image.jpg');
             $defaultImage = asset('assets/media/images/no_image.jpg');
-            $product_image = '<img src="' . $imageUrl . '" 
-                        alt="Product Image" 
-                        style="width: 50px; height: 50px; object-fit: cover;" 
+            $product_image = '<img src="' . $imageUrl . '"
+                        alt="Product Image"
+                        style="width: 50px; height: 50px; object-fit: cover;"
                         onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
 
             $old_price = '<div class="badge badge-light-primary text-wrap">'

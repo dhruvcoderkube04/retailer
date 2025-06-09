@@ -121,6 +121,7 @@
                                         <th class="min-w-125px">Ticket ID</th>
                                         <th class="min-w-125px">Message</th>
                                         <th class="min-w-125px">Description</th>
+                                        <th class="min-w-125px">Category</th>
                                         <th class="min-w-125px">Image Ref</th>
                                         <th class="min-w-125px">Status</th>
                                         <th class="min-w-125px">Created Date</th>
@@ -247,6 +248,7 @@
                     { data: 'ticket_id' },
                     { data: 'subject' },
                     { data: 'description' },
+                    { data: 'category' },
                     { data: 'ref_image', orderable: false, searchable: false },
                     { data: 'status' },
                     { data: 'created_at' },

@@ -58,6 +58,17 @@
       0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
     ),
   ),
+  'mckenziearts/laravel-notify' => 
+  array (
+    'aliases' => 
+    array (
+      'Notify' => 'Mckenziearts\\Notify\\Facades\\LaravelNotify',
+    ),
+    'providers' => 
+    array (
+      0 => 'Mckenziearts\\Notify\\LaravelNotifyServiceProvider',
+    ),
+  ),
   'milon/barcode' => 
   array (
     'aliases' => 

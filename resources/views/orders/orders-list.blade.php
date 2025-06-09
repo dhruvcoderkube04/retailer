@@ -558,6 +558,63 @@
             </div>
         </div>
     </div>
+
+    {{-- Raise Issue Modal --}}
+    <div class="modal fade" id="kt_modal_raise_issue" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Raise Your Issue</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mx-5 mx-xl-7 my-3">
+                    <form id="raiseIssueForm" class="form" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" id="raise_issue_product_id" name="product_id">
+                        <div class="fv-row mb-7 fv-plugins-icon-container">
+                            <label class="fs-6 fw-semibold form-label mb-2 required">Ticket Subject</label>
+                            <input type="text" class="form-control" name="subject" id="ticket_subject" placeholder="Enter subject">
+                            <span class="invalid-feedback d-block" id="subject_error"></span>
+                        </div>
+
+                        <div class="fv-row mb-7 fv-plugins-icon-container">
+                            <label class="fs-6 fw-semibold form-label mb-2 required">Category</label>
+                            <select class="form-select" name="category" id="ticket_category">
+                                <option value="">Select Category</option>
+                                <option value="Product Issue">Product Issue</option>
+                                <option value="Order Issue">Order Issue</option>
+                                <option value="Shipping Charge">Shipping Charge</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="invalid-feedback d-block" id="category_error"></span>
+                        </div>
+
+                        <div class="fv-row mb-7 fv-plugins-icon-container">
+                            <label class="fs-6 fw-semibold form-label mb-2 required">Description</label>
+                            <textarea class="form-control" name="ticket_description" id="ticket_description" rows="4" placeholder="Describe your issue..."></textarea>
+                            <span class="invalid-feedback d-block" id="description_error"></span>
+                        </div>
+                        <div class="fv-row mb-7 fv-plugins-icon-container">
+                            <label class="fs-6 fw-semibold form-label mb-2">Upload Screenshots (optional)</label>
+                            <input type="file" class="form-control" name="ticket_image_ref" id="screenshots" multiple>
+                            <small class="text-muted">Max 3 images. Allowed types: jpg, jpeg, png. Max size 2MB each</small>
+                            <span class="invalid-feedback d-block" id="screenshots_error"></span>
+                        </div>
+                        <div class="text-center">
+                            <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" style="background-color: #ff3d60; border-color: #ff3d60;">
+                                <span class="indicator-label">Raise Issue</span>
+                                <span class="indicator-progress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="courierDetailsModal" tabindex="-1" aria-labelledby="courierDetailsModalLabel"
         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
@@ -2044,6 +2101,84 @@
                 });
             });
             //<-------------- END: In Transit Order --------------->
+
+
+            //<----------------- START : raise issue ---------------->
+            $(document).on('click', '.raise-issue', function() {
+                let productId = $(this).data('id');
+                $('#raise_issue_product_id').val(productId);
+                $('#kt_modal_raise_issue').modal('show');
+            });
+
+            $(document).on('submit', '#raiseIssueForm', function(e) {
+                e.preventDefault();
+
+                let formData = new FormData(this);
+                let submitButton = $(this).find("button[type='submit']");
+
+                // Clear previous validation states
+                $('#subject_error').text('');
+                $('#description_error').text('');
+                $('#screenshots_error').text('');
+                $('#ticket_subject').removeClass('is-invalid');
+                $('#ticket_description').removeClass('is-invalid');
+                $('#screenshots').removeClass('is-invalid');
+
+                submitButton.prop("disabled", true);
+                submitButton.find(".indicator-label").hide();
+                submitButton.find(".indicator-progress").show();
+
+                $.ajax({
+                    url: "{{ route('retailer.generate.ticket') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Ticket Raised Successfully!',
+                            text: response.message,
+                        }).then(() => {
+                            $('#kt_modal_raise_issue').modal('hide');
+                            document.getElementById('raiseIssueForm').reset();
+                            $('#raise_issue_product_id').val('');
+                        });
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let response = xhr.responseJSON;
+
+                            if (response.errors) {
+                                if (response.errors.subject) {
+                                    $('#subject_error').text(response.errors.subject[0]);
+                                    $('#ticket_subject').addClass('is-invalid');
+                                }
+                                if (response.errors.description) {
+                                    $('#description_error').text(response.errors.description[0]);
+                                    $('#ticket_description').addClass('is-invalid');
+                                }
+                                if (response.errors.screenshots) {
+                                    $('#screenshots_error').text(response.errors.screenshots[0]);
+                                    $('#screenshots').addClass('is-invalid');
+                                }
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Server Error!',
+                                text: 'Something went wrong. Please try again.',
+                            });
+                        }
+                    },
+                    complete: function() {
+                        submitButton.prop("disabled", false);
+                        submitButton.find(".indicator-label").show();
+                        submitButton.find(".indicator-progress").hide();
+                    }
+                });
+            });
+            //<----------------- END : raise issue ---------------->
         });
     </script>
 @endsection
