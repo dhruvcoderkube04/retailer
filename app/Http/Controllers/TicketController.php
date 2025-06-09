@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Str;
 class TicketController extends Controller
 {
     public function ticketList()
@@ -66,7 +66,7 @@ class TicketController extends Controller
                 default => 'badge badge-light',
             };
 
-            $dropdown = '';
+            $dropdown = '<div class="d-flex align-items-center gap-2">';
             if ($ticket->status == 'Closed') {
                 $dropdown = '<select class="form-select form-select-sm ticket-status"
                                 data-ticket-id="' . encryptId($ticket->ticket_id) . '">
@@ -74,12 +74,19 @@ class TicketController extends Controller
                                 <option value="Open">Open</option>
                             </select>';
             }
-
+            $dropdown ='<a href="' . route('retailer.ticket.details', encryptId($ticket->ticket_id))  . '" class="btn btn-icon btn-success btn-light-success w-30px h-30px view-wholesaler" data-bs-toggle="tooltip" title="View">
+                    <i class="ki-duotone ki-eye">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                    </i>
+                </a>
+                </div>';
             $data[] = [
                 'ticket_id' => '<a href="' . route('retailer.ticket.details', encryptId($ticket->ticket_id)) . '" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
                 // 'ticket_id' => '<a href="" class="text-gray-800 text-hover-primary mb-1">' . e($ticket->ticket_id) . '</a>',
                 'subject' => e($ticket->subject),
-                'description' => e($ticket->description),
+                'description' => e(Str::limit($ticket->description ?? '', 100)),
                 'category' => e($ticket->category),
                 'ref_image' => '<img src="' . ($firstImage
                     ? Storage::disk('spaces')->url($firstImage)

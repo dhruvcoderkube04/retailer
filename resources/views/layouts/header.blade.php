@@ -50,12 +50,18 @@
             <!--end::Menu wrapper-->
             <!--begin::Navbar-->
             <div class="app-navbar flex-shrink-0">
-
                 @if (isset($retailer) && $retailer->is_active ==1)
                     <div class="app-navbar-item ms-1 ms-md-4">
                         <a href="{{ $retailer->subdomain }}" target="_blank"
                             class="btn btn-light-success btn-active-light-light">
                             <i class="fas fa-external-link-alt me-2 mb-1 fs-7"></i>View Your Site
+                        </a>
+                    </div>
+                @else
+                    <div class="app-navbar-item ms-1 ms-md-4">
+                        <a href="{{ url('retailer-web-setting')}}"
+                            class="btn btn-light-success btn-active-light-light">
+                            <i class="fas fa-external-link-alt me-2 mb-1 fs-7"></i>Create Your Site
                         </a>
                     </div>
                 @endif
