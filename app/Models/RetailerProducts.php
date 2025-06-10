@@ -10,7 +10,7 @@ class RetailerProducts extends Model
     use HasFactory;
 
     protected $fillable = [
-        'retailer_id', 'wholesaler_id', 'category_id', 'category_id', 'margin', 'payment_method', 'notes'
+        'retailer_id', 'wholesaler_id', 'category_id', 'margin', 'payment_method', 'notes'
     ];
 
     public function retailer() {
