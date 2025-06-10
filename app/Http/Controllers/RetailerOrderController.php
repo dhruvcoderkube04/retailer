@@ -468,7 +468,7 @@ class RetailerOrderController extends Controller
             }
 
 
-          $action .= '<button type="button"
+            $action .= '<button type="button"
                 class="btn btn-icon btn-dark btn-active-light-dark w-30px h-30px raise-issue"
                 data-id="' . $item->order_id . '">
                 <i class="ki-duotone ki-cheque fs-3">
@@ -1254,25 +1254,35 @@ class RetailerOrderController extends Controller
                 ->where('retailer_id', $retailer->id);
 
             // Search filter
-            if (!empty($request->search['value'])) {
-                $search = $request->search['value'];
+            if ($request->has('search') && !empty($request->search) && $request->search !== '') {
+                $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
+                        ->orWhere('product_variation', 'like', '%' . $search . '%')
+                        ->orWhere('quantity', 'like', '%' . $search . '%')
+                        ->orWhere('final_amount', 'like', '%' . $search . '%')
+                        ->orWhere('cancelled_reason', 'like', '%' . $search . '%')
+                        ->orWhere('tracking_number', 'like', '%' . $search . '%')
+                        ->orWhere('courier_service', 'like', '%' . $search . '%')
+                        ->orWhere('payment_method', 'like', '%' . $search . '%')
                         ->orWhereHas('order_product_detail', function ($q) use ($search) {
                             $q->where('name', 'like', "%{$search}%");
                         });
                 });
             }
 
-            $totalRecords = $query->count();
-
+            $cntFilter = clone $query;
             $records = $query->orderBy('id', 'desc')
                 ->skip($request->start)
                 ->take($request->length)
                 ->get();
 
-            $data = [];
+            $totalRecords = CustomerOrders::where('order_process_by', 'wholesaler')
+                ->where('checkout_type', 'punch')
+                ->where('retailer_id', $retailer->id)
+                ->count();
 
+            $data = [];
             foreach ($records as $index => $order) {
                 $product = $order->order_product_detail;
                 $imagePath = explode(',', $product->images ?? '')[0] ?? '';
@@ -1295,28 +1305,56 @@ class RetailerOrderController extends Controller
                     'received' => 'Received',
                 ];
 
-                $statusText = $orderStatus[$order->status] ?? 'Unknown';
-                $statusBadge = $order->status == 'approved' ? 'badge-success' : 'badge-danger';
+                // Filter by type to color
+                $typeColorMap = [
+                    'pending' => 'primary',
+                    'approved_by_retailer' => 'info',
+                    'transfered_retailer_to_wholesaler' => 'primary',
+                    'approved_by_wholesaler' => 'info',
+                    'pickup' => 'success',
+                    'in_transit' => 'warning',
+                    'ofd' => 'warning',
+                    'delivered' => 'success',
+                    'rto' => 'danger',
+                    'rtn_to_seller' => 'success',
+                    'close' => 'danger',
+                    'cancel' => 'danger',
+                    'lost' => 'muted',
+                    'received' => 'success',
+                ];
+
+                // $statusText = $orderStatus[$order->status] ?? 'Unknown';
+                // $statusBadge = $order->status == 'approved' ? 'badge-success' : 'badge-danger';
 
                 $orderDetailHTML = "
-                    <div><strong>Order Id:</strong> {$order->order_id}</div>
-                    <div><strong>Name:</strong> " . ($product->name ?? 'N/A') . "</div>
-                    <div><strong>Quantity:</strong> Qty: {$order->quantity}" . ($order->size ? ' | Size: ' . $order->size : '') . "</div>
-                    <div><strong>Amount:</strong> ₹{$order->final_amount}</div>
-                    <div><strong>Order Status:</strong> <span class='badge {$statusBadge}'>{$statusText}</span></div>";
+                    <div class='my-2'><strong>Order Id:</strong> {$order->order_id}</div>
+                    <div class='my-2'><strong>Name:</strong> " . ($product->name ?? 'N/A') . "</div>";
+
+                if ($order->product_variation) {
+                    $orderDetailHTML .= '<div class="col-12 my-2"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . ($order->product_variation ?? 'N/A') . '</div></div>';
+                }
+
+                $orderDetailHTML .= "<div class='my-2'><strong>Quantity:</strong> <div class='badge badge-light-secondary text-wrap'> {$order->quantity} </div>" . ($order->size ? ' | Size: ' . $order->size : '') . "</div>
+                    <div class='my-2'><strong>Amount:</strong><div class='badge badge-light-primary text-wrap'> ₹ {$order->final_amount} </div></div>
+                    <div class='my-2'>
+                        <strong>Order Status:</strong>
+                        <span class='badge badge-" . $typeColorMap[$order->status] . "'>
+                            " . ($orderStatus[$order->status] ?? 'Unknown') . "
+                        </span>
+                    </div>";
 
                 if ($order->status == 'cancel') {
-                    $orderDetailHTML .= "<div><strong>Reject Reason:</strong> <span class='text-danger'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
+                    $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
                 }
 
                 $orderDetailHTML .= "
-                    <div><strong>Tracking Id:</strong> " . ($order->tracking_number ?? 'N/A') . "</div>
-                    <div><strong>API Order Id:</strong> " . ($order->api_order_id ?? 'N/A') . "</div>";
+                    <div class='my-2'><strong>Tracking Id:</strong> " . ($order->tracking_number ?? 'N/A') . "</div>
+                    <div class='my-2'><strong>API Order Id:</strong> " . ($order->api_order_id ?? 'N/A') . "</div>";
 
                 if ($order->status == 'pickup' && $order->shipping_label_url) {
                     $orderDetailHTML .= "
-                        <div><a href='{$order->shipping_label_url}' target='_blank'><i class='fa-solid fa-download'></i> Shipping Label</a></div>
-                        <div><a href='javascript:void(0)' id='uploadPickupImage' data-order-id='{$order->id}'><i class='fa-solid fa-upload'></i> Upload Pickup Image</a></div>";
+                        <div class='my-2'><a href='{$order->shipping_label_url}' target='_blank'><i class='fa-solid fa-download'></i> Shipping Label</a></div>
+                        <div class='my-2'><a href='javascript:void(0)' id='uploadPickupImage' data-order-id='{$order->id}'><i class='fa-solid fa-upload'></i> Upload Pickup Image</a></div>";
                 }
 
                 $data[] = [
@@ -1329,9 +1367,9 @@ class RetailerOrderController extends Controller
                         onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";'
                         width='100' style='border-radius: 5px;'>",
                     'wholesaler_detail' => $wholesaler ? "
-                        <strong>Name:</strong> {$wholesaler->company_name}<br>
-                        <strong>Email:</strong> {$order->wholesaler->email}<br>
-                        <strong>Mobile:</strong> {$order->wholesaler->phone_number}
+                        <div class='my-2'><strong>Name:</strong> {$wholesaler->company_name}</div>
+                        <div class='my-2'><strong>Email:</strong> {$order->wholesaler->email}</div>
+                        <div class='my-2'><strong>Mobile:</strong> {$order->wholesaler->phone_number}</div>
                     " : 'N/A',
                 ];
             }
@@ -1339,7 +1377,7 @@ class RetailerOrderController extends Controller
             return response()->json([
                 'draw' => intval($request->draw),
                 'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $totalRecords,
+                'recordsFiltered' => $cntFilter->count(),
                 'data' => $data,
             ]);
         } catch (\Exception $e) {

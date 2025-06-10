@@ -686,7 +686,7 @@ class RetailerProductController extends Controller
             'products.*.product_id' => 'nullable',
             'products.*.retailer_product_id' => 'nullable',
             'products.*.wholesaler_id' => 'nullable',
-            'products.*.retailer_id' => 'required',
+            'products.*.retailer_id' => 'nullable',
             'products.*.quantity' => 'required|integer|min:1',
             'products.*.final_amount' => 'required|numeric|min:0',
         ]);

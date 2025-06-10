@@ -55,9 +55,9 @@
                                 <thead>
                                     <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center align-middle min-w-70px">Actions</th>
-                                        <th class="text-center align-middle min-w-200px">Product</th>
+                                        <th class="text-center align-middle min-w-250px">Product</th>
                                         <th class="text-center align-middle min-w-150px">Wholesaler</th>
-                                        <th class="text-center align-middle min-w-150px">SKU</th>
+                                        <th class="text-center align-middle min-w-100px">SKU</th>
                                         <th class="text-center align-middle min-w-100px">
                                             New Price <br>
                                             <span class="text-capitalize fs-9">(Per Piece)</span>

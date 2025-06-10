@@ -81,14 +81,14 @@
 
                     <div class="card card-flush">
                         <!-- Search -->
-                        <div class="card-title mx-5 my-3">
+                        <div class="card-title mx-10 my-5">
                             <div class="d-flex align-items-center position-relative my-1">
                                 <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                 </i>
                                 <input type="text" data-kt-ecommerce-product-filter="search"
-                                    class="form-control form-control-solid w-250px ps-12" placeholder="Search Product"
+                                    class="form-control form-control-solid w-250px ps-12 bg-secondary" placeholder="Search Product"
                                     id="search_field" />
                             </div>
                         </div>

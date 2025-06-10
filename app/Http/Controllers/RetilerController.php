@@ -646,7 +646,18 @@ class RetilerController extends Controller
                 'retailer_products.id as retailer_products_id',
                 'retailer_products.margin',
                 'retailer_products.payment_method',
-                'user_details.company_name'
+                'user_details.company_name',
+                DB::raw("(SELECT CONCAT('[', GROUP_CONCAT(
+                            JSON_OBJECT(
+                                'product_variation', product_variations.product_variation,
+                                'old_price', product_variations.old_price,
+                                'price', product_variations.price,
+                                'stock', product_variations.stock
+                            )
+                        ), ']')
+                        FROM product_variations
+                        WHERE product_variations.product_id = products.id
+                    ) as product_variations")
             );
 
         if ($search) {
@@ -726,15 +737,42 @@ class RetilerController extends Controller
                 <div class="ms-5">
                     <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">'
                 . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') .
-                '</div>
-                </div>
+                '</div>';
+
+            $variations = json_decode($product->product_variations, true);
+            $name = [];
+            $newPriceRange = null;
+
+            if ($variations) {
+                foreach ($variations as $variation) {
+                    $name[] = $variation['product_variation'];
+                }
+
+                $newPrices = collect($variations)
+                    ->pluck('price')
+                    ->filter()
+                    ->map(fn($v) => (float) $v);
+                $newPriceRange = $newPrices->isNotEmpty()
+                    ? number_format($newPrices->min(), 2) . ' - ' . number_format($newPrices->max(), 2)
+                    : null;
+            }
+
+            if ($variations) {
+                $product_detail .= '<div class="col-12 mb-1"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . implode(', ', $name) . '</div></div>';
+            }
+
+            $product_detail .= '</div>
             </div>';
 
             $wholesaler_detail = '<div class="ms-5">
                             <a href="' . route('retailer.view-category-margin', encryptId($product->wholesaler_id) ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
                         </div>';
 
-            $new_price = '<div class="badge badge-light-primary">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
+            if ($newPriceRange) {
+                $new_price = '<div class="badge badge-light-primary text-wrap">₹ ' . $newPriceRange . '</div>';
+            } else {
+                $new_price = '<div class="badge badge-light-primary text-wrap">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
+            }
 
             $margin = '<div class="badge badge-light-info">' . ($product->margin ? '₹ ' . $product->margin : 'N/A') . '</div>';
 
