@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\OrderNotificationController;
 use App\Http\Controllers\RetailerAccountTransactionController;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
@@ -245,6 +246,9 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/', [RetilerController::class, 'indexCustomers'])->name('retailer.customers.index');
         Route::post('/fetch-record', [RetilerController::class, 'fetchRecordsCustomers'])->name('retailer.customers.fetch-record');
     });
+
+    // notification
+    Route::get('/notifications', [OrderNotificationController::class, 'getNotifications'])->name('notifications.get');
 });
 // autologin
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);

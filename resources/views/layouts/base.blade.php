@@ -104,6 +104,51 @@
 
     <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
 
+    <script>
+        $(document).ready(function() {
+            $('#kt_menu_item_wow').on('click', function () {
+
+                const container = $('#notification-list');
+                container.html('<div class="text-muted text-center py-10">Loading...</div>');
+
+                $.ajax({
+                    url: "{{ route('notifications.get') }}",
+                    method: 'GET',
+                    success: function (res) {
+                        console.log(res);
+                        container.html('');
+                        const count = res.notifications.length;
+
+                        $('#notification-count').text(count);
+                        if (count === 0) {
+                            $('#notification-count').hide();
+                            container.html('<div class="text-muted text-center py-10">No notifications found</div>');
+                            return;
+                        } else {
+                            $('#notification-count').show();
+                        }
+
+                        res.notifications.forEach(item => {
+                            container.append(`
+                                <div class="d-flex flex-stack py-4 border-bottom">
+                                    <div class="d-flex align-items-center me-2">
+                                        <span class="w-70px badge badge-light-success me-4">200 OK</span>
+                                        <a href="#" class="text-gray-800 text-hover-primary fw-semibold">${item.message}</a>
+                                    </div>
+                                    <span class="badge badge-light fs-8">${new Date(item.created_at).toLocaleString()}</span>
+                                </div>
+                            `);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error:", error);
+                        container.html('<div class="text-danger text-center py-10">Failed to load notifications</div>');
+                    }
+                });
+            });
+        });
+    </script>
+
     @yield('script')
 </body>
 <!--end::Body-->

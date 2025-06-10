@@ -18,6 +18,7 @@ use App\Models\ProductVariation;
 use App\Models\User;
 use App\Models\RetailerCategory;
 use App\Models\SubCategory;
+use App\Models\OrderNotification;
 use Dotenv\Util\Regex;
 use Exception;
 use Illuminate\Http\Request;
@@ -965,6 +966,18 @@ class RetailerProductController extends Controller
             }
 
             CustomerOrders::insert($orderItems);
+            $userId = isset($retailerId) ? $retailerId : $wholesalerId;
+            $type = isset($retailerId) ? 'retailer-notification' : 'wholesaler-notification';
+
+            OrderNotification::insert([
+                'user_id' => $userId,
+                'order_id' => $orderID,
+                'type' => $type,
+                'message' => 'New Order Placed',
+                'is_read' => 0,
+                'created_at'=>now(),
+                'updated_at' => now()
+            ]);
 
             DB::commit();
 

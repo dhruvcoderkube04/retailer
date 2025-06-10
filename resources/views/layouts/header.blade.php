@@ -66,6 +66,43 @@
                     </div>
                 @endif
 
+                <!--begin::Notifications-->
+                <div class="app-navbar-item ms-1 ms-md-4">
+                    <!--begin::Menu wrapper-->
+                    <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px position-relative"
+                        data-kt-menu-trigger="click"
+                        data-kt-menu-attach="parent"
+                        data-kt-menu-placement="bottom-end"
+                        id="kt_menu_item_wow">
+                        <i class="ki-duotone ki-notification-status fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                            <span class="path4"></span>
+                        </i>
+                        <!--begin::Bullet (Notification Count Badge)-->
+                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-circle bg-danger" id="notification-count" style="font-size: 10px;">
+                            0
+                        </span>
+                        <!--end::Bullet-->
+                    </div>
+                    <!--end::Menu wrapper-->
+
+                    <!--begin::Menu-->
+                    <div class="menu menu-sub menu-sub-dropdown menu-column w-350px w-lg-375px" data-kt-menu="true" id="kt_menu_notifications">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="kt_topbar_notifications_3" role="tabpanel">
+                                <div class="scroll-y mh-325px my-5 px-8" id="notification-list">
+                                    <!-- Dynamic notifications will appear here -->
+                                    <div class="text-muted text-center py-10">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Menu-->
+                </div>
+                <!--end::Notifications-->
+
                 <!--begin::Theme mode-->
                 <div class="app-navbar-item ms-1 ms-md-4">
                     <!--begin::Menu toggle-->
@@ -214,3 +251,4 @@
     </div>
     <!--end::Header container-->
 </div>
+
