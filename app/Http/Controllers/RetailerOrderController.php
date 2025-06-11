@@ -157,6 +157,7 @@ class RetailerOrderController extends Controller
             ->selectRaw("
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as new,
                 SUM(CASE WHEN status = 'approved_by_retailer' THEN 1 ELSE 0 END) as approved_by_retailer,
+                SUM(CASE WHEN status = 'transfered_retailer_to_wholesaler' THEN 1 ELSE 0 END) as transfered_retailer_to_wholesaler,
                 SUM(CASE WHEN status = 'pickup' THEN 1 ELSE 0 END) as pickup,
                 SUM(CASE WHEN status = 'in_transit' THEN 1 ELSE 0 END) as in_transit,
                 SUM(CASE WHEN status = 'ofd' THEN 1 ELSE 0 END) as ofd,
@@ -188,6 +189,7 @@ class RetailerOrderController extends Controller
         $statusMap = [
             'new' => 'pending',
             'approved-by-retailer' => 'approved_by_retailer',
+            'transferred-to-wholesaler' => 'transfered_retailer_to_wholesaler',
             'pickup' => 'pickup',
             'in-transit' => 'in_transit',
             'ofd' => 'ofd',
@@ -235,6 +237,7 @@ class RetailerOrderController extends Controller
         $statusMap = [
             'new' => 'pending',
             'approved-by-retailer' => 'approved_by_retailer',
+            'transferred-to-wholesaler' => 'transfered_retailer_to_wholesaler',
             'pickup' => 'pickup',
             'in-transit' => 'in_transit',
             'ofd' => 'ofd',
@@ -243,13 +246,14 @@ class RetailerOrderController extends Controller
             'rtn-to-seller' => 'rtn_to_seller',
             'close' => 'close',
             'cancel' => 'cancel',
-            'lost' => 'lost'
+            'lost' => 'lost',
         ];
 
         // Filter by type to date_at
         $stageDateMap = [
             'new' => 'created_at',
             'approved-by-retailer' => 'approved_by_retailer_at',
+            'transferred-to-wholesaler' => 'transfered_retailer_to_wholesaler_at',
             'pickup' => 'pickup_at',
             'in-transit' => 'in_transit_at',
             'ofd' => 'ofd_at',
@@ -265,6 +269,7 @@ class RetailerOrderController extends Controller
         $typeNameMap = [
             'new' => 'New',
             'approved-by-retailer' => 'Approved',
+            'transferred-to-wholesaler' => 'Transferred to Wholesaler',
             'pickup' => 'Pickup',
             'in-transit' => 'In Transit',
             'ofd' => 'OFD',
@@ -280,6 +285,7 @@ class RetailerOrderController extends Controller
         $typeColorMap = [
             'new' => 'primary',
             'approved-by-retailer' => 'info',
+            'transferred-to-wholesaler' => 'primary',
             'pickup' => 'success',
             'in-transit' => 'warning',
             'ofd' => 'warning',
@@ -291,17 +297,41 @@ class RetailerOrderController extends Controller
             'lost' => 'muted',
         ];
 
+        // Filter by status to color
+        $statusColorMap = [
+            'pending' => 'primary',
+            'approved_by_retailer' => 'info',
+            'transfered_retailer_to_wholesaler' => 'primary',
+            'approved_by_wholesaler' => 'info',
+            'pickup' => 'success',
+            'in_transit' => 'warning',
+            'ofd' => 'warning',
+            'delivered' => 'success',
+            'rto' => 'danger',
+            'rtn_to_seller' => 'success',
+            'close' => 'danger',
+            'cancel' => 'danger',
+            'lost' => 'muted',
+            'received' => 'success',
+        ];
+
         $query = CustomerOrders::with([
             'customer',
             'order_product_detail',
             'wholesaler.userDetail',
         ])
-            ->where('order_process_by', 'retailer')
-            ->where('checkout_type', 'normal')
             ->where('retailer_id', $retailer->id)
-            ->where('status', $statusMap[$type])
             ->whereDate($stageDateMap[$type], '>=', $from) // filter : date
             ->whereDate($stageDateMap[$type], '<=', $to); // filter : date
+
+        if ($type == 'transferred-to-wholesaler') {
+            $query->whereNotNull('transfered_retailer_to_wholesaler_at')
+                ->where('order_process_by', 'wholesaler');
+        } else {
+            $query->where('status', $statusMap[$type])
+                ->where('order_process_by', 'retailer')
+                ->where('checkout_type', 'normal');
+        }
 
         // search
         if (!empty($search)) {
@@ -361,18 +391,23 @@ class RetailerOrderController extends Controller
         $query->offset($page)->limit($limit);
         $orders = $query->get();
 
-        $queryTotal = CustomerOrders::with([
+        $queryTotalSql = CustomerOrders::with([
             'customer',
             'order_product_detail',
             'wholesaler.userDetail',
         ])
-            ->where('order_process_by', 'retailer')
-            ->where('checkout_type', 'normal')
             ->where('retailer_id', $retailer->id)
-            ->where('status', $statusMap[$type])
-            ->whereDate($stageDateMap[$type], '>=', $from)
-            ->whereDate($stageDateMap[$type], '<=', $to)
-            ->count('id');
+            ->whereDate($stageDateMap[$type], '>=', $from) // filter : date
+            ->whereDate($stageDateMap[$type], '<=', $to); // filter : date
+        if ($type == 'transferred-to-wholesaler') {
+            $queryTotalSql->whereNotNull('transfered_retailer_to_wholesaler_at')
+                ->where('order_process_by', 'wholesaler');
+        } else {
+            $queryTotalSql->where('status', $statusMap[$type])
+                ->where('order_process_by', 'retailer')
+                ->where('checkout_type', 'normal');
+        }
+        $queryTotal = $queryTotalSql->count('id');
 
         $data = [];
         $i = $page;
@@ -405,12 +440,25 @@ class RetailerOrderController extends Controller
 
             $order_detail .= '<div class="col-12 mb-1"><strong>Quantity:</strong> <div class="badge badge-light-secondary text-wrap">' . $item->quantity . '</div> ' . ($item->size ? '| Size: ' . $item->size : '') . '</div>
                 <div class="col-12 mb-1"><strong>Amount:</strong><div class="badge badge-light-primary text-wrap"> ₹' . $item?->final_amount . ' </div></div>
-                <div class="col-12 mb-1"><strong>Payment:</strong> ' . strtoupper($item->payment_method) . '</div>
-                <div class="col-12 mb-1"><strong>Order Status:</strong> <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span></div>
-                <div class="col-12 mb-1"><strong>Tracking Id:</strong> ' . ($item->tracking_number ?? '-') . '</div>
-                <div class="col-12 mb-1"><strong>API Order Id:</strong> ' . ($item->api_order_id ?? '-') . '</div>';
+                <div class="col-12 mb-1"><strong>Payment:</strong> ' . strtoupper($item->payment_method) . '</div>';
 
-            if ($item->status == 'pickup' && $item->shipping_label_url) {
+            if ($type == 'transferred-to-wholesaler') {
+                $order_detail .= '<div class="col-12 mb-1"><strong>Order Status:</strong> <span class="badge badge-' . $typeColorMap[$type] . '">Transferred to Wholesaler</span></div>
+                <div class="col-12 mb-1"><strong>Current Status:</strong> <span class="badge badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span></div>';
+                if ($item->status == 'cancel') {
+                    $order_detail .= '<div class="col-12 mb-1"><strong>Cancel Reason:</strong> <span class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</span> </div>';
+                }
+            } else {
+                $order_detail .= '<div class="col-12 mb-1"><strong>Order Status:</strong> <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span></div>';
+                if ($item->status == 'cancel') {
+                    $order_detail .= '<div class="col-12 mb-1"><strong>Cancel Reason:</strong> <span class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</span> </div>';
+                }
+            }
+
+            $order_detail .= '<div class="col-12 mb-1"><strong>Tracking Id:</strong> ' . ($item->tracking_number ?? 'N/A') . '</div>
+                <div class="col-12 mb-1"><strong>API Order Id:</strong> ' . ($item->api_order_id ?? 'N/A') . '</div>';
+
+            if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
                 $order_detail .= '
                 <div class="col-12 mb-1">
                     <a href="' . $item->shipping_label_url . '" target="_blank">
@@ -455,28 +503,29 @@ class RetailerOrderController extends Controller
                 data-product-pincode="' . $item->customer->pincode . '"
                 data-c-order-id="' . $item->order_id . '"';
 
-            if ($item->status == 'pending') {
+            if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm newOrderAction"' . $common_attrs . '>Action</button>';
-            } elseif ($item->status == 'approved_by_retailer') {
+            } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
-            } elseif ($item->status == 'pickup') {
+            } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . '>Action</button>';
-            } elseif ($item->status == 'in_transit') {
+            } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . '>Action</button>';
             } else {
                 $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
             }
 
-
-            $action .= '<button type="button"
+            if ($type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button"
                 class="btn btn-icon btn-dark btn-active-light-dark w-30px h-30px raise-issue"
                 data-id="' . $item->order_id . '">
-                <i class="ki-duotone ki-cheque fs-3">
-                    <span class="path1"></span><span class="path2"></span>
-                    <span class="path3"></span><span class="path4"></span>
-                    <span class="path5"></span><span class="path6"></span><span class="path7"></span>
-                </i>
-            </button>';
+                    <i class="ki-duotone ki-cheque fs-3">
+                        <span class="path1"></span><span class="path2"></span>
+                        <span class="path3"></span><span class="path4"></span>
+                        <span class="path5"></span><span class="path6"></span><span class="path7"></span>
+                    </i>
+                </button>';
+            }
 
             $action .= '</div>';
 

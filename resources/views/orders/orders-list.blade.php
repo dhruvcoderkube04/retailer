@@ -160,11 +160,15 @@
                                             <i class="fas fa-question-circle pe-2 text-muted"></i> Lost
                                         </a>
                                     </li>
+                                    <li class="nav-item my-3">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'transferred-to-wholesaler' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'transferred-to-wholesaler']) }}">
+                                            <i class="fa-solid fa-right-from-bracket pe-2 text-primary"></i> Transferred To Wholesaler
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
-
-
 
                         <div class="card-body pt-0">
                             <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_order_list">
