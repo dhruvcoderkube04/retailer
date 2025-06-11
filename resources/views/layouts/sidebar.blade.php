@@ -207,7 +207,7 @@
                                <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is(['my-product','retailer-add-product','retailer-edit-product/*']) ? 'active' : '' }}"
+                                <a class="menu-link {{ request()->is(['my-product','retailer-add-product','retailer-edit-product/*','retailer-details-product/*']) ? 'active' : '' }}"
                                     href="{{ route('retailer.my.product') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>

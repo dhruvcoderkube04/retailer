@@ -57,79 +57,76 @@
                         <div class="card-body pt-0">
                             <div class="row">
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Product Name</label>
+                                    <label class="form-label fw-bold">Product Name :</label>
                                     <p class="form-control-static">{{ $product_detail->name }}</p>
                                 </div>
                                 <div class="col-md-6 mb-6">
-                                    <label classukka-label fw-bold">Slug</label>
+                                    <label class="form-label fw-bold">Slug :</label>
                                     <p class="form-control-static">{{ $product_detail->slug }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Sub Category</label>
+                                    <label class="form-label fw-bold">Sub Category :</label>
                                     <p class="form-control-static">
                                         {{ $sub_category_list->firstWhere('id', $product_detail->sub_category_id)->sub_category_name ?? 'N/A' }}
                                     </p>
                                 </div>
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Tags</label>
+                                    <label class="form-label fw-bold">Tags :</label>
                                     <p class="form-control-static">{{ $product_detail->tags ?? 'N/A' }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Status</label>
+                                    <label class="form-label fw-bold">Status :</label>
                                     <p class="form-control-static">
                                         {{ Str::ucfirst($product_detail->status) }}
                                     </p>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Old Price</label>
-                                    <p class="form-control-static">{{ $product_detail->old_price ?? 'N/A' }}</p>
-                                </div>
-                                <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">New Price</label>
-                                    <p class="form-control-static">{{ $product_detail->new_price ?? 'N/A' }}</p>
-                                </div>
+                            <div class="row mb-6">
+                                @if ($product_detail->productVariations->isNotEmpty())
+                                    <label class="form-label fw-bold">Product Variations :</label>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Variation</th>
+                                                    <th>Old Price</th>
+                                                    <th>New Price</th>
+                                                    <th>Quantity / Stock</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($product_detail->productVariations as $variation)
+                                                    <tr>
+                                                        <td>{{ $variation->product_variation }}</td>
+                                                        <td>{{ $variation->old_price }}</td>
+                                                        <td>{{ $variation->price }}</td>
+                                                        <td>{{ $variation->stock }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Old Price :</label>
+                                        <p class="form-control-static">{{ $product_detail->old_price ?? 'N/A' }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">New Price :</label>
+                                        <p class="form-control-static">{{ $product_detail->new_price ?? 'N/A' }}</p>
+                                    </div>
+                                @endif
                             </div>
                             <div class="mb-6">
-                                <label class="form-label fw-bold">Description</label>
+                                <label class="form-label fw-bold">Description :</label>
                                 <p class="form-control-static">{!! nl2br(e($product_detail->description)) ?? 'N/A' !!}</p>
                             </div>
                         </div>
                     </div>
-
-                    {{-- Product Variations --}}
-                    @if ($product_detail->productVariations && count($product_detail->productVariations) > 0)
-                        <div class="card card-flush border border-secondary mb-7">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <h2>Product Variations</h2>
-                                </div>
-                            </div>
-                            <div class="card-body pt-0">
-                                @foreach ($product_detail->productVariations as $variation)
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Variation</label>
-                                            <p class="form-control-static">{{ $variation->product_variation ?? 'N/A' }}</p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Price</label>
-                                            <p class="form-control-static">{{ $variation->price ?? 'N/A' }}</p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Stock</label>
-                                            <p class="form-control-static">{{ $variation->stock ?? 'N/A' }}</p>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
 
                     {{-- Media --}}
                     <div class="card card-flush border border-secondary mb-7">
@@ -142,7 +139,7 @@
                             <div class="row">
                                 {{-- Images --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Images</label>
+                                    <label class="form-label fw-bold">Images :</label>
                                     @php
                                         $images = explode(',', $product_detail->images);
                                     @endphp
@@ -151,19 +148,20 @@
                                             @foreach ($images as $key => $image)
                                                 @if ($image)
                                                     <div class="card shadow-sm border border-dark-subtle"
-                                                         style="width: 11rem;">
+                                                        style="width: 11rem;">
                                                         <div class="card-body p-2 text-center">
                                                             @php
                                                                 $imageUrl = $image
                                                                     ? Storage::disk('spaces')->url($image)
                                                                     : asset('assets/media/images/no_image.jpg');
-                                                                $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                                $defaultImage = asset(
+                                                                    'assets/media/images/no_image.jpg',
+                                                                );
                                                             @endphp
-                                                            <img src="{{ $imageUrl }}"
-                                                                 class="img-fluid rounded"
-                                                                 alt="Product Image"
-                                                                 style="height: 100px; object-fit: cover;"
-                                                                 onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
+                                                            <img src="{{ $imageUrl }}" class="img-fluid rounded"
+                                                                alt="Product Image"
+                                                                style="height: 100px; object-fit: cover;"
+                                                                onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                             <div class="text-muted fs-8 mt-2">
                                                                 Image {{ $key + 1 }}
                                                             </div>
@@ -179,13 +177,13 @@
 
                                 {{-- Video --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Video</label>
+                                    <label class="form-label fw-bold">Video :</label>
                                     @if ($product_detail->videos)
                                         @php
                                             $videoPath = Storage::disk('spaces')->url($product_detail->videos);
                                         @endphp
                                         <div class="card shadow-sm border border-dark-subtle"
-                                             style="width: 100%; max-width: 300px;">
+                                            style="width: 100%; max-width: 300px;">
                                             <div class="card-body p-2 text-center">
                                                 <video width="100%" height="150" controls style="object-fit: cover;">
                                                     <source src="{{ $videoPath }}" type="video/mp4">
@@ -214,13 +212,15 @@
                         <div class="card-body pt-0">
                             <div class="row">
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">SKU</label>
+                                    <label class="form-label fw-bold">SKU :</label>
                                     <p class="form-control-static">{{ $product_detail->sku ?? 'N/A' }}</p>
                                 </div>
-                                <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Quantity</label>
-                                    <p class="form-control-static">{{ $product_detail->quantity ?? 'N/A' }}</p>
-                                </div>
+                                @if ($product_detail->productVariations->isEmpty())
+                                    <div class="col-md-6 mb-6">
+                                        <label class="form-label fw-bold">Quantity :</label>
+                                        <p class="form-control-static">{{ $product_detail->quantity ?? 'N/A' }}</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -235,16 +235,16 @@
                         <div class="card-body pt-0">
                             <div class="row">
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Meta Tag Title</label>
+                                    <label class="form-label fw-bold">Meta Tag Title :</label>
                                     <p class="form-control-static">{{ $product_detail->meta_title ?? 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6 mb-6">
-                                    <label class="form-label fw-bold">Meta Tag Keywords</label>
+                                    <label class="form-label fw-bold">Meta Tag Keywords :</label>
                                     <p class="form-control-static">{{ $product_detail->meta_keywords ?? 'N/A' }}</p>
                                 </div>
                             </div>
                             <div class="mb-6">
-                                <label class="form-label fw-bold">Meta Tag Description</label>
+                                <label class="form-label fw-bold">Meta Tag Description :</label>
                                 <p class="form-control-static">{!! nl2br(e($product_detail->meta_description)) ?? 'N/A' !!}</p>
                             </div>
                         </div>

@@ -154,9 +154,9 @@ class RetailerAccountTransactionController extends Controller
             "recordsFiltered" => $cntFilter->count(),
             'data' => $data,
             "totals" => [
-                "total_credit" => $total_credit,
-                "total_debit" => $total_debit,
-                "total_income" => $total_income,
+                "total_credit" => round($total_credit, 2),
+                "total_debit" => round($total_debit, 2),
+                "total_income" => round($total_income, 2),
             ]
         ]);
     }
@@ -300,9 +300,9 @@ class RetailerAccountTransactionController extends Controller
             "recordsFiltered" => $cntFilter->count(),
             'data' => $data,
             "totals" => [
-                "total_credit" => $total_credit,
-                "total_debit" => $total_debit,
-                "total_income" => $total_income,
+                "total_credit" => round($total_credit, 2),
+                "total_debit" => round($total_debit, 2),
+                "total_income" => round($total_income, 2),
             ]
         ]);
     }
