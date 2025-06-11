@@ -978,6 +978,15 @@ class RetailerProductController extends Controller
                 'created_at'=>now(),
                 'updated_at' => now()
             ]);
+            OrderNotification::insert([
+                'user_id' => 1,
+                'order_id' => $orderID,
+                'type' => 'admin-notification',
+                'message' => 'New Order Placed',
+                'is_read' => 0,
+                'created_at'=>now(),
+                'updated_at' => now()
+            ]);
 
             DB::commit();
 

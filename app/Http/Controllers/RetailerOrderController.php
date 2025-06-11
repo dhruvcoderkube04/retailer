@@ -11,6 +11,7 @@ use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
 use App\Models\LorrigoCarrier;
+use App\Models\OrderNotification;
 use App\Models\PickAddress;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
@@ -830,6 +831,18 @@ class RetailerOrderController extends Controller
             'order_process_by' => 'wholesaler',
             'checkout_type' => 'cod',
         ]);
+        // $userId =  $wholesaler->wholesaler_id;
+        // $type = 'wholesaler-notification';
+
+        // OrderNotification::insert([
+        //     'user_id' => $userId,
+        //     'order_id' => $orderID,
+        //     'type' => $type,
+        //     'message' => 'Punch Order Placed',
+        //     'is_read' => 0,
+        //     'created_at'=>now(),
+        //     'updated_at' => now()
+        // ]);
 
         return [true, 'Wholesaler will ship this product', 'new'];
     }

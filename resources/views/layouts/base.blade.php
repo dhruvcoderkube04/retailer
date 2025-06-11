@@ -104,7 +104,7 @@
 
     <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
 
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             $('#kt_menu_item_wow').on('click', function () {
 
@@ -143,6 +143,68 @@
                     error: function (xhr, status, error) {
                         console.error("AJAX Error:", error);
                         container.html('<div class="text-danger text-center py-10">Failed to load notifications</div>');
+                    }
+                });
+            });
+        });
+    </script> --}}
+
+    <script>
+        $(document).ready(function() {
+            // 1) On page-load: fetch unread count and update badge
+            $.ajax({
+                url: "{{ route('notifications.count') }}",    // your /notifications-count route
+                method: 'GET',
+                success: function(res) {
+                    const c = res.notifications_count;        // note the JSON key
+                    if (c > 0) {
+                        $('#notification-count')
+                        .text(c)
+                        .show();
+                    } else {
+                        $('#notification-count').hide();
+                    }
+                },
+                error: function(xhr, status, err) {
+                    console.error("Count fetch error:", err);
+                }
+            });
+
+            // 2) On bell-icon click: load latest 5, mark read in controller, then update list & badge
+            $('#kt_menu_item_wow').on('click', function () {
+                const container = $('#notification-list');
+                container.html('<div class="text-muted text-center py-10">Loading...</div>');
+
+                $.ajax({
+                    url: "{{ route('notifications.get') }}",
+                    method: 'GET',
+                    success: function (res) {
+                        container.empty();
+                        const list = res.notifications;
+                        $('#notification-count').text(list.length);
+                        if (list.length === 0) {
+                            $('#notification-count').hide();
+                            container.html('<div class="text-muted text-center py-10">No notifications found</div>');
+                            return;
+                        }
+                        $('#notification-count').show();
+
+                        list.forEach(item => {
+                            container.append(`
+                                <div class="d-flex flex-stack py-4 border-bottom">
+                                    <div class="d-flex align-items-center me-2">
+                                        <a href="#" class="text-gray-800 text-hover-primary fw-semibold">
+                                        ${item.message} <span class="badge badge-primary">${item.order_id}<span>
+                                        </a>
+                                    </div>
+                                    <span class="badge badge-light fs-8">${item.time_ago}</span>
+                                </div>
+                            `);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error:", error);
+                        $('#notification-list').html('<div class="text-danger text-center py-10">Failed to load notifications</div>');
                     }
                 });
             });

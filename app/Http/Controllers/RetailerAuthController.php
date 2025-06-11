@@ -241,6 +241,11 @@ class RetailerAuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+        if (!$user) {
+            session()->flash('error', 'Invalid user credentials or user does not exist.');
+            return redirect()->route('retailer.login');
+        }
+
         // Check if account is inactive
         if ($user->is_delete == 1) {
             session()->flash('error', 'You Have Deleted Your account. Please contact support for assistance.');

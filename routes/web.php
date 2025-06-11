@@ -249,6 +249,7 @@ Route::middleware(['retailer'])->group(function () {
 
     // notification
     Route::get('/notifications', [OrderNotificationController::class, 'getNotifications'])->name('notifications.get');
+    Route::get('/notifications-count', [OrderNotificationController::class, 'getNotificationsCount'])->name('notifications.count');
 });
 // autologin
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);
