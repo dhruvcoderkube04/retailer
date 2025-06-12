@@ -200,8 +200,8 @@ class RetailerProductController extends Controller
 
             $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
 
-            $categoryIds = is_array($request->category) ? $request->category : json_decode($request->category, true) ?? [];
-            $subCategoryIds = is_array($request->sub_category) ? $request->sub_category : json_decode($request->sub_category, true) ?? [];
+            // $categoryIds = is_array($request->category) ? $request->category : json_decode($request->category, true) ?? [];
+            $subCategoryIds = $request->sub_category ? explode(',', $request->sub_category) : '';
             $minPrice = (float) $request->min_price;
             $maxPrice = (float) $request->max_price;
 
@@ -232,18 +232,17 @@ class RetailerProductController extends Controller
 
                 return $item;
             })->filter(function ($item) use (
-                $categoryIds,
                 $subCategoryIds,
                 $minPrice,
                 $maxPrice,
             ) {
                 //<------ FILTER - category ------>
-                if (!empty($categoryIds) && !in_array((int)$item->category_id, array_map('intval', $categoryIds))) {
-                    return false;
-                }
+                // if (!empty($categoryIds) && !in_array((int)$item->category_id, array_map('intval', $categoryIds))) {
+                //     return false;
+                // }
 
                 //<------ FILTER - sub_category ------>
-                if (!empty($subCategoryIds) && !in_array((int)$item->sub_category_id, array_map('intval', $subCategoryIds))) {
+                if (!empty($subCategoryIds) && !in_array($item->sub_category_id, $subCategoryIds)) {
                     return false;
                 }
 
@@ -251,12 +250,12 @@ class RetailerProductController extends Controller
                 if ($minPrice) {
                     if (!empty($item->productVariations) && $item->productVariations->isNotEmpty()) {
                         foreach ($item->productVariations as $variation) {
-                            if ($variation->final_price <= $minPrice) {
+                            if ($variation->final_price < $minPrice) {
                                 return false;
                             }
                         }
                     } else {
-                        if ($item->final_price <= $minPrice) {
+                        if ($item->final_price < $minPrice) {
                             return false;
                         }
                     }
@@ -266,12 +265,12 @@ class RetailerProductController extends Controller
                 if ($maxPrice) {
                     if (!empty($item->productVariations) && $item->productVariations->isNotEmpty()) {
                         foreach ($item->productVariations as $variation) {
-                            if ($variation->final_price >= $maxPrice) {
+                            if ($variation->final_price > $maxPrice) {
                                 return false;
                             }
                         }
                     } else {
-                        if ($item->final_price >= $maxPrice) {
+                        if ($item->final_price > $maxPrice) {
                             return false;
                         }
                     }
