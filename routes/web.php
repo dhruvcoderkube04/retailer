@@ -11,6 +11,7 @@ use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\RetailerOrderController;
 use App\Http\Controllers\RetilerController;;
+
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
 use App\Http\Controllers\ShippingController;
@@ -21,7 +22,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VerificationController;
 
-Route::get('/', function () { return redirect()->to('login'); });
+Route::get('/', function () {
+    return redirect()->to('login');
+});
 
 Route::controller(RetailerAuthController::class)->group(function () {
     Route::get('login', 'showLoginForm')->name('retailer.login');
@@ -33,6 +36,11 @@ Route::controller(RetailerAuthController::class)->group(function () {
     Route::post('forget-password', 'sendResetLink')->name('retailer.password.email');
     Route::get('/password/reset/{token}', 'showResetPasswordForm')->name('retailer.password.reset');
     Route::post('password/update', [RetailerAuthController::class, 'resetPassword'])->name('retailer.password.update');
+
+    // term-conditions
+    Route::get('/terms-and-conditions', function () {
+        return view('term-conditions.index');
+    })->name('terms-and-conditions');
 
     Route::post('logout', 'logout')->name('retailer.logout')->middleware('auth'); // Use retailer guard
 });
@@ -52,7 +60,7 @@ Route::middleware(['retailer'])->group(function () {
     Route::post('/wholesaler/fetch-record', [RetilerController::class, 'wholesalerFetchRecord'])->name('retailer.wholesaler.fetch-record'); // ajax - datatable
 
     // subscribed category
-    Route::prefix('subscribed-category')->group(function() {
+    Route::prefix('subscribed-category')->group(function () {
         Route::get('/', [RetilerController::class, 'subscribedCategoryIndex'])->name('retailer.subscribed-category.index'); // subscribed category list
         Route::post('/subscribed-category/fetch-record', [RetilerController::class, 'subscribedCategoryFetchRecord'])->name('retailer.subscribed-category.fetch-record'); // ajax - datatable
     });
@@ -254,7 +262,7 @@ Route::middleware(['retailer'])->group(function () {
 // autologin
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);
 
-Route::get('/cc', function() {
+Route::get('/cc', function () {
     Artisan::call('config:cache');
     Artisan::call('route:cache');
     Artisan::call('cache:clear');

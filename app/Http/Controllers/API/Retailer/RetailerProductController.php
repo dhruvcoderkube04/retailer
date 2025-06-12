@@ -200,8 +200,8 @@ class RetailerProductController extends Controller
 
             $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
 
-            $categoryIds = json_decode($request->category, true);
-            $subCategoryIds = json_decode($request->sub_category, true);
+            $categoryIds = is_array($request->category) ? $request->category : json_decode($request->category, true) ?? [];
+            $subCategoryIds = is_array($request->sub_category) ? $request->sub_category : json_decode($request->sub_category, true) ?? [];
             $minPrice = (float) $request->min_price;
             $maxPrice = (float) $request->max_price;
 
@@ -238,12 +238,12 @@ class RetailerProductController extends Controller
                 $maxPrice,
             ) {
                 //<------ FILTER - category ------>
-                if (!empty($categoryIds) && !in_array($item->category_id, $categoryIds)) {
+                if (!empty($categoryIds) && !in_array((int)$item->category_id, array_map('intval', $categoryIds))) {
                     return false;
                 }
 
                 //<------ FILTER - sub_category ------>
-                if (!empty($subCategoryIds) && !in_array($item->sub_category_id, $subCategoryIds)) {
+                if (!empty($subCategoryIds) && !in_array((int)$item->sub_category_id, array_map('intval', $subCategoryIds))) {
                     return false;
                 }
 

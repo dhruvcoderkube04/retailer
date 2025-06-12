@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Password Reset</title>
+@extends('layouts.email-base')
+
+@section('style')
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color:rgb(190, 190, 190);
+            background-color: rgb(190, 190, 190);
             margin: 0;
             padding: 20px;
         }
+
         .email-container {
             max-width: 600px;
             background-color: #ffffff;
@@ -18,6 +17,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin: auto;
         }
+
         .email-header {
             text-align: center;
             font-size: 24px;
@@ -25,12 +25,14 @@
             color: #333;
             padding-bottom: 20px;
         }
+
         .email-body {
             text-align: center;
             font-size: 16px;
             color: #555;
             margin-top: 20px;
         }
+
         .password-reset {
             display: inline-block;
             background-color: black;
@@ -43,8 +45,10 @@
         }
 
         .password-reset:hover {
-            background-color: black; /* Same as default state */
-            color: white; /* Same as default state */
+            background-color: black;
+            /* Same as default state */
+            color: white;
+            /* Same as default state */
         }
 
         .email-footer {
@@ -55,9 +59,10 @@
             margin-top: 20px;
         }
     </style>
-</head>
-<div class="email-header">Reset Password</div>
-<body>
+@endsection
+
+@section('content')
+    <div class="email-header">Reset Password</div>
     <div class="email-container">
         <div class="email-body">
             <h3 style="text-align: left; padding-left:18px;">Hello,</h3>
@@ -66,9 +71,4 @@
             <p>If you did not request this, please ignore this email.</p>
         </div>
     </div>
-</body>
-<div class="email-footer">
-    &copy; {{ date('Y') }} RetailerTrendMart. All rights reserved.
-</div>
-</html>
-
+@endsection
