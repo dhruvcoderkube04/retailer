@@ -200,12 +200,8 @@ class RetailerProductController extends Controller
 
             $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
 
-            $categoryIds = array_filter((array) $request->category, function ($id) {
-                return !is_null($id) && $id !== '' && is_numeric($id);
-            });
-            $subCategoryIds = array_filter((array) $request->sub_category, function ($id) {
-                return !is_null($id) && $id !== '' && is_numeric($id);
-            });
+            $categoryIds = json_decode($request->category, true);
+            $subCategoryIds = json_decode($request->sub_category, true);
             $minPrice = (float) $request->min_price;
             $maxPrice = (float) $request->max_price;
 
@@ -975,7 +971,7 @@ class RetailerProductController extends Controller
                 'type' => $type,
                 'message' => 'New Order Placed',
                 'is_read' => 0,
-                'created_at'=>now(),
+                'created_at' => now(),
                 'updated_at' => now()
             ]);
             OrderNotification::insert([
@@ -984,7 +980,7 @@ class RetailerProductController extends Controller
                 'type' => 'admin-notification',
                 'message' => 'New Order Placed',
                 'is_read' => 0,
-                'created_at'=>now(),
+                'created_at' => now(),
                 'updated_at' => now()
             ]);
 
