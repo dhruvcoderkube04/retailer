@@ -42,13 +42,12 @@
 
                         <div class="card">
                             <div class="card-body pt-4">
-                                <table class="table align-middle table-row-dashed fs-7"
-                                    id="kt_datatable_wholesaler_list">
+                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                             <th class="text-center align-middle min-w-50px">Action</th>
                                             <th class="text-center align-middle min-w-50px">Media</th>
-                                            <th class="text-center align-middle min-w-100px">Category</th>
+                                            <th class="text-center align-middle min-w-100px">Sub Category</th>
                                             <th class="text-center align-middle min-w-100px">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px">Payment Method</th>
                                             <th class="text-center min-w-70px">Margin
@@ -101,18 +100,17 @@
                     </div>
                 </div>
                 <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
-                    <form id="marginupdateform" class="form" method="POST" action="{{ route('retailer.update-category-margin') }}">
+                    <form id="marginupdateform" class="form" method="POST"
+                        action="{{ route('retailer.update-category-margin') }}">
                         @csrf
                         <input type="hidden" id="edit_wholesaler_id" name="wholesaler_id">
                         <input type="hidden" id="edit_margin_id" name="margin_id">
 
                         <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <select class="form-select" id="edit_category_id" name="category_id" data-control="select2">
+                            <label class="form-label">Sub Category</label>
+                            <select class="form-select" id="edit_sub_category_id" name="sub_category_id" data-control="select2">
                                 <option value="">Select Category</option>
-                                {{-- @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                @endforeach --}}
+                                {{-- append here dynamically --}}
                             </select>
                         </div>
 
@@ -124,15 +122,18 @@
                         <div class="mb-3">
                             <label class="form-label">Payment Method</label>
                             <div class="form-check mt-1">
-                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_cod" name="payment_method[]" value="COD">
+                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_cod"
+                                    name="payment_method[]" value="COD">
                                 <label class="form-check-label mt-1" for="edit_payment_cod">COD</label>
                             </div>
                             <div class="form-check mt-1">
-                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_prepaid" name="payment_method[]" value="Prepaid">
+                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_prepaid"
+                                    name="payment_method[]" value="Prepaid">
                                 <label class="form-check-label mt-1" for="edit_payment_prepaid">Prepaid</label>
                             </div>
                             <div class="form-check mt-1">
-                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_semi" name="payment_method[]" value="Semi">
+                                <input type="checkbox" class="form-check-input mt-1" id="edit_payment_semi"
+                                    name="payment_method[]" value="Semi">
                                 <label class="form-check-label mt-1" for="edit_payment_semi">Semi</label>
                             </div>
                         </div>
@@ -177,21 +178,20 @@
                 }
             },
             order: [],
-            columns: [
-                {
+            columns: [{
                     data: 'action',
                     className: 'text-center',
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'category_image',
+                    data: 'sub_category_image',
                     className: 'text-center',
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'category_name',
+                    data: 'sub_category_name',
                     className: 'text-center',
                     orderable: false,
                 },
@@ -243,7 +243,7 @@
         //<------------- END : server-side transaction datatable ------------->
 
         // DELETE margin with Swal confirmation
-        $(document).on('click', '.delete-margin-btn', function () {
+        $(document).on('click', '.delete-margin-btn', function() {
             const url = $(this).data('url');
 
             Swal.fire({
@@ -263,12 +263,14 @@
                             _token: '{{ csrf_token() }}',
                             _method: 'DELETE'
                         },
-                        success: function (response) {
-                            Swal.fire('Deleted!', 'Margin has been removed.', 'success').then(() => {
-                                location.reload(); // Reload page or use table.row(...).remove().draw() if dynamic
-                            });
+                        success: function(response) {
+                            Swal.fire('Deleted!', 'Margin has been removed.', 'success').then(
+                                () => {
+                                    location
+                                        .reload(); // Reload page or use table.row(...).remove().draw() if dynamic
+                                });
                         },
-                        error: function () {
+                        error: function() {
                             Swal.fire('Error!', 'Something went wrong.', 'error');
                         }
                     });
@@ -276,7 +278,7 @@
             });
         });
 
-        $(document).on('click', '.edit-margin-btn', function () {
+        $(document).on('click', '.edit-margin-btn', function() {
             const wholesalerId = $(this).data('wholesaler-id');
             const marginId = $(this).data('margin-id');
 
@@ -288,38 +290,30 @@
                     wholesaler_id: wholesalerId,
                     margin_id: marginId
                 },
-                success: function (response) {
+                success: function(response) {
 
                     if (response.success) {
-
                         const data = response.data;
+                        const subCategories = response.subCategories;
 
-                        const categories = response.categories;
-
-                        let $select = $('#edit_category_id');
-
-                        $select.empty().append('<option value="">Select Category</option>');
-
-                        categories.forEach(category => {
-
-                            let selected = category.id === data.category_id ? 'selected' : '';
-
-                            $select.append(`<option value="${category.id}" ${selected}>${category.category_name}</option>`);
-
+                        let $select = $('#edit_sub_category_id');
+                        $select.empty();
+                        subCategories.forEach(sub_category => {
+                            let selected = sub_category.id === data.sub_category_id ? 'selected' : '';
+                            $select.append(
+                                `<option value="${sub_category.id}" ${selected}>${sub_category.sub_category_name}</option>`
+                            );
                         });
 
                         $('#edit_margin_value').val(data.margin);
-
                         $('#edit_margin_id').val(data.id);
-
                         $('#edit_wholesaler_id').val(data.wholesaler_id);
 
                         let paymentMethods = data.payment_method ?? [];
 
                         ['COD', 'Prepaid', 'Semi'].forEach(method => {
-
-                            $('#edit_payment_' + method.toLowerCase()).prop('checked', paymentMethods.includes(method));
-
+                            $('#edit_payment_' + method.toLowerCase()).prop('checked',
+                                paymentMethods.includes(method));
                         });
 
                         $('#kt_modal_edit_margin').modal('show');

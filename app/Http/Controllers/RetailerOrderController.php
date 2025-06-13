@@ -41,7 +41,7 @@ class RetailerOrderController extends Controller
 
         $filteredRetailerProducts = $retailerProducts->map(function ($retailerProduct) {
             $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
-                ->where('category_id', $retailerProduct->category_id)
+                ->where('sub_category_id', $retailerProduct->sub_category_id)
                 ->distinct('id')
                 ->get();
 
@@ -1116,7 +1116,7 @@ class RetailerOrderController extends Controller
 
             $marginFetch = RetailerProducts::where('retailer_id', $retailer->id)
                 ->where('wholesaler_id', $customerOrder->order_product_detail->wholesaler_id)
-                ->where('category_id', $customerOrder->order_product_detail->category_id)
+                ->where('sub_category_id', $customerOrder->order_product_detail->sub_category_id)
                 ->first();
 
             if (!$marginFetch) {

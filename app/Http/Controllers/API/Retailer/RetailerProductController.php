@@ -103,48 +103,35 @@ class RetailerProductController extends Controller
                 $storeinfo->theme_data->theme_image = $storeinfo->theme_data->theme_image ? Storage::disk('spaces')->url($storeinfo->theme_data->theme_image) : '';
             }
 
-            $categoryIds = RetailerCategory::where('retailer_id', $storeinfo->retailer_id)
-                ->pluck('category_id')
-                ->toArray();
+            $subCategories = SubCategory::with(['retailer_categories' => function ($q) use ($storeinfo) {
+                $q->where('retailer_id', $storeinfo->retailer_id);
+            }])
+                ->whereHas('retailer_categories', function ($q) use ($storeinfo) {
+                    $q->where('retailer_id', $storeinfo->retailer_id);
+                })
+                ->get();
 
-            $categories = Category::whereIn('id', $categoryIds)->get(); // fetch id + name
+            $subCategoryList = [];
+            foreach ($subCategories as $sub_category) {
+                $retailerCategory = $sub_category->retailer_categories->first();
 
-            // Get subcategories related to those categories
-            $subCategories = SubCategory::whereIn('category_id', $categoryIds)->get();
-
-            // Group subcategories by category name
-
-            $categoryList = [];
-
-            foreach ($categories as $category) {
-                $subList = $subCategories
-                    ->where('category_id', $category->id)
-                    ->map(function ($sub) {
-                        return [
-                            'id' => $sub->id,
-                            'name' => $sub->sub_category_name,
-                            'image' => $sub->sub_category_image ? Storage::disk('spaces')->url($sub->sub_category_image) : '',
-                        ];
-                    })
-                    ->values()
-                    ->toArray();
-
-                $categoryList[] = [
-                    'id' => $category->id,
-                    'name' => $category->category_name,
-                    'image' => $category->category_image ? Storage::disk('spaces')->url($category->category_image) : '',
-                    'sub_category_list' => $subList,
+                $subCategoryList[] = [
+                    'id' => $sub_category->id,
+                    'name' => $sub_category->sub_category_name,
+                    'image' => $retailerCategory && $retailerCategory->category_image
+                        ? Storage::disk('spaces')->url($retailerCategory->category_image)
+                        : '',
                 ];
             }
 
             return response()->json([
                 'success' => true,
                 'storeinfo' => $storeinfo,
-                'category_list' => $categoryList
+                'sub_category_list' => $subCategoryList
             ]);
         } catch (\Exception $e) {
             \Log::error('Error fetching retailer company info: ' . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong!'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -187,7 +174,7 @@ class RetailerProductController extends Controller
                 $retailerProducts = $retailerSubscribedProducts->flatMap(function ($data) {
                     return Product::with('productVariations:id,product_id,product_variation,old_price,price,stock')
                         ->where('wholesaler_id', $data->wholesaler_id)
-                        ->where('category_id', $data->category_id)
+                        ->where('sub_category_id', $data->sub_category_id)
                         ->where('status', 'active')
                         ->get();
                 });
@@ -210,7 +197,7 @@ class RetailerProductController extends Controller
                 $margin = 0;
 
                 foreach ($retailerSubscribedProducts as $pair) {
-                    if ($pair->wholesaler_id == $item->wholesaler_id && $pair->category_id == $item->category_id) {
+                    if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
                         $margin = $pair->margin;
                         break;
                     }
@@ -301,11 +288,11 @@ class RetailerProductController extends Controller
             ])->values();
 
             // <--------- get category and sub-category list as per product data ------------>
-            $categoryIds = $products->pluck('category_id')->filter()->unique();
-            $categories = Category::select('id', 'category_name')
-                ->whereIn('id', $categoryIds)
-                ->where('status', 1)
-                ->get();
+            // $categoryIds = $products->pluck('category_id')->filter()->unique();
+            // $categories = Category::select('id', 'category_name')
+            //     ->whereIn('id', $categoryIds)
+            //     ->where('status', 1)
+            //     ->get();
 
             $subCategoryIds = $products->pluck('sub_category_id')->filter()->unique();
             $subCategories = SubCategory::select('id', 'category_id', 'sub_category_name')
@@ -355,7 +342,7 @@ class RetailerProductController extends Controller
             return response()->json([
                 'success'    => true,
                 'products'   => $paginatedProducts,
-                'categories' => $categories,
+                // 'categories' => $categories,
                 'sub_categories' => $subCategories,
             ]);
         } catch (\Exception $e) {
@@ -406,7 +393,7 @@ class RetailerProductController extends Controller
 
             if ($retailerUser->is_all_wholesaler_visible == 1) {
                 $pairs = RetailerProducts::where('retailer_id', $retailerId)
-                    ->select('wholesaler_id', 'category_id', 'margin')
+                    ->select('wholesaler_id', 'sub_category_id', 'margin')
                     ->get();
 
                 $sqlRetailerProducts = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
@@ -415,7 +402,7 @@ class RetailerProductController extends Controller
                         foreach ($pairs as $pair) {
                             $query->orWhere(function ($q) use ($pair) {
                                 $q->where('wholesaler_id', $pair->wholesaler_id)
-                                    ->where('category_id', $pair->category_id);
+                                    ->where('sub_category_id', $pair->sub_category_id);
                             });
                         }
                     });
@@ -446,7 +433,7 @@ class RetailerProductController extends Controller
                 $margin = 0;
 
                 foreach ($pairs as $pair) {
-                    if ($pair->wholesaler_id == $item->wholesaler_id && $pair->category_id == $item->category_id) {
+                    if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
                         $margin = $pair->margin;
                         break;
                     }
@@ -481,11 +468,11 @@ class RetailerProductController extends Controller
             ])->values();
 
             // <--------- get category and sub-category list as per product data ------------>
-            $categoryIds = $products->pluck('category_id')->filter()->unique();
-            $categories = Category::select('id', 'category_name')
-                ->whereIn('id', $categoryIds)
-                ->where('status', 1)
-                ->get();
+            // $categoryIds = $products->pluck('category_id')->filter()->unique();
+            // $categories = Category::select('id', 'category_name')
+            //     ->whereIn('id', $categoryIds)
+            //     ->where('status', 1)
+            //     ->get();
 
             $subCategoryIds = $products->pluck('sub_category_id')->filter()->unique();
             $subCategories = SubCategory::select('id', 'category_id', 'sub_category_name')
@@ -535,7 +522,7 @@ class RetailerProductController extends Controller
             return response()->json([
                 'success'    => true,
                 'products'   => $paginatedProducts,
-                'categories' => $categories,
+                // 'categories' => $categories,
                 'sub_categories' => $subCategories,
             ]);
         } catch (\Exception $e) {
@@ -587,7 +574,7 @@ class RetailerProductController extends Controller
             $retailerSubscribedProducts = collect();
             if ($retailerUser->is_all_wholesaler_visible == 1) {
                 $retailerSubscribedProducts = RetailerProducts::where('retailer_id', $retailerId)
-                    ->select('wholesaler_id', 'category_id', 'margin')
+                    ->select('wholesaler_id', 'sub_category_id', 'margin')
                     ->get();
             }
 
@@ -609,7 +596,7 @@ class RetailerProductController extends Controller
                             foreach ($retailerSubscribedProducts as $pair) {
                                 $query->orWhere(function ($q) use ($pair) {
                                     $q->where('wholesaler_id', $pair->wholesaler_id)
-                                        ->where('category_id', $pair->category_id);
+                                        ->where('sub_category_id', $pair->sub_category_id);
                                 });
                             }
                         })
@@ -627,9 +614,9 @@ class RetailerProductController extends Controller
 
 
             $margin = 0;
-            if ($retailerSubscribedProducts->isNotEmpty() && isset($product->wholesaler_id, $product->category_id)) {
+            if ($retailerSubscribedProducts->isNotEmpty() && isset($product->wholesaler_id, $product->sub_category_id)) {
                 foreach ($retailerSubscribedProducts as $pair) {
-                    if ($pair->wholesaler_id == $product->wholesaler_id && $pair->category_id == $product->category_id) {
+                    if ($pair->wholesaler_id == $product->wholesaler_id && $pair->sub_category_id == $product->sub_category_id) {
                         $margin = $pair->margin;
                         break;
                     }

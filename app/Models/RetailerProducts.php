@@ -10,7 +10,7 @@ class RetailerProducts extends Model
     use HasFactory;
 
     protected $fillable = [
-        'retailer_id', 'wholesaler_id', 'category_id', 'margin', 'payment_method', 'notes'
+        'retailer_id', 'wholesaler_id', 'sub_category_id', 'margin', 'payment_method', 'notes'
     ];
 
     public function retailer() {
@@ -22,9 +22,9 @@ class RetailerProducts extends Model
         return $this->belongsTo(User::class, 'wholesaler_id')->where('user_type', 2);
     }
 
-    public function category()
+    public function sub_category()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 
     public function products()

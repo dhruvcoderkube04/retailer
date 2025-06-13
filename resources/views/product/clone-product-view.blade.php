@@ -14,7 +14,7 @@
                         <!-- <h3 class="page-heading d-flex text-gray-900 fw-bold fs-7 mt-2 flex-column justify-content-center my-0"></h3> -->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-1 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{route('retailer.dashboard')}}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -59,25 +59,52 @@
                                         @enderror
                                     </div>
 
-                                    <div class="mb-5">
-                                        <label for="old_price" class="form-label">Old Price</label>
-                                        <input type="number" id="old_price" name="old_price"
-                                            class="form-control @error('old_price') is-invalid @enderror"
-                                            value="{{ old('old_price', $product->old_price) }}">
-                                        @error('old_price')
-                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                    @if ($product->productVariations->isNotEmpty())
+                                        <label class="form-label mt-2">Product Variations :</label>
+                                        <div class="table-responsive mb-6">
+                                            <table class="table table-bordered align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Variation</th>
+                                                        <th>Old Price</th>
+                                                        <th>New Price</th>
+                                                        <th>Quantity / Stock</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($product->productVariations as $variation)
+                                                        <tr>
+                                                            <td>{{ $variation->product_variation }}</td>
+                                                            <td>{{ $variation->old_price }}</td>
+                                                            <td>{{ $variation->price }}</td>
+                                                            <td>{{ $variation->stock }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <input type="hidden" name="product_variations" value="1">
+                                    @else
+                                        <div class="mb-5">
+                                            <label for="old_price" class="form-label required">Old Price</label>
+                                            <input type="number" id="old_price" name="old_price"
+                                                class="form-control @error('old_price') is-invalid @enderror"
+                                                value="{{ old('old_price', $product->old_price) }}">
+                                            @error('old_price')
+                                                <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-                                    <div class="mb-8">
-                                        <label for="new_price" class="form-label">New Price</label>
-                                        <input type="number" id="new_price" name="new_price"
-                                            class="form-control @error('new_price') is-invalid @enderror"
-                                            value="{{ old('new_price', $product->new_price) }}">
-                                        @error('new_price')
-                                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                        <div class="mb-8">
+                                            <label for="new_price" class="form-label required">New Price</label>
+                                            <input type="number" id="new_price" name="new_price"
+                                                class="form-control @error('new_price') is-invalid @enderror"
+                                                value="{{ old('new_price', $product->new_price) }}">
+                                            @error('new_price')
+                                                <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    @endif
 
                                     <div class="ms-3 mb-4 form-check">
                                         <input class="form-check-input" type="checkbox" id="images" name="images"

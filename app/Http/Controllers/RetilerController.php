@@ -104,7 +104,7 @@ class RetilerController extends Controller
         $retailerProducts = RetailerProducts::where('retailer_id', $user->id)->get();
         $retailerProducts->map(function ($retailerProduct) use (&$wholesaler_product) {
             $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
-                ->where('category_id', $retailerProduct->category_id)
+                ->where('sub_category_id', $retailerProduct->sub_category_id)
                 ->distinct('id')
                 ->count();
 
@@ -312,7 +312,7 @@ class RetilerController extends Controller
         $search = ($request->has('search') ? $request->input('search')['value'] : '');
         $retailer = Auth::user();
 
-        $query = RetailerProducts::with('wholesaler', 'category', 'wholesaler.userDetail')
+        $query = RetailerProducts::with('wholesaler', 'sub_category', 'wholesaler.userDetail')
             ->where('retailer_id', $retailer->id);
 
         if (!empty($search)) {
@@ -324,8 +324,8 @@ class RetilerController extends Controller
                         $q->where('firstname', 'like', '%' . $search . '%')
                             ->orWhere('lastname', 'like', '%' . $search . '%');
                     })
-                    ->orWhereHas('category', function ($q) use ($search) {
-                        $q->where('category_name', 'like', '%' . $search . '%');
+                    ->orWhereHas('sub_category', function ($q) use ($search) {
+                        $q->where('sub_category_name', 'like', '%' . $search . '%');
                     })
                     ->orWhereHas('wholesaler.userDetail', function ($q) use ($search) {
                         $q->where('company_name', 'like', '%' . $search . '%');
@@ -390,9 +390,9 @@ class RetilerController extends Controller
             </div>';
 
 
-            $category_image = '<div>
-                <img src="' . ($item->category->category_image
-                ? Storage::disk('spaces')->url($item->category->category_image)
+            $sub_category_image = '<div>
+                <img src="' . ($item->sub_category?->sub_category_image
+                ? Storage::disk('spaces')->url($item->sub_category->sub_category_image)
                 : asset('assets/media/images/no_image.jpg')) . '"
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
                     style="height: 75px; width: 75px;" />
@@ -404,8 +404,8 @@ class RetilerController extends Controller
 
             $data[] = array(
                 "action" =>  $action,
-                "category_image" => $category_image,
-                "category_name" => $item->category->category_name,
+                "sub_category_image" => $sub_category_image,
+                "sub_category_name" => $item->sub_category?->sub_category_name ?? 'N/A',
                 "wholesaler_name" => $item->wholesaler->userDetail->company_name,
                 "payment_method" => $item->payment_method,
                 "margin" => $margin,
@@ -425,29 +425,31 @@ class RetilerController extends Controller
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
 
-        $addedCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
+        $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
-            ->distinct('category_id')
-            ->pluck('category_id');
+            ->distinct('sub_category_id')
+            ->pluck('sub_category_id');
 
-        $categories = Product::select(
-            'categories.id',
-            'categories.category_name'
+        $subCategories = Product::select(
+            'sub_categories.id',
+            'sub_categories.sub_category_name'
         )
-            ->join('categories', 'categories.id', 'products.category_id')
-            ->where('wholesaler_id', $wholesaler_id)
-            ->whereNotIn('categories.id', $addedCategories)
-            ->distinct('category_id')
+            ->join('sub_categories', 'sub_categories.id', 'products.sub_category_id')
+            ->join('retailer_categories', 'retailer_categories.sub_category_id', 'products.sub_category_id')
+            ->where('retailer_categories.retailer_id', $retailer->id)
+            ->where('products.wholesaler_id', $wholesaler_id)
+            ->whereNotIn('sub_categories.id', $addedSubCategories)
+            ->distinct('products.sub_category_id')
             ->get();
 
-        $addedMarginDetails = RetailerProducts::with(['category'])
+        $addedMarginDetails = RetailerProducts::with(['sub_category'])
             ->where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
             ->get();
 
         return view('wholesaler.retailer-product-list', [
             'wholesaler' => $wholesaler,
-            'categories' => $categories,
+            'subCategories' => $subCategories,
             'addedMarginDetails' => $addedMarginDetails
         ]);
     }
@@ -457,7 +459,7 @@ class RetilerController extends Controller
     {
         $wholesaler_id = decryptId($wholesaler_id);
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'sub_category_id' => 'required|exists:sub_categories,id',
             'margin' => 'required|integer|min:1',
             'payment_method' => 'required'
         ]);
@@ -469,7 +471,7 @@ class RetilerController extends Controller
             RetailerProducts::updateOrCreate([
                 'retailer_id' => $retailer->id,
                 'wholesaler_id' => $wholesaler_id,
-                'category_id' => $request->category_id,
+                'sub_category_id' => $request->sub_category_id,
             ], [
                 'payment_method' => implode(',', $request->payment_method),
                 'margin' => $request->margin
@@ -492,7 +494,6 @@ class RetilerController extends Controller
     {
         $retailer = Auth::user();
         $wholesaler_id = $request->wholesaler_id;
-        // 1. Get the margin record to edit
 
         $margin = RetailerProducts::where('wholesaler_id', $wholesaler_id)
             ->where('id', $request->margin_id)
@@ -502,21 +503,22 @@ class RetilerController extends Controller
             return response()->json(['error' => 'Margin not found.'], 404);
         }
 
-        $addedCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
+        $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
-            ->where('category_id', '!=', $margin->category_id)
-            ->pluck('category_id');
+            ->where('sub_category_id', '!=', $margin->sub_category_id)
+            ->pluck('sub_category_id');
 
-
-
-        // 3. Get the list of categories - include the one already selected in this margin
-
-        $categories = Product::select('categories.id', 'categories.category_name')
-            ->join('categories', 'categories.id', '=', 'products.category_id')
+        $subCategories = Product::select(
+            'sub_categories.id',
+            'sub_categories.sub_category_name'
+        )
+            ->join('sub_categories', 'sub_categories.id', 'products.sub_category_id')
+            ->join('retailer_categories', 'retailer_categories.sub_category_id', 'products.sub_category_id')
+            ->where('retailer_categories.retailer_id', $retailer->id)
             ->where('products.wholesaler_id', $wholesaler_id)
-            ->where(function ($query) use ($addedCategories, $margin) {
-                $query->whereNotIn('categories.id', $addedCategories)
-                    ->orWhere('categories.id', $margin->category_id); // include selected
+            ->where(function ($query) use ($addedSubCategories, $margin) {
+                $query->whereNotIn('sub_categories.id', $addedSubCategories)
+                    ->orWhere('sub_categories.id', $margin->sub_category_id); // include selected
             })
             ->distinct()
             ->get();
@@ -524,8 +526,7 @@ class RetilerController extends Controller
         return response()->json([
             'success' => true,
             'data' => $margin,
-            'categories' => $categories
-
+            'subCategories' => $subCategories
         ]);
     }
 
@@ -552,8 +553,6 @@ class RetilerController extends Controller
 
     public function updateCategoryMargin(Request $request)
     {
-
-        // dd($request->all());
         $request->validate([
             'margin_id' => 'required|exists:retailer_products,id',
             'margin' => 'required|numeric|min:0',
@@ -572,7 +571,7 @@ class RetilerController extends Controller
         }
 
         // $margin->margin = $request->margin;
-        $margin->category_id = $request->category_id;
+        $margin->sub_category_id = $request->sub_category_id;
         $margin->margin = $request->margin;
         $margin->payment_method = implode(',', $request->payment_method);
         $margin->save();
@@ -610,6 +609,30 @@ class RetilerController extends Controller
         }
     }
 
+    // Wholesaler Products List based in Subscribed Sub-category
+    public function myWholesalerProduct()
+    {
+        try {
+            $retailer = Auth::user()->id;
+
+            // sub_category_list
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
+                ->pluck('sub_category_id');
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
+                ->get();
+
+            return view('product.my-wholesaler-product', [
+                'sub_category_list' => $sub_category_list
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in retailerProduct: ' . $e->getMessage());
+            session()->flash('error', 'Something went wrong');
+            return redirect()->back()->with('error', 'An error occurred. Please try again.');
+        }
+    }
+
     // AJAX : server-side datatable to fetch record of wholesaler's product
     public function fetchRecordWholesalersProduct(Request $request)
     {
@@ -633,10 +656,10 @@ class RetilerController extends Controller
             ->pluck('product_id')
             ->toArray();
 
-        $query = RetailerProducts::with('category')
+        $query = RetailerProducts::with('sub_category')
             ->join('products', function ($join) {
                 $join->on('products.wholesaler_id', '=', 'retailer_products.wholesaler_id')
-                    ->on('products.category_id', '=', 'retailer_products.category_id');
+                    ->on('products.sub_category_id', '=', 'retailer_products.sub_category_id');
             })
             ->join('users', 'products.wholesaler_id', '=', 'users.id')
             ->leftJoin('user_details', 'users.id', '=', 'user_details.user_id')
@@ -696,7 +719,7 @@ class RetilerController extends Controller
 
         $queryTotal = RetailerProducts::join('products', function ($join) {
             $join->on('products.wholesaler_id', '=', 'retailer_products.wholesaler_id')
-                ->on('products.category_id', '=', 'retailer_products.category_id');
+                ->on('products.sub_category_id', '=', 'retailer_products.sub_category_id');
         })
             ->join('users', 'products.wholesaler_id', '=', 'users.id')
             ->leftJoin('user_details', 'users.id', '=', 'user_details.user_id')
@@ -1458,7 +1481,7 @@ class RetilerController extends Controller
     {
         try {
             $product_id = decryptId($product_id);
-            $product = Product::where('id', $product_id)->orderBy('id', 'desc')->first();
+            $product = Product::with('productVariations')->where('id', $product_id)->orderBy('id', 'desc')->first();
 
             return view('product.clone-product-view', compact('product'));
         } catch (Exception $e) {
@@ -1507,11 +1530,20 @@ class RetilerController extends Controller
     public function cloneProductStore(Request $request, $product_id)
     {
         $product_id = decryptId($product_id);
-        $request->validate([
-            'description' => 'required|max:1000',
-            'old_price' => 'required|numeric|min:0.01',
-            'new_price' => 'required|numeric|min:0.01'
-        ]);
+
+        if ($request->product_variations) {
+            $request->validate([
+                'description' => 'nullable|max:1000',
+                'old_price' => 'nullable|numeric|min:0.01',
+                'new_price' => 'nullable|numeric|min:0.01'
+            ]);
+        } else {
+            $request->validate([
+                'description' => 'nullable|max:1000',
+                'old_price' => 'required|numeric|min:0.01',
+                'new_price' => 'required|numeric|min:0.01'
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -1567,8 +1599,22 @@ class RetilerController extends Controller
             $cloneProduct->meta_keywords = $product->meta_keywords;
             $cloneProduct->save();
 
+            $productVarations = ProductVariation::where('product_id', $product_id)->get();
+            if ($productVarations->isNotEmpty()) {
+                foreach ($productVarations as $variation) {
+                    $cloneProductVarations = new ProductVariation();
+                    $cloneProductVarations->product_id = $cloneProduct->id;
+                    $cloneProductVarations->product_variation = $variation->product_variation;
+                    $cloneProductVarations->variation_type = $variation->variation_type;
+                    $cloneProductVarations->old_price = $variation->old_price;
+                    $cloneProductVarations->price = $variation->price;
+                    $cloneProductVarations->stock = $variation->stock;
+                    $cloneProductVarations->save();
+                }
+            }
+
             DB::commit();
-            return redirect()->route('retailer.product', ['active-tab' => 2])->with('success', 'Product cloned successfully');
+            return redirect()->route('retailer.my.product')->with('success', 'Product cloned successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');
@@ -2021,29 +2067,6 @@ class RetilerController extends Controller
                 ->get();
 
             return view('product.my-product', compact('sub_category_list', 'sub_category_filter'));
-        } catch (\Exception $e) {
-            Log::error('Error in retailerProduct: ' . $e->getMessage());
-            session()->flash('error', 'Something went wrong');
-            return redirect()->back()->with('error', 'An error occurred. Please try again.');
-        }
-    }
-
-    public function myWholesalerProduct()
-    {
-        try {
-            $retailer = Auth::user()->id;
-
-            // sub_category_list
-            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
-                ->pluck('sub_category_id');
-            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
-                ->where('status', 1)
-                ->whereIn('id', $sub_category_ids)
-                ->get();
-
-            return view('product.my-wholesaler-product', [
-                'sub_category_list' => $sub_category_list
-            ]);
         } catch (\Exception $e) {
             Log::error('Error in retailerProduct: ' . $e->getMessage());
             session()->flash('error', 'Something went wrong');
