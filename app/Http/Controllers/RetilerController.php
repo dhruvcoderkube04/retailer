@@ -212,6 +212,7 @@ class RetilerController extends Controller
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
         $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $retailer = Auth::user();
 
         $query = User::with('userDetail')
             ->where('user_type', 2)
@@ -251,18 +252,24 @@ class RetilerController extends Controller
         foreach ($wholesaler as $key => $item) {
             $i++;
 
-            $category_count_fetch = Product::where('wholesaler_id', $item->id)
+            $subCategoryIds = Product::where('wholesaler_id', $item->id)
                 ->where('status', 'active')
-                ->distinct('category_id')
-                ->count('category_id');
+                ->pluck('sub_category_id')
+                ->unique()
+                ->filter();
+            $sub_category_count_fetch = RetailerCategory::whereIn('sub_category_id', $subCategoryIds)
+                ->where('retailer_id', $retailer->id)
+                ->distinct()
+                ->count('sub_category_id');
+
             $product_count_fetch = Product::where('wholesaler_id', $item->id)
                 ->where('status', 'active')
                 ->count('id');
             $details = '
                 <div>
-                    <span>Total Category : </span>
-                    <div class="badge ' . ($category_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
-                                    ' . $category_count_fetch . '
+                    <span>Total Sub Category : </span>
+                    <div class="badge ' . ($sub_category_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
+                                    ' . $sub_category_count_fetch . '
                     </div>
                 </div>
                 <div>
@@ -281,7 +288,7 @@ class RetilerController extends Controller
                 <img src="' . $imagePath . '" style="height: 75px; width: 75px;" />
             </div>';
 
-            $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
+            $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($sub_category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
 
             $data[] = array(
                 "company_logo" => @$company_logo,
