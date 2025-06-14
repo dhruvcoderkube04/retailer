@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\CategorySuggestion;
 use App\Models\RetailerCategory;
+use App\Models\RetailerCloneProduct;
+use App\Models\RetailerProducts;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,7 +70,23 @@ class RetailerCategoryController extends Controller
                     ]);
                 }
             } else {
+                $retailerCloneProductExist = RetailerCloneProduct::where('sub_category_id', $request->sub_category_id)
+                    ->where('retailer_id', $user->id)
+                    ->exists();
+                if ($retailerCloneProductExist) {
+                    return response()->json(['status' => false, 'msg' => "You can't delete this!, Category is already in use"]);
+                }
+
+                $categoryData = $retailerCategory->first();
+                if ($categoryData && $categoryData->category_image) {
+                    deleteImageToSpaces($categoryData->category_image);
+                }
                 $retailerCategory->delete();
+
+                // delete margin related to this sub_category
+                RetailerProducts::where('sub_category_id', $request->sub_category_id)
+                    ->where('retailer_id', $user->id)
+                    ->delete();
             }
 
             $categories = Category::with(['subCategory' => function ($q) {
@@ -101,7 +119,8 @@ class RetailerCategoryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => false, 'msg' => $e->getMessage()]);
+            Log::error('Error on add / remove retailer category ' . $e->getMessage());
+            return response()->json(['status' => false, 'msg' => 'Something went wrong. Please try again later.']);
         }
     }
 
@@ -231,12 +250,26 @@ class RetailerCategoryController extends Controller
         DB::beginTransaction();
         try {
             $retailerCategory = RetailerCategory::where('retailer_id', $user)->where('category_id', $category_id)->where('sub_category_id', $sub_category)->first();
+            if (!$retailerCategory) {
+                return response()->json(['status' => false, 'msg' => "Invalid category details or already removed"]);
+            }
+
+            $retailerCloneProductExist = RetailerCloneProduct::where('sub_category_id', $sub_category)
+                ->where('retailer_id', $user)
+                ->exists();
+            if ($retailerCloneProductExist) {
+                return response()->json(['status' => false, 'msg' => "You can't delete this!, Category is already in use"]);
+            }
 
             if ($retailerCategory->category_image) {
                 deleteImageToSpaces($retailerCategory->category_image);
             }
-
             $retailerCategory->delete();
+
+            // delete margin related to this sub_category
+            RetailerProducts::where('sub_category_id', $sub_category)
+                ->where('retailer_id', $user)
+                ->delete();
 
             DB::commit();
             return response()->json(['status' => true, 'msg' => 'Removed successfully']);

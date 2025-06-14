@@ -141,12 +141,12 @@
                                                                 class="text-muted">({{ $category->category->category_name }})</span>
                                                         </h5>
                                                     </div>
-                                                    <a href="javascript:void(0)"
+                                                    <button
                                                         class="btn btn-sm btn-danger d-flex align-items-center remove-sub-category"
                                                         data-sub-category-id={{ $category->sub_category_id }}
                                                         data-category-id={{ $category->category_id }} data-type="remove">
                                                         <i class="bi bi-x-circle me-1"></i> Remove
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             @endforeach
                                         </div>
@@ -166,6 +166,7 @@
     <script>
         $(document).ready(function() {
             $(document).on('click', '.remove-sub-category', function() {
+                const checkbox = $(this);
                 const subCategoryId = $(this).attr('data-sub-category-id');
                 const categoryId = $(this).attr('data-category-id');
                 const actionType = $(this).attr('data-type');
@@ -179,15 +180,16 @@
                         confirmButtonText: 'Yes, remove it!'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            sendAjaxRequest(subCategoryId, categoryId, actionType);
+                            sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox);
                         }
                     });
                 } else {
-                    sendAjaxRequest(subCategoryId, categoryId, actionType);
+                    sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox);
                 }
             });
 
             $(document).on('change', '.sub-category-checkbox', function() {
+                const checkbox = $(this);
                 const subCategoryId = $(this).attr('data-sub-category-id');
                 const categoryId = $(this).attr('data-category-id');
                 const actionType = $(this).attr('data-type');
@@ -201,17 +203,19 @@
                         confirmButtonText: 'Yes, remove it!'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            sendAjaxRequest(subCategoryId, categoryId, actionType);
+                            sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox);
                         } else {
                             $(this).prop('checked', true);
                         }
                     });
                 } else {
-                    sendAjaxRequest(subCategoryId, categoryId, actionType);
+                    sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox);
                 }
             })
 
-            function sendAjaxRequest(subCategoryId, categoryId, actionType) {
+            function sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox) {
+                $('.sub-category-checkbox, .remove-sub-category').prop('disabled', true);
+
                 $.ajax({
                     url: '{{ route('retailer.category.add-retailer-category') }}',
                     type: 'POST',
@@ -233,6 +237,7 @@
                                 confirmButtonText: 'OK'
                             });
                         } else {
+                            checkbox.prop('checked', true);
                             Swal.fire({
                                 title: 'Error!',
                                 text: response.msg,
@@ -243,12 +248,17 @@
                     },
                     error: function(xhr) {
                         console.error(xhr.responseText);
+                        checkbox.prop('checked', true);
                         Swal.fire({
                             title: 'Error!',
                             text: 'Something went wrong. Please try again later.',
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
+                    },
+                    complete: function() {
+                        // Always re-enable controls after AJAX finishes
+                        $('.sub-category-checkbox, .remove-sub-category').prop('disabled', false);
                     }
                 });
             }

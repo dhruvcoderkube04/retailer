@@ -170,6 +170,7 @@
                                     id="kt_datatable_account_transactions">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle w-80px">Info</th>
                                             <th class="text-center align-middle"></th>
                                             <th class="text-center align-middle w-250px">Description</th>
                                             <th class="text-center align-middle w-150px">Date & Time</th>
@@ -177,7 +178,6 @@
                                             <th class="text-center align-middle w-100px">Transaction Amount</th>
                                             <th class="text-center align-middle w-100px">Current Balance</th>
                                             <th class="text-center align-middle w-100px">Status</th>
-                                            <th class="text-center align-middle w-80px">Info</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
@@ -345,6 +345,12 @@
             },
             order: [],
             columns: [{
+                    data: 'info',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'transaction_type',
                     orderable: false,
                     searchable: false
@@ -372,12 +378,6 @@
                 {
                     data: 'status',
                     className: 'text-center'
-                },
-                {
-                    data: 'info',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
                 },
             ],
             initComplete: function() {

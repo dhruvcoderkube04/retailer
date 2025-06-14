@@ -120,8 +120,7 @@
                 }
             },
             order: [],
-            columns: [
-                {
+            columns: [{
                     data: 'action',
                     className: 'text-center',
                     orderable: false,
@@ -214,8 +213,16 @@
                         request_call("{{ url('remove-category') }}", "category_id=" + categoryId +
                             "&sub_category=" + subCategoryId + "&id=" + id);
                         xhr.done(function(mydata) {
-
-                            location.reload();
+                            if (mydata.status) {
+                                location.reload();
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: mydata.msg,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
                         });
                         xhr.fail(function(mydata) {
                             Swal.fire({
