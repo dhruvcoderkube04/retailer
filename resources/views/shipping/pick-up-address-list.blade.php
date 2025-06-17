@@ -36,6 +36,8 @@
                                     <!--begin::Info-->
                                     <div class="d-flex flex-column py-2">
                                         <!--begin::Owner-->
+                                        <div class="d-flex align-items-center fs-4 fw-bold mb-5">{{ $address->warehouse_name }}
+                                        </div>
                                         <div class="d-flex align-items-center fs-4 fw-bold mb-5">{{ $address->first_name }}
                                             {{ $address->last_name }}
                                             {{-- <span class="badge badge-light-success fs-7 ms-2">Primary</span> --}}

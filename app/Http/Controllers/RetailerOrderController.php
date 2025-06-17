@@ -926,7 +926,7 @@ class RetailerOrderController extends Controller
                 ]],
                 "courierId" => $request->courier_service_id,
             ];
-        } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
+        } elseif (!empty($active_courier_partners) &&  ($active_courier_partners->code == 'lorrigotest' || $active_courier_partners->code == 'lorrigolive')) {
             $payload = [
                 "ewaybill" => "",
                 "order_reference_id" => $customerOrder->order_id . rand(1, 9999999),
@@ -969,6 +969,7 @@ class RetailerOrderController extends Controller
         }
 
         $courierService = \App\Services\CourierServiceManager::getService();
+
         $response = $courierService->createOrder($payload);
 
         if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
@@ -1010,8 +1011,7 @@ class RetailerOrderController extends Controller
             } else {
                 return [false, $response['response'] ?? 'Failed to create shipping order', ''];
             }
-        } elseif (!empty($active_courier_partners) &&  $active_courier_partners->code == 'lorrigo') {
-
+        } elseif (!empty($active_courier_partners) &&  ($active_courier_partners->code == 'lorrigotest' || $active_courier_partners->code == 'lorrigolive')) {
             if (!empty($response['order']['_id'])) {
 
                 // dd($request->courier_service);
@@ -1029,8 +1029,8 @@ class RetailerOrderController extends Controller
                         "orderType" => 0,
                         "type" => $get_carrier->type
                     ];
-
                     $createshipment = $courierService->createShipment($create_shipment_payload);
+
                     if ($createshipment['valid']  && $createshipment['order']) {
                         $updateData['tracking_number'] = $createshipment['order']['awb'];
                         $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id

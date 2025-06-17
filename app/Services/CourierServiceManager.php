@@ -4,7 +4,8 @@ namespace App\Services;
 
 use App\Models\CourierPartner;
 use App\Services\Courier\FShipService;
-use App\Services\Courier\LorrigoService;
+use App\Services\Courier\LorrigoService;  //for test
+use App\Services\Courier\LorrigoServiceLive; // for live
 // use App\Services\Courier\YShipService;
 // use App\Services\Courier\BluedartService;
 // use App\Services\Courier\ProfessionalService;
@@ -21,7 +22,8 @@ class CourierServiceManager
         // Choose the appropriate courier service based on the code
         return match ($partner->code) {
             'fship'    => new FShipService($partner->toArray()),
-            'lorrigo'  => new LorrigoService($partner->toArray()),
+            'lorrigotest'  => new LorrigoService($partner->toArray()),
+            'lorrigolive'  => new LorrigoServiceLive($partner->toArray()),
             // 'yship'    => new YShipService($partner->toArray()),
             // 'bluedart' => new BluedartService($partner->toArray()),
             // 'professional' => new ProfessionalService($partner->toArray()),
@@ -39,7 +41,8 @@ class CourierServiceManager
         foreach ($partners as $partner) {
             $service = match ($partner->code) {
                 'fship'    => new FShipService($partner->toArray()),
-                'lorrigo'  => new LorrigoService($partner->toArray()),
+                'lorrigotest'  => new LorrigoService($partner->toArray()),
+                'lorrigolive'  => new LorrigoServiceLive($partner->toArray()),
                 default    => null,
             };
 

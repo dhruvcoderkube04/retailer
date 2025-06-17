@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
-class LorrigoService implements CourierInterface
+class LorrigoServiceLive implements CourierInterface
 {
     protected $apiUrl;
     protected $token;
 
     public function __construct()
     {
-        $this->apiUrl = config('services.lorrigotest.base_url');
+        $this->apiUrl = config('services.lorrigolive.base_url');
         $this->token = $this->getToken(); // Fetch token at service creation
     }
 
@@ -25,8 +25,8 @@ class LorrigoService implements CourierInterface
     {
         return Cache::remember('lorrigo_token', 55 * 60, function () {
             $response = Http::post($this->apiUrl . '/api/auth/login', [
-                'email' => config('services.lorrigotest.email'),
-                'password' => config('services.lorrigotest.password'),
+                'email' => config('services.lorrigolive.email'),
+                'password' => config('services.lorrigolive.password'),
             ]);
 
             if ($response->failed() || !$response->json('user.token')) {
@@ -181,7 +181,7 @@ class LorrigoService implements CourierInterface
     {
         try {
             $payload = [
-                'name' => 'TEST_' . $data['warehouseName'], // must be unique
+                'name' => $data['warehouseName'], // must be unique
                 'pincode' => $data['pincode'],
                 'address1' => substr($data['addressLine1'], 0, 100), // max 100 chars
                 'phone' => $data['phoneNumber'],
@@ -375,12 +375,10 @@ class LorrigoService implements CourierInterface
 
     public function createShipment(array $payload): array|bool
     {
-        Log::info('Payload being sent', $payload);
         try {
-             $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
-            ])->post($this->apiUrl . '/api/shipment/v2', $payload);
+            $response = Http::withToken($this->token)
+                ->acceptJson()
+                ->post("{$this->apiUrl}/api/shipment/v2", $payload);
 
             if ($response->successful()) {
                 return $response->json();
