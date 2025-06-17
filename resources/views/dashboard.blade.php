@@ -476,7 +476,8 @@
 
 @section('script')
     <script>
-        var start = moment().subtract(29, "days");
+        // var start = moment().subtract(29, "days");
+        var start = moment();
         var end = moment();
 
         function cb(start, end) {

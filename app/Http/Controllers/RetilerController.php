@@ -38,8 +38,10 @@ class RetilerController extends Controller
 {
     public function retailerDashboard()
     {
-        $from = Carbon::today()->subDays(29)->startOfDay();
-        $to = Carbon::today()->endOfDay();
+        $from = Carbon::now()->startOfDay();
+        $to = Carbon::now()->endOfDay();
+        // $from = Carbon::today()->subDays(29)->startOfDay();
+        // $to = Carbon::today()->endOfDay();
         $user = Auth::user();
 
         $data = [
