@@ -61,7 +61,7 @@
                         {{-- Payment Method Dropdown --}}
                         <div style="min-width: 220px; max-width: 220px;">
                             <select id="payment_method_filter"
-                                class="form-select form-select-solid bg-secondary border-0 w-100" data-control="select2"
+                                class="form-select form-select-solid bg-secondary border-0  " data-control="select2"
                                 data-placeholder="All Payment Method">
                                 <option value="all">All Payment Method</option>
                                 @foreach ($payment_method_list as $payment_method)
