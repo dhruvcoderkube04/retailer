@@ -520,8 +520,8 @@
                     case 'old_price':
                     case 'quantity':
                         if (!hasVariations) {
-                            if (isEmpty(value) || isNaN(value) || parseFloat(value) < 1) {
-                                showError(input, `${formatFieldName(name)} must be greater than 0`);
+                            if (isEmpty(value) || isNaN(value) || parseFloat(value) < 0) {
+                                showError(input, `${formatFieldName(name)} field is required`);
                             } else {
                                 clearError(input);
                             }

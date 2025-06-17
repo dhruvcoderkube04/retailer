@@ -21,6 +21,7 @@ use App\Http\Controllers\VBuilder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VerificationController;
+use App\Models\RetailerCategory;
 
 Route::get('/', function () {
     return redirect()->to('login');
@@ -84,7 +85,9 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/my-wholesaler-product', [RetilerController::class, 'myWholesalerProduct'])->name('retailer.my.wholesaler.product'); // product list view
 
     Route::post('/wholesalers-product/fetch-record', [RetilerController::class, 'fetchRecordWholesalersProduct'])->name('retailer.wholesalers-product.fetch-record'); // AJAX : datatable - wholesaler's product
-    Route::post('/retailer-clone-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneProduct'])->name('retailer.retailer-clone-product.fetch-record'); // AJAX : datatable - retailer's clone/own product
+    Route::post('/retailer-clone-available-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneAvailableProduct'])->name('retailer.retailer-clone-available-product.fetch-record'); // AJAX : datatable - retailer's clone/own available product
+    Route::post('/retailer-clone-unavailable-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneUnavailableProduct'])->name('retailer.retailer-clone-unavailable-product.fetch-record'); // AJAX : datatable - retailer's clone/own unavailable product
+    Route::post('/retailer-clone-product/change-status', [RetilerController::class, 'changeProductStatus'])->name('retailer.retailer-clone-product.change-status');
 
     Route::get('/retailer-add-product', [RetilerController::class, 'retailerAddProduct'])->name('retailer.add.product'); // product add view
     Route::post('/retailer-store-product', [RetilerController::class, 'retailerPostProduct'])->name('retailer.post.product'); // product store

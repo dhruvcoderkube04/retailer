@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="d-flex align-items-center gap-2 gap-lg-3">
-                        <a href="{{ route('retailer.product') }}" class="btn btn-primary">
+                        <a href="{{ route('retailer.my.product') }}" class="btn btn-primary">
                             Back to Product List
                         </a>
                     </div>
