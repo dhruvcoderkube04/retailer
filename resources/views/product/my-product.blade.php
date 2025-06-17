@@ -54,47 +54,187 @@
                         </div>
                     @endif
                     <div class="card card-flush">
-                        <div class="row mx-5 mt-5">
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                <label for="sub_category_filter" class="form-label fw-semibold mb-1">
-                                    Sub Category
-                                </label>
-                                <select id="sub_category_filter" class="form-select form-select-solid bg-secondary"
-                                    data-control="select2" data-placeholder="Select Type">
-                                    <option value="all">All</option>
-                                    @foreach ($sub_category_filter as $sub_category)
-                                        <option value="{{ $sub_category->id }}">
-                                            {{ $sub_category->sub_category_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
                         <div class="card-body pt-1">
-                            {{-- Clone Products Table --}}
-                            <table class="table align-middle table-row-dashed fs-7"
-                                id="kt_datatable_retailer_clone_products">
-                                <thead>
-                                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center align-middle min-w-100px">Actions</th>
-                                        <th class="text-center align-middle min-w-70px">Image</th>
-                                        <th class="text-center align-middle min-w-200px">Product</th>
-                                        <th class="text-center align-middle min-w-100px">Sub Category</th>
-                                        <th class="text-center align-middle min-w-100px">SKU</th>
-                                        <th class="text-center align-middle min-w-70px">Qty</th>
-                                        <th class="text-center align-middle min-w-100px">Old Price
-                                            <br> <span class="text-capitalize fs-9">(Per Piece)</span>
-                                        </th>
-                                        <th class="text-center align-middle min-w-100px">New Price
-                                            <br> <span class="text-capitalize fs-9">(Per Piece)</span>
-                                        </th>
-                                        <th class="text-center align-middle min-w-100px">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="fw-semibold text-gray-600">
-                                </tbody>
-                            </table>
+
+                            {{-- tabs --}}
+                            <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold pb-4 active" data-bs-toggle="tab"
+                                        href="#available_products_tab" data-tab="1">
+                                        Available Products
+                                        <span class="badge badge-sm badge-circle badge-light-success fs-6 p-2 ms-2"
+                                            id="available_products_count">0</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold pb-4" data-bs-toggle="tab" href="#unavailable_products_tab"
+                                        data-tab="2">
+                                        Unavailable Products
+                                        <span class="badge badge-sm badge-circle badge-light-danger fs-6 p-2 ms-2"
+                                            id="unavailable_products_count">0</span>
+                                    </a>
+                                </li>
+                            </ul>
+
+                            {{-- tab 1 --}}
+                            <div class="tab-content" id="available_products_tab_content">
+                                <div class="tab-pane fade show active" id="available_products_tab" role="tabpanel">
+
+                                    <div class="pb-6">
+                                        <div class="row g-3 justify-content-md-end">
+
+                                            {{-- Status Filter --}}
+                                            <div class="col-12 col-md-3">
+                                                <label for="available_status_filter"
+                                                    class="form-label fw-semibold mb-1">Status</label>
+                                                <select id="available_status_filter"
+                                                    class="form-select form-select-solid bg-secondary w-100"
+                                                    data-control="select2" data-placeholder="Select Status">
+                                                    <option value="all">All Status</option>
+                                                    <option value="active">Active</option>
+                                                    <option value="inactive">Inactive</option>
+                                                </select>
+                                            </div>
+
+                                            {{-- Category Dropdown --}}
+                                            <div class="col-12 col-md-3">
+                                                <label for="available_sub_category_filter"
+                                                    class="form-label fw-semibold mb-1">Sub Category</label>
+                                                <select id="available_sub_category_filter"
+                                                    class="form-select form-select-solid bg-secondary w-100"
+                                                    data-control="select2" data-placeholder="Select Category">
+                                                    <option value="all">All Category</option>
+                                                    @foreach ($sub_category_filter as $sub_category)
+                                                        <option value="{{ $sub_category->id }}">
+                                                            {{ $sub_category->sub_category_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            {{-- Search Input --}}
+                                            <div class="col-12 col-md-3">
+                                                <label for="available_search_product"
+                                                    class="form-label fw-semibold mb-1">Search</label>
+                                                <div class="position-relative">
+                                                    <i
+                                                        class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4 text-muted">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                    </i>
+                                                    <input type="text" id="available_search_product"
+                                                        class="form-control form-control-solid ps-12 bg-secondary"
+                                                        placeholder="Search Product" />
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <table class="table align-middle table-row-dashed fs-7"
+                                        id="kt_datatable_available_retailer_clone_products">
+                                        <thead>
+                                            <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                                <th class="text-center align-middle min-w-100px">Actions</th>
+                                                <th class="text-center align-middle min-w-70px">Image</th>
+                                                <th class="text-center align-middle min-w-200px">Product</th>
+                                                <th class="text-center align-middle min-w-100px">Category</th>
+                                                <th class="text-center align-middle min-w-100px">Price</th>
+                                                <th class="text-center align-middle min-w-50px">Qty</th>
+                                                <th class="text-center align-middle min-w-70px"
+                                                    style="white-space: normal;">Stock</th>
+                                                <th class="text-center align-middle min-w-70px"
+                                                    style="white-space: normal;">Status</th>
+                                                <th class="text-center align-middle min-w-150px">Added / Updated</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="fw-semibold text-gray-600">
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            {{-- tab 2 --}}
+                            <div class="tab-content" id="unavailable_products_tab_content">
+                                <div class="tab-pane fade" id="unavailable_products_tab" role="tabpanel">
+
+                                    <div class="pb-6">
+                                        <div class="row g-3 justify-content-md-end">
+
+                                            {{-- Status Filter --}}
+                                            <div class="col-12 col-md-3">
+                                                <label for="unavailable_status_filter"
+                                                    class="form-label fw-semibold mb-1">Status</label>
+                                                <select id="unavailable_status_filter"
+                                                    class="form-select form-select-solid bg-secondary w-100"
+                                                    data-control="select2" data-placeholder="Select Status">
+                                                    <option value="all">All Status</option>
+                                                    <option value="active">Active</option>
+                                                    <option value="inactive">Inactive</option>
+                                                </select>
+                                            </div>
+
+                                            {{-- Category Dropdown --}}
+                                            <div class="col-12 col-md-3">
+                                                <label for="unavailable_sub_category_filter"
+                                                    class="form-label fw-semibold mb-1">Sub Category</label>
+                                                <select id="unavailable_sub_category_filter"
+                                                    class="form-select form-select-solid bg-secondary w-100"
+                                                    data-control="select2" data-placeholder="Select Category">
+                                                    <option value="all">All Category</option>
+                                                    @foreach ($sub_category_filter as $sub_category)
+                                                        <option value="{{ $sub_category->id }}">
+                                                            {{ $sub_category->sub_category_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            {{-- Search Input --}}
+                                            <div class="col-12 col-md-3">
+                                                <label for="unavailable_search_product"
+                                                    class="form-label fw-semibold mb-1">Search</label>
+                                                <div class="position-relative">
+                                                    <i
+                                                        class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4 text-muted">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                    </i>
+                                                    <input type="text" id="unavailable_search_product"
+                                                        class="form-control form-control-solid ps-12 bg-secondary"
+                                                        placeholder="Search Product" />
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <table class="table align-middle table-row-dashed fs-7"
+                                        id="kt_datatable_unavailable_retailer_clone_products">
+                                        <thead>
+                                            <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                                <th class="text-center align-middle min-w-100px">Actions</th>
+                                                <th class="text-center align-middle min-w-70px">Image</th>
+                                                <th class="text-center align-middle min-w-200px">Product</th>
+                                                <th class="text-center align-middle min-w-100px">Category</th>
+                                                <th class="text-center align-middle min-w-100px">Price</th>
+                                                <th class="text-center align-middle min-w-50px">Qty</th>
+                                                <th class="text-center align-middle min-w-70px"
+                                                    style="white-space: normal;">Stock</th>
+                                                <th class="text-center align-middle min-w-70px"
+                                                    style="white-space: normal;">Status</th>
+                                                <th class="text-center align-middle min-w-150px">Added / Updated</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="fw-semibold text-gray-600">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -175,29 +315,23 @@
 
     @section('script')
         <script>
-            //<------------- START : server-side datatable for clone products ------------->
-            dataTable = $('#kt_datatable_retailer_clone_products').DataTable({
-                dom: "<'row mb-2'" +
-                    "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                    "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                    ">" +
-                    "<'table-responsive'tr>" +
-                    "<'row'" +
-                    "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
-                    "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
-                    ">",
+            // <--------------------- START : Available Product ---------------------->
+            let availableDatatable = $('#kt_datatable_available_retailer_clone_products').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('retailer.retailer-clone-product.fetch-record') }}",
+                    url: "{{ route('retailer.retailer-clone-available-product.fetch-record') }}",
                     type: "POST",
                     data: function(d) {
+                        d.search = $('#available_search_product').val();
+                        d.sub_category_filter = $('#available_sub_category_filter').val();
+                        d.status = $('#available_status_filter').val();
                         d._token = '{{ csrf_token() }}';
-                        d.sub_category_filter = $('#sub_category_filter').val();
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
                     },
                     dataSrc: function(json) {
+                        $('#available_products_count').text(json.recordsTotal);
                         return json.data;
                     }
                 },
@@ -206,16 +340,16 @@
                         data: 'action',
                         className: 'text-center',
                         orderable: false,
-                        searchable: false,
+                        searchable: false
                     },
                     {
                         data: 'image',
                         className: 'text-center',
                         orderable: false,
+                        searchable: false
                     },
                     {
-                        data: 'product',
-                        className: 'text-start',
+                        data: 'name',
                         orderable: false,
                     },
                     {
@@ -224,8 +358,8 @@
                         orderable: false,
                     },
                     {
-                        data: 'sku',
-                        className: 'text-center',
+                        data: 'new_price',
+                        className: 'text-end',
                         orderable: false,
                     },
                     {
@@ -234,53 +368,132 @@
                         orderable: false,
                     },
                     {
-                        data: 'old_price',
-                        className: 'text-end',
-                        orderable: true,
-                    },
-                    {
-                        data: 'new_price',
-                        className: 'text-end',
-                        orderable: true,
+                        data: 'stock',
+                        className: 'text-center',
+                        orderable: false,
                     },
                     {
                         data: 'status',
                         className: 'text-center',
                         orderable: false,
                     },
-                ],
-                initComplete: function() {
-                    let searchBox = $('.datatable-search-section input');
-                    let searchLabel = $('.datatable-search-section label');
-                    let lengthSelect = $('.datatable-length-section select');
+                    {
+                        data: 'created_updated_at',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                ]
+            });
 
-                    searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
-                    searchBox.before(
-                        '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
-                    ); // add icon
-                    searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
-                        'placeholder', 'Search'); // style the search input
-                    searchBox.css({
-                        'padding': '13px 15px 12px 15px',
-                        'font-size': '14px',
-                    });
+            $('#available_search_product').on('keyup', function() {
+                availableDatatable.ajax.reload();
+            });
 
-                    searchLabel.css({
-                        'display': 'none',
-                    });
+            $('#available_sub_category_filter').on('change', function() {
+                availableDatatable.ajax.reload();
+            });
 
-                    lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
-                    lengthSelect.css({
-                        'padding': '13px 27px 12px 14px',
-                        'font-size': '14px',
-                    });
+            $('#available_status_filter').on('change', function() {
+                availableDatatable.ajax.reload();
+            });
+
+            // Re-render icons after availableDatatable draw
+            availableDatatable.on('draw', function() {
+                if (typeof KTIcon !== 'undefined') {
+                    KTIcon.update();
                 }
             });
+            // <--------------------- END : Available Product ---------------------->
 
-            $(document).on('change', '#sub_category_filter', function() {
-                dataTable.draw();
+            // <--------------------- START : Unavailable Product ---------------------->
+            let unavailableDatatable = $('#kt_datatable_unavailable_retailer_clone_products').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('retailer.retailer-clone-unavailable-product.fetch-record') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d.search = $('#unavailable_search_product').val();
+                        d.sub_category_filter = $('#unavailable_sub_category_filter').val();
+                        d.status = $('#unavailable_status_filter').val();
+                        d._token = '{{ csrf_token() }}';
+                        d.order = d.order; // Add order data
+                        d.columns = d.columns; // Add columns data
+                    },
+                    dataSrc: function(json) {
+                        $('#unavailable_products_count').text(json.recordsTotal);
+                        return json.data;
+                    }
+                },
+                order: [],
+                columns: [{
+                        data: 'action',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'image',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        orderable: false,
+                    },
+                    {
+                        data: 'sub_category',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'new_price',
+                        className: 'text-end',
+                        orderable: false,
+                    },
+                    {
+                        data: 'quantity',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'stock',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'created_updated_at',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                ]
             });
-            //<------------- END : server-side datatable for clone products ------------->
+
+            $('#unavailable_search_product').on('keyup', function() {
+                unavailableDatatable.ajax.reload();
+            });
+
+            $('#unavailable_sub_category_filter').on('change', function() {
+                unavailableDatatable.ajax.reload();
+            });
+
+            $('#unavailable_status_filter').on('change', function() {
+                unavailableDatatable.ajax.reload();
+            });
+
+            // Re-render icons after unavailableDatatable draw
+            unavailableDatatable.on('draw', function() {
+                if (typeof KTIcon !== 'undefined') {
+                    KTIcon.update();
+                }
+            });
+            // <--------------------- END : Unavailable Product ---------------------->
 
             $(document).ready(function() {
                 //<----------------- START : product upload form submit ---------------->
@@ -375,6 +588,47 @@
                 });
                 //<----------------- END : product upload form submit ---------------->
 
+                //<-------- START : change product status from product-list ----------->
+                $(document).on('change', '.changeStatusToggle', function() {
+                    let productId = $(this).data('id');
+                    let newStatus = $(this).is(':checked') ? 'active' : 'inactive';
+
+                    $.ajax({
+                        url: "{{ route('retailer.retailer-clone-product.change-status') }}",
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            product_id: productId,
+                            status: newStatus
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Status Updated',
+                                text: response.message,
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+
+                            $('#kt_datatable_available_retailer_clone_products')
+                                .DataTable().ajax
+                                .reload(null, false);
+                            $('#kt_datatable_unavailable_retailer_clone_products')
+                                .DataTable().ajax
+                                .reload(null, false);
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Could not update status.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+
+                            Swal.fire('Error', errorMsg, 'error');
+                        }
+                    });
+                });
+                //<-------- END : change product status from product-list ----------->
+
                 //<----------------- START : delete product ---------------->
                 $(document).on('click', '.delete-product', function() {
                     let productId = $(this).data("id");
@@ -398,15 +652,28 @@
                                     _method: "DELETE"
                                 },
                                 success: function(response) {
-                                    Swal.fire("Deleted!", "Product has been removed.",
-                                        "success");
-                                    location
-                                        .reload(); // Reload the page to update the table
+                                    Swal.fire({
+                                        icon: response.status ? 'success' : 'error',
+                                        title: response.status ? 'Deleted!' : 'Error',
+                                        text: response.message,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                    if (response.status) {
+                                        $('#kt_datatable_available_retailer_clone_products')
+                                            .DataTable().ajax
+                                            .reload(null,
+                                                false
+                                            ); // reload table without resetting pagination
+                                        $('#kt_datatable_unavailable_retailer_clone_products')
+                                            .DataTable().ajax
+                                            .reload(
+                                                null, false
+                                            ); // reload table without resetting pagination
+                                    }
                                 },
                                 error: function(xhr) {
-                                    Swal.fire("Error!",
-                                        "Something went wrong. Please try again.",
-                                        "error");
+                                    Swal.fire('Oops...', 'Something went wrong.', 'error');
                                 }
                             });
                         }

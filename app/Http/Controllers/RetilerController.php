@@ -288,7 +288,7 @@ class RetilerController extends Controller
                 <img src="' . $imagePath . '" style="height: 75px; width: 75px;" />
             </div>';
 
-            $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($sub_category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add Margin</a>';
+            $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($sub_category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add/Update Margin</a>';
 
             $data[] = array(
                 "company_logo" => @$company_logo,
@@ -622,6 +622,14 @@ class RetilerController extends Controller
         try {
             $retailer = Auth::user()->id;
 
+            $wholesalerIds = RetailerProducts::where('retailer_id', $retailer)
+                ->pluck('wholesaler_id');
+            $wholesalers = User::with('userDetail')
+                ->whereIn('id', $wholesalerIds)
+                ->where('status', 1)
+                ->where('is_delete', 0)
+                ->get();
+
             // sub_category_list
             $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
                 ->pluck('sub_category_id');
@@ -631,7 +639,8 @@ class RetilerController extends Controller
                 ->get();
 
             return view('product.my-wholesaler-product', [
-                'sub_category_list' => $sub_category_list
+                'sub_category_list' => $sub_category_list,
+                'wholesalers' => $wholesalers
             ]);
         } catch (\Exception $e) {
             Log::error('Error in retailerProduct: ' . $e->getMessage());
@@ -643,10 +652,6 @@ class RetilerController extends Controller
     // AJAX : server-side datatable to fetch record of wholesaler's product
     public function fetchRecordWholesalersProduct(Request $request)
     {
-        $limit = ($request->has('length') ? $request->input('length') : 10);
-        $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
-
         $retailer = Auth::user();
 
         $isAllWholesalerVisible = $retailer->is_all_wholesaler_visible;
@@ -690,7 +695,8 @@ class RetilerController extends Controller
                     ) as product_variations")
             );
 
-        if ($search) {
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('products.name', 'like', '%' . $search . '%')
                     ->orWhere('products.sku', 'like', '%' . $search . '%')
@@ -701,30 +707,33 @@ class RetilerController extends Controller
             });
         }
 
-        $cntFilter = clone $query;
+        if ($request->has('wholesaler_filter') && $request->wholesaler_filter !== 'all') {
+            $query->where('products.wholesaler_id', $request->wholesaler_filter);
+        }
+
+        if ($request->has('status_filter') && $request->status_filter != 'all') {
+            $query->where('products.status', $request->status_filter);
+        }
 
         if ($request->has('order') && isset($request->order[0])) {
             $columnIndex = $request->order[0]['column'];  // get column index
             $columnName = $request->columns[$columnIndex]['data'];  // get column name
             $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
 
-            if ($columnName == 'new_price') {
-                $query->orderBy('products.' . $columnName, $direction);
-            } else if ($columnName == 'margin') {
-                $query->orderBy('retailer_products.' . $columnName, $direction);
-            } else {
-                $query->orderBy('products.' . $columnName, $direction);
-            }
+            $query->orderBy($columnName, $direction);
         } else {
-            $query->orderBy('products.id', 'desc');
+            $query->orderBy('id', 'desc');
         }
 
-        $products = $query->distinct('products.id')
-            ->offset($page)
-            ->limit($limit)
-            ->get();
+        // Use DataTables pagination parameters: start and length
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 10;
 
-        $queryTotal = RetailerProducts::join('products', function ($join) {
+        $recordsFiltered = $query->count();  // total records after filters
+
+        $products = $query->skip($start)->take($length)->get();
+
+        $recordsTotal = RetailerProducts::join('products', function ($join) {
             $join->on('products.wholesaler_id', '=', 'retailer_products.wholesaler_id')
                 ->on('products.sub_category_id', '=', 'retailer_products.sub_category_id');
         })
@@ -741,68 +750,52 @@ class RetilerController extends Controller
             ->count('products.id');
 
         $data = [];
-        $i = $page;
         foreach ($products as $product) {
-            $i++;
-
             $action = !in_array($product->id, $clonedProducts)
                 ? '<a href="' . route('retailer.clone-product-view', encryptId($product->id)) . '" class="btn btn-primary btn-sm">Clone</a>'
                 : '';
 
-            $image = explode(',', $product->images)[0] ?? '';
+            $image = !empty($product->images) ? explode(',', $product->images)[0] : [];
             $image = trim(stripslashes($image), "\"' ");
-            $imageUrl = $image
-                ? Storage::disk('spaces')->url($image)
-                : asset('assets/media/images/no_image.jpg');
             $defaultImage = asset('assets/media/images/no_image.jpg');
-            $product_detail = '<div class="d-flex align-items-center ms-4">
-                <div class="symbol symbol-50px">
-                    <span class="symbol-label">
-                        <img src="' . $imageUrl . '"
-                            onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';"
-                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
-                            alt="Product Image">
-                    </span>
-                </div>
-                <div class="ms-5">
-                    <div class="text-gray-800 fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">'
-                . htmlspecialchars(ucfirst($product->name ?? 'N/A'), ENT_QUOTES, 'UTF-8') .
-                '</div>';
+            $imageUrl = !empty($image) ? Storage::disk('spaces')->url($image) : $defaultImage;
+            $product_image = '<img src="' . $imageUrl . '" 
+                        alt="Product Image" 
+                        style="width: 50px; height: 50px; object-fit: cover;" 
+                        onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
 
             $variations = json_decode($product->product_variations, true);
-            $name = [];
-            $newPriceRange = null;
-
+            $productVariation = [];
+            $newPrice = null;
+            $totalStock = 0;
             if ($variations) {
                 foreach ($variations as $variation) {
-                    $name[] = $variation['product_variation'];
+                    $productVariation[] = $variation['product_variation'];
+                    $totalStock += $variation['stock'];
                 }
 
                 $newPrices = collect($variations)
                     ->pluck('price')
                     ->filter()
                     ->map(fn($v) => (float) $v);
-                $newPriceRange = $newPrices->isNotEmpty()
-                    ? number_format($newPrices->min(), 2) . ' - ' . number_format($newPrices->max(), 2)
+                $newPrice = $newPrices->isNotEmpty()
+                    ? number_format($newPrices->min(), 2)
                     : null;
             }
-
-            if ($variations) {
-                $product_detail .= '<div class="col-12 mb-1"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . implode(', ', $name) . '</div></div>';
-            }
-
-            $product_detail .= '</div>
-            </div>';
+            $product_name = !empty($productVariation)
+                ? '<div>
+                <div>' . e($product->name) . '</div>
+                <div><strong>Variations:</strong> ' . e(implode(', ', $productVariation)) . '</div>
+            </div>'
+                : e($product->name);
 
             $wholesaler_detail = '<div class="ms-5">
                             <a href="' . route('retailer.view-category-margin', encryptId($product->wholesaler_id) ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
                         </div>';
 
-            if ($newPriceRange) {
-                $new_price = '<div class="badge badge-light-primary text-wrap">₹ ' . $newPriceRange . '</div>';
-            } else {
-                $new_price = '<div class="badge badge-light-primary text-wrap">' . ($product->new_price ? '₹ ' . $product->new_price : 'N/A') . '</div>';
-            }
+            $new_price = '<div class="badge badge-light-primary text-wrap">'
+                . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
+                . '</div>';
 
             $margin = '<div class="badge badge-light-info">' . ($product->margin ? '₹ ' . $product->margin : 'N/A') . '</div>';
 
@@ -810,38 +803,87 @@ class RetilerController extends Controller
                 ? '<div class="badge badge-light-success">Active</div>'
                 : '<div class="badge badge-light-danger">Inactive</div>';
 
+            if ($totalStock && $totalStock > 0) {
+                $stock = '<div class="badge badge-light-success">Available</div>';
+            } else if (!$totalStock && $product->quantity && $product->quantity > 0) {
+                $stock = '<div class="badge badge-light-success">Available</div>';
+            } else {
+                $stock = '<div class="badge badge-light-danger">Unavailable</div>';
+            }
+
             $data[] = [
                 'action' => $action,
-                'product' => $product_detail,
+                'image' => $product_image,
+                'product' => $product_name,
                 'wholesaler' => $wholesaler_detail,
-                'sku' => $product->sku ?? 'N/A',
+                'sub_category' => $product->sub_category->sub_category_name ?? 'N/A',
+                'quantity' => $totalStock ?: ($product->quantity ?? 0),
+                'stock' => $stock,
                 'new_price' => $new_price,
                 'margin' => $margin,
                 'status' => $status
             ];
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+
+        return response()->json([
+            'draw' => intval($request->draw),           // pass draw from request
+            'recordsTotal' => $recordsTotal, // total records without filters
+            'recordsFiltered' => $recordsFiltered,          // total after filtering
+            'data' => $data,
+        ]);
     }
 
-    // AJAX : server-side datatable to fetch record of retailer's clone/own product
-    public function fetchRecordRetailerCloneProduct(Request $request)
+    public function myProduct()
     {
-        $limit = ($request->has('length') ? $request->input('length') : 10);
-        $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
-        $sub_category_filter = ($request->has('sub_category_filter') ? $request->input('sub_category_filter') : '');
+        try {
+            $retailer = Auth::user()->id;
 
+            $sub_category_filter_ids = RetailerCloneProduct::where('retailer_id', $retailer)->pluck('sub_category_id');
+            $sub_category_filter = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->whereIn('id', $sub_category_filter_ids)
+                ->get();
+
+            // sub_category_list
+            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
+                ->pluck('sub_category_id');
+            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
+                ->where('status', 1)
+                ->whereIn('id', $sub_category_ids)
+                ->get();
+
+            return view('product.my-product', compact('sub_category_list', 'sub_category_filter'));
+        } catch (\Exception $e) {
+            Log::error('Error in retailerProduct: ' . $e->getMessage());
+            session()->flash('error', 'Something went wrong');
+            return redirect()->back()->with('error', 'An error occurred. Please try again.');
+        }
+    }
+
+    // AJAX : server-side datatable to fetch record of retailer's clone/own available product
+    public function fetchRecordRetailerCloneAvailableProduct(Request $request)
+    {
         $retailer = Auth::user();
 
         $query = RetailerCloneProduct::with('sub_category', 'productVariations')
-            ->where('retailer_id', $retailer->id);
+            ->where('retailer_id', $retailer->id)
+            ->where(function ($q) {
+                $q->whereHas('productVariations', function ($q) {
+                    $q->where('stock', '>', 0);
+                })
+                    ->orWhere(function ($q) {
+                        $q->doesntHave('productVariations')
+                            ->where('quantity', '>', 0);
+                    });
+            });
 
-        if ($search) {
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                    ->orWhere('sku', 'like', "%$search%")
                     ->orWhere('new_price', 'like', "%$search%")
                     ->orWhere('status', 'like', "%$search%")
+                    ->orWhere('created_at', 'like', "%$search%")
+                    ->orWhere('updated_at', 'like', "%$search%")
                     ->orWhereHas('sub_category', function ($q) use ($search) {
                         $q->where('sub_category_name', 'like', '%' . $search . '%');
                     })
@@ -854,49 +896,51 @@ class RetilerController extends Controller
             });
         }
 
-        if ($sub_category_filter && $sub_category_filter !== 'all') {
-            $query->where('sub_category_id', $sub_category_filter);
+        if ($request->has('sub_category_filter') && $request->sub_category_filter !== 'all') {
+            $query->where('sub_category_id', $request->sub_category_filter);
         }
 
-        $cntFilter = clone $query;
-
-        if ($request->has('order') && isset($request->order[0])) {
-            $columnIndex = $request->order[0]['column'];  // get column index
-            $columnName = $request->columns[$columnIndex]['data'];  // get column name
-            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
-
-            $query->orderBy($columnName, $direction);
-        } else {
-            $query->orderBy('id', 'desc');
+        if ($request->has('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
         }
 
-        $products = $query->offset($page)->limit($limit)->get();
+        // Use DataTables pagination parameters: start and length
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 10;
 
-        $queryTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
+        $recordsFiltered = $query->count();  // total records after filters
+
+        $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
+
+        $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
             ->where('retailer_id', $retailer->id)
-            ->count('id');
+            ->where(function ($q) {
+                $q->whereHas('productVariations', function ($q) {
+                    $q->where('stock', '>', 0);
+                })
+                    ->orWhere(function ($q) {
+                        $q->doesntHave('productVariations')
+                            ->where('quantity', '>', 0);
+                    });
+            })
+            ->count();
 
         $data = [];
-        $i = $page;
         foreach ($products as $product) {
-            $i++;
+            $image = !empty($product->images) ? explode(',', $product->images) : [];
+            $defaultImage = asset('assets/media/images/no_image.jpg');
+            $imageUrl = !empty($image[0]) ? Storage::disk('spaces')->url($image[0]) : $defaultImage;
 
-            $oldPriceRange = null;
-            $newPriceRange = null;
+            $newPrice = null;
             $totalStock = 0;
             $productVariation = [];
             if ($product->productVariations->isNotEmpty()) {
-                $oldPrices = $product->productVariations->pluck('old_price')->filter()->map(fn($v) => (float)$v);
                 $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float)$v);
+                $newPrice = $newPrices->isNotEmpty()
+                    ? number_format($newPrices->min(), 2)
+                    : null;
+
                 $totalStock = $product->productVariations->sum('stock');
-
-                $oldPriceRange = $oldPrices->isNotEmpty()
-                    ? number_format($oldPrices->min(), 2) . ' - ' . number_format($oldPrices->max(), 2)
-                    : null;
-
-                $newPriceRange = $newPrices->isNotEmpty()
-                    ? number_format($newPrices->min(), 2) . ' - ' . number_format($newPrices->max(), 2)
-                    : null;
 
                 $productVariation = $product->productVariations->pluck('product_variation')->filter()->toArray();
             }
@@ -908,28 +952,29 @@ class RetilerController extends Controller
             </div>'
                 : e($product->name);
 
-            $image = explode(',', $product->images)[0] ?? '';
-            $image = trim(stripslashes($image), "\"' ");
-            $imageUrl = $image
-                ? Storage::disk('spaces')->url($image)
-                : asset('assets/media/images/no_image.jpg');
-            $defaultImage = asset('assets/media/images/no_image.jpg');
-            $product_image = '<img src="' . $imageUrl . '"
-                        alt="Product Image"
-                        style="width: 50px; height: 50px; object-fit: cover;"
-                        onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
-
-            $old_price = '<div class="badge badge-light-primary text-wrap">'
-                . ($oldPriceRange ? '₹ ' . $oldPriceRange : ($product->old_price ? '₹ ' . number_format($product->old_price, 2) : 'N/A'))
-                . '</div>';
-
             $new_price = '<div class="badge badge-light-primary text-wrap">'
-                . ($newPriceRange ? '₹ ' . $newPriceRange : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
+                . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
                 . '</div>';
 
             $status = $product->status === 'active'
-                ? '<div class="badge badge-light-success">Active</div>'
-                : '<div class="badge badge-light-danger">Inactive</div>';
+                ? '<div class="text-center">
+                        <div class="badge badge-light-success px-4 py-2 mb-1">Active</div>
+                        <label class="form-check form-switch form-check-custom form-check-solid justify-content-center">
+                            <input type="checkbox"
+                                class="form-check-input changeStatusToggle"
+                                style="height: 1.45rem; width: 2.75rem; background-color:rgb(76, 196, 118);"
+                                data-id="' . $product->id . '" checked>
+                        </label>
+                    </div>'
+                : '<div class="text-center">
+                        <div class="badge badge-light-danger px-4 py-2 mb-1">Inactive</div>
+                        <label class="form-check form-switch form-check-custom form-check-solid justify-content-center">
+                            <input type="checkbox"
+                                class="form-check-input changeStatusToggle"
+                                style="height: 1.45rem; width: 2.75rem; background-color:rgb(240, 57, 57);"
+                                data-id="' . $product->id . '">
+                        </label>
+                    </div>';
 
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
@@ -956,19 +1001,246 @@ class RetilerController extends Controller
                 </a>
             </div>';
 
+            $product_image = '<img src="' . $imageUrl . '" 
+                        alt="Product Image" 
+                        style="width: 50px; height: 50px; object-fit: cover;" 
+                        onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
+
+            $stock = '<div class="badge badge-light-success">Available</div>';
+
+            $created_updated_at = '<div>
+                ' . $product->created_at . '
+            </div>';
+            if ($product->created_at != $product->updated_at) {
+                $created_updated_at .= '<div>
+                ' . $product->updated_at . '
+            </div>';
+            } else {
+                $created_updated_at .= '<div> - </div>';
+            }
+
             $data[] = [
                 'action' => $action,
                 'image' => $product_image,
-                'product' => $product_name,
-                'sku' => $product->sku ?? 'N/A',
+                'name' => $product_name,
                 'sub_category' => $product->sub_category->sub_category_name ?? 'N/A',
-                'quantity' => $totalStock ?: ($product->quantity ?? 0),
-                'old_price' => $old_price,
                 'new_price' => $new_price,
+                'quantity' => $totalStock ?: ($product->quantity ?? 0),
+                'stock' => $stock,
                 'status' => $status,
+                'created_updated_at' => $created_updated_at,
+                'id' => $product->id,
             ];
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+
+        return response()->json([
+            'draw' => intval($request->draw),           // pass draw from request
+            'recordsTotal' => $recordsTotal, // total records without filters
+            'recordsFiltered' => $recordsFiltered,          // total after filtering
+            'data' => $data,
+        ]);
+    }
+
+    // AJAX : server-side datatable to fetch record of retailer's clone/own unavailable product
+    public function fetchRecordRetailerCloneUnavailableProduct(Request $request)
+    {
+        $retailer = Auth::user();
+
+        $query = RetailerCloneProduct::with('sub_category', 'productVariations')
+            ->where('retailer_id', $retailer->id)
+            ->where(function ($q) {
+                $q->whereIn('id', function ($subQuery) {
+                    $subQuery->select('product_id')
+                        ->from('product_variations')
+                        ->groupBy('product_id')
+                        ->havingRaw('MAX(stock) <= 0');
+                })
+                    ->orWhere(function ($q) {
+                        $q->doesntHave('productVariations')
+                            ->where('quantity', '<=', 0);
+                    });
+            });
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('new_price', 'like', "%$search%")
+                    ->orWhere('status', 'like', "%$search%")
+                    ->orWhere('created_at', 'like', "%$search%")
+                    ->orWhere('updated_at', 'like', "%$search%")
+                    ->orWhereHas('sub_category', function ($q) use ($search) {
+                        $q->where('sub_category_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('productVariations', function ($q) use ($search) {
+                        $q->where('product_variation', 'like', '%' . $search . '%')
+                            ->orWhere('old_price', 'like', "%$search%")
+                            ->orWhere('price', 'like', "%$search%")
+                            ->orWhere('stock', 'like', "%$search%");
+                    });
+            });
+        }
+
+        if ($request->has('sub_category_filter') && $request->sub_category_filter !== 'all') {
+            $query->where('sub_category_id', $request->sub_category_filter);
+        }
+
+        if ($request->has('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // Use DataTables pagination parameters: start and length
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 10;
+
+        $recordsFiltered = $query->count();  // total records after filters
+
+        $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
+
+        $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
+            ->where('retailer_id', $retailer->id)
+            ->where(function ($q) {
+                $q->whereIn('id', function ($subQuery) {
+                    $subQuery->select('product_id')
+                        ->from('product_variations')
+                        ->groupBy('product_id')
+                        ->havingRaw('MAX(stock) <= 0');
+                })
+                    ->orWhere(function ($q) {
+                        $q->doesntHave('productVariations')
+                            ->where('quantity', '<=', 0);
+                    });
+            })
+            ->count();
+
+        $data = [];
+        foreach ($products as $product) {
+            $image = !empty($product->images) ? explode(',', $product->images) : [];
+            $defaultImage = asset('assets/media/images/no_image.jpg');
+            $imageUrl = !empty($image[0]) ? Storage::disk('spaces')->url($image[0]) : $defaultImage;
+
+            $newPrice = null;
+            $totalStock = 0;
+            $productVariation = [];
+            if ($product->productVariations->isNotEmpty()) {
+                $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float)$v);
+                $newPrice = $newPrices->isNotEmpty()
+                    ? number_format($newPrices->min(), 2)
+                    : null;
+
+                $totalStock = $product->productVariations->sum('stock');
+
+                $productVariation = $product->productVariations->pluck('product_variation')->filter()->toArray();
+            }
+
+            $product_name = !empty($productVariation)
+                ? '<div>
+                <div>' . e($product->name) . '</div>
+                <div><strong>Variations:</strong> ' . e(implode(', ', $productVariation)) . '</div>
+            </div>'
+                : e($product->name);
+
+            $new_price = '<div class="badge badge-light-primary text-wrap">'
+                . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
+                . '</div>';
+
+            $status = $product->status === 'active'
+                ? '<div class="text-center">
+                        <div class="badge badge-light-success px-4 py-2 mb-1">Active</div>
+                        <label class="form-check form-switch form-check-custom form-check-solid justify-content-center">
+                            <input type="checkbox"
+                                class="form-check-input changeStatusToggle"
+                                style="height: 1.45rem; width: 2.75rem; background-color:rgb(76, 196, 118);"
+                                data-id="' . $product->id . '" checked>
+                        </label>
+                    </div>'
+                : '<div class="text-center">
+                        <div class="badge badge-light-danger px-4 py-2 mb-1">Inactive</div>
+                        <label class="form-check form-switch form-check-custom form-check-solid justify-content-center">
+                            <input type="checkbox"
+                                class="form-check-input changeStatusToggle"
+                                style="height: 1.45rem; width: 2.75rem; background-color:rgb(240, 57, 57);"
+                                data-id="' . $product->id . '">
+                        </label>
+                    </div>';
+
+            $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
+                <button type="button"
+                    class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
+                    data-id="' . $product->id . '">
+                    <i class="ki-duotone ki-trash fs-3">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </button>
+                <a href="' . route('retailer.edit.product', encryptId($product->id)) . '" title="Edit"
+                    class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
+                    <i class="ki-duotone ki-pencil fs-4">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </a>
+                <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
+                    class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                    <i class="ki-duotone ki-eye fs-4">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span>
+                    </i>
+                </a>
+            </div>';
+
+            $product_image = '<img src="' . $imageUrl . '" 
+                        alt="Product Image" 
+                        style="width: 50px; height: 50px; object-fit: cover;" 
+                        onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
+
+            $stock = '<div class="badge badge-light-danger">Unavailable</div>';
+
+            $created_updated_at = '<div>
+                ' . $product->created_at . '
+            </div>';
+            if ($product->created_at != $product->updated_at) {
+                $created_updated_at .= '<div>
+                ' . $product->updated_at . '
+            </div>';
+            } else {
+                $created_updated_at .= '<div> - </div>';
+            }
+
+            $data[] = [
+                'action' => $action,
+                'image' => $product_image,
+                'name' => $product_name,
+                'sub_category' => $product->sub_category->sub_category_name ?? 'N/A',
+                'new_price' => $new_price,
+                'quantity' => $totalStock ?: ($product->quantity ?? 0),
+                'stock' => $stock,
+                'status' => $status,
+                'created_updated_at' => $created_updated_at,
+                'id' => $product->id,
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($request->draw),           // pass draw from request
+            'recordsTotal' => $recordsTotal, // total records without filters
+            'recordsFiltered' => $recordsFiltered,          // total after filtering
+            'data' => $data,
+        ]);
+    }
+
+    // change product status from product-list
+    public function changeProductStatus(Request $request)
+    {
+        try {
+            $product = RetailerCloneProduct::findOrFail($request->product_id);
+            $product->status = $request->status;
+            $product->save();
+
+            return response()->json(['message' => 'Product status updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Something went wrong while updating status.'], 500);
+        }
     }
 
     // product add view
@@ -1048,7 +1320,7 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-                'quantity'  => 'required|integer|min:1|max:999999',
+                'quantity'  => 'required|integer|min:0|max:999999',
             ]);
         } else {
             // Validate all variation fields
@@ -1260,7 +1532,7 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-                'quantity'  => 'required|integer|min:1|max:999999',
+                'quantity'  => 'required|integer|min:0|max:999999',
             ]);
         } else {
             // Validate variations fields
@@ -1505,8 +1777,7 @@ class RetilerController extends Controller
         try {
             $cloneProduct = RetailerCloneProduct::where('id', $clone_product_id)->first();
             if (!$cloneProduct) {
-                session()->flash('error', 'Invalid product details or alredy deleted');
-                return redirect()->route('retailer.product');
+                return response()->json(['status' => false, 'message' => 'Invalid product details or alredy deleted']);
             }
 
             //<---- NO DELETE as per discussed with nilesh sir on 27-05-2025 ----->
@@ -1525,11 +1796,10 @@ class RetilerController extends Controller
             ProductVariation::where('product_id', $clone_product_id)->delete();
 
             DB::commit();
-            return redirect()->route('retailer.product')->with('success', 'Product removed from clone successfully');
+            return response()->json(['status' => true, 'message' => 'Product deleted successfully!']);
         } catch (Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Something went wrong');
-            return redirect()->route('retailer.product');
+            return response()->json(['status' => false, 'message' => 'Something went wrong.']);
         }
     }
 
@@ -1579,9 +1849,17 @@ class RetilerController extends Controller
             //     $cloneVideo = $newVideoName;
             // }
 
+            do {
+                // Generate a 14-digit random number (padded if needed)
+                $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+            } while (
+                Product::where('sku', $sku)->exists() ||
+                RetailerCloneProduct::where('sku', $sku)->exists()
+            );
+
             $cloneProduct = new RetailerCloneProduct();
             $cloneProduct->product_id = $product->id;
-            $cloneProduct->sku = $product->sku;
+            $cloneProduct->sku = $sku;
             $cloneProduct->retailer_id = $retailer->id;
             $cloneProduct->name = $product->name;
             $cloneProduct->slug = $product->slug;
@@ -1996,7 +2274,10 @@ class RetilerController extends Controller
         $baseQuery = CustomerOrders::select('customer_id')
             ->with('customer')
             ->where('retailer_id', $retailer->id)
-            ->where('order_process_by', 'retailer')
+            ->where(function ($q) {
+                $q->where('order_process_by', 'retailer')
+                    ->orWhereNotNull('transfered_retailer_to_wholesaler_at');
+            })
             ->groupBy('customer_id');
 
         if (!empty($search)) {
@@ -2020,12 +2301,15 @@ class RetilerController extends Controller
             ->get();
 
         // Count total distinct customers before any search
-        $totalCount = CustomerOrders::where('retailer_id', $retailer->id)
-            ->where('order_process_by', 'retailer')
-            ->select('customer_id')
+        $totalCount = CustomerOrders::select('customer_id')
+            ->where('retailer_id', $retailer->id)
+            ->where(function ($q) {
+                $q->where('order_process_by', 'retailer')
+                    ->orWhereNotNull('transfered_retailer_to_wholesaler_at');
+            })
             ->groupBy('customer_id')
             ->get()
-            ->count();
+            ->count('id');
 
         $data = [];
         $sr_no = $start;
@@ -2054,30 +2338,4 @@ class RetilerController extends Controller
         ]);
     }
     //<----------------------- END : Customer ---------------------->
-
-    public function myProduct()
-    {
-        try {
-            $retailer = Auth::user()->id;
-
-            $sub_category_filter_ids = RetailerCloneProduct::where('retailer_id', $retailer)->pluck('sub_category_id');
-            $sub_category_filter = SubCategory::select('category_id', 'sub_category_name', 'id')
-                ->whereIn('id', $sub_category_filter_ids)
-                ->get();
-
-            // sub_category_list
-            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
-                ->pluck('sub_category_id');
-            $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
-                ->where('status', 1)
-                ->whereIn('id', $sub_category_ids)
-                ->get();
-
-            return view('product.my-product', compact('sub_category_list', 'sub_category_filter'));
-        } catch (\Exception $e) {
-            Log::error('Error in retailerProduct: ' . $e->getMessage());
-            session()->flash('error', 'Something went wrong');
-            return redirect()->back()->with('error', 'An error occurred. Please try again.');
-        }
-    }
 }

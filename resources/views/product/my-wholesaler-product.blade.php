@@ -29,7 +29,8 @@
 
                     <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
                         <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                            <a href="{{ route('retailer.wholesaler.list') }}" class="btn btn-primary">Subscribe Wholesaler Product</a>
+                            <a href="{{ route('retailer.wholesaler.list') }}" class="btn btn-primary">Subscribe Wholesaler
+                                Product</a>
                         </div>
                     </div>
                 </div>
@@ -49,23 +50,68 @@
                     @endif
                     <div class="card card-flush">
                         <div class="card-body pt-5">
+
+                            <div class="pb-6">
+                                <div class="row g-3 justify-content-md-end">
+
+                                    {{-- Status Filter --}}
+                                    <div class="col-12 col-md-3">
+                                        <label for="status_filter" class="form-label fw-semibold mb-1">Status</label>
+                                        <select id="status_filter" class="form-select form-select-solid bg-secondary w-100"
+                                            data-control="select2" data-placeholder="Select Status">
+                                            <option value="all">All Status</option>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- Category Dropdown --}}
+                                    <div class="col-12 col-md-3">
+                                        <label for="wholesaler_filter"
+                                            class="form-label fw-semibold mb-1">Wholesaler</label>
+                                        <select id="wholesaler_filter"
+                                            class="form-select form-select-solid bg-secondary w-100" data-control="select2"
+                                            data-placeholder="Select Wholesaler">
+                                            <option value="all">All Wholesaler</option>
+                                            @foreach ($wholesalers as $wholesaler)
+                                                <option value="{{ $wholesaler->id }}">
+                                                    {{ $wholesaler->userDetail->company_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    {{-- Search Input --}}
+                                    <div class="col-12 col-md-3">
+                                        <label for="search_input" class="form-label fw-semibold mb-1">Search</label>
+                                        <div class="position-relative">
+                                            <i
+                                                class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4 text-muted">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                            </i>
+                                            <input type="text" id="search_input"
+                                                class="form-control form-control-solid ps-12 bg-secondary"
+                                                placeholder="Search Product" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
                             {{-- Margin Added Products Table --}}
-                            <table class="table align-middle table-row-dashed fs-7"
-                                id="kt_datatable_margin_added_products">
+                            <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_margin_added_products">
                                 <thead>
                                     <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center align-middle min-w-70px">Actions</th>
-                                        <th class="text-center align-middle min-w-250px">Product</th>
+                                        <th class="text-center align-middle min-w-70px">Image</th>
+                                        <th class="text-center align-middle min-w-200px">Product</th>
                                         <th class="text-center align-middle min-w-150px">Wholesaler</th>
-                                        <th class="text-center align-middle min-w-100px">SKU</th>
-                                        <th class="text-center align-middle min-w-100px">
-                                            New Price <br>
-                                            <span class="text-capitalize fs-9">(Per Piece)</span>
-                                        </th>
-                                        <th class="text-center align-middle min-w-100px">
-                                            Margin <br>
-                                            <span class="text-capitalize fs-9">(In Rs.)</span>
-                                        </th>
+                                        <th class="text-center align-middle min-w-100px">Category</th>
+                                        <th class="text-center align-middle min-w-70px">Qty</th>
+                                        <th class="text-center align-middle min-w-70px">Stock</th>
+                                        <th class="text-center align-middle min-w-100px">Price</th>
+                                        <th class="text-center align-middle min-w-100px">Margin</th>
                                         <th class="text-center align-middle min-w-100px">Status</th>
                                     </tr>
                                 </thead>
@@ -85,21 +131,15 @@
         <script>
             //<------------- START : server-side datatable for margin added products ------------->
             dataTable = $('#kt_datatable_margin_added_products').DataTable({
-                dom: "<'row mb-2'" +
-                    "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                    "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                    ">" +
-                    "<'table-responsive'tr>" +
-                    "<'row'" +
-                    "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
-                    "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
-                    ">",
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: "{{ route('retailer.wholesalers-product.fetch-record') }}",
                     type: "POST",
                     data: function(d) {
+                        d.search = $('#search_input').val();
+                        d.wholesaler_filter = $('#wholesaler_filter').val();
+                        d.status_filter = $('#status_filter').val();
                         d._token = '{{ csrf_token() }}';
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
@@ -116,6 +156,12 @@
                         searchable: false,
                     },
                     {
+                        data: 'image',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
                         data: 'product',
                         className: 'text-start',
                         orderable: false,
@@ -126,14 +172,24 @@
                         orderable: false,
                     },
                     {
-                        data: 'sku',
+                        data: 'sub_category',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'quantity',
+                        className: 'text-center',
+                        orderable: false,
+                    },
+                    {
+                        data: 'stock',
                         className: 'text-center',
                         orderable: false,
                     },
                     {
                         data: 'new_price',
                         className: 'text-end',
-                        orderable: true,
+                        orderable: false,
                     },
                     {
                         data: 'margin',
@@ -145,35 +201,20 @@
                         className: 'text-center',
                         orderable: false,
                     },
-                ],
-                initComplete: function() {
-                    let searchBox = $('.datatable-search-section input');
-                    let searchLabel = $('.datatable-search-section label');
-                    let lengthSelect = $('.datatable-length-section select');
+                ]
+            });
 
-                    searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
-                    searchBox.before(
-                        '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
-                    ); // add icon
-                    searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
-                        'placeholder', 'Search'); // style the search input
-                    searchBox.css({
-                        'padding': '13px 15px 12px 15px',
-                        'font-size': '14px',
-                    });
+            $('#search_input').on('keyup', function() {
+                dataTable.ajax.reload();
+            });
 
-                    searchLabel.css({
-                        'display': 'none',
-                    });
+            $('#wholesaler_filter').on('change', function() {
+                dataTable.ajax.reload();
+            });
 
-                    lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
-                    lengthSelect.css({
-                        'padding': '13px 27px 12px 14px',
-                        'font-size': '14px',
-                    });
-                }
+            $('#status_filter').on('change', function() {
+                dataTable.ajax.reload();
             });
             //<------------- END : server-side datatable for margin added products ------------->
-
         </script>
     @endsection
