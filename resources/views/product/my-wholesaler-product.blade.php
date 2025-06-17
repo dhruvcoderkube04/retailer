@@ -57,7 +57,7 @@
                                     {{-- Status Filter --}}
                                     <div class="col-12 col-md-3">
                                         <label for="status_filter" class="form-label fw-semibold mb-1">Status</label>
-                                        <select id="status_filter" class="form-select form-select-solid bg-secondary w-100"
+                                        <select id="status_filter" class="form-select form-select-solid bg-secondary "
                                             data-control="select2" data-placeholder="Select Status">
                                             <option value="all">All Status</option>
                                             <option value="active">Active</option>
@@ -70,7 +70,7 @@
                                         <label for="wholesaler_filter"
                                             class="form-label fw-semibold mb-1">Wholesaler</label>
                                         <select id="wholesaler_filter"
-                                            class="form-select form-select-solid bg-secondary w-100" data-control="select2"
+                                            class="form-select form-select-solid bg-secondary" data-control="select2"
                                             data-placeholder="Select Wholesaler">
                                             <option value="all">All Wholesaler</option>
                                             @foreach ($wholesalers as $wholesaler)

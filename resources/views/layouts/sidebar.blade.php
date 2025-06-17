@@ -18,10 +18,7 @@
                 style="border-radius: 5px; justify-content: space-evenly;" />
         </a> --}}
 
-        <div id="kt_app_sidebar_toggle"
-            class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary h-30px w-30px position-absolute top-50 start-100 translate-middle rotate"
-            data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body"
-            data-kt-toggle-name="app-sidebar-minimize">
+        <div id="kt_app_sidebar_toggle" class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary h-30px w-30px position-absolute top-50 start-100 translate-middle rotate active" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="app-sidebar-minimize">
             <i class="ki-duotone ki-black-left-line fs-3 rotate-180">
                 <span class="path1"></span>
                 <span class="path2"></span>
@@ -44,12 +41,13 @@
                 <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6" id="#kt_app_sidebar_menu"
                     data-kt-menu="true" data-kt-menu-expand="false">
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <!-- <div data-kt-menu-trigger="click" class="menu-item"> -->
+                        <div data-kt-menu-trigger="click" class="menu-item" title="Dashboard" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}"
                             href="{{ route('retailer.dashboard') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-element-11 fs-2">
+                                <i class="ki-duotone ki-element-11 fs-2 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -63,12 +61,12 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                        <div data-kt-menu-trigger="click" class="menu-item" title="Wholesaler" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['wholesaler-list', 'wholesaler-list/*', 'wholesaler/*']) ? 'active' : '' }}"
                             href="{{ route('retailer.wholesaler.list') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-shop fs-2">
+                                <i class="ki-duotone ki-shop fs-2 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -82,11 +80,11 @@
                     </div>
                     <!--end:Menu item-->
 
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Subscribed Category" data-bs-toggle="tooltip" data-bs-placement="right">
                         <a class="menu-link {{ request()->is(['subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'active' : '' }}"
                             href="{{ route('retailer.subscribed-category.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-shop fs-2">
+                                <i class="ki-duotone ki-shop fs-2 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -100,11 +98,12 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['category-list', 'my-category-list', 'category-suggestion']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['category-list', 'my-category-list', 'category-suggestion']) ? 'show' : '' }}"
+                         title="Category" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-abstract-26 fs-1"><span class="path1"></span><span
+                                <i class="ki-duotone ki-abstract-26 fs-1 text-white"><span class="path1"></span><span
                                         class="path2"></span></i>
                             </span>
                             <span class="menu-title">Category</span>
@@ -175,11 +174,12 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product','retailer-edit-product/*','retailer-details-product/*','retailer-add-product','clone-product/*']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product','retailer-edit-product/*','retailer-details-product/*','retailer-add-product','clone-product/*']) ? 'show' : '' }}"
+                        title="Product" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                              <span class="menu-icon">
-                                <i class="ki-duotone ki-cube-2 fs-1">
+                                <i class="ki-duotone ki-cube-2 fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -238,11 +238,11 @@
                     </div> --}}
                     <!--end:Menu item-->
 
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer List" data-bs-toggle="tooltip" data-bs-placement="right">
                         <a class="menu-link {{ request()->is(['customers/*', 'customers']) ? 'active' : '' }}"
                             href="{{ route('retailer.customers.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                <i class="ki-duotone ki-delivery-3 fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -253,12 +253,12 @@
                     </div>
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer Orders" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
                             href="{{ route('retailer.order.list') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                <i class="ki-duotone ki-delivery-3 fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -271,12 +271,12 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Punch Orders" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['my-orders/*', 'my-orders']) ? 'active' : '' }}"
                             href="{{ route('retailer.my-order.list') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1">
+                                <i class="ki-duotone ki-delivery-3 fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -290,11 +290,12 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges', 'pincode-serviceable', 'track-order']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges', 'pincode-serviceable', 'track-order']) ? 'show' : '' }}"
+                        title="Shipping" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-time fs-1">
+                                <i class="ki-duotone ki-delivery-time fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -501,12 +502,12 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Coupon" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['coupon-page']) ? 'active' : '' }}"
                             href="{{ route('retailer.coupon.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-flag fs-1">
+                                <i class="ki-duotone ki-flag fs-1 text-white">
                                     <span class="path1"></span>
                                 </i>
                             </span>
@@ -551,11 +552,12 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['setting-page', 'retailer-web-setting']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['setting-page', 'retailer-web-setting']) ? 'show' : '' }}"
+                        title="Setting" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-solid ki-setting-2 fs-1"></i>
+                                <i class="ki-solid ki-setting-2 fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Setting</span>
                             <span class="menu-arrow"></span>
@@ -597,11 +599,12 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['ticket-list']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['ticket-list']) ? 'show' : '' }}"
+                        title="Support" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-solid ki-support-24 fs-1"></i>
+                                <i class="ki-solid ki-support-24 fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Support</span>
                             <span class="menu-arrow"></span>
@@ -628,12 +631,12 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Prohibited Item" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['prohibited-item']) ? 'active' : '' }}"
                             href="{{ route('retailer.prohibited.item') }}">
                             <span class="menu-icon fs-1">
-                                <i class="ki-solid ki-basket-ok fs-1"></i>
+                                <i class="ki-solid ki-basket-ok fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Prohibited Item</span>
                         </a>
@@ -642,12 +645,12 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Rate Calculation" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['rate-calculation']) ? 'active' : '' }}"
                             href="{{ route('retailer.rate.calculation') }}">
                             <span class="menu-icon fs-1">
-                                <i class="ki-solid ki-finance-calculator fs-1"></i>
+                                <i class="ki-solid ki-finance-calculator fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Rate Calculation</span>
                         </a>
@@ -658,10 +661,11 @@
 
                     <!-- Wallet Main Menu -->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is('accounts*') ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is('accounts*') ? 'show' : '' }}"
+                        title="Wallet" data-bs-toggle="tooltip" data-bs-placement="right">
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-wallet fs-1">
+                                <i class="ki-duotone ki-wallet fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -713,10 +717,11 @@
                         </div>
                     </div>
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['themes', 'themes/*']) ? 'show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['themes', 'themes/*']) ? 'show' : '' }}"
+                        title="Online Store" data-bs-toggle="tooltip" data-bs-placement="right">
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-shop fs-1">
+                                <i class="ki-duotone ki-shop fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
