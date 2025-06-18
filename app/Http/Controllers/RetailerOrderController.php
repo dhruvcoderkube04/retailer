@@ -11,6 +11,7 @@ use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
 use App\Models\LorrigoCarrier;
+use App\Models\MarginManagement;
 use App\Models\OrderNotification;
 use App\Models\PickAddress;
 use App\Models\Product;
@@ -854,19 +855,44 @@ class RetailerOrderController extends Controller
         $productSku = $customerOrder->order_product_detail->sku ?? 'N/A';
 
         $user = Auth::user();
-        $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
 
         // calculate base and profit
         $finalShipping = (float) $request->shipping_charge;
         $finalCod = (float) $request->cod_charge;
         $finalRto = (float) $request->rto_charge;
-        $divider = 1 + ($marginPercentage / 100);
-        $shippingBase   = round($finalShipping / $divider, 2);
-        $shippingProfit = round($finalShipping - $shippingBase, 2);
-        $codBase   = round($finalCod / $divider, 2);
-        $codProfit = round($finalCod - $codBase, 2);
-        $rtoBase   = round($finalRto / $divider, 2);
-        $rtoProfit = round($finalRto - $rtoBase, 2);
+
+        $shippingBase = $codBase = $rtoBase = 0;
+        $shippingProfit = $codProfit = $rtoProfit = 0;
+
+        $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
+        $marginTagName = $user->userDetail?->margin_tag_name;
+        $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+
+        if ($getMargin) {
+            $marginType = $getMargin->type; // 'percentage' or 'flat'
+            $flatAmount = (float) ($getMargin->flat_percentage ?? 0);
+
+            if ($marginType === 'percentage' && $marginPercentage > 0) {
+                $divider = 1 + ($marginPercentage / 100);
+
+                $shippingBase = round($finalShipping / $divider, 2);
+                $shippingProfit = round($finalShipping - $shippingBase, 2);
+
+                $codBase = round($finalCod / $divider, 2);
+                $codProfit = round($finalCod - $codBase, 2);
+
+                $rtoBase = round($finalRto / $divider, 2);
+                $rtoProfit = round($finalRto - $rtoBase, 2);
+            } elseif ($marginType === 'flat') {
+                $shippingBase = $finalShipping - $flatAmount;
+                $codBase = $finalCod - $flatAmount;
+                $rtoBase = $finalRto - $flatAmount;
+
+                $shippingProfit = round($flatAmount, 2);
+                $codProfit = round($flatAmount, 2);
+                $rtoProfit = round($flatAmount, 2);
+            }
+        }
 
         $updateData = [
             'status' => $request->status,

@@ -2,15 +2,19 @@
 
 namespace App\Imports;
 
+use App\Mail\FailedProductImportDetailsMail;
+use App\Models\Product;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Models\RetailerCloneProduct;
 use App\Models\SubCategory;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class ProductImport implements ToCollection, WithValidation, WithHeadingRow
 {
@@ -37,15 +41,15 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
     {
         $validRows = [];
         $invalidRows = [];
+        $currentDateTime = Carbon::now();
+        $importStartDateTime = $currentDateTime->format('F d, Y h:i A');
         $retailer = Auth::user();
-
-        $sub_category = SubCategory::where('id', $this->subcategoryId)->first();
 
         foreach ($rows as $index => $row) {
             DB::beginTransaction();
             $row = $this->map($row);
 
-            //<-------- START : Missing data validation ---------->
+            //<-------- START : validation ---------->
             $missing = [];
             foreach ($this->requiredColumns as $field) {
                 $value = $row[$field] ?? null;
@@ -61,73 +65,87 @@ class ProductImport implements ToCollection, WithValidation, WithHeadingRow
             }
             if (!empty($missing)) {
                 DB::rollBack();
-                $invalidRows[] = "Row " . ($index + 2) . ": Missing - " . implode(', ', $missing);
+                $invalidRows[] = "Row " . ($index + 3) . ": Missing fields - " . implode(', ', $missing);
                 continue;
             }
-            //<-------- END : Missing data validation ---------->
 
-            // images
-            $allImages = array_filter(array_merge(
-                [$row['images']],
-                isset($row['images1']) ? explode('|', $row['images1']) : []
-            ));
+            $productExist = RetailerCloneProduct::where('name', $row['product_name'])
+                ->where('retailer_id', $retailer->id)
+                ->exists();
+            if ($productExist) {
+                DB::rollBack();
+                $invalidRows[] = "Row " . ($index + 3) . ": Already exists - " . $row['product_name'] . " is already exist";
+                continue;
+            }
+            //<-------- END : validation ---------->
 
-            // sku
-            $sku = $this->generateUniqueSku();
+            try {
+                // sub-category
+                $sub_category = SubCategory::where('id', $this->subcategoryId)->first();
 
-            // slug
-            $slug = Str::slug($row['product_name']) . '-' . now()->timestamp . '-' . uniqid();
+                // images
+                $allImages = array_filter(array_merge(
+                    [$row['images']],
+                    isset($row['images1']) ? explode('|', $row['images1']) : []
+                ));
 
-            // tags
-            $tagsString = $row['product_tags'] ?? null;
-            $tags = collect(explode(',', $tagsString))
-                ->map(function ($tag) {
-                    return ['value' => trim($tag)];
-                })
-                ->values()
-                ->toJson();
+                // sku
+                do {
+                    $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
+                } while (
+                    Product::where('sku', $sku)->exists() ||
+                    RetailerCloneProduct::where('sku', $sku)->exists()
+                );
 
-            $product = RetailerCloneProduct::firstOrNew([
-                'retailer_id' => $retailer->id,
-                'name' => $row['product_name'],
-            ]);
+                // slug
+                $slug = Str::slug($row['product_name']) . '-' . now()->timestamp . '-' . uniqid();
 
-            $product->sku = $sku;
-            $product->slug = $slug;
-            $product->description = $row['product_description'] ?? null;
-            $product->tags = $tags;
-            $product->quantity = $row['quantity'];
-            $product->new_price = $row['new_price'];
-            $product->old_price = $row['old_price'];
-            $product->status = $row['status'];
-            $product->category_id = $sub_category->category_id;
-            $product->sub_category_id = $sub_category->id;
-            $product->meta_title = $row['meta_title'] ?? null;
-            $product->meta_description = $row['meta_description'] ?? null;
-            $product->meta_keywords = $row['meta_keywords'] ?? null;
-            if ($this->images_and_video_update || !$product->exists) {
+                // tags
+                $tags = collect(explode(',', $row['product_tags'] ?? ''))
+                    ->map(fn($tag) => ['value' => trim($tag)])
+                    ->values()
+                    ->toJson();
+
+                $product = new RetailerCloneProduct();
+                $product->retailer_id = $retailer->id;
+                $product->name = $row['product_name'];
+                $product->sku = $sku;
+                $product->slug = $slug;
+                $product->description = $row['product_description'] ?? null;
+                $product->tags = $tags;
+                $product->quantity = $row['quantity'];
+                $product->new_price = $row['new_price'];
+                $product->old_price = $row['old_price'];
+                $product->status = $row['status'];
+                $product->category_id = $sub_category->category_id;
+                $product->sub_category_id = $sub_category->id;
+                $product->meta_title = $row['meta_title'] ?? null;
+                $product->meta_description = $row['meta_description'] ?? null;
+                $product->meta_keywords = $row['meta_keywords'] ?? null;
                 $product->images = implode(',', $allImages);
                 $product->videos = $row['videos'] ?? null;
-            }
-            $product->save();
+                // if ($this->images_and_video_update || !$product->exists) {
+                //     $product->images = implode(',', $allImages);
+                //     $product->videos = $row['videos'] ?? null;
+                // }
+                $product->save();
 
-            $validRows[] = $row;
-            DB::commit();
+                DB::commit();
+                $validRows[] = $row;
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $invalidRows[] = "Row " . ($index + 3) . ": Failed to import due to internal error.";
+            }
+        }
+
+        if (count($invalidRows)) {
+            Mail::to($retailer->email)->send(new FailedProductImportDetailsMail($invalidRows, $validRows, $importStartDateTime));
         }
 
         return [
             'valid' => $validRows,
             'invalid' => $invalidRows,
         ];
-    }
-
-    private function generateUniqueSku()
-    {
-        do {
-            $sku = str_pad(mt_rand(111, 99999999999999), 14, '0', STR_PAD_LEFT);
-        } while (RetailerCloneProduct::where('sku', $sku)->exists());
-
-        return $sku;
     }
 
     public function rules(): array

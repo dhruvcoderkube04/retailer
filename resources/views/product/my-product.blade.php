@@ -276,7 +276,7 @@
                                         <span class="invalid-feedback d-block" id="sub_category_error"></span>
                                     </div>
                                 </div>
-                                <div class="fv-row mb-7 fv-plugins-icon-container">
+                                {{-- <div class="fv-row mb-7 fv-plugins-icon-container">
                                     <label class="form-check form-check-custom form-check-solid">
                                         <input class="form-check-input" style="border: 1px solid rgb(192, 192, 192)"
                                             type="checkbox" name="images_and_video_update" id="images_and_video_update"
@@ -285,7 +285,7 @@
                                             Want to update images & videos?
                                         </span>
                                     </label>
-                                </div>
+                                </div> --}}
                                 <div class="mb-10 fv-row">
                                     <a href="{{ route('retailer.download-stock-sample') }}">Download Sample Product
                                         File</a>
@@ -534,18 +534,22 @@
                         contentType: false,
                         processData: false,
                         success: function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Product Import Successful!'
-                            });
-                            location.reload();
+                            if (response.status) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.message,
+                                    timer: 2000,
+                                }).then((result) => {
+                                    location.reload();
+                                });
+                            }
                         },
                         error: function(xhr) {
                             if (xhr.status === 422) {
                                 let response = xhr.responseJSON;
 
+                                // laravel validator errors
                                 if (response.errors) {
-                                    // Laravel validator errors
                                     if (response.errors.product_file) {
                                         $('#product_file_error').text(response.errors.product_file[
                                             0]);
@@ -561,13 +565,19 @@
                                     }
                                 }
 
+                                // manual errors like missing, already exist, etc
                                 if (response.error) {
                                     Swal.fire({
-                                        icon: 'error',
-                                        title: 'Validation Error',
-                                        html: response.error,
+                                        icon: 'warning',
+                                        title: 'Import Completed With Errors',
+                                        html: `<strong>${response.message}</strong><br>${response.error}`,
+                                        width: '800px',
                                         customClass: {
                                             popup: 'swal2-danger'
+                                        }
+                                    }).then((result) => {
+                                        if (response.reload) {
+                                            location.reload();
                                         }
                                     });
                                 }
@@ -654,7 +664,8 @@
                                 success: function(response) {
                                     Swal.fire({
                                         icon: response.status ? 'success' : 'error',
-                                        title: response.status ? 'Deleted!' : 'Error',
+                                        title: response.status ? 'Deleted!' :
+                                            'Error',
                                         text: response.message,
                                         timer: 2000,
                                         showConfirmButton: false

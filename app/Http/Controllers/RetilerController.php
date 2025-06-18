@@ -2044,7 +2044,6 @@ class RetilerController extends Controller
             $headings = array_keys($excelData[0][0] ?? []);
 
             $missingColumns = $import->checkColumns($headings);
-
             if ($missingColumns !== true) {
                 return response()->json([
                     'error' => 'The uploaded file is missing the following required columns: <br>' . implode(', ', $missingColumns),
@@ -2055,32 +2054,39 @@ class RetilerController extends Controller
             $collection = collect($excelData[0]);
             $result = $import->collection($collection);
 
-            if (!empty($result['invalid'])) {
+            $validCount = count($result['valid']);
+            $invalidCount = count($result['invalid']);
+
+            if ($invalidCount > 0) {
+                // message
+                $message = '';
+                if ($validCount > 0) {
+                    $message .= '<div class="text-success">' . $validCount . ' product(s) imported successfully.</div>';
+                }
+                $message .= '<div class="text-danger mt-1">' . $invalidCount . ' product(s) failed.</div>';
+
+                // errors-list
+                $errorHtml = '';
+                $errorHtml .= '<ul class="text-danger" style="text-align: left; padding-left: 20px; line-height: 1.6;">';
+                foreach ($result['invalid'] as $msg) {
+                    $errorHtml .= '<li>' . $msg . '</li>';
+                }
+                $errorHtml .= '</ul>';
+
                 return response()->json([
                     'error_type' => 'row_validation',
-                    'error' => implode('<br>', $result['invalid']),
+                    'message' => $message,
+                    'error' => $errorHtml,
+                    'reload' => $validCount > 0,
                 ], 422);
             }
 
             return response()->json([
-                'message' => 'Products imported successfully.',
-                'valid_count' => count($result['valid']),
+                'status' => true,
+                'message' => "$validCount product(s) imported successfully.",
             ]);
-        } catch (ValidationException $e) {
-            $failures = $e->failures();
-            $messages = [];
-
-            foreach ($failures as $failure) {
-                $messages[] = "Row <strong>{$failure->row()}</strong>: " . implode(', ', $failure->errors());
-            }
-
-            return response()->json([
-                'error_type' => 'row_validation',
-                'error' => implode('<br>', $messages),
-            ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Bulk Product Upload Error: ' . $e->getMessage());
-
             return response()->json([
                 'error' => 'An unexpected error occurred during file processing. Please try again.'
             ], 500);
