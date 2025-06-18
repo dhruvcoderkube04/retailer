@@ -66,6 +66,11 @@ class LorrigoServiceLive implements CourierInterface
                     'data' => [],
                 ];
             }
+            Log::info('createOrder In Lorrgido Live (Retailer side)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'request' => $response->json(),
+            ]);
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Exception while creating order', [
@@ -104,6 +109,11 @@ class LorrigoServiceLive implements CourierInterface
 
             // Step 3: Handle response
             if ($response->successful()) {
+                Log::info('trackPackage In Lorrgido Live (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json() ?? [];
             } else {
                 Log::error('Lorrigo Track Package API failed', [
@@ -150,6 +160,11 @@ class LorrigoServiceLive implements CourierInterface
             ])->post($this->apiUrl . '/api/hub/pincode', $payload);
 
             if ($response->successful()) {
+                Log::info('CheckPincodeAvailability In Lorrgido Live (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 $result = $response->json();
 
                 if (isset($result['city']) && isset($result['state'])) {
@@ -191,7 +206,7 @@ class LorrigoServiceLive implements CourierInterface
                 'rtoPincode' => ""
             ];
 
-            Log::info('Sending warehouse to Lorrigo', ['payload' => $payload]);
+            Log::info('Sending warehouse to Lorrigo Live', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer '.$this->token,
@@ -240,7 +255,7 @@ class LorrigoServiceLive implements CourierInterface
                 'rtoPincode' => ""
             ];
 
-            Log::info('Sending warehouse to Lorrigo', ['payload' => $payload]);
+            Log::info('Sending warehouse to Lorrigo Live', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer '.$this->token,
@@ -319,6 +334,12 @@ class LorrigoServiceLive implements CourierInterface
 
             if ($response->successful()) {
                 // return $response->json();
+                    Log::info('calculateRate In Lorrgido Live (Retailer side)', [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                        'request' => $response->json(),
+                    ]);
+
                     $responseData = $response->json();
                     $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
                     $marginTagName = Auth::user()->userDetail->margin_tag_name;
@@ -381,6 +402,11 @@ class LorrigoServiceLive implements CourierInterface
                 ->post("{$this->apiUrl}/api/shipment/v2", $payload);
 
             if ($response->successful()) {
+                Log::info('createShipment In Lorrgido Live (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json();
             }
 

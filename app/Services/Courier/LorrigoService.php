@@ -66,6 +66,12 @@ class LorrigoService implements CourierInterface
                     'data' => [],
                 ];
             }
+
+            Log::info('createOrder In Lorrgido Test (Retailer side)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'request' => $response->json(),
+            ]);
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Exception while creating order', [
@@ -104,6 +110,11 @@ class LorrigoService implements CourierInterface
 
             // Step 3: Handle response
             if ($response->successful()) {
+                Log::info('trackPackage In Lorrgido Test (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json() ?? [];
             } else {
                 Log::error('Lorrigo Track Package API failed', [
@@ -150,6 +161,11 @@ class LorrigoService implements CourierInterface
             ])->post($this->apiUrl . '/api/hub/pincode', $payload);
 
             if ($response->successful()) {
+                Log::info('checkPincodeAvailability In Lorrgido Test (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 $result = $response->json();
 
                 if (isset($result['city']) && isset($result['state'])) {
@@ -191,7 +207,7 @@ class LorrigoService implements CourierInterface
                 'rtoPincode' => ""
             ];
 
-            Log::info('Sending warehouse to Lorrigo', ['payload' => $payload]);
+            Log::info('Sending warehouse to Lorrigo Test', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer '.$this->token,
@@ -240,7 +256,7 @@ class LorrigoService implements CourierInterface
                 'rtoPincode' => ""
             ];
 
-            Log::info('Sending warehouse to Lorrigo', ['payload' => $payload]);
+            Log::info('Sending warehouse to Lorrigo Test', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer '.$this->token,
@@ -248,7 +264,7 @@ class LorrigoService implements CourierInterface
 
             if ($response->successful()) {
                 $json = $response->json();
-                Log::info('Lorrigo warehouse added', ['response' => $json]);
+                Log::info('Lorrigo warehouse added Lorrigo Test', ['response' => $json]);
                 return [
                     'status' => true,
                     'warehouseId' => @$json['hub']['_id'],
@@ -319,6 +335,11 @@ class LorrigoService implements CourierInterface
 
             if ($response->successful()) {
                 // return $response->json();
+                    Log::info('calculateRate In Lorrgido Test (Retailer side)', [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                        'request' => $response->json(),
+                    ]);
                     $responseData = $response->json();
                     $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
                     $marginTagName = Auth::user()->userDetail->margin_tag_name;
@@ -375,7 +396,7 @@ class LorrigoService implements CourierInterface
 
     public function createShipment(array $payload): array|bool
     {
-        Log::info('Payload being sent', $payload);
+        Log::info('Payload being sent Lorrigo Test', $payload);
         try {
              $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -383,6 +404,11 @@ class LorrigoService implements CourierInterface
             ])->post($this->apiUrl . '/api/shipment/v2', $payload);
 
             if ($response->successful()) {
+                Log::info('createShipment In Lorrgido Test (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json();
             }
 

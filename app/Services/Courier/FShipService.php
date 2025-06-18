@@ -41,6 +41,11 @@ class FShipService implements CourierInterface
                 ];
             }
 
+            Log::info('createOrder In Fship (Retailer side)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'request' => $response->json(),
+            ]);
             $waybill = $response['waybill'];
             $this->registerpick($waybill);
 
@@ -71,6 +76,11 @@ class FShipService implements CourierInterface
             // Check if the response was successful
             if ($response->successful()) {
                 // Return the response as an array
+                Log::info('trackPackage In Fship (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json() ?? []; // Return an empty array if response is null
             } else {
                 // Log the error and return an empty array or custom error message
@@ -111,6 +121,11 @@ class FShipService implements CourierInterface
                 return []; // fallback to empty array
             }
 
+            Log::info('courierList In Fship (Retailer side)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'request' => $response->json(),
+            ]);
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Exception while fetching courier list', [
@@ -148,6 +163,11 @@ class FShipService implements CourierInterface
             ])->post($this->apiUrl . '/pincodeserviceability', $data);
 
             if ($response->successful()) {
+                Log::info('CheckPincodeAvailability In Fship (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json(); // return original response
             } else {
                 Log::error('FShip pincode serviceability check failed', ['response' => $response->body()]);
@@ -170,6 +190,11 @@ class FShipService implements CourierInterface
             // Check if the response was successful
             if ($response->successful()) {
                 // Return the response as an array or fallback to an empty array if JSON is null
+                Log::info('addWarehouse In Fship (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 return $response->json() ?? [];
             } else {
                 // Log the error response and return a custom error message in an array
@@ -217,7 +242,13 @@ class FShipService implements CourierInterface
                 ];
             }
 
+             Log::info('updateWarehouse In Fship (Retailer side)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'request' => $response->json(),
+            ]);
             $resData = $response->json();
+
 
             return [
                 'status' => $resData['status'] ?? false,
@@ -270,6 +301,7 @@ class FShipService implements CourierInterface
 
         $data = $response->json();
 
+
         if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
             // $marginPercentage = 0.0;
             $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
@@ -294,6 +326,11 @@ class FShipService implements CourierInterface
             }
         }
 
+        Log::info('calculateRate In Fship (Retailer side)', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'request' => $response->json(),
+        ]);
         return [
             'status' => true,
             'shipment_rates' => $data['shipment_rates'] ?? [],
@@ -319,6 +356,11 @@ class FShipService implements CourierInterface
             'signature' => $this->signature,
         ])->post($this->apiUrl . '/cancelorder', $validatedData);
 
+        Log::info('cancelShipment In Fship (Retailer side)', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'request' => $response->json(),
+        ]);
         return $response->json();
     }
 
@@ -352,6 +394,11 @@ class FShipService implements CourierInterface
 
         // Step 3: Return response
         if ($response->successful()) {
+            Log::info('reattemptShipment In Fship (Retailer side)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'request' => $response->json(),
+            ]);
             return $response->json();
         }
 
@@ -372,6 +419,11 @@ class FShipService implements CourierInterface
 
             // Check if the response was successful
             if ($response->successful()) {
+                Log::info('registerpick In Fship (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
                 // Return the response as an array
                 return true;
             } else {
