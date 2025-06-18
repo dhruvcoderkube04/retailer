@@ -9,7 +9,7 @@
         <div class="d-flex flex-column flex-column-fluid">
             <div id="kt_app_toolbar" class="app-toolbar py-4 py-lg-4">
                 <div id="kt_app_toolbar_container"
-                    class="app-container container-xxl d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
+                    class="app-container w-100 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-4 gap-4">
 
                     {{-- Page Title --}}
                     <div class="page-title">
@@ -42,7 +42,7 @@
             </div>
 
             <div id="kt_app_content" class="app-content flex-column-fluid">
-                <div id="kt_app_content_container" class="app-container container-xxl">
+                <div id="kt_app_content_container" class="app-container ">
                     @if (session('success'))
                         <div class="alert alert-success text-green-600 p-2">
                             {{ session('success') }}

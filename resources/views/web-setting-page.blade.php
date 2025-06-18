@@ -6,7 +6,7 @@
     	<!--begin::Content-->
         <div id="kt_app_content" class="app-content flex-column-fluid">
             <!--begin::Content container-->
-            <div id="kt_app_content_container" class="app-container container-xxl">
+            <div id="kt_app_content_container" class="app-container ">
                 @if (session('success'))
                     <div class="alert alert-success text-green-600 p-2">
                         {{ session('success') }}

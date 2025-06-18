@@ -13,7 +13,7 @@
 
             <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
                 <div id="kt_app_toolbar_container"
-                    class="app-container container-xxl d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                    class="app-container w-100 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-4">
 
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap mb-3 mb-md-0 me-0 me-md-3">
                         <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
@@ -61,7 +61,7 @@
 
 
             <div id="kt_app_content" class="app-content flex-column-fluid">
-                <div id="kt_app_content_container" class="app-container container-xxl">
+                <div id="kt_app_content_container" class="app-container ">
                     <div class="row gy-5 gx-xl-10">
                         <!-- New Orders -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
