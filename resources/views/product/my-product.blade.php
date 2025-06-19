@@ -88,7 +88,7 @@
                                                 <label for="available_status_filter"
                                                     class="form-label fw-semibold mb-1">Status</label>
                                                 <select id="available_status_filter"
-                                                    class="form-select form-select-solid bg-secondary w-100"
+                                                    class="form-select form-select-solid bg-secondary"
                                                     data-control="select2" data-placeholder="Select Status">
                                                     <option value="all">All Status</option>
                                                     <option value="active">Active</option>
@@ -101,7 +101,7 @@
                                                 <label for="available_sub_category_filter"
                                                     class="form-label fw-semibold mb-1">Sub Category</label>
                                                 <select id="available_sub_category_filter"
-                                                    class="form-select form-select-solid bg-secondary w-100"
+                                                    class="form-select form-select-solid bg-secondary"
                                                     data-control="select2" data-placeholder="Select Category">
                                                     <option value="all">All Category</option>
                                                     @foreach ($sub_category_filter as $sub_category)
