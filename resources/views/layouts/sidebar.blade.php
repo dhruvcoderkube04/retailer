@@ -47,12 +47,7 @@
                         <a class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}"
                             href="{{ route('retailer.dashboard') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-element-11 fs-2 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                </i>
+                               <i class="ki-duotone ki-home fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Dashboard</span>
                         </a>
@@ -66,12 +61,9 @@
                         <a class="menu-link {{ request()->is(['wholesaler-list', 'wholesaler-list/*', 'wholesaler/*']) ? 'active' : '' }}"
                             href="{{ route('retailer.wholesaler.list') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-shop fs-2 text-white">
+                                <i class="ki-duotone ki-briefcase fs-2 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                    <span class="path5"></span>
                                 </i>
                             </span>
                             <span class="menu-title">Wholesaler</span>
@@ -103,8 +95,12 @@
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-abstract-26 fs-1 text-white"><span class="path1"></span><span
-                                        class="path2"></span></i>
+                                <i class="ki-duotone ki-element-11 fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
                             </span>
                             <span class="menu-title">Category</span>
                             <span class="menu-arrow"></span>
@@ -255,10 +251,9 @@
                         <a class="menu-link {{ request()->is(['customers/*', 'customers']) ? 'active' : '' }}"
                             href="{{ route('retailer.customers.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1 text-white">
+                                <i class="ki-duotone ki-user fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
-                                    <span class="path3"></span>
                                 </i>
                             </span>
                             <span class="menu-title">Customer List</span>
@@ -271,13 +266,15 @@
                         <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
                             href="{{ route('retailer.order.list') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1 text-white">
+                                <i class="ki-duotone ki-basket fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
+                                    <span class="path4"></span>
                                 </i>
                             </span>
                             <span class="menu-title">Customer Orders</span>
+
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -289,13 +286,15 @@
                         <a class="menu-link {{ request()->is(['my-orders/*', 'my-orders']) ? 'active' : '' }}"
                             href="{{ route('retailer.my-order.list') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-delivery-3 fs-1 text-white">
+                                <i class="ki-duotone ki-notepad fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
+                                    <span class="path4"></span>
                                 </i>
                             </span>
                             <span class="menu-title">Punch Orders</span>
+
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -519,11 +518,11 @@
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['coupon-page']) ? 'active' : '' }}"
                             href="{{ route('retailer.coupon.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-flag fs-1 text-white">
+                            <i class="ki-duotone ki-discount fs-1 text-white">
                                     <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
                                 </i>
-                            </span>
                             <span class="menu-title">Coupon</span>
                         </a>
                         <!--end:Menu link-->
@@ -649,9 +648,10 @@
                         <a class="menu-link {{ request()->is(['prohibited-item']) ? 'active' : '' }}"
                             href="{{ route('retailer.prohibited.item') }}">
                             <span class="menu-icon fs-1">
-                                <i class="ki-solid ki-basket-ok fs-1 text-white"></i>
+                                <i class="ki-solid ki-shield-slash fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Prohibited Item</span>
+
                         </a>
                         <!--end:Menu link-->
                     </div>
