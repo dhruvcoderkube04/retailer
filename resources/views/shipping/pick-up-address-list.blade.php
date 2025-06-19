@@ -151,7 +151,7 @@
                     @endif
 
                     <!-- Address Form -->
-                    <form action="{{ url('/pick-address/store') }}" method="POST">
+                    <form id="addressForm" action="{{ url('/pick-address/store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="first_name" class="form-label"><span class="text-danger">*</span>Warehouse Name</label>
@@ -226,10 +226,9 @@
                         </div>
 
                         <div class="modal-footer mt-3">
-                            <button type="submit" class="btn btn-success">Add</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" id="submitBtn" class="btn btn-success">Add</button>
+                            <button type="button" id="cancelBtn" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -328,8 +327,8 @@
 
 
                         <div class="modal-footer mt-3">
-                            <button type="submit" class="btn btn-success">Update</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" id="editsubmitBtn" class="btn btn-success">Update</button>
+                            <button type="button" id="editcancelBtn" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
 
                     </form>
@@ -417,6 +416,15 @@
                         $('#editAddressModal').modal('show');
                     }
                 });
+            });
+            
+            $('#addressForm').on('submit', function () {
+                $('#submitBtn').prop('disabled', true).html('Adding... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $('#cancelBtn').prop('disabled', true);
+            });
+            $('#editAddressForm').on('submit', function () {
+                $('#editsubmitBtn').prop('disabled', true).html('Updating... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $('#editcancelBtn').prop('disabled', true);
             });
         });
     </script>
