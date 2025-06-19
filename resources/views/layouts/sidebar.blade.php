@@ -80,7 +80,7 @@
                     </div>
                     <!--end:Menu item-->
 
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Subscribed Category" data-bs-toggle="tooltip" data-bs-placement="right">
+                    {{-- <div data-kt-menu-trigger="click" class="menu-item" title="Subscribed Category" data-bs-toggle="tooltip" data-bs-placement="right">
                         <a class="menu-link {{ request()->is(['subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'active' : '' }}"
                             href="{{ route('retailer.subscribed-category.index') }}">
                             <span class="menu-icon">
@@ -94,11 +94,11 @@
                             </span>
                             <span class="menu-title">Subscribed Category</span>
                         </a>
-                    </div>
+                    </div> --}}
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['category-list', 'my-category-list', 'category-suggestion']) ? 'show' : '' }}"
+                        class="menu-item menu-accordion {{ request()->is(['category-list', 'my-category-list', 'category-suggestion', 'subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'show' : '' }}"
                          title="Category" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
@@ -134,6 +134,19 @@
                                         <span class="bullet bullet-dot"></span>
                                     </span>
                                     <span class="menu-title">My Category</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is(['subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'active' : '' }}"
+                                    href="{{ route('retailer.subscribed-category.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Subscribed Category</span>
                                 </a>
                                 <!--end:Menu link-->
                             </div>
