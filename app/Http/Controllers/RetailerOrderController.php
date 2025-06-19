@@ -519,8 +519,9 @@ class RetailerOrderController extends Controller
 
             if ($type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button"
-                class="btn btn-icon btn-dark btn-active-light-dark w-30px h-30px raise-issue"
-                data-id="' . $item->order_id . '">
+                    class="btn btn-icon btn-dark btn-active-light-dark w-30px h-30px raise-issue"
+                    data-id="' . $item->order_id . '"
+                    data-bs-toggle="tooltip" title="Raise an issue">
                     <i class="ki-duotone ki-cheque fs-3">
                         <span class="path1"></span><span class="path2"></span>
                         <span class="path3"></span><span class="path4"></span>
@@ -528,6 +529,7 @@ class RetailerOrderController extends Controller
                     </i>
                 </button>';
             }
+
 
             $action .= '</div>';
 

@@ -981,12 +981,14 @@ class RetilerController extends Controller
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
                     class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
-                    data-id="' . $product->id . '">
+                    data-id="' . $product->id . '"
+                    data-bs-toggle="tooltip" title="Delete">
                     <i class="ki-duotone ki-trash fs-3">
                         <span class="path1"></span><span class="path2"></span><span class="path3"></span>
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </button>
+
                 <a href="' . route('retailer.edit.product', encryptId($product->id)) . '" title="Edit"
                     class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
                     <i class="ki-duotone ki-pencil fs-4">
@@ -1169,7 +1171,8 @@ class RetilerController extends Controller
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
                     class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
-                    data-id="' . $product->id . '">
+                    data-id="' . $product->id . '"
+                    data-bs-toggle="tooltip" title="Delete">
                     <i class="ki-duotone ki-trash fs-3">
                         <span class="path1"></span><span class="path2"></span><span class="path3"></span>
                         <span class="path4"></span><span class="path5"></span>
