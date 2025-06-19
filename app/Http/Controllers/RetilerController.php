@@ -1862,12 +1862,17 @@ class RetilerController extends Controller
                 RetailerCloneProduct::where('sku', $sku)->exists()
             );
 
+            $slug = strtolower($product->name);
+            $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+            $slug = preg_replace('/^-+|-+$/', '', $slug);
+            $slug = Str::slug($slug) . '-' . now()->timestamp . '-' . uniqid();
+
             $cloneProduct = new RetailerCloneProduct();
             $cloneProduct->product_id = $product->id;
             $cloneProduct->sku = $sku;
             $cloneProduct->retailer_id = $retailer->id;
             $cloneProduct->name = $product->name;
-            $cloneProduct->slug = $product->slug;
+            $cloneProduct->slug = $slug;
             $cloneProduct->description = $request->description ?? $product->description;
             $cloneProduct->brand_name = $product->brand_name;
             $cloneProduct->tags = $product->tags;

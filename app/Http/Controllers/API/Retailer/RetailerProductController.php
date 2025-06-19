@@ -268,6 +268,15 @@ class RetailerProductController extends Controller
                 return $this->formatProductFromClone($item, $item->final_price);
             })->values();
 
+            //<------ Default Filters ------>
+            $products = $products->sortBy([
+                // retailer own product at top and wholesaler's subscribed product at last
+                fn($a, $b) => is_null($b['wholesaler_id']) <=> is_null($a['wholesaler_id']),
+
+                // out-of-stock products at last
+                fn($a, $b) => ($a['quantity'] == 0) <=> ($b['quantity'] == 0),
+            ])->values();
+
             //<------ FILTER - short_by ------>
             $sortBy = $request->sort_by;
             if ($sortBy === 'price_high_to_low') {
@@ -277,15 +286,6 @@ class RetailerProductController extends Controller
             } elseif ($sortBy === 'recently_added') {
                 $products = $products->sortByDesc('created_at')->values();
             }
-
-            //<------ Default Filters ------>
-            $products = $products->sortBy([
-                // retailer own product at top and wholesaler's subscribed product at last
-                fn($a, $b) => is_null($b['wholesaler_id']) <=> is_null($a['wholesaler_id']),
-
-                // out-of-stock products at last
-                fn($a, $b) => ($a['quantity'] == 0) <=> ($b['quantity'] == 0),
-            ])->values();
 
             // <--------- get category and sub-category list as per product data ------------>
             // $categoryIds = $products->pluck('category_id')->filter()->unique();
@@ -1004,17 +1004,9 @@ class RetailerProductController extends Controller
             $finalPrices = $product->productVariations->pluck('final_price')->filter()->map(fn($v) => (float)$v);
             $totalStock = $product->productVariations->sum('stock');
 
-            $oldPriceRange = $oldPrices->isNotEmpty()
-                ? number_format($oldPrices->min(), 2) . ' - ' . number_format($oldPrices->max(), 2)
-                : null;
-
-            $newPriceRange = $newPrices->isNotEmpty()
-                ? number_format($newPrices->min(), 2) . ' - ' . number_format($newPrices->max(), 2)
-                : null;
-
-            $finalPriceRange = $finalPrices->isNotEmpty()
-                ? number_format($finalPrices->min(), 2) . ' - ' . number_format($finalPrices->max(), 2)
-                : null;
+            $oldPriceRange = $oldPrices->isNotEmpty() ? round($oldPrices->min(), 2) : null;
+            $newPriceRange = $newPrices->isNotEmpty() ? round($newPrices->min(), 2) : null;
+            $finalPriceRange = $finalPrices->isNotEmpty() ? round($finalPrices->min(), 2) : null;
         }
 
         $product_image = explode(',', $product->images);
