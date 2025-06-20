@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 class CouponController extends Controller
 {
     public function index()
@@ -56,12 +57,16 @@ class CouponController extends Controller
                 'status' => '<div class="badge ' . ($coupon->status == 1 ? 'badge-light-success' : 'badge-light-danger') . '">' . ($coupon->status == 1 ? 'Active' : 'Inactive') . '</div>',
                 'coupon_code' => '<div class="badge badge-light">' . e($coupon->coupon_code) . '</div>',
                 'discount' => $coupon->discount,
+                'used_count'=> $coupon->used_count,
+                'valid_from' => $coupon->valid_from,
+                'valid_until' => $coupon->valid_until,
                 'quantity' => $coupon->usage_limit,
                 'created_at' => $coupon->created_at->format('Y-m-d'),
-                'actions' => '<button class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-coupon"
-                                data-id="' . $coupon->id . '" title="Remove">
-                                <i class="fas fa-trash"></i>
-                              </button>
+                // <button class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-coupon"
+                //                 data-id="' . $coupon->id . '" title="Remove">
+                //                 <i class="fas fa-trash"></i>
+                //               </button>
+                'actions' => '
                               <button class="btn btn-icon btn-success btn-light-success w-30px h-30px me-3 edit-coupon"
                                 data-id="' . $coupon->id . '" data-bs-toggle="modal" data-bs-target="#kt_modal_edit_coupon"
                                 title="Edit">
@@ -85,8 +90,30 @@ class CouponController extends Controller
             'coupon_code' => 'required|string|unique:coupons,coupon_code|max:50',
             'discount_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:1',
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
+            'offer_date' => 'required|string'
         ]);
+
+        list($validFrom, $validUntil) = explode(' - ', $request->offer_date);
+
+        try {
+            $validFrom = Carbon::parse($validFrom)->format('Y-m-d H:i:s');
+            $validUntil = Carbon::parse($validUntil)->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid date format.'
+            ], 422);
+        }
+
+        // Optionally validate that validUntil is after validFrom
+        if ($validUntil <= $validFrom) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Offer end time must be after start time.'
+            ], 422);
+        }
+
 
         if ($validator->fails()) {
             return response()->json([
@@ -105,6 +132,8 @@ class CouponController extends Controller
         $coupon->usage_limit = $request->quantity;
         $coupon->used_count = 0;
         $coupon->status = $request->status;
+        $coupon->valid_from = $validFrom;
+        $coupon->valid_until = $validUntil;
         $coupon->save();
 
         return response()->json([
@@ -125,8 +154,8 @@ class CouponController extends Controller
 
         $validator = Validator::make($request->all(), [
             'coupon_name' => 'required|string|max:255',
-            'coupon_code' => 'required|string|max:50|unique:coupons,coupon_code,' . $id,
-            'discount' => 'required|numeric|min:0',
+            // 'coupon_code' => 'required|string|max:50|unique:coupons,coupon_code,' . $id,
+            // 'discount' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:1',
             'status' => 'required|boolean'
         ]);
@@ -141,8 +170,8 @@ class CouponController extends Controller
         $coupon = CouponModel::findOrFail($id);
         $coupon->update([
             'coupon_name' => $request->coupon_name,
-            'coupon_code' => $request->coupon_code,
-            'discount' => $request->discount,
+            // 'coupon_code' => $request->coupon_code,
+            // 'discount' => $request->discount,
             'usage_limit' => $request->quantity,
             'status' => $request->status
         ]);

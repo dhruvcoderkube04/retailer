@@ -61,6 +61,7 @@ class CustomerOrders extends Model
         'expected_delivery',
         'payment_status',
         'payment_method',
+        'coupon_applied_id'
     ];
 
     protected $casts = [
@@ -95,5 +96,10 @@ class CustomerOrders extends Model
     public function retailerCloneProduct()
     {
         return $this->belongsTo(RetailerCloneProduct::class, 'retailer_clone_product_id');
+    }
+
+    public function appliedCoupon()
+    {
+        return $this->belongsTo(Coupon::class, 'coupon_applied_id');
     }
 }
