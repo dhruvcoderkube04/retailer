@@ -321,6 +321,7 @@ class RetailerOrderController extends Controller
             'customer',
             'order_product_detail',
             'wholesaler.userDetail',
+            'appliedCoupon'
         ])
             ->where('retailer_id', $retailer->id)
             ->whereDate($stageDateMap[$type], '>=', $from) // filter : date
@@ -392,7 +393,6 @@ class RetailerOrderController extends Controller
         $cntFilter = clone $query;
         $query->offset($page)->limit($limit);
         $orders = $query->get();
-
         $queryTotalSql = CustomerOrders::with([
             'customer',
             'order_product_detail',
@@ -440,9 +440,25 @@ class RetailerOrderController extends Controller
                 $order_detail .= '<div class="col-12 mb-1"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . ($item->product_variation ?? 'N/A') . '</div></div>';
             }
 
-            $order_detail .= '<div class="col-12 mb-1"><strong>Quantity:</strong> <div class="badge badge-light-secondary text-wrap">' . $item->quantity . '</div> ' . ($item->size ? '| Size: ' . $item->size : '') . '</div>
-                <div class="col-12 mb-1"><strong>Amount:</strong><div class="badge badge-light-primary text-wrap"> ₹' . $item?->final_amount . ' </div></div>
-                <div class="col-12 mb-1"><strong>Payment:</strong> ' . strtoupper($item->payment_method) . '</div>';
+            $order_detail .= '<div class="col-12 mb-1"><strong>Quantity:</strong>
+                <div class="badge badge-light-secondary text-wrap">' . $item->quantity . '</div> ' .
+                ($item->size ? '| Size: ' . $item->size : '') .
+            '</div>';
+
+            // ✅ Only show if coupon is applied
+            if (!empty($item->appliedCoupon)) {
+                $order_detail .= '<div class="col-12 mb-1"><strong>Coupon Code :</strong>
+                    <div class="badge badge-light-danger text-wrap">' . $item->appliedCoupon->coupon_code . '</div>
+                </div>
+                <div class="col-12 mb-1"><strong>Discount Amount :</strong>
+                    <div class="badge badge-light-success text-wrap">₹' . $item->appliedCoupon->discount . '</div>
+                </div>';
+            }
+
+            $order_detail .= '<div class="col-12 mb-1"><strong>Amount:</strong>
+                <div class="badge badge-light-primary text-wrap">₹' . $item->final_amount . '</div>
+            </div>
+            <div class="col-12 mb-1"><strong>Payment:</strong> ' . strtoupper($item->payment_method) . '</div>';
 
             if ($type == 'transferred-to-wholesaler') {
                 $order_detail .= '<div class="col-12 mb-1"><strong>Order Status:</strong> <span class="badge badge-' . $typeColorMap[$type] . '">Transferred to Wholesaler</span></div>
