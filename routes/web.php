@@ -135,9 +135,12 @@ Route::middleware(['retailer'])->group(function () {
     });
 
     // mange Profile
-    Route::get('/profile', [RetilerController::class, 'Profile'])->name('retailer.profile');
+    Route::get('/profile/details', [RetilerController::class, 'Profile'])->name('retailer.profile.details');
+    Route::get('/profile/bank-details', [RetilerController::class, 'Profile'])->name('retailer.profile.bank-details');
+
     Route::post('/profile-update', [RetilerController::class, 'profileUpdate'])->name('retailer.profile.update');
     Route::post('/account-info', [RetilerController::class, 'storeAccoutinfo'])->name('retailer.accountinfo');
+    Route::post('/retailer/bank-details-verify', [RetilerController::class, 'verifyBankDetailsCode'])->name('retailer.bank-details.verify');
 
     // abandonedcard
     Route::get('/abondard-page', [AbandonardCard::class, 'index'])->name('retailer.abandonard.index');
