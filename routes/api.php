@@ -13,7 +13,7 @@ Route::get('/singal-product-details/{slug}', [RetailerProductController::class, 
 Route::post('/checkout', [RetailerProductController::class, 'checkout']);
 Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);
-
+Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
 
 
 // Route::post('/retailer-products', [RetailerProductController::class, 'getProducts']);

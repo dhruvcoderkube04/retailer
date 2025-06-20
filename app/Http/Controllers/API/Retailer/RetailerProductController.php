@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Retailer;
 use App\Http\Controllers\Controller;
 use App\Mail\RetailerOrderMail;
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
@@ -30,6 +31,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class RetailerProductController extends Controller
 {
@@ -539,6 +541,7 @@ class RetailerProductController extends Controller
 
     public function getSingalProductDetails(Request $request, $slug = null)
     {
+
         try {
             //<------------- validate user ---------------->
             $apiKey = $request->header('API-KEY');
@@ -658,6 +661,7 @@ class RetailerProductController extends Controller
 
     public function checkout(Request $request)
     {
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|max:30',
             'lastname' => 'required|max:30',
@@ -671,7 +675,7 @@ class RetailerProductController extends Controller
             'products.*.wholesaler_id' => 'nullable',
             'products.*.retailer_id' => 'nullable',
             'products.*.quantity' => 'required|integer|min:1',
-            'products.*.final_amount' => 'required|numeric|min:0',
+            'products.*.final_amount' => 'required|numeric|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -722,6 +726,7 @@ class RetailerProductController extends Controller
                 $productId = $product['product_id'] ?? null;
                 $cloneId = $product['retailer_product_id'] ?? null;
                 $quantity = $product['quantity'];
+                $couponid = $product['coupon_id'];
 
                 if (!$productId && !$cloneId) {
                     return response()->json([
@@ -924,9 +929,16 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
+                    'coupon_applied_id'=>  $couponid,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
+
+                $coupon = Coupon::find($couponid);
+                if ($coupon && $coupon->used_count < $coupon->usage_limit) {
+                    $coupon->used_count += 1;
+                    $coupon->save();
+                }
 
                 $orderItemsForMail[] = [
                     'firstname' => $request->firstname,
@@ -945,9 +957,11 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'payment_method' => $request->payment_method,
                 ];
+
             }
 
             CustomerOrders::insert($orderItems);
+
             $userId = isset($retailerId) ? $retailerId : $wholesalerId;
             $type = isset($retailerId) ? 'retailer-notification' : 'wholesaler-notification';
 
@@ -989,6 +1003,73 @@ class RetailerProductController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function applyCoupon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'coupon_code' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $apiKey = $request->header('API-KEY');
+        if (!$apiKey) {
+            return response()->json(['error' => 'API Key is required.'], 401);
+        }
+
+        // Get retailer by API key
+        $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
+            $query->where('is_delete', 0)->where('status', 1);
+        }])->whereHas('retailer', function ($query) {
+            $query->where('is_delete', 0)->where('status', 1);
+        })->where('product_listing_key', $apiKey)->first();
+
+        if (!$retailer) {
+            return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+        }
+
+        // Get coupon by code and retailer
+        $coupon = Coupon::where('coupon_code', $request->coupon_code)
+                    ->where('retailer_id', $retailer->retailer_id)
+                    ->first();
+
+        if (!$coupon) {
+            return response()->json(['error' => 'Invlaid Coupon code.'], 404);
+        }
+
+        // Check status
+        if ($coupon->status != 1) {
+            return response()->json(['error' => 'This coupon is Invalid.'], 403);
+        }
+
+        // Check if coupon is expired
+        if ($coupon->valid_until && Carbon::now()->gt($coupon->valid_until)) {
+            return response()->json(['error' => 'This coupon has expired.'], 410);
+        }
+
+        // Check usage limit
+        if ($coupon->used_count >= $coupon->usage_limit) {
+            return response()->json(['error' => 'This coupon has been fully used.'], 429);
+        }
+
+        // All good — "apply" the coupon
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon applied successfully.',
+            'coupon' => [
+                'id' =>$coupon->id,
+                'code' => $coupon->coupon_code,
+                'discount' => $coupon->discount
+                // 'valid_from' => $coupon->valid_from,
+                // 'valid_until' => $coupon->valid_until,
+            ]
+        ]);
     }
 
     private function formatProductFromClone($product, $finalPrice)

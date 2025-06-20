@@ -71,6 +71,9 @@
                                         <th class="min-w-125px">Name</th>
                                         <th class="min-w-125px">Status</th>
                                         <th class="min-w-125px">Coupon Code</th>
+                                        <th class="min-w-125px">Used Count</th>
+                                        <th class="min-w-125px">Valid From</th>
+                                        <th class="min-w-125px">Valid Until</th>
                                         <th class="min-w-125px">Quantity</th>
                                         <th class="min-w-125px">Discount Price</th>
                                         <th class="min-w-125px">Created Date</th>
@@ -107,6 +110,13 @@
                             <input type="text" class="form-control" id="coupon_name" name="coupon_name">
                         </div>
                         <div class="mb-3">
+                            <label class="required fs-6 fw-semibold mb-2">Expiration Date</label>
+                            <div class="position-relative d-flex align-items-center">
+                                <i class="ki-duotone ki-calendar-8 fs-2 position-absolute mx-4"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i>
+                                <input class="form-control form-control-solid ps-12 flatpickr-input active" required id="kt_daterangepicker_2" placeholder="Select a date" name="offer_date" type="text"  data-gtm-form-interact-field-id="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Coupon Code</label>
                             <input class="form-control" id="coupon_code" name="coupon_code">
                         </div>
@@ -118,6 +128,8 @@
                             <label class="form-label">Quantity</label>
                             <input type="number" class="form-control" id="quantity" name="quantity">
                         </div>
+
+
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <div class="d-flex">
@@ -157,13 +169,14 @@
                             <label class="form-label">Coupon Name</label>
                             <input type="text" class="form-control" id="edit_coupon_name" name="coupon_name">
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Coupon Code</label>
-                            <input class="form-control" id="edit_coupon_code" name="coupon_code">
+                            <input class="form-control" id="edit_coupon_code" readonly name="coupon_code">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Discount Price</label>
-                            <input type="number" class="form-control" id="edit_discount_price" name="discount">
+                            <input type="number" class="form-control" readonly id="edit_discount_price" name="discount">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Quantity</label>
@@ -195,7 +208,23 @@
 <script>
 $(document).ready(function () {
     // Log the DataTable AJAX URL for debugging
-    console.log("DataTable AJAX URL: {{ route('coupons.fetch') }}");
+   $("#kt_daterangepicker_2").daterangepicker({
+        timePicker: true,
+        timePicker24Hour: true, // Optional: Use 24-hour format
+        startDate: moment().startOf("hour"),
+        endDate: moment().startOf("hour").add(1, "days"),
+        locale: {
+            format: "YYYY-MM-DD HH:mm:ss"
+        }
+    }, function(start, end, label) {
+        // Set the visible input text
+        $('#kt_daterangepicker_2').val(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
+
+        // Set hidden inputs
+        $('#start_date').val(start.format('YYYY-MM-DD HH:mm:ss'));
+        $('#end_date').val(end.format('YYYY-MM-DD HH:mm:ss'));
+    });
+    // console.log(  "DataTable AJAX URL: {{ route('coupons.fetch') }}");
 
     // Initialize DataTable
     let table = $('#kt_subscriptions_table').DataTable({
@@ -214,6 +243,9 @@ $(document).ready(function () {
             { data: 'coupon_name' },
             { data: 'status' },
             { data: 'coupon_code' },
+            { data: 'used_count' },
+            { data: 'valid_from' },
+            { data: 'valid_until' },
             { data: 'quantity' },
             { data: 'discount' },
             { data: 'created_at' },
