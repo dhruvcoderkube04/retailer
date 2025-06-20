@@ -193,7 +193,7 @@
                         data-kt-menu-placement="bottom-end">
                         <img src="{{ $logoUrl }}" class="rounded-3" alt="user" />
                     </div>
-                    <a href="{{ route('retailer.profile') }}">
+                    <a href="{{ route('retailer.profile.details') }}">
                         <div class="mt-2 ms-2 fs-4 fw-semibold text-dark d-none d-lg-block">
                             {{ Auth::user()->userDetail->company_name }}
                         </div>
@@ -227,7 +227,7 @@
                         <!--end::Menu separator-->
                         <!--begin::Menu item-->
                         <div class="menu-item px-5">
-                            <a href="{{ route('retailer.profile') }}" class="menu-link px-5">My Profile</a>
+                            <a href="{{ route('retailer.profile.details') }}" class="menu-link px-5">My Profile</a>
                         </div>
                         <!--end::Menu item-->
                         <!--begin::Menu item-->

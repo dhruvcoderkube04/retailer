@@ -443,6 +443,14 @@ class RetailerAccountTransactionController extends Controller
             $user = Auth::user();
 
             $userDetail = UserDetail::where('user_id', $user->id)->first();
+            if ($userDetail->wallet_status !== 'approved') {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Your wallet is not activated!, Kindly activate the wallet',
+                    'error' => 'Your wallet is not activated!, Kindly activate the wallet',
+                ]);
+            }
+
             $userDetail->success_wallet = ($userDetail->success_wallet) - ($request->request_amount);
             $userDetail->save();
 

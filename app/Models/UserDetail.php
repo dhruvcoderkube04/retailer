@@ -20,6 +20,9 @@ class UserDetail extends Model
         'postal_code',
         'success_wallet',
         'pending_wallet',
+        'wallet_status',
+        'verification_code',
+        'wallet_verification_attempt',
         'account_number',
         'ifsc_code',
         'account_holder_name',
@@ -27,6 +30,8 @@ class UserDetail extends Model
         'pan_image',
         'aadhar_image',
         'cancel_cheque',
+        'bank_details_submitted_at',
+        'bank_details_verified_at'
     ];
 
     // Inverse One-to-One Relationship
@@ -34,5 +39,4 @@ class UserDetail extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }

@@ -1917,13 +1917,22 @@ class RetilerController extends Controller
         }
     }
 
-
-
+    //<---------------------- START : profile section ------------------------>
     public function Profile()
     {
-        $id = Auth::user()->id;
-        $user = User::with('userDetail')->findOrFail($id);
-        return view('profile.profile', ['userprofile' => $user]);
+        try {
+            $id = Auth::user()->id;
+            $user = User::with('userDetail')->findOrFail($id);
+            $segment = request()->segment(2); // 'details' or 'bank-details'
+
+            return view('profile.profile', [
+                'userprofile' => $user,
+                'activeTab' => $segment
+            ]);
+        } catch (Exception $e) {
+            Log::error('Profile page view error : ' . $e->getMessage());
+            return redirect()->route('retailer.dashboard')->with('error', 'Something went wrong');
+        }
     }
 
     public function profileUpdate(Request $request)
@@ -2021,6 +2030,115 @@ class RetilerController extends Controller
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
+    public function storeAccoutinfo(Request $request)
+    {
+        $request->validate([
+            'account_number' => 'required|string|max:30',
+            'ifsc_code' => 'required|string|max:15',
+            'account_holder_name' => 'required|string|max:100',
+            'pancard_number' => 'required|string|min:10|max:10',
+            'pan_image' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'aadhar_image' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'cancel_cheque' => 'required|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $userId = Auth::id();
+            $userDetail = UserDetail::where('user_id', $userId)->first();
+
+            $data = $request->only([
+                'account_number',
+                'ifsc_code',
+                'account_holder_name',
+                'pancard_number'
+            ]);
+
+            // Upload to DigitalOcean Spaces
+            foreach (['pan_image', 'aadhar_image', 'cancel_cheque'] as $field) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $data[$field] = uploadOrUpdateImageToSpaces($file, 'account_documents', $userDetail->$field);
+                }
+            }
+
+            $data['wallet_status'] = 'submitted';
+            $data['bank_details_submitted_at'] = Carbon::now();
+
+            if ($userDetail) {
+                $userDetail->update($data);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Account information saved successfully!');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Bank details store/post error : ' . $e->getMessage());
+            return redirect()->route('retailer.profile.bank-details')->with('error', 'Something went wrong');
+        }
+    }
+
+    public function verifyBankDetailsCode(Request $request)
+    {
+        $request->validate([
+            'code_1' => 'required|string',
+            'code_2' => 'required|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $userDetail = $user->userDetail;
+            $expectedCode = explode(',', $userDetail->verification_code);
+            $attempt = $userDetail->wallet_verification_attempt ?? 0;
+
+            if ($attempt >= 3) {
+                $userDetail->wallet_status = 'attempt_limit_reached';
+                $userDetail->save();
+
+                DB::commit();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You have reached the maximum number of attempts.',
+                    'attempts_left' => 0
+                ]);
+            }
+
+            if (in_array($request->code_1, $expectedCode) && in_array($request->code_2, $expectedCode)) {
+                $userDetail->wallet_status = 'approved';
+                $userDetail->bank_details_verified_at = Carbon::now();
+                $userDetail->save();
+            } else {
+                $userDetail->wallet_verification_attempt = $attempt + 1;
+                // $userDetail->bank_details_verified_at = Carbon::now();
+                if (($attempt + 1) >= 3) {
+                    $userDetail->wallet_status = 'attempt_limit_reached';
+                }
+                $userDetail->save();
+
+                DB::commit();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Verification codes do not match.',
+                    'attempts_left' => 3 - ($attempt + 1)
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Wallet verified successfully!'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Verify bank details code error : ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong. Please try again.',
+            ]);
+        }
+    }
+    //<---------------------- END : profile section ------------------------>
 
     public function downloadStockSample()
     {
@@ -2194,46 +2312,6 @@ class RetilerController extends Controller
     public function ratecCalculation()
     {
         return view('rateccalculation');
-    }
-
-    public function storeAccoutinfo(Request $request)
-    {
-        $userId = Auth::user()->id;
-
-        $request->validate([
-            'account_number' => 'nullable|string|max:50',
-            'ifsc_code' => 'nullable|string|max:20',
-            'account_holder_name' => 'nullable|string|max:100',
-            'pancard_number' => 'nullable|string|max:20',
-
-            'pan_image' => 'nullable|mimes:jpeg,png,jpg|max:2048',
-            'aadhar_image' => 'nullable|mimes:jpeg,png,jpg|max:2048',
-            'cancel_cheque' => 'nullable|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
-        $data = $request->only([
-            'account_number',
-            'ifsc_code',
-            'account_holder_name',
-            'pancard_number'
-        ]);
-
-        $userDetail = UserDetail::where('user_id', $userId)->first();
-
-        // Upload to DigitalOcean Spaces
-        foreach (['pan_image', 'aadhar_image', 'cancel_cheque'] as $field) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                $data[$field] = uploadOrUpdateImageToSpaces($file, 'account_documents', $userDetail->$field);
-            }
-        }
-
-
-        if ($userDetail) {
-            $userDetail->update($data);
-        }
-
-        return back()->with('success-account-info', 'Account information saved successfully!');
     }
 
     // use couire service manager
