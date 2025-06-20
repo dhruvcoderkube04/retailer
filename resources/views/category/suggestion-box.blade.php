@@ -131,9 +131,13 @@
                         <!--end::Modal title-->
 
                         <!--begin::Close-->
-                        <div id="kt_modal_add_payment_close" class="btn btn-icon btn-sm btn-active-icon-primary">
-                            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>                </div>
+                        <button type="button" id="kt_modal_add_payment_close" class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="ki-duotone ki-cross fs-1">
+                                <span class="path1"></span><span class="path2"></span>
+                            </i>
+                        </button>
                         <!--end::Close-->
+
                     </div>
                     <!--end::Modal header-->
 

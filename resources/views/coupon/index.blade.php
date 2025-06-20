@@ -97,11 +97,14 @@
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="fw-bold">Create Coupon</h2>
-                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1"></i>
-                    </div>
+                     <h2 class="fw-bold">Create Coupon</h2>
+                    <button type="button" class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ki-duotone ki-cross fs-1">
+                            <span class="path1"></span><span class="path2"></span>
+                        </i>
+                    </button>
                 </div>
+
                 <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
                     <form id="coupon_add_form" class="form" method="POST">
                         @csrf
@@ -142,8 +145,8 @@
                             </div>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Add Coupon</button>
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" id="kt_modal_add_coupon_submit" class="btn btn-primary">Add Coupon</button>
+                            <button type="button" id="kt_modal_add_coupon_cancel" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -194,8 +197,8 @@
                             </div>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Update Coupon</button>
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" id="kt_modal_edit_coupon_submit" class="btn btn-primary">Update Coupon</button>
+                            <button type="button" id="kt_modal_edit_coupon_cancel" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -291,6 +294,11 @@ $(document).ready(function () {
         let couponId = $('#edit_coupon_id').val();
         let formData = new FormData(this);
 
+            $('#kt_modal_edit_coupon').on('submit', function () {
+                $('#kt_modal_edit_coupon_submit').prop('disabled', true).html('Updating... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $('#kt_modal_edit_coupon_cancel').prop('disabled', true);
+            });
+
         $.ajax({
             url: `{{ url('update-coupon') }}/${couponId}`,
             type: "POST",
@@ -301,16 +309,22 @@ $(document).ready(function () {
                 "X-CSRF-TOKEN": '{{ csrf_token() }}'
             },
             success: function (data) {
+                $('#kt_modal_edit_coupon_submit').prop('disabled', false).html('Update Coupon');
+                $('#kt_modal_edit_coupon_cancel').prop('disabled', false);
                 if (data.success) {
                     Swal.fire("Success!", "Coupon updated successfully!", "success").then(() => {
                         $('#kt_modal_edit_coupon').modal('hide');
                         table.ajax.reload(null, false);
                     });
                 } else {
+                    $('#kt_modal_edit_coupon_submit').prop('disabled', false).html('Update Coupon');
+                    $('#kt_modal_edit_coupon_cancel').prop('disabled', false);
                     Swal.fire("Error!", "Update failed.", "error");
                 }
             },
             error: function (xhr) {
+                $('#kt_modal_edit_coupon_submit').prop('disabled', false).html('Update Coupon');
+                $('#kt_modal_edit_coupon_cancel').prop('disabled', false);
                 let errors = xhr.responseJSON.errors;
                 let errorMsg = "An error occurred.";
                 if (errors) {
@@ -362,6 +376,14 @@ $(document).ready(function () {
         e.preventDefault();
         let formData = new FormData(this);
 
+            $('#kt_modal_add_coupon').on('submit', function () {
+                $('#kt_modal_add_coupon_submit').prop('disabled', true).html('Adding... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $('#kt_modal_add_coupon_cancel').prop('disabled', true);
+            });
+            // $('#editAddressForm').on('submit', function () {
+            //     $('#editsubmitBtn').prop('disabled', true).html('Updating... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+            //     $('#editcancelBtn').prop('disabled', true);
+            // });
         $.ajax({
             url: "{{ route('retailer.coupon.add') }}",
             type: "POST",
@@ -369,6 +391,8 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
+                $('#kt_modal_add_coupon_submit').prop('disabled', false).html('Add Coupon <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $('#kt_modal_add_coupon_cancel').prop('disabled', false);
                 if (response.success) {
                     Swal.fire({
                         title: "Success!",
@@ -381,6 +405,8 @@ $(document).ready(function () {
                         table.ajax.reload(null, false);
                     });
                 } else {
+                    $('#kt_modal_add_coupon_submit').prop('disabled', false).html('Add Coupon <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                    $('#kt_modal_add_coupon_cancel').prop('disabled', false);
                     Swal.fire({
                         title: "Error!",
                         text: response.message || "Something went wrong!",
@@ -390,6 +416,8 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr) {
+                $('#kt_modal_add_coupon_submit').prop('disabled', false).html('Add Coupon');
+                $('#kt_modal_add_coupon_cancel').prop('disabled', false);
                 let errors = xhr.responseJSON.errors;
                 let errorMsg = "Validation failed.";
                 if (errors) {
