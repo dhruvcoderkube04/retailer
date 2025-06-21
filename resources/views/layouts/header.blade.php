@@ -1,6 +1,9 @@
-<div id="kt_app_header" class="app-header" data-kt-sticky="true" data-kt-sticky-activate="{default: true, lg: true}"
-    data-kt-sticky-name="app-header-minimize" data-kt-sticky-offset="{default: '200px', lg: '0'}"
-    data-kt-sticky-animation="false">
+<div id="kt_app_header" class="app-header shadow" 
+     data-kt-sticky="true" 
+     data-kt-sticky-activate="{default: true, lg: true}"
+     data-kt-sticky-name="app-header-minimize" 
+     data-kt-sticky-offset="{default: '200px', lg: '0'}"
+     data-kt-sticky-animation="false">
     <!--begin::Header container-->
     <div class="app-container container-fluid d-flex align-items-stretch justify-content-between"
         id="kt_app_header_container">
@@ -31,6 +34,8 @@
                 {{ Auth::user()->firstname }}
             </a>
         </div>
+
+        
         <!--end::Mobile logo-->
         <!--begin::Header wrapper-->
         <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
@@ -74,16 +79,22 @@
                         data-kt-menu-attach="parent"
                         data-kt-menu-placement="bottom-end"
                         id="kt_menu_item_wow">
-                        <i class="ki-duotone ki-notification-status fs-1">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                            <span class="path3"></span>
-                            <span class="path4"></span>
-                        </i>
-                        <!--begin::Bullet (Notification Count Badge)-->
-                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-circle bg-danger" id="notification-count" style="font-size: 10px;">
-                            0
-                        </span>
+                        <i class="fa-solid fa-bell fs-3"></i>
+
+                        
+                        <span id="notification-count"
+                                class="position-absolute badge bg-danger text-white fw-bold justify-content-center"
+                                style="
+                                    top: -6px;
+                                    right: -3px;
+                                    width: 20px;
+                                    height: 20px;
+                                    border-radius: 50%;
+                                    font-size: 9px;
+                                    text-align: center;
+                                    ">
+                                0
+                            </span>
                         <!--end::Bullet-->
                     </div>
                     <!--end::Menu wrapper-->
