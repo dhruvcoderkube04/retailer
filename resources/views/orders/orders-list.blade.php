@@ -178,6 +178,7 @@
                                         <th class="text-center min-w-200px">ORDER DATE</th>
                                         <th class="text-center min-w-300px">ORDER DETAIL</th>
                                         <th class="text-center min-w-150px">MEDIA</th>
+                                        <th class="text-center min-w-300px">WHOLESALER DETAIL</th>
                                         <th class="text-center min-w-300px">CUSTOMER DETAIL</th>
                                     </tr>
                                 </thead>
@@ -1007,6 +1008,11 @@
                 {
                     data: 'media',
                     className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'wholesaler_detail',
+                    className: 'text-start',
                     orderable: false,
                 },
                 {

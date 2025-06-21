@@ -509,6 +509,20 @@ class RetailerOrderController extends Controller
                 <div class="col-12 mb-1"><strong>City:</strong> ' . $item->customer->city . '</div>
                 <div class="col-12 mb-1"><strong>Mobile no:</strong> ' . $item->customer->phone_number . '</div>
             </div>';
+            $wholesaler_detail = '';
+
+            if ($item->wholesaler) {
+                $wholesaler = $item->wholesaler;
+                // dd( $wholesaler);
+                $wholesaler_detail = '<div class="row mt-2">
+                    <div class="col-12 mb-1"><strong>Wholesaler Name:</strong> ' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</div>
+                    <div class="col-12 mb-1"><strong>Email Id:</strong> ' . ($wholesaler->email ?? '') . '</div>
+                    <div class="col-12 mb-1"><strong>Address:</strong> ' . ($wholesaler->userDetail->address ?? '') . '</div>
+                    <div class="col-12 mb-1"><strong>Pin Code:</strong> ' . ($wholesaler->userDetail->postal_code ?? '') . '</div>
+                    <div class="col-12 mb-1"><strong>City:</strong> ' . ($wholesaler->userDetail->city ?? '') . '</div>
+                    <div class="col-12 mb-1"><strong>Mobile no:</strong> ' . ($wholesaler->phone_number ?? '') . '</div>
+                </div>';
+            }
 
             $action = '<div class="d-flex align-items-center gap-2">';
 
@@ -555,6 +569,7 @@ class RetailerOrderController extends Controller
                 'order_detail' => $order_detail,
                 'media' => $media,
                 'customer_detail' => $customer_detail,
+                'wholesaler_detail'=> $wholesaler_detail,
                 'action' => $action,
             );
         }
