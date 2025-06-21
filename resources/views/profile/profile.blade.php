@@ -54,6 +54,10 @@
                                 href="{{ route('retailer.create.ticket') }}"
                                 class="text-danger text-decoration-underline">Contact support team</a> for more info.
                         </div>
+                        <div class="text-danger fw-semibold mb-4 mx-1 fs-5">
+                            <strong>Rejected Reason :
+                            </strong>{{ $userprofile->userDetail->wallet_verification_reject_reason }}
+                        </div>
                     @endif
 
                     <div class="card mb-5 mb-xl-10">
