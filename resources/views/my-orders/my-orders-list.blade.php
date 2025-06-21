@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    My Order List | TrendMart
+    My Order List | TechtrendMart
 @endsection
 
 @php

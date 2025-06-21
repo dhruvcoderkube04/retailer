@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Product List To Be Add | TrendMart
+    Product List To Be Add | TechtrendMart
 @endsection
 @section('content')
     <!--begin::Main-->

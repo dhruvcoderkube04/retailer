@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Direct Shipping | TrendMart
+    Direct Shipping | TechtrendMart
 @endsection
 
 @section('content')

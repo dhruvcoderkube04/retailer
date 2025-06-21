@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer's Pending Wallet Transactions | TrendMart
+    Retailer's Pending Wallet Transactions | TechtrendMart
 @endsection
 @section('content')
     @if ($user->userDetail->wallet_status == 'approved')

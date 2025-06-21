@@ -1,7 +1,7 @@
 @extends('auth.base')
 
 @section('title')
-Forgot Password - TrandMart
+Forgot Password | TechtrendMart
 @endsection
 
 @section('content')

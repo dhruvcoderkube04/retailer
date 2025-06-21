@@ -1,5 +1,5 @@
 @extends('layouts.base')
-@section('title', 'Rate Calculator | TrendMart')
+@section('title', 'Rate Calculator | TechtrendMart')
 
 @section('content')
 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

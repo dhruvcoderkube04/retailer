@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Themes | TrendMart
+    Themes | TechtrendMart
 @endsection
 
 @section('content')

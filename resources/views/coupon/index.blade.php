@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('title')
-    Coupon Manage | TrendMart
+    Coupon Manage | TechtrendMart
 @endsection
 
 @section('content')

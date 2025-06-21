@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Check Delivery Availability | TrendMart
+    Check Delivery Availability | TechtrendMart
 @endsection
 
 @section('content')

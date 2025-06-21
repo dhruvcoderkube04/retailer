@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer Category List | TrendMart
+    Retailer Category List | TechtrendMart
 @endsection
 
 @section('content')

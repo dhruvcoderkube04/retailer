@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Wholesaler List | TrendMart
+    Wholesaler List | TechtrendMart
 @endsection
 @section('content')
     @if ($is_all_wholesaler_visible)

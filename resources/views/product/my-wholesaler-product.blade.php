@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('title')
-    Wholesaler Product List | TechTrendMart
+    Wholesaler Product List | TechtrendMart
 @endsection
 
 @section('content')

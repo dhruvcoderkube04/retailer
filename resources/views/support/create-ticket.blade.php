@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('title')
-    Create Ticket | TrendMart
+    Create Ticket | TechtrendMart
 @endsection
 
 @section('content')

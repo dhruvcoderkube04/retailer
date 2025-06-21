@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Subscribed Categories | TrendMart
+    Subscribed Categories | TechtrendMart
 @endsection
 @section('content')
     @if ($is_all_wholesaler_visible)
