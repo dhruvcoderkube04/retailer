@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer's Withdrawal Requests | TrendMart
+    Retailer's Withdrawal Requests | TechtrendMart
 @endsection
 @section('content')
     @if ($user->userDetail->wallet_status == 'approved')

@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Customer List | TrendMart
+    Customer List | TechtrendMart
 @endsection
 @section('content')
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-     Track Your Order Stauts | TrendMart
+     Track Your Order Stauts | TechtrendMart
 @endsection
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    My Category List | TrendMart
+    My Category List | TechtrendMart
 @endsection
 
 @section('content')

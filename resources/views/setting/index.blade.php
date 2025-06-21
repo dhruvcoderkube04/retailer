@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Setting | TrendMart
+    Setting | TechtrendMart
 @endsection
 @section('content')
     <!--begin::Main-->

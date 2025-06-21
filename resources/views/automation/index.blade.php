@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Automation | TrendMart
+    Automation | TechtrendMart
 @endsection
 @section('content')
     <!--begin::Main-->

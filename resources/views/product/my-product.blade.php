@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('title')
-    My Product List | TechTrendMart
+    My Product List | TechtrendMart
 @endsection
 
 @section('content')

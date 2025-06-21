@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('title')
-    Product Details | TrendMart
+    Product Details | TechtrendMart
 @endsection
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Ticket Details | TrendMart')
+@section('title', 'Ticket Details | TechtrendMart')
 
 @section('content')
 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

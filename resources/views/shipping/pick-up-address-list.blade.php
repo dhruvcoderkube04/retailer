@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer's Pick Up Address | TrendMart
+    Retailer's Pick Up Address | TechtrendMart
 @endsection
 @section('content')
     <!--begin::Content-->

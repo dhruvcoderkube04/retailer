@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailer's RTO Address | TrendMart
+    Retailer's RTO Address | TechtrendMart
 @endsection
 @section('content')
     <!--begin::Content-->

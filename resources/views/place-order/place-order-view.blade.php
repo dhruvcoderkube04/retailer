@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Place New Order | TrendMart
+    Place New Order | TechtrendMart
 @endsection
 @section('content')
     <!--begin::Main-->

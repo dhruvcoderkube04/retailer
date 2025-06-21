@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-Rate Calculator | TrendMart
+Rate Calculator | TechtrendMart
 @endsection
 
 @section('content')
