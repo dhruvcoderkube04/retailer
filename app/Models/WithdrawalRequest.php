@@ -13,7 +13,11 @@ class WithdrawalRequest extends Model
         'status',
         'remarks',
         'approver_remark',
-        'account_transaction_id'
+        'transaction_id',
+        'account_transaction_id',
+        'processing_at',
+        'rejected_at',
+        'completed_at'
     ];
 
     public function user()

@@ -23,6 +23,7 @@ class UserDetail extends Model
         'wallet_status',
         'verification_code',
         'wallet_verification_attempt',
+        'wallet_verification_reject_reason',
         'account_number',
         'ifsc_code',
         'account_holder_name',

@@ -25,7 +25,10 @@
             <img alt="Logo" src="{{ asset('assets/media/images/logos/default-small.svg') }}" class="h-20px app-sidebar-logo-minimize"> --}}
         </a>
 
-        <div id="kt_app_sidebar_toggle" class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary h-30px w-30px position-absolute top-50 start-100 translate-middle rotate active" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="app-sidebar-minimize">
+        <div id="kt_app_sidebar_toggle"
+            class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary h-30px w-30px position-absolute top-50 start-100 translate-middle rotate active"
+            data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body"
+            data-kt-toggle-name="app-sidebar-minimize">
             <i class="ki-duotone ki-black-left-line fs-3 rotate-180">
                 <span class="path1"></span>
                 <span class="path2"></span>
@@ -49,12 +52,13 @@
                     data-kt-menu="true" data-kt-menu-expand="false">
                     <!--begin:Menu item-->
                     <!-- <div data-kt-menu-trigger="click" class="menu-item"> -->
-                        <div data-kt-menu-trigger="click" class="menu-item" title="Dashboard" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Dashboard" data-bs-toggle="tooltip"
+                        data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}"
                             href="{{ route('retailer.dashboard') }}">
                             <span class="menu-icon">
-                               <i class="ki-duotone ki-home fs-1 text-white"></i>
+                                <i class="ki-duotone ki-home fs-1 text-white"></i>
                             </span>
                             <span class="menu-title">Dashboard</span>
                         </a>
@@ -63,7 +67,8 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                        <div data-kt-menu-trigger="click" class="menu-item" title="Wholesaler" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Wholesaler" data-bs-toggle="tooltip"
+                        data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['wholesaler-list', 'wholesaler-list/*', 'wholesaler/*']) ? 'active' : '' }}"
                             href="{{ route('retailer.wholesaler.list') }}">
@@ -98,7 +103,7 @@
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->is(['category-list', 'my-category-list', 'category-suggestion', 'subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'show' : '' }}"
-                         title="Category" data-bs-toggle="tooltip" data-bs-placement="right">
+                        title="Category" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -190,11 +195,11 @@
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product','retailer-edit-product/*','retailer-details-product/*','retailer-add-product','clone-product/*']) ? 'show' : '' }}"
+                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product', 'retailer-edit-product/*', 'retailer-details-product/*', 'retailer-add-product', 'clone-product/*']) ? 'show' : '' }}"
                         title="Product" data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <span class="menu-link">
-                             <span class="menu-icon">
+                            <span class="menu-icon">
                                 <i class="ki-duotone ki-cube-2 fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
@@ -210,7 +215,7 @@
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is(['my-wholesaler-product','clone-product/*']) ? 'active' : '' }}"
+                                <a class="menu-link {{ request()->is(['my-wholesaler-product', 'clone-product/*']) ? 'active' : '' }}"
                                     href="{{ route('retailer.my.wholesaler.product') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
@@ -220,10 +225,10 @@
                                 <!--end:Menu link-->
                             </div>
                             <!--end:Menu item-->
-                               <!--begin:Menu item-->
+                            <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is(['my-product','retailer-add-product','retailer-edit-product/*','retailer-details-product/*']) ? 'active' : '' }}"
+                                <a class="menu-link {{ request()->is(['my-product', 'retailer-add-product', 'retailer-edit-product/*', 'retailer-details-product/*']) ? 'active' : '' }}"
                                     href="{{ route('retailer.my.product') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
@@ -254,7 +259,8 @@
                     </div> --}}
                     <!--end:Menu item-->
 
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer List" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer List"
+                        data-bs-toggle="tooltip" data-bs-placement="right">
                         <a class="menu-link {{ request()->is(['customers/*', 'customers']) ? 'active' : '' }}"
                             href="{{ route('retailer.customers.index') }}">
                             <span class="menu-icon">
@@ -268,7 +274,8 @@
                     </div>
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer Orders" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer Orders"
+                        data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
                             href="{{ route('retailer.order.list') }}">
@@ -288,7 +295,8 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Punch Orders" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Punch Orders"
+                        data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['my-orders/*', 'my-orders']) ? 'active' : '' }}"
                             href="{{ route('retailer.my-order.list') }}">
@@ -521,15 +529,16 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Coupon" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Coupon" data-bs-toggle="tooltip"
+                        data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['coupon-page']) ? 'active' : '' }}"
                             href="{{ route('retailer.coupon.index') }}">
                             <i class="ki-duotone ki-discount fs-1 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                </i>
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
                             <span class="menu-title">Coupon</span>
                         </a>
                         <!--end:Menu link-->
@@ -650,7 +659,8 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Prohibited Item" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Prohibited Item"
+                        data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['prohibited-item']) ? 'active' : '' }}"
                             href="{{ route('retailer.prohibited.item') }}">
@@ -665,7 +675,8 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Rate Calculation" data-bs-toggle="tooltip" data-bs-placement="right">
+                    <div data-kt-menu-trigger="click" class="menu-item" title="Rate Calculation"
+                        data-bs-toggle="tooltip" data-bs-placement="right">
                         <!--begin:Menu link-->
                         <a class="menu-link {{ request()->is(['rate-calculation']) ? 'active' : '' }}"
                             href="{{ route('retailer.rate.calculation') }}">
@@ -678,10 +689,15 @@
                     </div>
                     <!--end:Menu item-->
 
-
-                    <!-- Wallet Main Menu -->
+                    {{-- -------------- START : Banking & Wallet section ----------- --}}
+                    <div class="menu-item pt-5">
+                        <div class="menu-content">
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Banking & Wallet</span>
+                        </div>
+                    </div>
+                    <!-- Transactions Main Menu -->
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is('accounts*') ? 'show' : '' }}"
+                        class="menu-item menu-accordion {{ request()->is('accounts/transactions', 'accounts/transactions/*') ? 'show' : '' }}"
                         title="Wallet" data-bs-toggle="tooltip" data-bs-placement="right">
                         <span class="menu-link">
                             <span class="menu-icon">
@@ -717,7 +733,24 @@
                                     <span class="menu-title">Pending Wallet</span>
                                 </a>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- Withdrawal Request Main Menu -->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is('accounts/withdrawal-request', 'accounts/withdrawal-request/*') ? 'show' : '' }}"
+                        title="Bank Details" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-exit-up fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Withdrawal Request</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion">
                             <!-- Withdrawal Request -->
                             <div class="menu-item">
                                 <a class="menu-link {{ request()->is('accounts/withdrawal-request') ? 'active' : '' }}"
@@ -730,7 +763,9 @@
                             </div>
                         </div>
                     </div>
+                    {{-- -------------- END : Banking & Wallet section ----------- --}}
 
+                    {{-- ---------------- START : Layouts section ------------- --}}
                     <div class="menu-item pt-5">
                         <div class="menu-content">
                             <span class="menu-heading fw-bold text-uppercase fs-7">Layouts</span>
@@ -765,7 +800,7 @@
                             </div>
                         </div>
                     </div>
-
+                    {{-- ---------------- END : Layouts section ------------- --}}
 
 
                 </div>
