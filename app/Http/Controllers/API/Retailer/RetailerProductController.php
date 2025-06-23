@@ -726,7 +726,7 @@ class RetailerProductController extends Controller
                 $productId = $product['product_id'] ?? null;
                 $cloneId = $product['retailer_product_id'] ?? null;
                 $quantity = $product['quantity'];
-                $couponid = $product['coupon_id'];
+                $couponid = @$product['coupon_id'];
 
                 if (!$productId && !$cloneId) {
                     return response()->json([
@@ -929,7 +929,7 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'coupon_applied_id'=>  $couponid,
+                    'coupon_applied_id'=>  @$couponid,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
