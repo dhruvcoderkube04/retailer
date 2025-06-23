@@ -170,12 +170,12 @@
                         </div>
 
                         <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_order_list">
+                            <table class="table align-middle fs-7" id="kt_datatable_order_list">
                                 <thead>
-                                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                    <tr class="text-start text-gray-500 fw-bolder fs-6 text-uppercase gs-0">
                                         <th class="text-center min-w-50px">SR NO</th>
                                         <th class="text-center min-w-70px">ACTION</th>
-                                        <th class="text-center min-w-200px">ORDER DATE</th>
+                                        <th class="text-center min-w-100px">ORDER DATE</th>
                                         <th class="text-center min-w-300px">ORDER DETAIL</th>
                                         <th class="text-center min-w-150px">MEDIA</th>
                                         <th class="text-center min-w-300px">WHOLESALER DETAIL</th>
@@ -1021,7 +1021,44 @@
                     orderable: false,
                 },
             ],
+            createdRow: function(row, data, dataIndex) {
+                // Apply dark border style to each cell in the row
+                $(row).find('td').each(function() {
+                    $(this).css('border', '1px solidrgb(0, 0, 0)'); // or your preferred style
+                });
 
+            },  
+            drawCallback: function(settings) {
+                // Apply light border and preserve existing styles on <th>
+                $('#kt_datatable_order_list thead th').each(function() {
+                    var existingStyle = $(this).attr('style') || '';
+                    $(this).attr(
+                        'style',
+                        existingStyle +
+                        ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
+                        ' text-transform: uppercase !important;' 
+                    );
+                });
+
+                // Apply light outer border to table
+                var existingTableStyle = $('#kt_datatable_order_list').attr('style') || '';
+                $('#kt_datatable_order_list').attr(
+                    'style',
+                    existingTableStyle +
+                    ' border: 1px solid rgb(222, 226, 230) !important;' +
+                    ' border-collapse: collapse !important;' +
+                    ' width: 100% !important;'
+                );
+
+                // Apply light inner borders to all <td> in main table
+                $('#kt_datatable_order_list > tbody > tr > td').each(function () {
+                    var existingStyle = $(this).attr('style') || '';
+                    $(this).attr(
+                        'style',
+                        existingStyle + ' border: 1px solid rgb(222, 226, 230) !important;'
+                    );
+                });
+            },
             initComplete: function() {
                 let searchBox = $('.datatable-search-section input');
                 let searchLabel = $('.datatable-search-section label');
