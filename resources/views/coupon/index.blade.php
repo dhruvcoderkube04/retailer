@@ -108,30 +108,41 @@
                 <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
                     <form id="coupon_add_form" class="form" method="POST">
                         @csrf
+
                         <div class="mb-3">
                             <label class="form-label">Coupon Name</label>
                             <input type="text" class="form-control" id="coupon_name" name="coupon_name">
+                            <div class="text-danger" id="error-coupon_name"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="required fs-6 fw-semibold mb-2">Expiration Date</label>
                             <div class="position-relative d-flex align-items-center">
-                                <i class="ki-duotone ki-calendar-8 fs-2 position-absolute mx-4"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i>
-                                <input class="form-control form-control-solid ps-12 flatpickr-input active" required id="kt_daterangepicker_2" placeholder="Select a date" name="offer_date" type="text"  data-gtm-form-interact-field-id="0">
+                                <i class="ki-duotone ki-calendar-8 fs-2 position-absolute mx-4">
+                                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span>
+                                </i>
+                                <input class="form-control form-control-solid ps-12 flatpickr-input active" required id="kt_daterangepicker_2" placeholder="Select a date" name="offer_date" type="text">
                             </div>
+                            <div class="text-danger" id="error-offer_date"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Coupon Code</label>
                             <input class="form-control" id="coupon_code" name="coupon_code">
+                            <div class="text-danger" id="error-coupon_code"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Discount Price</label>
                             <input type="number" class="form-control" id="discount_price" name="discount_price">
+                            <div class="text-danger" id="error-discount_price"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Quantity</label>
                             <input type="number" class="form-control" id="quantity" name="quantity">
+                            <div class="text-danger" id="error-quantity"></div>
                         </div>
-
 
                         <div class="mb-3">
                             <label class="form-label">Status</label>
@@ -143,12 +154,15 @@
                                     <input type="radio" name="status" value="0" class="form-check-input"> Inactive
                                 </label>
                             </div>
+                            <div class="text-danger" id="error-status"></div>
                         </div>
+
                         <div class="text-center">
                             <button type="submit" id="kt_modal_add_coupon_submit" class="btn btn-primary">Add Coupon</button>
                             <button type="button" id="kt_modal_add_coupon_cancel" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -168,23 +182,31 @@
                     <form id="coupon_update_form" class="form" method="POST">
                         @csrf
                         <input type="hidden" id="edit_coupon_id" name="coupon_id">
+
                         <div class="mb-3">
                             <label class="form-label">Coupon Name</label>
                             <input type="text" class="form-control" id="edit_coupon_name" name="coupon_name">
+                            <div class="text-danger" id="editError-coupon_name"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Coupon Code</label>
                             <input class="form-control" id="edit_coupon_code" readonly name="coupon_code">
+                            <div class="text-danger" id="editError-coupon_code"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Discount Price</label>
                             <input type="number" class="form-control" readonly id="edit_discount_price" name="discount">
+                            <div class="text-danger" id="editError-discount"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Quantity</label>
                             <input type="number" class="form-control" id="edit_quantity" name="quantity">
+                            <div class="text-danger" id="editError-quantity"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <div class="d-flex">
@@ -195,7 +217,9 @@
                                     <input type="radio" name="status" value="0" class="form-check-input"> Inactive
                                 </label>
                             </div>
+                            <div class="text-danger" id="editError-status"></div>
                         </div>
+
                         <div class="text-center">
                             <button type="submit" id="kt_modal_edit_coupon_submit" class="btn btn-primary">Update Coupon</button>
                             <button type="button" id="kt_modal_edit_coupon_cancel" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
@@ -211,21 +235,23 @@
 <script>
 $(document).ready(function () {
     // Log the DataTable AJAX URL for debugging
-   $("#kt_daterangepicker_2").daterangepicker({
-        timePicker: true,
-        timePicker24Hour: true, // Optional: Use 24-hour format
-        startDate: moment().startOf("hour"),
-        endDate: moment().startOf("hour").add(1, "days"),
-        locale: {
-            format: "YYYY-MM-DD HH:mm:ss"
-        }
-    }, function(start, end, label) {
-        // Set the visible input text
-        $('#kt_daterangepicker_2').val(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
-
-        // Set hidden inputs
-        $('#start_date').val(start.format('YYYY-MM-DD HH:mm:ss'));
-        $('#end_date').val(end.format('YYYY-MM-DD HH:mm:ss'));
+   function initDateRangePicker() {
+        $("#kt_daterangepicker_2").daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            startDate: moment().startOf("hour"),
+            endDate: moment().startOf("hour").add(1, "days"),
+            locale: {
+                format: "YYYY-MM-DD HH:mm:ss"
+            }
+        }, function(start, end, label) {
+            $('#kt_daterangepicker_2').val(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
+            $('#start_date').val(start.format('YYYY-MM-DD HH:mm:ss'));
+            $('#end_date').val(end.format('YYYY-MM-DD HH:mm:ss'));
+        });
+    }
+    $('#kt_modal_add_coupon').on('shown.bs.modal', function () {
+        initDateRangePicker();
     });
     // console.log(  "DataTable AJAX URL: {{ route('coupons.fetch') }}");
 
@@ -325,13 +351,31 @@ $(document).ready(function () {
             error: function (xhr) {
                 $('#kt_modal_edit_coupon_submit').prop('disabled', false).html('Update Coupon');
                 $('#kt_modal_edit_coupon_cancel').prop('disabled', false);
+
                 let errors = xhr.responseJSON.errors;
-                let errorMsg = "An error occurred.";
+
+                // Clear previous errors
+                $('.text-danger').html('');
+                $('.form-control, .form-check-input').removeClass('is-invalid');
+
                 if (errors) {
-                    errorMsg = Object.values(errors).join("\n");
+                    $.each(errors, function (key, value) {
+                        // Show error below correct field
+                        $('#editError-' + key).html(value[0]);
+
+                        // Highlight the field with red border
+                        const input = $('[name="' + key + '"]');
+                        input.addClass('is-invalid');
+
+                        // Avoid rebinding the same event
+                        input.off('input change').on('input change', function () {
+                            $(this).removeClass('is-invalid');
+                            $('#editError-' + key).html('');
+                        });
+                    });
                 }
-                Swal.fire("Error!", errorMsg, "error");
             }
+
         });
     });
 
@@ -418,20 +462,44 @@ $(document).ready(function () {
             error: function (xhr) {
                 $('#kt_modal_add_coupon_submit').prop('disabled', false).html('Add Coupon');
                 $('#kt_modal_add_coupon_cancel').prop('disabled', false);
+
                 let errors = xhr.responseJSON.errors;
-                let errorMsg = "Validation failed.";
+
+                // Clear previous errors
+                $('.text-danger').html('');
+                $('.form-control, .form-check-input').removeClass('is-invalid');
+
                 if (errors) {
-                    errorMsg = Object.values(errors).join("\n");
+                    $.each(errors, function (key, value) {
+                        $('#error-' + key).html(value[0]);
+
+                        // Highlight the input field
+                        const input = $('[name="' + key + '"]');
+                        input.addClass('is-invalid');
+
+                        // 🔄 Add live validation remover
+                        input.on('input change', function () {
+                            $(this).removeClass('is-invalid');
+                            $('#error-' + key).html('');
+                        });
+                    });
                 }
-                Swal.fire({
-                    title: "Validation Error",
-                    text: errorMsg,
-                    icon: "warning",
-                    confirmButtonText: "OK"
-                });
             }
+
+
         });
     });
+    $('#kt_modal_add_coupon, #kt_modal_edit_coupon').on('hidden.bs.modal', function () {
+        // Reset form
+        $('#coupon_add_form')[0].reset();
+
+        // Clear validation error messages
+        $('.text-danger').html('');
+
+        // Remove red borders
+        $('.form-control, .form-check-input').removeClass('is-invalid');
+    });
+
 });
 </script>
 @endsection
