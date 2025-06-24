@@ -1157,7 +1157,7 @@ class RetailerOrderController extends Controller
                         $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
                         $updateData['courier_service'] = $request->courier_service;
                         $updateData['courier_partner_id'] = $active_courier_partners->id;
-                        $updateData['courier_partner_code'] = 'lorrigo';
+                        $updateData['courier_partner_code'] = $active_courier_partners->code;
 
                         $pdf = PDF::loadView('pdf.lorrigo-order-shipping-label', [
                             'courier_service_response' => $createshipment['order']['awb'],

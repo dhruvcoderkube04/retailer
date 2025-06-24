@@ -353,7 +353,7 @@ class RetailerAccountTransactionController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('accounts.success-accounts.withdrawal-request', compact('withdrawal_transactions', 'user'));
+        return view('accounts.withdrawal-request.index', compact('withdrawal_transactions', 'user'));
     }
 
     // AJAX - server-side datatable fetch-records of withdrawal transactions
@@ -376,6 +376,7 @@ class RetailerAccountTransactionController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('request_amount', 'like', '%' . $search . '%')
                     ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('transaction_id', 'like', '%' . $search . '%')
                     ->orWhere('created_at', 'like', '%' . $search . '%')
                     ->orWhere('remarks', 'like', '%' . $search . '%');
             });
@@ -426,6 +427,7 @@ class RetailerAccountTransactionController extends Controller
 
             $data[] = array(
                 "transaction_type" => $transaction_type,
+                "transaction_id" => $item->transaction_id ?? 'N/A',
                 "remarks" => $remarks,
                 "created_at" => $item->created_at ? $item->created_at->format('M d, Y h:i A') : 'N/A',
                 "request_amount" => $request_amount,
@@ -466,11 +468,16 @@ class RetailerAccountTransactionController extends Controller
                 'type' => 'success'
             ]);
 
+            do {
+                $unique_transaction_id = substr(time(), 0, 10);
+            } while (WithdrawalRequest::where('transaction_id', $unique_transaction_id)->exists());
+
             WithdrawalRequest::create([
                 'user_id' => $user->id,
                 'user_type' => 'retailer',
                 'request_amount' => $request->request_amount,
                 'remarks' => $request->remarks ?? null,
+                'transaction_id' => $unique_transaction_id,
                 'account_transaction_id' => $accountTransaction->id
             ]);
 

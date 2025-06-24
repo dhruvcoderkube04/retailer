@@ -56,4 +56,25 @@ class CourierServiceManager
 
         return $services;
     }
+
+    public static function getAllServicesForTracking(): array
+    {
+        $partners = CourierPartner::all(); // Fetch all, active and inactive
+        $services = [];
+
+        foreach ($partners as $partner) {
+            $service = match ($partner->code) {
+                'fship'        => new FShipService($partner->toArray()),
+                'lorrigotest'  => new LorrigoService($partner->toArray()),
+                'lorrigolive'  => new LorrigoServiceLive($partner->toArray()),
+                default        => null,
+            };
+
+            if ($service) {
+                $services[$partner->code] = $service;
+            }
+        }
+
+        return $services;
+    }
 }

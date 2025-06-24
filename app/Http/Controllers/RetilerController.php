@@ -2104,7 +2104,10 @@ class RetilerController extends Controller
                 ]);
             }
 
-            if (in_array($request->code_1, $expectedCode) && in_array($request->code_2, $expectedCode)) {
+            $inputCodes = [$request->code_1, $request->code_2];
+            sort($inputCodes);
+            sort($expectedCode);
+            if ($inputCodes === $expectedCode) {
                 $userDetail->wallet_status = 'approved';
                 $userDetail->bank_details_verified_at = Carbon::now();
                 $userDetail->save();

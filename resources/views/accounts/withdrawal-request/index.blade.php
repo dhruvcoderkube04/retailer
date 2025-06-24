@@ -134,6 +134,7 @@
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                 <th class="text-center align-middle"></th>
+                                                <th class="text-center align-middle">Transaction ID</th>
                                                 <th class="text-center align-middle">Date & Time</th>
                                                 <th class="text-center align-middle">Remarks</th>
                                                 <th class="text-center align-middle w-120px">Request Amount</th>
@@ -321,6 +322,10 @@
                     data: 'transaction_type',
                     orderable: false,
                     searchable: false
+                },
+                {
+                    data: 'transaction_id',
+                    className: 'text-center',
                 },
                 {
                     data: 'created_at',
