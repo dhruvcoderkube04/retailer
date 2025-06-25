@@ -103,6 +103,7 @@
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
                                 <div>
+                                    <a href="{{ route('retailer.order.list', 'transferred-to-wholesaler') }}">
                                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                                         <i class="ki-duotone ki-exit-right fs-2hx text-primary mb-3">
                                             <span class="path1"></span><span class="path2"></span>
@@ -112,6 +113,7 @@
                                         </span>
                                         <span class="fw-semibold fs-5 text-gray-500 mt-2">Transfer To Wholesaler</span>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
