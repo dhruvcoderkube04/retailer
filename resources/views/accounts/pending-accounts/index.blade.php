@@ -27,8 +27,8 @@
                     </div>
                 </div>
 
-                <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container ">
+                <div id="kt_app_content" class="app-content flex-column-fluid my-5">
+                    <div id="kt_app_content_container" class="app-container mx-auto">
 
                         <div class="card mb-2 pb-5 mb-xl-5">
                             <div class="card-body pt-9 pb-0">
@@ -147,7 +147,7 @@
 
 
                         <div class="card card-flush">
-                            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
                                 <div class="card-title">
                                     <div class="d-flex align-items-center w-100 w-sm-auto">
                                         <div class="input-group mw-250px bg-secondary">
@@ -267,8 +267,8 @@
     @else
         <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
             <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container">
+                <div id="kt_app_content" class="app-content flex-column-fluid my-7">
+                    <div id="kt_app_content_container" class="app-container mx-auto">
 
                         <div
                             class="alert alert-dismissible bg-light-danger d-flex align-items-start flex-column flex-sm-row p-5 mb-10">

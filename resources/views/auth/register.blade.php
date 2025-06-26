@@ -105,14 +105,14 @@
                                     <div class="mb-1">
                                         <!--begin::Input wrapper-->
                                         <div class="position-relative mb-3">
-                                            <input class="form-control bg-transparent" type="password"
-                                                placeholder="Password" name="password" autocomplete="off" />
-                                            <span
-                                                class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2"
-                                                data-kt-password-meter-control="visibility">
-                                                <i class="ki-duotone ki-eye-slash fs-2"></i>
-                                                <i class="ki-duotone ki-eye fs-2 d-none"></i>
+                                            <input id="password_input" type="password" name="password" placeholder="Password"
+                                                class="form-control bg-transparent pe-10" autocomplete="off" />
+
+                                            <span class="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
+                                                onclick="togglePassword(this)" data-target="password_input">
+                                                <i class="fa fa-eye-slash text-muted"></i>
                                             </span>
+
                                             @error('password')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
@@ -139,14 +139,18 @@
                                 </div>
                                 <!--end::Input group=-->
                                 <!--end::Input group=-->
-                                <div class="fv-row mb-8">
-                                    <!--begin::Repeat Password-->
-                                    <input placeholder="Repeat Password" name="password_confirmation" type="password"
-                                        autocomplete="off" class="form-control bg-transparent" />
+                               <div class="position-relative fv-row mb-8">
+                                    <input id="repeat_password_input" type="password" name="password_confirmation" placeholder="Repeat Password"
+                                        class="form-control bg-transparent pe-10" autocomplete="off" />
+
+                                    <span class="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
+                                        onclick="togglePassword(this)" data-target="repeat_password_input">
+                                        <i class="fa fa-eye-slash text-muted"></i>
+                                    </span>
+
                                     @error('password_confirmation')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
-                                    <!--end::Repeat Password-->
                                 </div>
                                 <!--end::Input group=-->
                                 <!--begin::Accept-->
@@ -193,4 +197,21 @@
         </div>
         <!--end::Authentication - Sign-up-->
     </div>
+    <script>
+        function togglePassword(element) {
+            const inputId = element.getAttribute('data-target');
+            const input = document.getElementById(inputId);
+            const icon = element.querySelector('i');
+    
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    </script>
 @endsection

@@ -67,10 +67,14 @@ Sing-in Retailer | TechtrendMart
                                 <!--end::Email-->
                             </div>
                             <!--end::Input group=-->
-                            <div class="fv-row mb-3">
-                                <!--begin::Password-->
-                                <input type="password" placeholder="Password" name="password" autocomplete="off" class="form-control bg-transparent" required />
-                                <!--end::Password-->
+                            <div class="fv-row mb-3 position-relative">
+                                <input type="password" placeholder="Password" name="password" autocomplete="off"
+                                    class="form-control bg-transparent pe-10" id="password_input" required />
+
+                                <span class="position-absolute top-50 end-0 translate-middle-y me-6 cursor-pointer"
+                                    onclick="togglePasswordVisibility()">
+                                    <i id="password_icon" class="fa fa-eye-slash text-muted"></i>
+                                </span>
                             </div>
                             <!--end::Input group=-->
                             <!--begin::Wrapper-->
@@ -112,4 +116,20 @@ Sing-in Retailer | TechtrendMart
     </div>
     <!--end::Authentication - Sign-in-->
 </div>
+<script>
+    function togglePasswordVisibility() {
+        const input = document.getElementById('password_input');
+        const icon = document.getElementById('password_icon');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    }
+</script>
 @endsection

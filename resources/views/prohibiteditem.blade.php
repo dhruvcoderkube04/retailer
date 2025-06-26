@@ -5,8 +5,8 @@
 @section('content')
     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
         <div class="d-flex flex-column flex-column-fluid">
-            <div id="kt_app_content" class="app-content flex-column-fluid">
-                <div id="kt_app_content_container" class="app-container ">
+            <div id="kt_app_content" class="app-content flex-column-fluid my-5">
+                <div id="kt_app_content_container" class="app-container mx-auto">
                     <div class="card">
                         <div class="card-body p-10 p-lg-15">
                             <div class="mb-13">

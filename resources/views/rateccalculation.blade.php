@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-   <div class="app-container  mt-5">
+   <div class="app-container mt-5">
 
       <form id="rate_calculator_form" class="form">
          @csrf

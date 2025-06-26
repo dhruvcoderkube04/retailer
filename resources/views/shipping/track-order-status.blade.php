@@ -5,14 +5,10 @@
 
 @section('content')
     <!--begin::Content-->
-    <div id="kt_app_content" class="app-content flex-column-fluid">
-        <!--begin::Content container-->
-        <div id="kt_app_content_container" class="app-container ">
-
-            <!--begin::Check Delivery Availability-->
-            <div class="card mb-5 mb-xl-10">
-                <!--begin::Card header-->
-                <div class="card-header card-header-stretch pb-0">
+<div id="kt_app_content" class="app-content flex-column-fluid my-5">
+    <div id="kt_app_content_container" class="app-container mx-auto">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
                     <div class="card-title">
                         <h3 class="m-0">Track Your Order Status</h3>
                     </div>

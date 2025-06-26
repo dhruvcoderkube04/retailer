@@ -46,7 +46,7 @@ Forgot Password | TechtrendMart
                     @endif
 
                     <div class="d-flex flex-center flex-column flex-column-fluid pb-15 pb-lg-20">
-                        <form class="form w-100" novalidate="novalidate" id="kt_forgot_password_form" action="{{ route('retailer.password.email') }}" method="POST">
+                        <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" action="{{ route('retailer.password.email') }}" method="POST">
                             @csrf
 
                             <div class="text-center mb-11">
@@ -56,6 +56,9 @@ Forgot Password | TechtrendMart
 
                             <div class="fv-row mb-8">
                                 <input type="email" placeholder="Email" name="email" autocomplete="off" class="form-control bg-transparent" required />
+                                 @error('email')
+                                    <div class="text-danger mt-2">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="d-grid mb-10">

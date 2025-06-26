@@ -57,12 +57,36 @@ Reset Password | TechtrendMart
                                 <p class="text-gray-500 fw-semibold fs-6">Enter a new password to access your account</p>
                             </div>
                             <input type="hidden" name="email" value="{{ $email }}"  required />
-                            <div class="fv-row mb-8">
-                                <input type="password" placeholder="New Password" name="password" autocomplete="off" class="form-control bg-transparent" required />
+                           <!-- New Password Field -->
+                            <div class="position-relative fv-row mb-8">
+                                <input type="password" placeholder="New Password" name="password"
+                                    autocomplete="off" class="form-control bg-transparent pe-10" required
+                                    id="new_password" />
+
+                                <span class="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
+                                    onclick="togglePassword(this)" data-target="new_password">
+                                    <i class="fa fa-eye-slash text-muted"></i>
+                                </span>
+
+                                @error('password')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
 
-                            <div class="fv-row mb-8">
-                                <input type="password" placeholder="Confirm Password" name="password_confirmation" autocomplete="off" class="form-control bg-transparent" required />
+                            <!-- Confirm Password Field -->
+                            <div class="position-relative fv-row mb-8">
+                                <input type="password" placeholder="Confirm Password" name="password_confirmation"
+                                    autocomplete="off" class="form-control bg-transparent pe-10" required
+                                    id="confirm_password" />
+
+                                <span class="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer"
+                                    onclick="togglePassword(this)" data-target="confirm_password">
+                                    <i class="fa fa-eye-slash text-muted"></i>
+                                </span>
+
+                                @error('password_confirmation')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div class="d-grid mb-10">
@@ -85,4 +109,21 @@ Reset Password | TechtrendMart
         </div>
     </div>
 </div>
+<script>
+    function togglePassword(element) {
+        const inputId = element.getAttribute('data-target');
+        const input = document.getElementById(inputId);
+        const icon = element.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    }
+</script>
 @endsection
