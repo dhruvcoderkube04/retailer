@@ -84,7 +84,13 @@ Route::middleware(['retailer'])->group(function () {
     Route::get('/my-product', [RetilerController::class, 'myProduct'])->name('retailer.my.product'); // product list view
     Route::get('/my-wholesaler-product', [RetilerController::class, 'myWholesalerProduct'])->name('retailer.my.wholesaler.product'); // product list view
 
+
     Route::post('/wholesalers-product/fetch-record', [RetilerController::class, 'fetchRecordWholesalersProduct'])->name('retailer.wholesalers-product.fetch-record'); // AJAX : datatable - wholesaler's product
+    Route::get('/my-wholesaler-product/edit/{product_id}', [RetilerController::class, 'editMyWholesalerProduct'])->name('retailer.my.wholesaler.product.edit');
+    Route::post('/my-wholesaler-product/update/{product_id}', [RetilerController::class, 'updateMyWholesalerProduct'])->name('retailer.my.wholesaler.product.update');
+    Route::delete('/my-wholesaler-product/remove', [RetilerController::class, 'removeMyWholesalerProduct'])->name('retailer.my.wholesaler.product.remove');
+    Route::post('/my-wholesaler-product/change-status', [RetilerController::class, 'changeStatusMyWholesalerProduct'])->name('retailer.my.wholesaler.product.change-status');
+
     Route::post('/retailer-clone-available-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneAvailableProduct'])->name('retailer.retailer-clone-available-product.fetch-record'); // AJAX : datatable - retailer's clone/own available product
     Route::post('/retailer-clone-unavailable-product/fetch-record', [RetilerController::class, 'fetchRecordRetailerCloneUnavailableProduct'])->name('retailer.retailer-clone-unavailable-product.fetch-record'); // AJAX : datatable - retailer's clone/own unavailable product
     Route::post('/retailer-clone-product/change-status', [RetilerController::class, 'changeProductStatus'])->name('retailer.retailer-clone-product.change-status');

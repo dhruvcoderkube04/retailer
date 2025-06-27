@@ -370,7 +370,7 @@
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <a href="{{ route('retailer.product') }}" id="kt_ecommerce_add_product_cancel"
+                                <a href="{{ route('retailer.my.product') }}" id="kt_ecommerce_add_product_cancel"
                                     class="btn btn-danger me-5">Cancel</a>
                                 <button type="submit" id="kt_ecommerce_add_product_submit" class="btn btn-primary">
                                     <span class="indicator-label">Add Product</span>

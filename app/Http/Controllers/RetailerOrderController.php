@@ -414,25 +414,25 @@ class RetailerOrderController extends Controller
         $data = [];
         $i = $page;
         foreach ($orders as $item) {
-                $i++;
+            $i++;
 
-                $stageDateField = $stageDateMap[$type];
-                $order_date = '<div class="row">
+            $stageDateField = $stageDateMap[$type];
+            $order_date = '<div class="row">
                     <div class="col-12 mb-2">
                         <strong>Order Date:</strong><br>
                         <span>' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
                     </div>';
 
-                if ($type !== 'new') {
-                    $order_date .= '
+            if ($type !== 'new') {
+                $order_date .= '
                     <div class="col-12">
                         <strong>' . $typeNameMap[$type] . ' At:</strong><br>
                         <span>' . date('F d, Y, h:i a', strtotime($item->$stageDateField)) . '</span>
                     </div>';
-                }
-                $order_date .= '</div>';
+            }
+            $order_date .= '</div>';
 
-                $order_detail = '<div class="p-3">
+            $order_detail = '<div class="p-3">
                     <table class="table table-sm mb-0">
                         <tr>
                             <td style="width: 30%; padding: 0 !important;"><strong>Order Id:</strong></td>
@@ -442,27 +442,27 @@ class RetailerOrderController extends Controller
                             <td style="width: 30%; padding: 0 !important;"><strong>Name:</strong></td>
                             <td style="padding: 0 !important;" class="text-start">' . ($item?->order_product_detail?->name ?? '') . '</td>
                         </tr>';
-                if ($item->product_variation) {
-                    $order_detail .= '
+            if ($item->product_variation) {
+                $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Variation:</strong></td>
                             <td style="padding: 0 !important;" class="text-start">
                                 <span class="badge badge-light-success">' . $item->product_variation . '</span>
                             </td>
                         </tr>';
-                }
+            }
 
-                $order_detail .= '
+            $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Quantity:</strong></td>
                             <td style="padding: 0 !important;" class="text-start">
                                 <span class="badge badge-light-secondary">' . $item->quantity . '</span>';
-                if ($item->size) {
-                    $order_detail .= ' | Size: ' . $item->size;
-                }
-                $order_detail .= '</td></tr>';
-                if (!empty($item->appliedCoupon)) {
-                    $order_detail .= '
+            if ($item->size) {
+                $order_detail .= ' | Size: ' . $item->size;
+            }
+            $order_detail .= '</td></tr>';
+            if (!empty($item->appliedCoupon)) {
+                $order_detail .= '
                         <tr>
                             <td style="width: 30%; padding: 0 !important;"><strong>Coupon Code:</strong></td>
                             <td style="padding: 0 !important;" class="text-start">
@@ -475,9 +475,9 @@ class RetailerOrderController extends Controller
                                 <span class="badge badge-light-success">₹' . $item->appliedCoupon->discount . '</span>
                             </td>
                         </tr>';
-                }
+            }
 
-                $order_detail .= '
+            $order_detail .= '
                         <tr>
                             <td style="width: 30%; padding: 0 !important;"><strong>Amount:</strong></td>
                             <td style="padding: 0 !important;" class="text-start">
@@ -489,8 +489,8 @@ class RetailerOrderController extends Controller
                             <td style="padding: 0 !important;" class="text-start">' . strtoupper($item->payment_method) . '</td>
                         </tr>';
 
-                if ($type == 'transferred-to-wholesaler') {
-                    $order_detail .= '
+            if ($type == 'transferred-to-wholesaler') {
+                $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Order Status:</strong></td>
                             <td style="padding: 0 !important;">
@@ -503,31 +503,31 @@ class RetailerOrderController extends Controller
                                 <span class="badge badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
                             </td>
                         </tr>';
-                    if ($item->status == 'cancel') {
-                        $order_detail .= '
+                if ($item->status == 'cancel') {
+                    $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Cancel Reason:</strong></td>
                             <td style="padding: 0 !important;" class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</td>
                         </tr>';
-                    }
-                } else {
-                    $order_detail .= '
+                }
+            } else {
+                $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Order Status:</strong></td>
                             <td style="padding: 0 !important;">
                                 <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span>
                             </td>
                         </tr>';
-                    if ($item->status == 'cancel') {
-                        $order_detail .= '
+                if ($item->status == 'cancel') {
+                    $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Cancel Reason:</strong></td>
                             <td style="padding: 0 !important;" class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</td>
                         </tr>';
-                    }
                 }
+            }
 
-                $order_detail .= '
+            $order_detail .= '
                         <tr>
                             <td style="padding: 0 !important;"><strong>Tracking Id:</strong></td>
                             <td style="padding: 0 !important;">' . ($item->tracking_number ?? 'N/A') . '</td>
@@ -538,8 +538,8 @@ class RetailerOrderController extends Controller
                         </tr>
                     </table>';
 
-                if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
-                    $order_detail .= '
+            if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+                $order_detail .= '
                     <div class="mt-2">
                         <a href="' . $item->shipping_label_url . '" target="_blank">
                             <i class="fa-solid fa-download me-1"></i> Shipping Label
@@ -550,44 +550,44 @@ class RetailerOrderController extends Controller
                             <i class="fa-solid fa-upload me-1"></i> Upload Pickup Image
                         </a>
                     </div>';
-                }
+            }
 
-                $order_detail .= '</div>';
+            $order_detail .= '</div>';
 
-                $imagePath = explode(',', $item->order_product_detail->images)[0] ?? null;
-                $media = '<div class="text-center">
+            $imagePath = explode(',', $item->order_product_detail->images)[0] ?? null;
+            $media = '<div class="text-center">
                     <img src="' . ($imagePath ? Storage::disk('spaces')->url($imagePath) : asset('assets/media/images/no_image.jpg')) . '"
                         onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
                         alt="Product Image"
                         class="img-fluid rounded" style="max-width: 100px;">
                 </div>';
 
-                $customer_detail = '<div class="p-3"><table class="table table-sm mb-0">';
-                $customer_detail .= '
+            $customer_detail = '<div class="p-3"><table class="table table-sm mb-0">';
+            $customer_detail .= '
                     <tr><td style="padding: 0 !important;"><strong>Name:</strong></td><td style="padding: 0 !important;">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</td></tr>
                     <tr><td style="padding: 0 !important;"><strong>Email Id:</strong></td><td style="padding: 0 !important;">' . $item->customer->email . '</td></tr>
                     <tr><td style="padding: 0 !important;"><strong>Address:</strong></td><td style="padding: 0 !important;">' . $item->customer->address . '</td></tr>
                     <tr><td style="padding: 0 !important;"><strong>Pin Code:</strong></td><td style="padding: 0 !important;">' . $item->customer->pincode . '</td></tr>
                     <tr><td style="padding: 0 !important;"><strong>City:</strong></td><td style="padding: 0 !important;">' . $item->customer->city . '</td></tr>
                     <tr><td style="padding: 0 !important;"><strong>Mobile no:</strong></td><td style="padding: 0 !important;">' . $item->customer->phone_number . '</td></tr>';
-                $customer_detail .= '</table></div>';
+            $customer_detail .= '</table></div>';
 
-                $wholesaler_detail = '';
-                if ($item->wholesaler) {
-                    $wholesaler = $item->wholesaler;
-                    $wholesaler_detail = '<div class="p-3"><table class="table table-sm mb-0">';
-                    $wholesaler_detail .= '
+            $wholesaler_detail = '';
+            if ($item->wholesaler) {
+                $wholesaler = $item->wholesaler;
+                $wholesaler_detail = '<div class="p-3"><table class="table table-sm mb-0">';
+                $wholesaler_detail .= '
                         <tr><td style="padding: 0 !important;"><strong>Wholesaler Name:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</td></tr>
                         <tr><td style="padding: 0 !important;"><strong>Email Id:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->email ?? '') . '</td></tr>
                         <tr><td style="padding: 0 !important;"><strong>Address:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->userDetail->address ?? '') . '</td></tr>
                         <tr><td style="padding: 0 !important;"><strong>Pin Code:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->userDetail->postal_code ?? '') . '</td></tr>
                         <tr><td style="padding: 0 !important;"><strong>City:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->userDetail->city ?? '') . '</td></tr>
                         <tr><td style="padding: 0 !important;"><strong>Mobile no:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->phone_number ?? '') . '</td></tr>';
-                    $wholesaler_detail .= '</table></div>';
-                }
+                $wholesaler_detail .= '</table></div>';
+            }
 
-                $action = '<div class="d-flex justify-content-center gap-2">';
-                $common_attrs = '
+            $action = '<div class="d-flex justify-content-center gap-2">';
+            $common_attrs = '
                     data-order-product-id="' . $item->order_product_id . '"
                     data-product-id="' . $item->product_id . '"
                     data-retailer-clone-product-id="' . $item->retailer_clone_product_id . '"
@@ -596,20 +596,20 @@ class RetailerOrderController extends Controller
                 data-product-pincode="' . $item->customer->pincode . '"
                     data-c-order-id="' . $item->order_id . '"';
 
-                if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
-                    $action .= '<button type="button" class="btn btn-primary btn-sm newOrderAction"' . $common_attrs . '>Action</button>';
-                } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
-                    $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
-                } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
-                    $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . '>Action</button>';
-                } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
-                    $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . '>Action</button>';
-                } else {
-                    $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
-                }
+            if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button" class="btn btn-primary btn-sm newOrderAction"' . $common_attrs . '>Action</button>';
+            } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
+            } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . '>Action</button>';
+            } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . '>Action</button>';
+            } else {
+                $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
+            }
 
-                if ($type !== 'transferred-to-wholesaler') {
-                    $action .= '<button type="button"
+            if ($type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button"
                         class="btn btn-icon btn-dark btn-active-light-dark w-30px h-30px raise-issue"
                         data-id="' . $item->order_id . '"
                         data-bs-toggle="tooltip" title="Raise an issue">
@@ -619,7 +619,7 @@ class RetailerOrderController extends Controller
                         <span class="path5"></span><span class="path6"></span><span class="path7"></span>
                         </i>
                     </button>';
-                }
+            }
 
 
             $action .= '</div>';
@@ -630,7 +630,7 @@ class RetailerOrderController extends Controller
                 'order_detail' => $order_detail,
                 'media' => $media,
                 'customer_detail' => $customer_detail,
-                'wholesaler_detail'=> $wholesaler_detail,
+                'wholesaler_detail' => $wholesaler_detail,
                 'action' => $action,
             );
         }
@@ -1238,9 +1238,18 @@ class RetailerOrderController extends Controller
             $marginFetch = RetailerProducts::where('retailer_id', $retailer->id)
                 ->where('wholesaler_id', $customerOrder->order_product_detail->wholesaler_id)
                 ->where('sub_category_id', $customerOrder->order_product_detail->sub_category_id)
+                ->where('product_id', $customerOrder->product_id)
+                ->where('product_status', 'active')
                 ->first();
+            if (!$marginFetch || !$marginFetch->margin) {
+                $marginFetch = RetailerProducts::where('retailer_id', $retailer->id)
+                    ->where('wholesaler_id', $customerOrder->order_product_detail->wholesaler_id)
+                    ->where('sub_category_id', $customerOrder->order_product_detail->sub_category_id)
+                    ->whereNull('product_id')
+                    ->first();
+            }
 
-            if (!$marginFetch) {
+            if (!$marginFetch || !$marginFetch->margin) {
                 return [false, 'Product category margin not added, Please go to Wholesaler section and add margin first', 'delivered'];
             }
 

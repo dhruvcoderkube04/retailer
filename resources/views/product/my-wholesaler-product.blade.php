@@ -69,9 +69,8 @@
                                     <div class="col-12 col-md-3">
                                         <label for="wholesaler_filter"
                                             class="form-label fw-semibold mb-1">Wholesaler</label>
-                                        <select id="wholesaler_filter"
-                                            class="form-select form-select-solid bg-secondary" data-control="select2"
-                                            data-placeholder="Select Wholesaler">
+                                        <select id="wholesaler_filter" class="form-select form-select-solid bg-secondary"
+                                            data-control="select2" data-placeholder="Select Wholesaler">
                                             <option value="all">All Wholesaler</option>
                                             @foreach ($wholesalers as $wholesaler)
                                                 <option value="{{ $wholesaler->id }}">
@@ -216,5 +215,103 @@
                 dataTable.ajax.reload();
             });
             //<------------- END : server-side datatable for margin added products ------------->
+
+            $(document).ready(function() {
+                //<-------- START : change product status from product-list ----------->
+                $(document).on('change', '.changeStatusToggle', function() {
+                    let productId = $(this).data('product-id');
+                    let wholesalerId = $(this).data('wholesaler-id');
+                    let subCategoryId = $(this).data('sub-category-id');
+                    let margin = $(this).data('margin');
+                    let paymentMethod = $(this).data('payment-method');
+                    let newStatus = $(this).is(':checked') ? 'active' : 'inactive';
+
+                    $.ajax({
+                        url: "{{ route('retailer.my.wholesaler.product.change-status') }}",
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            product_id: productId,
+                            wholesaler_id: wholesalerId,
+                            sub_category_id: subCategoryId,
+                            margin: margin,
+                            payment_method: paymentMethod,
+                            status: newStatus
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Status Updated',
+                                text: response.message,
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+
+                            $('#kt_datatable_margin_added_products')
+                                .DataTable().ajax
+                                .reload(null, false);
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Could not update status.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+
+                            Swal.fire('Error', errorMsg, 'error');
+                        }
+                    });
+                });
+                //<-------- END : change product status from product-list ----------->
+
+                //<----------------- START : delete product ---------------->
+                $(document).on('click', '.remove-wholesaler-product', function() {
+                    let productId = $(this).data("id");
+                    let wholesalerId = $(this).data("wholesaler-id");
+                    let subCategoryId = $(this).data("sub-category-id");
+
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ route('retailer.my.wholesaler.product.remove') }}",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    _method: "DELETE",
+                                    product_id: productId,
+                                    wholesaler_id: wholesalerId,
+                                    sub_category_id: subCategoryId,
+                                },
+                                success: function(response) {
+                                    Swal.fire({
+                                        icon: response.status ? 'success' : 'error',
+                                        title: response.status ? 'Deleted!' :
+                                            'Error',
+                                        text: response.message,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                    if (response.status) {
+                                        $('#kt_datatable_margin_added_products')
+                                            .DataTable().ajax
+                                            .reload(null, false);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    Swal.fire('Oops...', 'Something went wrong.', 'error');
+                                }
+                            });
+                        }
+                    });
+                });
+                //<----------------- END : delete product ---------------->
+            });
         </script>
     @endsection

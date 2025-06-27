@@ -10,10 +10,24 @@ class RetailerProducts extends Model
     use HasFactory;
 
     protected $fillable = [
-        'retailer_id', 'wholesaler_id', 'sub_category_id', 'margin', 'payment_method', 'notes'
+        'retailer_id',
+        'wholesaler_id',
+        'sub_category_id',
+        'product_id',
+        'product_name',
+        'product_slug',
+        'product_description',
+        'product_images',
+        'product_videos',
+        'product_status',
+        'is_deleted_product',
+        'margin',
+        'payment_method',
+        'notes'
     ];
 
-    public function retailer() {
+    public function retailer()
+    {
         return $this->belongsTo(User::class, 'retailer_id')->where('user_type', 3);
     }
 
@@ -27,8 +41,13 @@ class RetailerProducts extends Model
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 
-    public function products()
+    // public function products()
+    // {
+    //     return $this->hasMany(Product::class, 'wholesaler_id', 'wholesaler_id');
+    // }
+
+    public function product()
     {
-        return $this->hasMany(Product::class, 'wholesaler_id', 'wholesaler_id');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 }

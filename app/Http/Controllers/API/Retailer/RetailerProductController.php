@@ -170,9 +170,15 @@ class RetailerProductController extends Controller
             // <---------------- get product data ---------------------->
             $retailerProducts = collect();
             $retailerSubscribedProducts = collect();
+            $retailerEditedProducts = collect();
             if ($retailerUser->is_all_wholesaler_visible == 1) {
-                $retailerSubscribedProducts = RetailerProducts::where('retailer_id', $retailerId)->get();
+                $retailerProductQuery = RetailerProducts::where('retailer_id', $retailerId)->get();
 
+                // to get edited wholesaler products-list
+                $retailerEditedProducts = $retailerProductQuery->whereNotNull('product_id')->values();
+
+                // to get non-edited wholesaler products
+                $retailerSubscribedProducts = $retailerProductQuery->whereNull('product_id')->values();
                 $retailerProducts = $retailerSubscribedProducts->flatMap(function ($data) {
                     return Product::with('productVariations:id,product_id,product_variation,old_price,price,stock')
                         ->where('wholesaler_id', $data->wholesaler_id)
@@ -189,19 +195,27 @@ class RetailerProductController extends Controller
 
             $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
 
-            // $categoryIds = is_array($request->category) ? $request->category : json_decode($request->category, true) ?? [];
             $subCategoryIds = $request->sub_category ? explode(',', $request->sub_category) : '';
             $minPrice = (float) $request->min_price;
             $maxPrice = (float) $request->max_price;
 
             // <---------------- map product data ---------------------->
-            $products = $allProducts->map(function ($item) use ($retailerSubscribedProducts) {
+            $products = $allProducts->map(function ($item) use ($retailerSubscribedProducts, $retailerEditedProducts) {
                 $margin = 0;
-
-                foreach ($retailerSubscribedProducts as $pair) {
-                    if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
-                        $margin = $pair->margin;
-                        break;
+                foreach ($retailerEditedProducts as $editedProduct) {
+                    if ($item->id == $editedProduct->product_id) {
+                        if ($editedProduct->margin) {
+                            $margin = $editedProduct->margin;
+                            break;
+                        }
+                    }
+                }
+                if ($margin == 0) {
+                    foreach ($retailerSubscribedProducts as $pair) {
+                        if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
+                            $margin = $pair->margin;
+                            break;
+                        }
                     }
                 }
 
@@ -224,11 +238,16 @@ class RetailerProductController extends Controller
                 $subCategoryIds,
                 $minPrice,
                 $maxPrice,
+                $retailerEditedProducts,
             ) {
-                //<------ FILTER - category ------>
-                // if (!empty($categoryIds) && !in_array((int)$item->category_id, array_map('intval', $categoryIds))) {
-                //     return false;
-                // }
+                //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
+                foreach ($retailerEditedProducts as $editedProduct) {
+                    if ($item->id == $editedProduct->product_id) {
+                        if ($editedProduct->product_status == 'inactive' || $editedProduct->is_deleted_product == 1) {
+                            return false;
+                        }
+                    }
+                }
 
                 //<------ FILTER - sub_category ------>
                 if (!empty($subCategoryIds) && !in_array($item->sub_category_id, $subCategoryIds)) {
@@ -238,10 +257,11 @@ class RetailerProductController extends Controller
                 //<------ FILTER - min_price ------>
                 if ($minPrice) {
                     if (!empty($item->productVariations) && $item->productVariations->isNotEmpty()) {
-                        foreach ($item->productVariations as $variation) {
-                            if ($variation->final_price < $minPrice) {
-                                return false;
-                            }
+                        $hasMinMatch = $item->productVariations->contains(function ($variation) use ($minPrice) {
+                            return $variation->final_price >= $minPrice;
+                        });
+                        if (!$hasMinMatch) {
+                            return false;
                         }
                     } else {
                         if ($item->final_price < $minPrice) {
@@ -253,10 +273,11 @@ class RetailerProductController extends Controller
                 //<------ FILTER - max_price ------>
                 if ($maxPrice) {
                     if (!empty($item->productVariations) && $item->productVariations->isNotEmpty()) {
-                        foreach ($item->productVariations as $variation) {
-                            if ($variation->final_price > $maxPrice) {
-                                return false;
-                            }
+                        $hasMaxMatch = $item->productVariations->contains(function ($variation) use ($maxPrice) {
+                            return $variation->final_price <= $maxPrice;
+                        });
+                        if (!$hasMaxMatch) {
+                            return false;
                         }
                     } else {
                         if ($item->final_price > $maxPrice) {
@@ -266,8 +287,8 @@ class RetailerProductController extends Controller
                 }
 
                 return true;
-            })->map(function ($item) {
-                return $this->formatProductFromClone($item, $item->final_price);
+            })->map(function ($item) use ($retailerEditedProducts) {
+                return $this->formatProductFromClone($item, $item->final_price, $retailerEditedProducts);
             })->values();
 
             //<------ Default Filters ------>
@@ -289,13 +310,6 @@ class RetailerProductController extends Controller
                 $products = $products->sortByDesc('created_at')->values();
             }
 
-            // <--------- get category and sub-category list as per product data ------------>
-            // $categoryIds = $products->pluck('category_id')->filter()->unique();
-            // $categories = Category::select('id', 'category_name')
-            //     ->whereIn('id', $categoryIds)
-            //     ->where('status', 1)
-            //     ->get();
-
             $subCategoryIds = $products->pluck('sub_category_id')->filter()->unique();
             $subCategories = SubCategory::select('id', 'category_id', 'sub_category_name')
                 ->whereIn('id', $subCategoryIds)
@@ -344,16 +358,16 @@ class RetailerProductController extends Controller
             return response()->json([
                 'success'    => true,
                 'products'   => $paginatedProducts,
-                // 'categories' => $categories,
                 'sub_categories' => $subCategories,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
                 'line'  => $e->getLine(),
                 'file'  => $e->getFile(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
+            // return response()->json(['error' => $e->getMessage(), $e->getLine()], 500);
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
@@ -368,7 +382,6 @@ class RetailerProductController extends Controller
             }
 
             // validate retailer
-
             $retailer = RetailerWebManagement::with([
                 'retailer' => function ($query) {
                     $query->where('is_delete', 0)
@@ -378,8 +391,8 @@ class RetailerProductController extends Controller
                 ->whereHas('retailer', function ($query) {
                     $query->where('is_delete', 0)
                         ->where('status', 1);
-                })->where('product_listing_key', $apiKey)->first();
-
+                })->where('product_listing_key', $apiKey)
+                ->first();
             if (!$retailer) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
@@ -392,12 +405,15 @@ class RetailerProductController extends Controller
 
             // <---------------- get product data ---------------------->
             $retailerProducts = collect();
-
+            $retailerEditedProducts = collect();
             if ($retailerUser->is_all_wholesaler_visible == 1) {
-                $pairs = RetailerProducts::where('retailer_id', $retailerId)
-                    ->select('wholesaler_id', 'sub_category_id', 'margin')
-                    ->get();
+                $retailerProductQuery = RetailerProducts::where('retailer_id', $retailerId)->get();
 
+                // to get edited wholesaler products-list
+                $retailerEditedProducts = $retailerProductQuery->whereNotNull('product_id')->values();
+
+                // to get non-edited wholesaler products
+                $pairs = $retailerProductQuery->whereNull('product_id')->values();
                 $sqlRetailerProducts = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
                     ->where('status', 'active')
                     ->where(function ($query) use ($pairs) {
@@ -409,15 +425,32 @@ class RetailerProductController extends Controller
                         }
                     });
 
-                // 🔍 Search for wholesaler products
+                // search product by its name
+                $searchProductIds = collect();
                 if (!empty($request->search)) {
-                    $sqlRetailerProducts->where('name', 'like', '%' . $request->search . '%');
+                    $searchProductIds = $retailerProductQuery
+                        ->whereNotNull('product_id')
+                        ->filter(function ($item) use ($request) {
+                            return stripos($item->product_name, $request->search) !== false;
+                        })
+                        ->pluck('product_id')
+                        ->unique()
+                        ->values();
+                }
+                if (!empty($request->search)) {
+                    $sqlRetailerProducts->where(function ($query) use ($request, $searchProductIds) {
+                        $query->where('name', 'like', '%' . $request->search . '%');
+
+                        if ($searchProductIds->isNotEmpty()) {
+                            $query->orWhereIn('id', $searchProductIds);
+                        }
+                    });
                 }
 
                 $retailerProducts = $sqlRetailerProducts->get();
             }
 
-            // 🛒 Retailer cloned products with search
+            // Retailer cloned products with search
             $sqlRetailerCloneProducts = RetailerCloneProduct::with('productVariations:id,product_id,product_variation,old_price,price,stock')
                 ->where('retailer_id', $retailerId)
                 ->where('status', 'active');
@@ -431,13 +464,22 @@ class RetailerProductController extends Controller
             $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
 
             // <---------------- map product data ---------------------->
-            $products = $allProducts->map(function ($item) use ($pairs) {
+            $products = $allProducts->map(function ($item) use ($pairs, $retailerEditedProducts) {
                 $margin = 0;
-
-                foreach ($pairs as $pair) {
-                    if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
-                        $margin = $pair->margin;
-                        break;
+                foreach ($retailerEditedProducts as $editedProduct) {
+                    if ($item->id == $editedProduct->product_id) {
+                        if ($editedProduct->margin) {
+                            $margin = $editedProduct->margin;
+                            break;
+                        }
+                    }
+                }
+                if ($margin == 0) {
+                    foreach ($pairs as $pair) {
+                        if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
+                            $margin = $pair->margin;
+                            break;
+                        }
                     }
                 }
 
@@ -456,8 +498,18 @@ class RetailerProductController extends Controller
                 }
 
                 return $item;
-            })->map(function ($item) {
-                return $this->formatProductFromClone($item, $item->final_price);
+            })->filter(function ($item) use ($retailerEditedProducts) {
+                //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
+                foreach ($retailerEditedProducts as $editedProduct) {
+                    if ($item->id == $editedProduct->product_id) {
+                        if ($editedProduct->product_status == 'inactive' || $editedProduct->is_deleted_product == 1) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            })->map(function ($item) use ($retailerEditedProducts) {
+                return $this->formatProductFromClone($item, $item->final_price, $retailerEditedProducts);
             })->values();
 
             //<------ Default Filters ------>
@@ -468,13 +520,6 @@ class RetailerProductController extends Controller
                 // out-of-stock products at last
                 fn($a, $b) => ($a['quantity'] == 0) <=> ($b['quantity'] == 0),
             ])->values();
-
-            // <--------- get category and sub-category list as per product data ------------>
-            // $categoryIds = $products->pluck('category_id')->filter()->unique();
-            // $categories = Category::select('id', 'category_name')
-            //     ->whereIn('id', $categoryIds)
-            //     ->where('status', 1)
-            //     ->get();
 
             $subCategoryIds = $products->pluck('sub_category_id')->filter()->unique();
             $subCategories = SubCategory::select('id', 'category_id', 'sub_category_name')
@@ -524,7 +569,6 @@ class RetailerProductController extends Controller
             return response()->json([
                 'success'    => true,
                 'products'   => $paginatedProducts,
-                // 'categories' => $categories,
                 'sub_categories' => $subCategories,
             ]);
         } catch (\Exception $e) {
@@ -541,7 +585,6 @@ class RetailerProductController extends Controller
 
     public function getSingalProductDetails(Request $request, $slug = null)
     {
-
         try {
             //<------------- validate user ---------------->
             $apiKey = $request->header('API-KEY');
@@ -558,7 +601,8 @@ class RetailerProductController extends Controller
                 ->whereHas('retailer', function ($query) {
                     $query->where('is_delete', 0)
                         ->where('status', 1);
-                })->where('product_listing_key', $apiKey)->first();
+                })->where('product_listing_key', $apiKey)
+                ->first();
             if (!$retailer) {
                 return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
             }
@@ -575,38 +619,46 @@ class RetailerProductController extends Controller
 
             // <---------------- get product data ---------------------->
             $retailerSubscribedProducts = collect();
+            $retailerEditedProducts = collect();
             if ($retailerUser->is_all_wholesaler_visible == 1) {
-                $retailerSubscribedProducts = RetailerProducts::where('retailer_id', $retailerId)
-                    ->select('wholesaler_id', 'sub_category_id', 'margin')
-                    ->get();
+                $retailerProductQuery = RetailerProducts::where('retailer_id', $retailerId)->get();
+
+                // to get edited wholesaler products-list
+                $retailerEditedProducts = $retailerProductQuery->whereNotNull('product_id')->values();
+
+                // to get non-edited wholesaler products
+                $retailerSubscribedProducts = $retailerProductQuery->whereNull('product_id')->values();
             }
 
-            $product = null;
-            $cloneProduct = RetailerCloneProduct::with('productVariations:id,product_id,product_variation,old_price,price,stock')
-                ->where('retailer_id', $retailer->retailer_id)
+            $product = RetailerCloneProduct::with('productVariations:id,product_id,product_variation,old_price,price,stock')
+                ->where('retailer_id', $retailerId)
                 ->where('slug', $slug)
                 ->where('status', 'active')
                 ->first();
 
-            if ($cloneProduct) {
-                $product = $cloneProduct;
-            } else {
-                if ($retailerUser->is_all_wholesaler_visible == 1) {
-                    $sqlRetailerProducts = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
-                        ->where('status', 'active')
-                        ->where('slug', $slug)
-                        ->where(function ($query) use ($retailerSubscribedProducts) {
-                            foreach ($retailerSubscribedProducts as $pair) {
-                                $query->orWhere(function ($q) use ($pair) {
-                                    $q->where('wholesaler_id', $pair->wholesaler_id)
-                                        ->where('sub_category_id', $pair->sub_category_id);
-                                });
-                            }
-                        })
+            if (!$product && $retailerUser->is_all_wholesaler_visible == 1) {
+                $product = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
+                    ->where('status', 'active')
+                    ->where('slug', $slug)
+                    ->where(function ($query) use ($retailerSubscribedProducts) {
+                        foreach ($retailerSubscribedProducts as $pair) {
+                            $query->orWhere(fn($q) => $q->where('wholesaler_id', $pair->wholesaler_id)
+                                ->where('sub_category_id', $pair->sub_category_id));
+                        }
+                    })
+                    ->first();
+
+                if (!$product) {
+                    $signleProudct = RetailerProducts::where('product_slug', $slug)
+                        ->where('product_status', 'active')
+                        ->where('is_deleted_product', 0)
                         ->first();
 
-                    if ($sqlRetailerProducts) {
-                        $product = $sqlRetailerProducts;
+                    if ($signleProudct) {
+                        $product = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
+                            ->where('status', 'active')
+                            ->where('id', $signleProudct->product_id)
+                            ->first();
                     }
                 }
             }
@@ -615,13 +667,22 @@ class RetailerProductController extends Controller
                 return response()->json(['error' => 'Product not found.'], 404);
             }
 
-
             $margin = 0;
-            if ($retailerSubscribedProducts->isNotEmpty() && isset($product->wholesaler_id, $product->sub_category_id)) {
-                foreach ($retailerSubscribedProducts as $pair) {
-                    if ($pair->wholesaler_id == $product->wholesaler_id && $pair->sub_category_id == $product->sub_category_id) {
-                        $margin = $pair->margin;
+            foreach ($retailerEditedProducts as $editedProduct) {
+                if ($product->id == $editedProduct->product_id) {
+                    if ($editedProduct->margin) {
+                        $margin = $editedProduct->margin;
                         break;
+                    }
+                }
+            }
+            if ($margin == 0) {
+                if ($retailerSubscribedProducts->isNotEmpty() && isset($product->wholesaler_id, $product->sub_category_id)) {
+                    foreach ($retailerSubscribedProducts as $pair) {
+                        if ($pair->wholesaler_id == $product->wholesaler_id && $pair->sub_category_id == $product->sub_category_id) {
+                            $margin = $pair->margin;
+                            break;
+                        }
                     }
                 }
             }
@@ -642,7 +703,7 @@ class RetailerProductController extends Controller
                 $product->old_price += $margin;
             }
 
-            $formatted_product = $this->formatProductFromClone($product, $product->final_price ?? 0);
+            $formatted_product = $this->formatProductFromClone($product, $product->final_price ?? 0, $retailerEditedProducts);
 
             // <---------------- return data ---------------------->
             return response()->json([
@@ -929,7 +990,7 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'coupon_applied_id'=>  @$couponid,
+                    'coupon_applied_id' =>  @$couponid,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
@@ -957,7 +1018,6 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'payment_method' => $request->payment_method,
                 ];
-
             }
 
             CustomerOrders::insert($orderItems);
@@ -1036,8 +1096,8 @@ class RetailerProductController extends Controller
 
         // Get coupon by code and retailer
         $coupon = Coupon::where('coupon_code', $request->coupon_code)
-                    ->where('retailer_id', $retailer->retailer_id)
-                    ->first();
+            ->where('retailer_id', $retailer->retailer_id)
+            ->first();
 
         if (!$coupon) {
             return response()->json(['error' => 'Invlaid Coupon code.'], 404);
@@ -1063,7 +1123,7 @@ class RetailerProductController extends Controller
             'success' => true,
             'message' => 'Coupon applied successfully.',
             'coupon' => [
-                'id' =>$coupon->id,
+                'id' => $coupon->id,
                 'code' => $coupon->coupon_code,
                 'discount' => $coupon->discount
                 // 'valid_from' => $coupon->valid_from,
@@ -1072,8 +1132,24 @@ class RetailerProductController extends Controller
         ]);
     }
 
-    private function formatProductFromClone($product, $finalPrice)
+    private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts)
     {
+        $product_name = null;
+        $product_slug = null;
+        $product_description = null;
+        $product_images_fetch = null;
+        $product_videos_fetch = null;
+        $product_status = null;
+        foreach ($retailerEditedProducts as $editedProduct) {
+            if ($product->id == $editedProduct->product_id) {
+                $product_name = $editedProduct->product_name ?? null;
+                $product_slug = $editedProduct->product_slug ?? null;
+                $product_description = $editedProduct->product_description ?? null;
+                $product_images_fetch = $editedProduct->product_images ?? null;
+                $product_videos_fetch = $editedProduct->product_videos ?? null;
+                $product_status = $editedProduct->product_status ?? null;
+            }
+        }
         $oldPriceRange = null;
         $newPriceRange = null;
         $finalPriceRange = null;
@@ -1090,7 +1166,7 @@ class RetailerProductController extends Controller
             $finalPriceRange = $finalPrices->isNotEmpty() ? round($finalPrices->min(), 2) : null;
         }
 
-        $product_image = explode(',', $product->images);
+        $product_image = explode(',', $product_images_fetch ?? $product->images);
         $product_image_array = [];
         foreach ($product_image as $image) {
             if (!empty($image)) {
@@ -1099,23 +1175,25 @@ class RetailerProductController extends Controller
         }
         $product_images_implode = implode(',', $product_image_array);
 
+        $product_video = $product_videos_fetch ?? $product->videos;
+
         return [
             'id' => $product->id,
             'sku' => $product->sku,
-            'name' => $product->name,
-            'slug' => $product->slug,
+            'name' => $product_name ?? $product->name,
+            'slug' => $product_slug ?? $product->slug,
             'wholesaler_id' => $product->wholesaler_id ?? null,
             'retailer_id' => $product->retailer_id ?? null,
-            'description' => $product->description,
+            'description' => $product_description ?? $product->description,
             'tags' => $product->tags,
             'quantity' => $totalStock ?: $product->quantity,
             'old_price' => $oldPriceRange ?: (float) $product->old_price,
             'new_price' => $newPriceRange ?: (float) $product->new_price,
             'final_price' => $finalPriceRange ?: (float) $finalPrice,
             'product_images' => $product_images_implode,
-            'product_video' => $product->videos ? Storage::disk('spaces')->url($product->videos) : '',
+            'product_video' => $product_video ? Storage::disk('spaces')->url($product_video) : '',
             'product_url' => $product->url,
-            'status' => $product->status,
+            'status' => $product_status ?? $product->status,
             'color' => $product->color ?? null,
             'size' => $product->size ?? null,
             'specifications' => $product->specifications ?? null,
