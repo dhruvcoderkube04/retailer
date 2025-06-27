@@ -4,10 +4,10 @@
 @endsection
 
 @section('content')
-<div id="kt_app_content" class="app-content flex-column-fluid">
-    <div id="kt_app_content_container" class="app-container ">
-        <div class="card mb-5 mb-xl-10">
-            <div class="card-header pb-0">
+<div id="kt_app_content" class="app-content flex-column-fluid my-5">
+    <div id="kt_app_content_container" class="app-container mx-auto">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
                 <div class="card-title">
                     <h3 class="m-0">Direct Shipping</h3>
                 </div>

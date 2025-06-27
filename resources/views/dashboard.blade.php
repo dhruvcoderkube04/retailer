@@ -64,10 +64,10 @@
                 <div id="kt_app_content_container" class="app-container ">
                     <div class="row gy-5 gx-xl-10">
                         <!-- New Orders -->
-                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                        <div class="col-12 col-sm-6 col-xl-3 mb-5">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'new') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-add-files fs-2hx text-primary mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
@@ -82,10 +82,10 @@
                         </div>
 
                         <!-- Confirmed Orders -->
-                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                        <div class="col-12 col-sm-6 col-xl-3 mb-5">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'approved-by-retailer') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-tablet-ok fs-2hx text-info mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
@@ -100,10 +100,11 @@
                         </div>
 
                         <!-- Transfer Retailer To Wholesaler Orders -->
-                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                        <div class="col-12 col-sm-6 col-xl-3 mb-5">
                             <div class="card h-100 text-center">
                                 <div>
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <a href="{{ route('retailer.order.list', 'transferred-to-wholesaler') }}">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-exit-right fs-2hx text-primary mb-3">
                                             <span class="path1"></span><span class="path2"></span>
                                         </i>
@@ -112,15 +113,16 @@
                                         </span>
                                         <span class="fw-semibold fs-5 text-gray-500 mt-2">Transfer To Wholesaler</span>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Ready to Ship -->
-                        <div class="col-12 col-sm-6 col-xl-3 mb-10">
+                        <div class="col-12 col-sm-6 col-xl-3 mb-5">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'pickup') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-delivery fs-2hx text-success mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
@@ -139,7 +141,7 @@
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'in-transit') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-delivery fs-2hx text-warning mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
@@ -158,7 +160,7 @@
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'delivered') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-delivery-3 fs-2hx text-success mb-3">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
@@ -176,7 +178,7 @@
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
                                 <a href="{{ route('retailer.order.list', 'cancel') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                         <i class="ki-duotone ki-cross-square fs-2hx text-danger mb-3">
                                             <span class="path1"></span><span class="path2"></span>
                                         </i>
@@ -260,7 +262,7 @@
                         <!-- Total Sales -->
                         <div class="col-12 col-md-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
-                                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                     <i class="ki-duotone ki-finance-calculator fs-2hx mb-4 text-primary">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
@@ -284,7 +286,7 @@
                         <!-- Total Earning -->
                         <div class="col-12 col-md-6 col-xl-3 mb-10">
                             <div class="card h-100 text-center">
-                                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
                                     <i class="ki-duotone ki-finance-calculator fs-2hx mb-4 text-primary">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
