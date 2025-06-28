@@ -49,23 +49,11 @@
                         </div>
                     @endif
                     <div class="card card-flush">
-                        <div class="card-body pt-5">
-
-                            <div class="pb-6">
+                        <div class="card-body pt-3">
+                            <div class="pb-4">
                                 <div class="row g-3 justify-content-md-end">
 
-                                    {{-- Status Filter --}}
-                                    <div class="col-12 col-md-3">
-                                        <label for="status_filter" class="form-label fw-semibold mb-1">Status</label>
-                                        <select id="status_filter" class="form-select form-select-solid bg-secondary "
-                                            data-control="select2" data-placeholder="Select Status">
-                                            <option value="all">All Status</option>
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                        </select>
-                                    </div>
-
-                                    {{-- Category Dropdown --}}
+                                    {{-- Wholesaler Dropdown --}}
                                     <div class="col-12 col-md-3">
                                         <label for="wholesaler_filter"
                                             class="form-label fw-semibold mb-1">Wholesaler</label>
@@ -80,6 +68,47 @@
                                         </select>
                                     </div>
 
+                                    {{-- Sub Category Filter --}}
+                                    <div class="col-12 col-md-3">
+                                        <label for="sub_category_filter"
+                                            class="form-label fw-semibold mb-1">Category</label>
+                                        <select id="sub_category_filter" class="form-select form-select-solid bg-secondary"
+                                            data-control="select2" data-placeholder="Select Category">
+                                            <option value="all">All Category</option>
+                                            @foreach ($sub_category_list as $sub_category)
+                                                <option value="{{ $sub_category->id }}">
+                                                    {{ $sub_category->sub_category_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    {{-- Status Filter --}}
+                                    <div class="col-12 col-md-3">
+                                        <label for="status_filter" class="form-label fw-semibold mb-1">Status</label>
+                                        <select id="status_filter" class="form-select form-select-solid bg-secondary "
+                                            data-control="select2" data-placeholder="Select Status">
+                                            <option value="all">All Status</option>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- Stock Filter --}}
+                                    <div class="col-12 col-md-3">
+                                        <label for="stock_filter" class="form-label fw-semibold mb-1">Stock</label>
+                                        <select id="stock_filter" class="form-select form-select-solid bg-secondary "
+                                            data-control="select2" data-placeholder="Select Status">
+                                            <option value="all">All Stock</option>
+                                            <option value="available">Available</option>
+                                            <option value="unavailable">Unavailable</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="pb-4">
+                                <div class="row g-3 justify-content-md-end">
                                     {{-- Search Input --}}
                                     <div class="col-12 col-md-3">
                                         <label for="search_input" class="form-label fw-semibold mb-1">Search</label>
@@ -138,7 +167,9 @@
                     data: function(d) {
                         d.search = $('#search_input').val();
                         d.wholesaler_filter = $('#wholesaler_filter').val();
+                        d.sub_category_filter = $('#sub_category_filter').val();
                         d.status_filter = $('#status_filter').val();
+                        d.stock_filter = $('#stock_filter').val();
                         d._token = '{{ csrf_token() }}';
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
@@ -208,6 +239,14 @@
             });
 
             $('#wholesaler_filter').on('change', function() {
+                dataTable.ajax.reload();
+            });
+
+            $('#sub_category_filter').on('change', function() {
+                dataTable.ajax.reload();
+            });
+
+            $('#stock_filter').on('change', function() {
                 dataTable.ajax.reload();
             });
 

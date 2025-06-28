@@ -114,7 +114,7 @@ class RetilerController extends Controller
             $retailerProducts = RetailerProducts::where('retailer_id', $user->id)
                 ->whereNull('product_id')
                 ->get();
-            $retailerProducts->map(function ($retailerProduct) use (&$wholesaler_product) {
+            $retailerProducts->map(function ($retailerProduct) use (&$wholesaler_product, $retailerSingleProductsId) {
                 $products = Product::where('wholesaler_id', $retailerProduct->wholesaler_id)
                     ->where('sub_category_id', $retailerProduct->sub_category_id)
                     ->whereNotIn('id', $retailerSingleProductsId)
@@ -666,7 +666,8 @@ class RetilerController extends Controller
                 ->get();
 
             // sub_category_list
-            $sub_category_ids = RetailerCategory::where('retailer_id', $retailer)
+            $sub_category_ids = RetailerProducts::where('retailer_id', $retailer)
+                ->distinct('sub_category_id')
                 ->pluck('sub_category_id');
             $sub_category_list = SubCategory::select('category_id', 'sub_category_name', 'id')
                 ->where('status', 1)
@@ -702,7 +703,7 @@ class RetilerController extends Controller
         // <----------- Single Product Fetch ----------------->
         $singleProductFetchQuery = RetailerProducts::with('sub_category')
             ->join('products', 'products.id', '=', 'retailer_products.product_id')
-            ->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('sub_categories', 'retailer_products.sub_category_id', '=', 'sub_categories.id')
             ->join('users', 'products.wholesaler_id', '=', 'users.id')
             ->leftJoin('user_details', 'users.id', '=', 'user_details.user_id')
             ->where('retailer_products.retailer_id', $retailer->id)
@@ -736,6 +737,8 @@ class RetilerController extends Controller
         ) as product_variations")
             );
 
+        $cloneSingleProductFetchQuery = clone $singleProductFetchQuery;
+
         // Filters
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
@@ -745,11 +748,37 @@ class RetilerController extends Controller
                     ->orWhere('products.new_price', 'like', "%{$search}%")
                     ->orWhere('retailer_products.product_status', 'like', "%{$search}%")
                     ->orWhere('retailer_products.margin', 'like', "%{$search}%")
+                    ->orWhere('sub_categories.sub_category_name', 'like', "%{$search}%")
                     ->orWhere('user_details.company_name', 'like', "%{$search}%");
             });
         }
         if ($request->has('wholesaler_filter') && $request->wholesaler_filter !== 'all') {
             $singleProductFetchQuery->where('retailer_products.wholesaler_id', $request->wholesaler_filter);
+        }
+        if ($request->has('sub_category_filter') && $request->sub_category_filter !== 'all') {
+            $singleProductFetchQuery->where('products.sub_category_id', $request->sub_category_filter);
+        }
+        if ($request->has('stock_filter') && $request->stock_filter !== 'all') {
+            if ($request->stock_filter == 'available') {
+                $singleProductFetchQuery->where(function ($query) {
+                    $query->where('products.quantity', '>', 0)
+                        ->orWhereRaw("(
+                            SELECT COALESCE(SUM(product_variations.stock), 0)
+                            FROM product_variations
+                            WHERE product_variations.product_id = products.id
+                        ) > 0");
+                });
+            }
+            if ($request->stock_filter == 'unavailable') {
+                $singleProductFetchQuery->where(function ($query) {
+                    $query->where('products.quantity', '<=', 0)
+                        ->whereRaw("(
+                            SELECT COALESCE(SUM(product_variations.stock), 0)
+                            FROM product_variations
+                            WHERE product_variations.product_id = products.id
+                        ) <= 0");
+                });
+            }
         }
         if ($request->has('status_filter') && $request->status_filter !== 'all') {
             $singleProductFetchQuery->where('retailer_products.product_status', $request->status_filter);
@@ -765,7 +794,7 @@ class RetilerController extends Controller
                 $join->on('overridden.product_id', '=', 'products.id')
                     ->where('overridden.retailer_id', '=', $retailer->id);
             })
-            ->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('sub_categories', 'retailer_products.sub_category_id', '=', 'sub_categories.id')
             ->join('users', 'products.wholesaler_id', '=', 'users.id')
             ->leftJoin('user_details', 'users.id', '=', 'user_details.user_id')
             ->whereNull('overridden.id')
@@ -799,6 +828,8 @@ class RetilerController extends Controller
         ) as product_variations")
             );
 
+        $cloneWholesalerProductFetchQuery = clone $wholesalerProductFetchQuery;
+
         // Filters
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
@@ -808,11 +839,38 @@ class RetilerController extends Controller
                     ->orWhere('products.new_price', 'like', "%{$search}%")
                     ->orWhere('products.status', 'like', "%{$search}%")
                     ->orWhere('retailer_products.margin', 'like', "%{$search}%")
+                    ->orWhere('sub_categories.sub_category_name', 'like', "%{$search}%")
                     ->orWhere('user_details.company_name', 'like', "%{$search}%");
             });
         }
         if ($request->has('wholesaler_filter') && $request->wholesaler_filter !== 'all') {
             $wholesalerProductFetchQuery->where('retailer_products.wholesaler_id', $request->wholesaler_filter);
+        }
+        if ($request->has('sub_category_filter') && $request->sub_category_filter !== 'all') {
+            $wholesalerProductFetchQuery->where('products.sub_category_id', $request->sub_category_filter);
+        }
+        if ($request->has('stock_filter') && $request->stock_filter !== 'all') {
+            if ($request->stock_filter == 'available') {
+                $wholesalerProductFetchQuery->where(function ($query) {
+                    $query->where('products.quantity', '>', 0)
+                        ->orWhereRaw("(
+                            SELECT COALESCE(SUM(product_variations.stock), 0)
+                            FROM product_variations
+                            WHERE product_variations.product_id = products.id
+                        ) > 0");
+                });
+            }
+
+            if ($request->stock_filter == 'unavailable') {
+                $wholesalerProductFetchQuery->where(function ($query) {
+                    $query->where('products.quantity', '<=', 0)
+                        ->whereRaw("(
+                            SELECT COALESCE(SUM(product_variations.stock), 0)
+                            FROM product_variations
+                            WHERE product_variations.product_id = products.id
+                        ) <= 0");
+                });
+            }
         }
         if ($request->has('status_filter') && $request->status_filter !== 'all') {
             $wholesalerProductFetchQuery->where('products.status', $request->status_filter);
@@ -824,11 +882,15 @@ class RetilerController extends Controller
         $query = DB::table(DB::raw("({$query->toSql()}) as unified"))
             ->mergeBindings($singleProductFetchQuery->getQuery());
 
+        $cloneQuery = $cloneSingleProductFetchQuery->unionAll($cloneWholesalerProductFetchQuery);
+
+
         //<------------------- Pagination ----------------------->
+        $recordsTotal = $cloneQuery->count(); // Total count
         $recordsFiltered = $query->count(); // Total filtered count
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
-        $products = $query->skip($start)->take($length)->get();
+        $products = $query->orderBy('id', 'desc')->skip($start)->take($length)->get();
 
         $data = [];
         foreach ($products as $product) {
@@ -958,7 +1020,7 @@ class RetilerController extends Controller
 
         return response()->json([
             'draw' => intval($request->draw),
-            'recordsTotal' => $recordsFiltered,
+            'recordsTotal' => $recordsTotal,
             'recordsFiltered' => $recordsFiltered,
             'data' => $data,
         ]);
