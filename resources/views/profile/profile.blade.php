@@ -46,7 +46,7 @@
                     @elseif ($userprofile->userDetail->wallet_status == 'attempt_limit_reached')
                         <div class="text-danger fw-semibold mb-4 mx-1 fs-5">
                             You have entered the wrong verification code too many times. Your attempt limit has been
-                            reached. Please try again later.
+                            reached. Please contact support team.
                         </div>
                     @elseif ($userprofile->userDetail->wallet_status == 'rejected')
                         <div class="text-danger fw-semibold mb-4 mx-1 fs-5">

@@ -1223,7 +1223,6 @@ class RetilerController extends Controller
             return response()->json(['message' => 'Product status updated successfully.']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 500);
             return response()->json(['message' => 'Something went wrong while updating status.'], 500);
         }
     }
@@ -2482,6 +2481,13 @@ class RetilerController extends Controller
         try {
             $user = Auth::user();
             $userDetail = $user->userDetail;
+            if (!$userDetail->verification_code) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Verification code is not generated yet, You will receive a verification message from the bank shortly.',
+                    'attempts_left' => 3 - ($userDetail->wallet_verification_attempt)
+                ]);
+            }
             $expectedCode = explode(',', $userDetail->verification_code);
             $attempt = $userDetail->wallet_verification_attempt ?? 0;
 

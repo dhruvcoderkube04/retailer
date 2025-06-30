@@ -150,10 +150,10 @@
                                                         data-hide-search="true" data-placeholder="Select an option">
                                                         <option value="" disabled>Select an option</option>
                                                         <option value="active"
-                                                            {{ (optional($updated_product_detail)->status ?? $product_detail->status) == 'active' ? 'selected' : '' }}>
+                                                            {{ (optional($updated_product_detail)->product_status ?? $product_detail->status) == 'active' ? 'selected' : '' }}>
                                                             Published</option>
                                                         <option value="inactive"
-                                                            {{ (optional($updated_product_detail)->status ?? $product_detail->status) == 'inactive' ? 'selected' : '' }}>
+                                                            {{ (optional($updated_product_detail)->product_status ?? $product_detail->status) == 'inactive' ? 'selected' : '' }}>
                                                             Draft</option>
                                                     </select>
                                                     @error('status')
