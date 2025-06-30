@@ -621,8 +621,13 @@ class RetailerOrderController extends Controller
                     </button>';
             }
 
+            $whatsappNumber = preg_replace('/[^0-9]/', '', $item->customer->phone_number); // clean up number
 
-            $action .= '</div>';
+            $action .= '<a href="https://web.whatsapp.com/send?phone=' . $whatsappNumber . '" target="_blank"
+                class="btn btn-icon btn-success btn-active-light-success w-30px h-30px"
+                data-bs-toggle="tooltip" title="Contact via WhatsApp">
+                <i class="fab fa-whatsapp fs-3"></i>
+            </a></div>';
 
             $data[] = array(
                 'sr_no' => $i,
