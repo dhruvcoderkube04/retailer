@@ -1,7 +1,7 @@
-<div id="kt_app_header" class="app-header shadow" 
-     data-kt-sticky="true" 
+<div id="kt_app_header" class="app-header shadow"
+     data-kt-sticky="true"
      data-kt-sticky-activate="{default: true, lg: true}"
-     data-kt-sticky-name="app-header-minimize" 
+     data-kt-sticky-name="app-header-minimize"
      data-kt-sticky-offset="{default: '200px', lg: '0'}"
      data-kt-sticky-animation="false">
     <!--begin::Header container-->
@@ -35,7 +35,7 @@
             </a>
         </div>
 
-        
+
         <!--end::Mobile logo-->
         <!--begin::Header wrapper-->
         <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
@@ -55,6 +55,20 @@
             <!--end::Menu wrapper-->
             <!--begin::Navbar-->
             <div class="app-navbar flex-shrink-0">
+                <div class="app-navbar-item ms-1 ms-md-4">
+                    <a href="{{ route('retailer.track.order') }}" target="_blank"
+                        class="btn btn-dark btn-active-dark">
+                        <i class="ki-duotone ki-truck text-inverse-primary fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                            <span class="path4"></span>
+                            <span class="path5"></span>
+                        </i>
+                        Track Your Order
+                    </a>
+                </div>
+
                 @if (isset($retailer) && $retailer->is_active ==1)
                     <div class="app-navbar-item ms-1 ms-md-4">
                         <a href="{{ $retailer->subdomain }}" target="_blank"
@@ -81,7 +95,7 @@
                         id="kt_menu_item_wow">
                         <i class="fa-solid fa-bell fs-3"></i>
 
-                        
+
                         <span id="notification-count"
                                 class="position-absolute badge bg-danger text-white fw-bold justify-content-center"
                                 style="
