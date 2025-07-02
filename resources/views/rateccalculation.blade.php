@@ -137,7 +137,7 @@
                 }));
             }
             // Only if we have rates, display them
-            console.log(total_rates_list.length);
+            //    <p><strong>RTO:</strong> ₹${rate.rto_charge}</p>
             if (total_rates_list.length > 0) {
                 resultSection.style.display = 'block';
                 total_rates_list.forEach(rate => {
@@ -147,7 +147,6 @@
                                 <h5>${rate.courier_name}</h5>
                                 <p><strong>Shipping:</strong> ₹${rate.shipping_charge}</p>
                                 <p><strong>COD:</strong> ₹${rate.cod_charge}</p>
-                                <p><strong>RTO:</strong> ₹${rate.rto_charge}</p>
                                 <p><strong>Mode:</strong> ${rate.service_mode}</p>
                                  <p><strong>Expected Pickup :</strong> ${rate.expected_pickup}</p>
                             </div>

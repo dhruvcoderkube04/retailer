@@ -341,7 +341,7 @@ class LorrigoServiceLive implements CourierInterface
                     ]);
 
                     $responseData = $response->json();
-                    $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+                    // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
                     $marginTagName = Auth::user()->userDetail->margin_tag_name;
 
                     $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
@@ -354,7 +354,7 @@ class LorrigoServiceLive implements CourierInterface
                             foreach ($rate as $key => $value) {
                                 if ($key !== 'name' && is_numeric($value)) {
                                     if ($marginType === 'percentage') {
-                                        $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                                        $rate[$key] = round($value + ($value * $flatAmount / 100), 2);
                                     } elseif ($marginType === 'flat') {
                                         $rate[$key] = round($value + $flatAmount, 2);
                                     }

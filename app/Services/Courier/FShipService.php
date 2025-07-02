@@ -304,7 +304,7 @@ class FShipService implements CourierInterface
 
         if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
             // $marginPercentage = 0.0;
-            $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+            // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
             $margin_tag_name = Auth::user()->userDetail->margin_tag_name;
 
             $getMargin = MarginManagement::where('margin_name', $margin_tag_name)->first();
@@ -315,7 +315,7 @@ class FShipService implements CourierInterface
                     foreach ($rate as $key => $value) {
                         if ($key !== 'courier_name' && is_numeric($value)) {
                             if ($marginType === 'percentage') {
-                                $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                                $rate[$key] = round($value + ($value * $flatAmount / 100), 2);
                             } elseif ($marginType === 'flat') {
                                 $rate[$key] = round($value + $flatAmount, 2);
                             }

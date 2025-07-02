@@ -318,7 +318,8 @@ class LorrigoService implements CourierInterface
             'boxWidth' => (string) ($data['shipment_Width'] ?? "10"),
             'collectableAmount' => (string) ($data['amount']) ?? "",
             'deliveryPincode' => (string) $data['destination_Pincode'],
-            'paymentType' => $data['payment_Mode'] == 'COD' ? 1 : 0, // 1=COD, 0=Prepaid
+            // 'paymentType' => $data['payment_Mode'] == 'COD' ? 1 : 0, // 1=COD, 0=Prepaid
+            'paymentType' => 1,
             'pickupPincode' => (string) $data['source_Pincode'],
             'sizeUnit' => 'cm',
             'weight' => (string) $data['shipment_Weight'],
@@ -340,12 +341,11 @@ class LorrigoService implements CourierInterface
                         'body' => $response->body(),
                         'request' => $response->json(),
                     ]);
+
                     $responseData = $response->json();
-                    $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+                    // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
                     $marginTagName = Auth::user()->userDetail->margin_tag_name;
-
                     $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-
                     if (!empty($responseData['rates']) && is_array($responseData['rates']) && $getMargin) {
                         $marginType = $getMargin->type; // 'percentage' or 'flat'
                         $flatAmount = (float)($getMargin->flat_percentage ?? 0);
@@ -354,7 +354,7 @@ class LorrigoService implements CourierInterface
                             foreach ($rate as $key => $value) {
                                 if ($key !== 'name' && is_numeric($value)) {
                                     if ($marginType === 'percentage') {
-                                        $rate[$key] = round($value + ($value * $marginPercentage / 100), 2);
+                                        $rate[$key] = round($value + ($value *  $flatAmount / 100), 2);
                                     } elseif ($marginType === 'flat') {
                                         $rate[$key] = round($value + $flatAmount, 2);
                                     }
@@ -363,7 +363,6 @@ class LorrigoService implements CourierInterface
                         }
                         unset($rate); // good practice
                     }
-
                     return [
                         'status' => true,
                         'rates' => $responseData['rates'],
