@@ -317,7 +317,8 @@ class LorrigoServiceLive implements CourierInterface
             'boxWidth' => (string) ($data['shipment_Width'] ?? "10"),
             'collectableAmount' => (string) ($data['amount']) ?? "",
             'deliveryPincode' => (string) $data['destination_Pincode'],
-            'paymentType' => $data['payment_Mode'] == 'COD' ? 1 : 0, // 1=COD, 0=Prepaid
+            // 'paymentType' => $data['payment_Mode'] == 'COD' ? 1 : 0, // 1=COD, 0=Prepaid
+            'paymentType' => 1,
             'pickupPincode' => (string) $data['source_Pincode'],
             'sizeUnit' => 'cm',
             'weight' => (string) $data['shipment_Weight'],
