@@ -9,6 +9,8 @@ class WithdrawalRequest extends Model
     protected $fillable = [
         'user_id',
         'user_type',
+        'request_type',
+        'wholesaler_id',
         'request_amount',
         'status',
         'remarks',
@@ -23,5 +25,10 @@ class WithdrawalRequest extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function wholesaler()
+    {
+        return $this->belongsTo(User::class, 'wholesaler_id');
     }
 }

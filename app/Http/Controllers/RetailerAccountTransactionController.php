@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccountTransaction;
+use App\Models\User;
 use App\Models\UserDetail;
 use App\Models\WithdrawalRequest;
 use Carbon\Carbon;
@@ -349,11 +350,7 @@ class RetailerAccountTransactionController extends Controller
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 
-        $withdrawal_transactions = WithdrawalRequest::where('user_id', $user->id)
-            ->orderBy('id', 'desc')
-            ->get();
-
-        return view('accounts.withdrawal-request.index', compact('withdrawal_transactions', 'user'));
+        return view('accounts.withdrawal-request.index', compact('user'));
     }
 
     // AJAX - server-side datatable fetch-records of withdrawal transactions
@@ -376,9 +373,18 @@ class RetailerAccountTransactionController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('request_amount', 'like', '%' . $search . '%')
                     ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('request_type', 'like', '%' . $search . '%')
                     ->orWhere('transaction_id', 'like', '%' . $search . '%')
                     ->orWhere('created_at', 'like', '%' . $search . '%')
-                    ->orWhere('remarks', 'like', '%' . $search . '%');
+                    ->orWhere('remarks', 'like', '%' . $search . '%')
+                    ->orWhereHas('wholesaler.userDetail', function ($q) use ($search) {
+                        $q->where('company_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('wholesaler', function ($q) use ($search) {
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
+                            ->orWhere('firstname', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -408,6 +414,19 @@ class RetailerAccountTransactionController extends Controller
                                     <span class="path2"></span>
                                 </i>';
 
+            $request_type = '';
+            $wholesaler_details = '-';
+            if ($item->request_type == 'to_account') {
+                $request_type = '<div class="badge badge-light-success fs-7">To Self Account</div>';
+            } elseif ($item->request_type == 'to_wholesaler') {
+                $request_type = '<div class="badge badge-light-info fs-7">To Wholesaler</div>';
+
+                $wholesaler_details = '<div>
+                    <div><strong>Name: </strong>' . $item->wholesaler->firstname . ' ' . $item->wholesaler->lastname . '</div>
+                    <div><strong>Comapny: </strong>' . $item->wholesaler->userDetail->company_name . '</div>
+                </div>';
+            }
+
             $remarks = $item->remarks ? $item->remarks : 'No Remarks Entered';
 
             $request_amount = '<div class="badge badge-light-danger fs-6">
@@ -418,9 +437,9 @@ class RetailerAccountTransactionController extends Controller
             if ($item->status == 'completed') {
                 $status = '<div class="badge badge-light-success fs-6">Completed</div>';
             } else if ($item->status == 'pending') {
-                $status = '<div class="badge badge-light-info fs-6">Pending</div>';
-            } else if ($item->status == 'on hold') {
-                $status = '<div class="badge badge-light-warning fs-6">On Hold</div>';
+                $status = '<div class="badge badge-light-primary fs-6">Pending</div>';
+            } else if ($item->status == 'processing') {
+                $status = '<div class="badge badge-light-info fs-6">Processing</div>';
             } else if ($item->status == 'rejected') {
                 $status = '<div class="badge badge-light-danger fs-6">Rejected</div>';
             }
@@ -428,6 +447,8 @@ class RetailerAccountTransactionController extends Controller
             $data[] = array(
                 "transaction_type" => $transaction_type,
                 "transaction_id" => $item->transaction_id ?? 'N/A',
+                "request_type" => $request_type ?? 'N/A',
+                "wholesaler_detail" => $wholesaler_details,
                 "remarks" => $remarks,
                 "created_at" => $item->created_at ? $item->created_at->format('M d, Y h:i A') : 'N/A',
                 "request_amount" => $request_amount,
@@ -437,9 +458,75 @@ class RetailerAccountTransactionController extends Controller
         return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
     }
 
+    // AJAX - verify-wholesaler-email
+    public function verifyWholesalerEmail(Request $request)
+    {
+        try {
+            $user = User::where('email', $request->email)
+                ->where('user_type', 2)
+                ->where('status', 1)
+                ->where('is_delete', 0)
+                ->first();
+
+            if ($user) {
+                if ($user->userDetail->wallet_status == 'approved') {
+                    $wallet_status = 'Active';
+                } else {
+                    $wallet_status = 'Inactive';
+                }
+                return response()->json([
+                    'status' => true,
+                    'data' => [
+                        'id' => $user->id,
+                        'name' => $user->firstname . ' ' . $user->lastname,
+                        'company_name' => $user->userDetail->company_name ?? 'N/A',
+                        'mobile' => $user->phone_number ?? 'N/A',
+                        'wallet_status' => $wallet_status
+                    ]
+                ]);
+            }
+
+            return response()->json(['status' => false, 'msg' => 'Wholesaler not exist.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'msg' => 'Something went wrong!',
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     // AJAX - withdrawal-request store
     public function withdrawalRequestStore(Request $request)
     {
+        $request->validate([
+            'request_amount' => 'required|numeric|min:0.01',
+            'request_type' => 'required|in:to_account,to_wholesaler',
+            'remarks' => 'nullable|string|max:255',
+        ], [
+            'request_amount.required' => 'Withdrawal amount is required.',
+            'request_amount.numeric' => 'Amount must be a number.',
+            'request_amount.min' => 'Amount must be greater than zero.',
+            'request_type.required' => 'Please select a request type.',
+            'request_type.in' => 'Invalid request type.',
+        ]);
+
+        if ($request->request_type == 'to_wholesaler') {
+            $request->validate([
+                'wholesaler_email' => 'required|email',
+                'wholesaler_id' => 'required|numeric|exists:users,id',
+                'wholesaler_wallet_status' => 'required|in:yes',
+            ], [
+                'wholesaler_email.required' => 'Wholesaler email is required when sending to wholesaler.',
+                'wholesaler_email.email' => 'Please enter a valid email address.',
+                'wholesaler_id.required' => 'Please verify the wholesaler email.',
+                'wholesaler_id.exists' => 'Please verify the wholesaler email.',
+                'wholesaler_wallet_status.required' => 'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.',
+                'wholesaler_wallet_status.in' => 'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.'
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             $user = Auth::user();
@@ -453,18 +540,36 @@ class RetailerAccountTransactionController extends Controller
                 ]);
             }
 
+            // check balance
+            if ($request->request_amount > $userDetail->success_wallet) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Insufficient balance.',
+                    'error' => 'Insufficient balance.',
+                ]);
+            }
+
             $userDetail->success_wallet = ($userDetail->success_wallet) - ($request->request_amount);
             $userDetail->save();
 
+            $desctiption = 'No Remarks';
+            $msg = '';
+            if ($request->request_type == 'to_account') {
+                $desctiption = 'Withdrawal Request : to self account on ' . Carbon::now()->format('F d, Y, h:i a');
+                $msg = 'Withdrawal request submitted successfully to self account, Amount will be transfered shortly after the approval';
+            } else if ($request->request_type == 'to_wholesaler') {
+                $desctiption = 'Withdrawal Request : to wholesaler (wallet to wallet transfer) on ' . Carbon::now()->format('F d, Y, h:i a');
+                $msg = 'Withdrawal request submitted successfully to wholesaler (wallet), Amount will be transfered shortly after the approval';
+            }
             $accountTransaction = AccountTransaction::create([
                 'user_id' => $user->id,
                 'user_type' => 'retailer',
-                'description' => 'Withdrawal Request on ' . Carbon::now()->format('F d, Y, h:i a'),
+                'description' => $desctiption,
                 'transaction_amount' => -abs($request->request_amount),
                 'final_transaction_amount' => -abs($request->request_amount),
                 'current_balance' => $userDetail->success_wallet,
                 'order_type' => 'other',
-                'status' => 0, // pending till not approved by admin
+                'status' => 0, // pending till not approved
                 'type' => 'success'
             ]);
 
@@ -475,6 +580,8 @@ class RetailerAccountTransactionController extends Controller
             WithdrawalRequest::create([
                 'user_id' => $user->id,
                 'user_type' => 'retailer',
+                'request_type' => $request->request_type,
+                'wholesaler_id' => $request->wholesaler_id ?? null,
                 'request_amount' => $request->request_amount,
                 'remarks' => $request->remarks ?? null,
                 'transaction_id' => $unique_transaction_id,
@@ -484,7 +591,7 @@ class RetailerAccountTransactionController extends Controller
             DB::commit();
             return response()->json([
                 'status' => true,
-                'msg' => 'Withdrawal request sent successfully'
+                'msg' => $msg
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

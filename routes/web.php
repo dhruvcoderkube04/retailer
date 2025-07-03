@@ -253,6 +253,7 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestIndex'])->name('retailer.accounts.withdrawal-request');
         Route::post('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestStore'])->name('retailer.accounts.withdrawal-request-post'); // ajax
         Route::POST('/withdrawal-transactions/fetch-record', [RetailerAccountTransactionController::class, 'fetchRecordWithdrawalTransactions'])->name('retailer.accounts.withdrawal-transactions.fetch-record'); // ajax - datatable
+        Route::post('/withdrawal-transactions/verify-wholesaler-email', [RetailerAccountTransactionController::class, 'verifyWholesalerEmail'])->name('retailer.accounts.withdrawal-transactions.verify-wholesaler-email'); // ajax - datatable
     });
 
     // themes
