@@ -304,20 +304,90 @@
 
                                 <form method="POST" id="withdrawalRequestForm" class="m-1">
                                     @csrf
-                                    <div class="form-group mb-4">
-                                        <label class="form-label fw-semibold">Withdrawal Amount <span
+                                    {{-- Request Amount --}}
+                                    <div class="form-group mb-5">
+                                        <label class="form-label fw-semibold">Request Amount <span
                                                 class="text-danger">*</span></label>
                                         <input type="number" name="request_amount"
                                             class="form-control form-control-solid border-secondary"
                                             placeholder="Enter amount" min="1" step="0.01" autocomplete="off">
                                         <span class="error error_request_amount text-danger m-2 d-none"></span>
                                     </div>
-                                    <div class="form-group mb-4">
+
+                                    {{-- Request Type --}}
+                                    <div class="form-group mb-5">
+                                        <label class="form-label fw-semibold d-block">Request Type <span
+                                                class="text-danger">*</span></label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="request_type"
+                                                id="toAccount" value="to_account" checked>
+                                            <label class="form-check-label" for="toAccount">To Self Account</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="request_type"
+                                                id="toWholesaler" value="to_wholesaler">
+                                            <label class="form-check-label" for="toWholesaler">To Wholesaler</label>
+                                        </div>
+                                        <span class="error error_request_type text-danger m-2 d-none"></span>
+                                    </div>
+
+                                    {{-- Wholesaler Email --}}
+                                    <div class="form-group mb-5 d-none" id="wholesalerDetailSection">
+                                        <label class="form-label fw-semibold">Wholesaler Email <span
+                                                class="text-danger">*</span></label>
+
+                                        <div class="input-group mb-2 position-relative" id="emailInputGroup">
+                                            <input type="email" name="wholesaler_email"
+                                                class="form-control form-control-solid border-secondary"
+                                                placeholder="Enter wholesaler email" id="wholesaler_email_input">
+                                            <button type="button" class="btn btn-light-primary"
+                                                id="verifyWholesalerEmail">Verify</button>
+
+                                            {{-- Verified checkmark --}}
+                                            <span id="verifiedBadge"
+                                                class="position-absolute top-50 translate-middle-y end-0 d-none"
+                                                style="z-index: 10; margin-right: 7.5rem;">
+                                                <i class="bi bi-patch-check-fill text-success fs-4"></i>
+                                            </span>
+                                        </div>
+
+                                        <span class="error error_wholesaler_email text-danger m-2 d-none"></span>
+
+                                        {{-- Verified Details --}}
+                                        <div id="wholesalerDetails"
+                                            class="border border-success bg-light-success rounded p-3 d-none mt-2">
+                                            <div class="fw-bold mb-2 text-success">
+                                                <i class="bi bi-person-check-fill me-1 text-success"></i> Wholesaler
+                                                Verified
+                                            </div>
+                                            <div class="mb-1"><strong>Name:</strong> <span id="wholesalerName"></span>
+                                            </div>
+                                            <div class="mb-1"><strong>Company Name:</strong> <span
+                                                    id="wholesalerCompany"></span></div>
+                                            <div class="mb-1"><strong>Mobile No:</strong> <span
+                                                    id="wholesalerMobile"></span></div>
+                                            <div class="mb-1"><strong>Wallet Status:</strong> <span
+                                                    id="walletStatus"></span></div>
+                                            <input type="hidden" name="wholesaler_id" id="wholesaler_id_hidden">
+                                            <input type="hidden" name="wholesaler_wallet_status"
+                                                id="wholesaler_wallet_status_hidden">
+                                        </div>
+
+                                        {{-- If Not Found --}}
+                                        <div id="wholesalerNotFoundSection" class="alert alert-danger d-none mt-3 mb-0">
+                                            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
+                                            <span id="wholesalerNotFound">Wholesaler not exist.</span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Remarks --}}
+                                    <div class="form-group mb-5">
                                         <label class="form-label fw-semibold">Remarks</label>
                                         <textarea name="remarks" class="form-control form-control-solid border-secondary" placeholder="Enter remarks"
                                             autocomplete="off"></textarea>
                                         <span class="error error_remarks text-danger m-2 d-none"></span>
                                     </div>
+
                                     <div class="d-flex justify-content-end">
                                         <button type="button" class="btn btn-light me-3"
                                             data-bs-dismiss="modal">Cancel</button>
@@ -570,29 +640,141 @@
                 });
             });
 
-            //<------------------- START : Withdrawal Request From Submit ----------------->
+            //<------------- START : Withdrawal Request -------------->
+            // toggle wholesaler section
+            $('input[name="request_type"]').on('change', function() {
+                const type = $(this).val();
+                if (type === 'to_wholesaler') {
+                    $('#wholesalerDetailSection').removeClass('d-none');
+                } else {
+                    $('#wholesalerDetailSection').addClass('d-none');
+                }
+            });
+
+            $(document).on('input', '#wholesaler_email_input', function() {
+                $('#wholesaler_id_hidden').val('');
+                $('#wholesaler_wallet_status_hidden').val('');
+                $('#wholesalerDetails').fadeOut().addClass('d-none');
+                $('#wholesalerNotFoundSection').fadeOut().addClass('d-none');
+                $('#verifiedBadge').fadeOut().addClass('d-none');
+            });
+
+            // verify wholesaler email
+            $(document).on('click', '#verifyWholesalerEmail', function(e) {
+                e.preventDefault();
+
+                $('.error_wholesaler_email').text('').addClass('d-none');
+
+                const email = $('input[name="wholesaler_email"]').val().trim();
+                if (email === '') {
+                    $('.error_wholesaler_email').text('Please enter wholesaler email.').removeClass(
+                        'd-none');
+                    return;
+                }
+
+                // Ajax call to check wholesaler
+                $.ajax({
+                    url: '{{ route('retailer.accounts.withdrawal-transactions.verify-wholesaler-email') }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        email: email
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            $('#wholesaler_id_hidden').val(res.data.id);
+                            $('#wholesalerName').text(res.data.name);
+                            $('#wholesalerCompany').text(res.data.company_name);
+                            $('#wholesalerMobile').text(res.data.mobile);
+                            $('#walletStatus').text(res.data.wallet_status);
+                            if (res.data.wallet_status == 'Active') {
+                                $('#wholesaler_wallet_status_hidden').val('yes');
+                            } else {
+                                $('#wholesaler_wallet_status_hidden').val('');
+                            }
+
+                            $('#wholesalerDetails').hide().removeClass('d-none').fadeIn();
+                            $('#wholesalerNotFoundSection').fadeOut().addClass('d-none');
+                            $('#verifiedBadge').fadeIn().removeClass('d-none');
+                        } else {
+                            $('#wholesalerDetails').fadeOut().addClass('d-none');
+                            $('#wholesaler_id_hidden').val('');
+                            $('#wholesaler_wallet_status_hidden').val('');
+                            $('#wholesalerNotFoundSection').hide().removeClass('d-none')
+                                .fadeIn();
+                            $('#wholesalerNotFound').text('Wholesaler not exist.');
+                            $('#verifiedBadge').fadeOut().addClass('d-none');
+                        }
+                    },
+                    error: function() {
+                        $('#wholesalerDetails').fadeOut().addClass('d-none');
+                        $('#wholesaler_id_hidden').val('');
+                        $('#wholesaler_wallet_status_hidden').val('');
+                        $('#wholesalerNotFoundSection').hide().removeClass('d-none').fadeIn();
+                        $('#wholesalerNotFound').text('Error verifying wholesaler.');
+                        $('#verifiedBadge').fadeOut().addClass('d-none');
+                    }
+                });
+            });
+
+            // withdrawal request from submit
             $(document).on('submit', '#withdrawalRequestForm', function(e) {
                 e.preventDefault();
 
-                let form = $(this);
-                let amountInput = form.find('input[name="request_amount"]');
-                let amount = parseFloat(amountInput.val());
-                let currentWalletBalance = parseFloat('{{ $user->userDetail->success_wallet ?? 0 }}');
+                const form = $(this);
+                const requestType = $('input[name="request_type"]:checked').val();
+                const amountInput = form.find('input[name="request_amount"]');
+                const amount = parseFloat(amountInput.val());
+                const currentWalletBalance = parseFloat('{{ $user->userDetail->success_wallet ?? 0 }}');
+                const wholesalerEmailInput = form.find('input[name="wholesaler_email"]');
+                const wholesalerEmail = wholesalerEmailInput.val().trim();
 
-                // validation
                 $('.error').text('').addClass('d-none');
-                let errorSpan = form.find('.error_request_amount');
+
+                // Validate amount
                 if (!amount || amount <= 0) {
-                    errorSpan.text('Please enter a valid withdrawal amount.').removeClass('d-none');
+                    $('.error_request_amount').text('Please enter a valid withdrawal amount.').removeClass(
+                        'd-none');
                     amountInput.focus();
                     return false;
                 }
+
                 if (amount > currentWalletBalance) {
-                    errorSpan.text('Entered amount exceeds your current success wallet balance.')
-                        .removeClass(
-                            'd-none');
+                    $('.error_request_amount').text(
+                        'Entered amount exceeds your current success wallet balance.').removeClass(
+                        'd-none');
                     amountInput.focus();
                     return false;
+                }
+
+                // Validate request type
+                if (!requestType) {
+                    $('.error_request_type').text('Please select a request type.').removeClass('d-none');
+                    return false;
+                }
+
+                // If to_wholesaler, validate email
+                if (requestType === 'to_wholesaler') {
+                    if (wholesalerEmail === '') {
+                        $('.error_wholesaler_email').text('Please enter wholesaler email.').removeClass(
+                            'd-none');
+                        wholesalerEmailInput.focus();
+                        return false;
+                    }
+                    if ($('#wholesaler_id_hidden').val() === '') {
+                        $('.error_wholesaler_email').text('Please verify the wholesaler email.')
+                            .removeClass('d-none');
+                        wholesalerEmailInput.focus();
+                        return false;
+                    }
+                    if ($('#wholesaler_wallet_status_hidden').val() === '') {
+                        $('.error_wholesaler_email').text(
+                                'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.'
+                            )
+                            .removeClass('d-none');
+                        wholesalerEmailInput.focus();
+                        return false;
+                    }
                 }
 
                 $.ajax({
@@ -618,16 +800,36 @@
                         }
                     },
                     error: function(xhr) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Something went wrong. Please try again later.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
+                        $('.error').text('').addClass('d-none');
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+
+                            $.each(errors, function(field, messages) {
+                                if (field == 'wholesaler_id' || field ==
+                                    'wholesaler_wallet_status') {
+                                    field = 'wholesaler_email';
+                                }
+                                let errorElement = $('.error_' + field);
+                                if (errorElement.length) {
+                                    errorElement.text(messages[0]).removeClass(
+                                        'd-none');
+                                } else {
+                                    console.warn('No error span found for', field);
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Something went wrong. Please try again later.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
                     }
                 });
             });
-            //<------------------- END : Withdrawal Request From Submit ----------------->
+            //<------------------- END : Withdrawal Request ----------------->
         });
     </script>
 @endsection
