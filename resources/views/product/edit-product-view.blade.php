@@ -480,20 +480,32 @@
 
     <script>
         //<----------------- START : Image Preview --------------->
-        function previewImages(event) {
-            const files = event.target.files;
-            const previewContainer = document.getElementById('image-preview-container');
-            previewContainer.innerHTML = ''; // Clear previous previews
+        let selectedFiles = [];
 
-            if (files.length > 3) {
+        function previewImages(event) {
+            const files = Array.from(event.target.files);
+            const previewContainer = document.getElementById('image-preview-container');
+
+           if (selectedFiles.length + files.length > 3) {
                 alert('You can upload a maximum of 3 images.');
-                event.target.value = ''; // Reset file input
-                return;
+                updateFileInput();
+                return; 
             }
 
-            Array.from(files).forEach(file => {
+            files.forEach(file => {
+                selectedFiles.push(file); // Add to tracked list
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    // Create wrapper div
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('image-wrapper');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.display = 'inline-block';
+                    wrapper.style.marginRight = '8px';
+                    wrapper.style.marginBottom = '8px';
+
+                    // Create image
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.style.width = '100px';
@@ -501,10 +513,52 @@
                     img.style.objectFit = 'cover';
                     img.style.borderRadius = '8px';
                     img.style.border = '1px solid #ccc';
-                    previewContainer.appendChild(img);
+
+                    // Create remove (X) button
+                    const removeBtn = document.createElement('span');
+                    removeBtn.innerHTML = '&times;';
+                    removeBtn.style.position = 'absolute';
+                    removeBtn.style.top = '-5px';
+                    removeBtn.style.right = '-5px';
+                    removeBtn.style.background = '#ff0000';
+                    removeBtn.style.color = '#fff';
+                    removeBtn.style.borderRadius = '50%';
+                    removeBtn.style.width = '20px';
+                    removeBtn.style.height = '20px';
+                    removeBtn.style.textAlign = 'center';
+                    removeBtn.style.lineHeight = '20px';
+                    removeBtn.style.cursor = 'pointer';
+                    removeBtn.style.fontWeight = 'bold';
+                    removeBtn.title = 'Remove';
+
+                    // Remove image on click
+                    removeBtn.addEventListener('click', function() {
+                        previewContainer.removeChild(wrapper);
+                        selectedFiles = selectedFiles.filter(f => f !== file); // Remove from list
+                        updateFileInput();
+                    });
+
+                    // Append image and button to wrapper
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(removeBtn);
+                    previewContainer.appendChild(wrapper);
                 };
                 reader.readAsDataURL(file);
             });
+
+            // event.target.value = ''; // Reset input so same file can be reselected
+            updateFileInput();       // Sync input with selected files
+        }
+
+        function updateFileInput() {
+            const input = document.getElementById('image'); // ID of your file input
+            const dataTransfer = new DataTransfer();
+
+            selectedFiles.forEach(file => {
+                dataTransfer.items.add(file);
+            });
+
+            input.files = dataTransfer.files;
         }
         //<----------------- END : Image Preview --------------->
 
