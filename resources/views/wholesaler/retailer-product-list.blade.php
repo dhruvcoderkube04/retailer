@@ -76,8 +76,10 @@
                                                     data-placeholder="Select an option">
                                                     <option></option>
                                                     @foreach ($subCategories as $sub_category)
-                                                        <option value="{{ $sub_category->id }}">
-                                                            {{ $sub_category->sub_category_name }}</option>
+                                                        <option value="{{ $sub_category->id }}"
+                                                            {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
+                                                            {{ $sub_category->sub_category_name }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                                 @error('sub_category_id')
@@ -251,7 +253,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select class="form-select" id="edit_sub_category_id" name="sub_category_id" data-control="select2">
+                            <select class="form-select" id="edit_sub_category_id" name="sub_category_id"
+                                data-control="select2">
                                 <option value="">Select Category</option>
                                 {{-- append here dynamically --}}
                             </select>
@@ -329,7 +332,7 @@
                                 Swal.fire('Deleted!', 'Margin has been removed.',
                                     'success').then(() => {
                                     location
-                                .reload(); // Reload page or use table.row(...).remove().draw() if dynamic
+                                        .reload(); // Reload page or use table.row(...).remove().draw() if dynamic
                                 });
                             },
                             error: function() {
@@ -367,7 +370,7 @@
 
                                 $select.append(
                                     `<option value="${sub_category.id}" ${selected}>${sub_category.sub_category_name}</option>`
-                                    );
+                                );
 
                             });
 

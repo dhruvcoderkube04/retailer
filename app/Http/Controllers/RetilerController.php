@@ -599,6 +599,7 @@ class RetilerController extends Controller
             'margin_id' => 'required|exists:retailer_products,id',
             'margin' => 'required|numeric|min:0',
             'wholesaler_id' => 'required|exists:retailer_products,wholesaler_id',
+            'payment_method' => 'required'
         ]);
 
         $margin = RetailerProducts::where('id', $request->margin_id)
@@ -2544,12 +2545,12 @@ class RetilerController extends Controller
 
     public function downloadStockSample()
     {
-        $filePath = public_path('samplestock/stock_sample.xlsx');
+        $filePath = public_path('samplestock/product_import_sample.xlsx');
 
         if (!file_exists($filePath)) {
             return back()->with('error', 'File not found.');
         }
-        return Response::download($filePath, 'stock_sample.xlsx');
+        return Response::download($filePath, 'product_import_sample.xlsx');
     }
 
     // IMPORT : Retailer own product (retailer_clone_products) import

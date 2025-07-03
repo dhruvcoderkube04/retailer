@@ -15,6 +15,7 @@ use App\Models\MarginManagement;
 use App\Models\OrderNotification;
 use App\Models\PickAddress;
 use App\Models\Product;
+use App\Models\ProductVariation;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
 use App\Models\RTOAddress;
@@ -1350,6 +1351,48 @@ class RetailerOrderController extends Controller
     // CANCELLED
     private function handleCancelledOrder($retailer, $customerOrder, $request)
     {
+        // increase quantity in wholesaler-product
+        if ($customerOrder->quantity && $customerOrder->product_id) {
+            $wholesalerProduct = Product::with('productVariations')
+                ->where('id', $customerOrder->product_id)
+                ->first();
+            if ($wholesalerProduct) {
+                if ($wholesalerProduct->productVariations->isNotEmpty()) {
+                    $productVariation = ProductVariation::where('product_id', $customerOrder->product_id)
+                        ->where('product_variation', $customerOrder->product_variation)
+                        ->first();
+                    if ($productVariation) {
+                        $productVariation->stock += $customerOrder->quantity;
+                        $productVariation->save();
+                    }
+                } else {
+                    $wholesalerProduct->quantity += $customerOrder->quantity;
+                    $wholesalerProduct->save();
+                }
+            }
+        }
+
+        // increase quantity in retailer-product
+        if ($customerOrder->quantity && $customerOrder->retailer_clone_product_id) {
+            $retailerProduct = RetailerCloneProduct::with('productVariations')
+                ->where('id', $customerOrder->retailer_clone_product_id)
+                ->first();
+            if ($retailerProduct) {
+                if ($retailerProduct->productVariations->isNotEmpty()) {
+                    $productVariation = ProductVariation::where('product_id', $customerOrder->retailer_clone_product_id)
+                        ->where('product_variation', $customerOrder->product_variation)
+                        ->first();
+                    if ($productVariation) {
+                        $productVariation->stock += $customerOrder->quantity;
+                        $productVariation->save();
+                    }
+                } else {
+                    $retailerProduct->quantity += $customerOrder->quantity;
+                    $retailerProduct->save();
+                }
+            }
+        }
+
         $cancelled_reason = ($request->reject_reason_select == 'Other')
             ? $request->reject_reason_input
             : $request->reject_reason_select;
@@ -1367,6 +1410,48 @@ class RetailerOrderController extends Controller
     // CANCELLED WITH CHARGES
     private function handleCancelledOrderWithCharges($retailer, $customerOrder, $request)
     {
+        // increase quantity in wholesaler-product
+        if ($customerOrder->quantity && $customerOrder->product_id) {
+            $wholesalerProduct = Product::with('productVariations')
+                ->where('id', $customerOrder->product_id)
+                ->first();
+            if ($wholesalerProduct) {
+                if ($wholesalerProduct->productVariations->isNotEmpty()) {
+                    $productVariation = ProductVariation::where('product_id', $customerOrder->product_id)
+                        ->where('product_variation', $customerOrder->product_variation)
+                        ->first();
+                    if ($productVariation) {
+                        $productVariation->stock += $customerOrder->quantity;
+                        $productVariation->save();
+                    }
+                } else {
+                    $wholesalerProduct->quantity += $customerOrder->quantity;
+                    $wholesalerProduct->save();
+                }
+            }
+        }
+
+        // increase quantity in retailer-product
+        if ($customerOrder->quantity && $customerOrder->retailer_clone_product_id) {
+            $retailerProduct = RetailerCloneProduct::with('productVariations')
+                ->where('id', $customerOrder->retailer_clone_product_id)
+                ->first();
+            if ($retailerProduct) {
+                if ($retailerProduct->productVariations->isNotEmpty()) {
+                    $productVariation = ProductVariation::where('product_id', $customerOrder->retailer_clone_product_id)
+                        ->where('product_variation', $customerOrder->product_variation)
+                        ->first();
+                    if ($productVariation) {
+                        $productVariation->stock += $customerOrder->quantity;
+                        $productVariation->save();
+                    }
+                } else {
+                    $retailerProduct->quantity += $customerOrder->quantity;
+                    $retailerProduct->save();
+                }
+            }
+        }
+
         $retailerDetail = UserDetail::where('user_id', $retailer->id)->first();
 
         $total_charges = ($customerOrder->shipping_charge ?? 0) +

@@ -60,9 +60,8 @@
 
                         {{-- Payment Method Dropdown --}}
                         <div style="min-width: 220px; max-width: 220px;">
-                            <select id="payment_method_filter"
-                                class="form-select form-select-solid bg-secondary border-0  " data-control="select2"
-                                data-placeholder="All Payment Method">
+                            <select id="payment_method_filter" class="form-select form-select-solid bg-secondary border-0  "
+                                data-control="select2" data-placeholder="All Payment Method">
                                 <option value="all">All Payment Method</option>
                                 @foreach ($payment_method_list as $payment_method)
                                     <option value="{{ $payment_method->payment_method }}">
@@ -92,7 +91,8 @@
                         {{-- Stages --}}
                         <div class="card-header d-flex flex-wrap align-items-center justify-content-center pt-1">
                             <div class="card-toolbar">
-                                <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 justify-content-center flex-wrap">
+                                <ul
+                                    class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 justify-content-center flex-wrap">
                                     <li class="nav-item my-2">
                                         <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
@@ -162,7 +162,8 @@
                                     <li class="nav-item my-2">
                                         <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'transferred-to-wholesaler' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'transferred-to-wholesaler']) }}">
-                                            <i class="fa-solid fa-right-from-bracket pe-2 text-primary"></i> Transferred To Wholesaler
+                                            <i class="fa-solid fa-right-from-bracket pe-2 text-primary"></i> Transferred To
+                                            Wholesaler
                                         </a>
                                     </li>
                                 </ul>
@@ -174,12 +175,12 @@
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bolder fs-6 text-uppercase gs-0">
                                         <th class="text-center min-w-50px">SR NO</th>
-                                        <th class="text-center min-w-70px">ACTION</th>
+                                        <th class="text-center min-w-70px">ACTION</th>  
                                         <th class="text-center min-w-100px">ORDER DATE</th>
                                         <th class="text-center min-w-300px">ORDER DETAIL</th>
                                         <th class="text-center min-w-150px">MEDIA</th>
-                                        <th class="text-center min-w-300px">WHOLESALER DETAIL</th>
                                         <th class="text-center min-w-300px">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-300px">WHOLESALER DETAIL</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
@@ -365,7 +366,8 @@
                                             @if ($pickupAddress->isNotEmpty())
                                                 <select name="pickup_address_id" class="form-select form-select-lg"
                                                     id="pickup_address_id" data-control="select2">
-                                                    <option value="" disabled selected>-- Select Pickup Location --</option>
+                                                    <option value="" disabled selected>-- Select Pickup Location --
+                                                    </option>
                                                     @foreach ($pickupAddress as $address)
                                                         <option value="{{ $address->id }}"
                                                             data-pincode="{{ $address->pincode }}"
@@ -376,14 +378,16 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                <span class="text-danger mt-5 pickup-address-error-section" style="display: none;">
+                                                <span class="text-danger mt-5 pickup-address-error-section"
+                                                    style="display: none;">
                                                     <i class="bi bi-exclamation-triangle"></i>
                                                     <span class="pickup-address-error"></span>
                                                 </span>
                                             @else
                                                 <div class="text-center">
                                                     <p class="text-danger mb-2">No Pickup Address Found</p>
-                                                    <a href="{{ route('retailer.pickaddress.list') }}" class="btn btn-sm btn-primary">
+                                                    <a href="{{ route('retailer.pickaddress.list') }}"
+                                                        class="btn btn-sm btn-primary">
                                                         Add Pickup Address
                                                     </a>
                                                 </div>
@@ -411,10 +415,14 @@
                                                 <option value="2">2KG</option> <!-- 2KG -->
                                                 <option value="2.5">2.5KG</option> <!-- 2.5KG -->
                                             </select> --}}
-                                            <select name="product_weight" class="form-select form-select-lg" id="product_weight" data-control="select2">
-                                                <option value="" disabled selected>-- Select Product Weight --</option>
+                                            <select name="product_weight" class="form-select form-select-lg"
+                                                id="product_weight" data-control="select2">
+                                                <option value="" disabled selected>-- Select Product Weight --
+                                                </option>
                                                 @for ($i = 0.5; $i <= 100; $i += 0.5)
-                                                    <option value="{{ $i }}">{{ rtrim(rtrim(number_format($i, 1), '0'), '.') }}{{ $i < 1 ? ' KG' : ' KG' }}</option>
+                                                    <option value="{{ $i }}">
+                                                        {{ rtrim(rtrim(number_format($i, 1), '0'), '.') }}{{ $i < 1 ? ' KG' : ' KG' }}
+                                                    </option>
                                                 @endfor
                                             </select>
 
@@ -579,7 +587,8 @@
                         <input type="hidden" id="raise_issue_product_id" name="product_id">
                         <div class="fv-row mb-7 fv-plugins-icon-container">
                             <label class="fs-6 fw-semibold form-label mb-2 required">Ticket Subject</label>
-                            <input type="text" class="form-control" name="subject" id="ticket_subject" placeholder="Enter subject">
+                            <input type="text" class="form-control" name="subject" id="ticket_subject"
+                                placeholder="Enter subject">
                             <span class="invalid-feedback d-block" id="subject_error"></span>
                         </div>
 
@@ -597,20 +606,25 @@
 
                         <div class="fv-row mb-7 fv-plugins-icon-container">
                             <label class="fs-6 fw-semibold form-label mb-2 required">Description</label>
-                            <textarea class="form-control" name="ticket_description" id="ticket_description" rows="4" placeholder="Describe your issue..."></textarea>
+                            <textarea class="form-control" name="ticket_description" id="ticket_description" rows="4"
+                                placeholder="Describe your issue..."></textarea>
                             <span class="invalid-feedback d-block" id="description_error"></span>
                         </div>
                         <div class="fv-row mb-7 fv-plugins-icon-container">
                             <label class="fs-6 fw-semibold form-label mb-2">Upload Screenshots (optional)</label>
-                            <input type="file" class="form-control" name="ticket_image_ref" id="screenshots" multiple>
-                            <small class="text-muted">Max 3 images. Allowed types: jpg, jpeg, png. Max size 2MB each</small>
+                            <input type="file" class="form-control" name="ticket_image_ref" id="screenshots"
+                                multiple>
+                            <small class="text-muted">Max 3 images. Allowed types: jpg, jpeg, png. Max size 2MB
+                                each</small>
                             <span class="invalid-feedback d-block" id="screenshots_error"></span>
                         </div>
                         <div class="text-center">
                             <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" style="background-color: #ff3d60; border-color: #ff3d60;">
+                            <button type="submit" class="btn btn-primary"
+                                style="background-color: #ff3d60; border-color: #ff3d60;">
                                 <span class="indicator-label">Raise Issue</span>
-                                <span class="indicator-progress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                                <span class="indicator-progress">Please wait... <span
+                                        class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                             </button>
                         </div>
                     </form>
@@ -1011,12 +1025,12 @@
                     orderable: false,
                 },
                 {
-                    data: 'wholesaler_detail',
+                    data: 'customer_detail',
                     className: 'text-start',
                     orderable: false,
                 },
                 {
-                    data: 'customer_detail',
+                    data: 'wholesaler_detail',
                     className: 'text-start',
                     orderable: false,
                 },
@@ -1027,7 +1041,7 @@
                     $(this).css('border', '1px solidrgb(0, 0, 0)'); // or your preferred style
                 });
 
-            },  
+            },
             drawCallback: function(settings) {
                 // Apply light border and preserve existing styles on <th>
                 $('#kt_datatable_order_list thead th').each(function() {
@@ -1036,7 +1050,7 @@
                         'style',
                         existingStyle +
                         ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
-                        ' text-transform: uppercase !important;' 
+                        ' text-transform: uppercase !important;'
                     );
                 });
 
@@ -1051,7 +1065,7 @@
                 );
 
                 // Apply light inner borders to all <td> in main table
-                $('#kt_datatable_order_list > tbody > tr > td').each(function () {
+                $('#kt_datatable_order_list > tbody > tr > td').each(function() {
                     var existingStyle = $(this).attr('style') || '';
                     $(this).attr(
                         'style',
@@ -1224,7 +1238,7 @@
             }
 
             // Function to populate the courier modal table  for lorrigo
-              // <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
+            // <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
             function populateModalTableLorrigo(shipmentRates) {
                 let tableBody = '';
                 shipmentRates.forEach(function(courier) {
@@ -2201,11 +2215,13 @@
                                     $('#ticket_subject').addClass('is-invalid');
                                 }
                                 if (response.errors.description) {
-                                    $('#description_error').text(response.errors.description[0]);
+                                    $('#description_error').text(response.errors.description[
+                                    0]);
                                     $('#ticket_description').addClass('is-invalid');
                                 }
                                 if (response.errors.screenshots) {
-                                    $('#screenshots_error').text(response.errors.screenshots[0]);
+                                    $('#screenshots_error').text(response.errors.screenshots[
+                                    0]);
                                     $('#screenshots').addClass('is-invalid');
                                 }
                             }
