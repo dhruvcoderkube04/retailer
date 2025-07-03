@@ -228,9 +228,11 @@ class ShippingController extends Controller
 
     public function pickAddressList()
     {
+        $active_courier_partner = CourierPartner::where('is_active', 1)->first();
         $user = Auth::user();
         $addresses = PickAddress::select('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
             ->where('user_id', $user->id)
+            ->where('courier_partner_id', $active_courier_partner->id)
             ->groupBy('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
             ->get();
 
