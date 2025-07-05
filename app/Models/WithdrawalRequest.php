@@ -17,6 +17,7 @@ class WithdrawalRequest extends Model
         'approver_remark',
         'transaction_id',
         'account_transaction_id',
+        'process_by',
         'processing_at',
         'rejected_at',
         'completed_at'
@@ -30,5 +31,10 @@ class WithdrawalRequest extends Model
     public function wholesaler()
     {
         return $this->belongsTo(User::class, 'wholesaler_id');
+    }
+
+    public function process_by_user()
+    {
+        return $this->belongsTo(User::class, 'process_by');
     }
 }

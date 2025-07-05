@@ -433,6 +433,13 @@ class RetailerAccountTransactionController extends Controller
                                     ' . -abs($item->request_amount) . '
                                 </div>';
 
+            $process_by = 'Unknown';
+            if ($item->user_id == $item->process_by) {
+                $process_by = 'Self';
+            } else if ($item?->process_by_user?->user_type == 1) {
+                $process_by = 'Admin';
+            }
+
             $status = '';
             if ($item->status == 'completed') {
                 $status = '<div class="badge badge-light-success fs-6">Completed</div>';
@@ -449,6 +456,7 @@ class RetailerAccountTransactionController extends Controller
                 "transaction_id" => $item->transaction_id ?? 'N/A',
                 "request_type" => $request_type ?? 'N/A',
                 "wholesaler_detail" => $wholesaler_details,
+                "process_by" => $process_by,
                 "remarks" => $remarks,
                 "created_at" => $item->created_at ? $item->created_at->format('M d, Y h:i A') : 'N/A',
                 "request_amount" => $request_amount,
@@ -585,7 +593,8 @@ class RetailerAccountTransactionController extends Controller
                 'request_amount' => $request->request_amount,
                 'remarks' => $request->remarks ?? null,
                 'transaction_id' => $unique_transaction_id,
-                'account_transaction_id' => $accountTransaction->id
+                'account_transaction_id' => $accountTransaction->id,
+                'process_by' => $user->id
             ]);
 
             DB::commit();

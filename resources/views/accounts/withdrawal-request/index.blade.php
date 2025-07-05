@@ -145,6 +145,7 @@
                                                 <th class="text-center align-middle">Transaction ID</th>
                                                 <th class="text-center align-middle">Request type</th>
                                                 <th class="text-center align-middle">Wholesaler detail</th>
+                                                <th class="text-center align-middle">Process By</th>
                                                 <th class="text-center align-middle">Date & Time</th>
                                                 <th class="text-center align-middle">Remarks</th>
                                                 <th class="text-center align-middle w-120px">Request Amount</th>
@@ -417,12 +418,18 @@
                     orderable: false,
                 },
                 {
+                    data: 'process_by',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
                     data: 'created_at',
                     className: 'text-center',
                 },
                 {
                     data: 'remarks',
                     className: 'text-center',
+                    orderable: false,
                 },
                 {
                     data: 'request_amount',

@@ -361,7 +361,7 @@
                                                         <input type="text"
                                                             class="form-control @error('account_number') is-invalid @enderror"
                                                             placeholder="Enter Account No" name="account_number"
-                                                            value="{{ @$userprofile->userDetail->account_number }}"
+                                                            value="{{ old('account_number', @$userprofile->userDetail->account_number) }}"
                                                             {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
                                                         @error('account_number')
                                                             <div class="invalid-feedback d-block">{{ $message }} </div>
@@ -372,7 +372,7 @@
                                                         <input type="text"
                                                             class="form-control @error('ifsc_code') is-invalid @enderror"
                                                             placeholder="Enter Bank IFSC Code" name="ifsc_code"
-                                                            value="{{ @$userprofile->userDetail->ifsc_code }}"
+                                                            value="{{ old('ifsc_code', @$userprofile->userDetail->ifsc_code) }}"
                                                             {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
                                                         @error('ifsc_code')
                                                             <div class="invalid-feedback d-block">{{ $message }} </div>
@@ -386,7 +386,7 @@
                                                         <input type="text"
                                                             class="form-control @error('account_holder_name') is-invalid @enderror"
                                                             placeholder="Enter Holder Name" name="account_holder_name"
-                                                            value="{{ @$userprofile->userDetail->account_holder_name }}"
+                                                            value="{{ old('account_holder_name', @$userprofile->userDetail->account_holder_name) }}"
                                                             {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
                                                         @error('account_holder_name')
                                                             <div class="invalid-feedback d-block">{{ $message }} </div>
@@ -397,7 +397,7 @@
                                                         <input type="text"
                                                             class="form-control @error('pancard_number') is-invalid @enderror"
                                                             placeholder="Enter Pancard Number" name="pancard_number"
-                                                            value="{{ @$userprofile->userDetail->pancard_number }}"
+                                                            value="{{ old('pancard_number', @$userprofile->userDetail->pancard_number) }}"
                                                             {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
                                                         @error('pancard_number')
                                                             <div class="invalid-feedback d-block">{{ $message }} </div>
@@ -423,6 +423,7 @@
                                                                 alt="Pan Card"
                                                                 onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                             <input type="file" name="pan_image"
+                                                                accept=".jpg, .jpeg, .png"
                                                                 class="form-control form-control-sm @error('pan_image') is-invalid @enderror"
                                                                 {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
                                                             @error('pan_image')
@@ -430,12 +431,17 @@
                                                                 </div>
                                                             @enderror
                                                         </div>
+                                                        <div id="pan_image_preview_container"
+                                                            class="d-flex gap-2 mt-2 justify-content-center">
+                                                            <!-- image preview will be append here -->
+                                                        </div>
                                                     </div>
                                                     <div class="col-md-3 text-center">
-                                                        <label class="form-label">Aadhar Card</label>
+                                                        <label class="form-label">Aadhar Card (Front)</label>
                                                         <div class="border p-2 rounded">
                                                             @php
-                                                                $aadharImage = @$userprofile->userDetail->aadhar_image;
+                                                                $aadharImage = @$userprofile->userDetail
+                                                                    ->aadhar_1_image;
                                                                 $aadharImageUrl = $aadharImage
                                                                     ? Storage::disk('spaces')->url($aadharImage)
                                                                     : $defaultImage;
@@ -447,13 +453,49 @@
                                                             <img src="{{ $aadharImageUrl }}" class="img-fluid mb-2"
                                                                 alt="Aadhar Card"
                                                                 onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
-                                                            <input type="file" name="aadhar_image"
-                                                                class="form-control form-control-sm @error('aadhar_image') is-invalid @enderror"
+                                                            <input type="file" name="aadhar_1_image"
+                                                                accept=".jpg, .jpeg, .png"
+                                                                class="form-control form-control-sm @error('aadhar_1_image') is-invalid @enderror"
                                                                 {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
-                                                            @error('aadhar_image')
+                                                            @error('aadhar_1_image')
                                                                 <div class="invalid-feedback d-block">{{ $message }}
                                                                 </div>
                                                             @enderror
+                                                        </div>
+                                                        <div id="aadhar_1_image_preview_container"
+                                                            class="d-flex gap-2 mt-2 justify-content-center">
+                                                            <!-- image preview will be append here -->
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 text-center">
+                                                        <label class="form-label">Aadhar Card (Back)</label>
+                                                        <div class="border p-2 rounded">
+                                                            @php
+                                                                $aadharImage = @$userprofile->userDetail
+                                                                    ->aadhar_2_image;
+                                                                $aadharImageUrl = $aadharImage
+                                                                    ? Storage::disk('spaces')->url($aadharImage)
+                                                                    : $defaultImage;
+
+                                                                $defaultImage = asset(
+                                                                    'assets/media/images/no_image.jpg',
+                                                                );
+                                                            @endphp
+                                                            <img src="{{ $aadharImageUrl }}" class="img-fluid mb-2"
+                                                                alt="Aadhar Card"
+                                                                onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
+                                                            <input type="file" name="aadhar_2_image"
+                                                                accept=".jpg, .jpeg, .png"
+                                                                class="form-control form-control-sm @error('aadhar_2_image') is-invalid @enderror"
+                                                                {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
+                                                            @error('aadhar_2_image')
+                                                                <div class="invalid-feedback d-block">{{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
+                                                        <div id="aadhar_2_image_preview_container"
+                                                            class="d-flex gap-2 mt-2 justify-content-center">
+                                                            <!-- image preview will be append here -->
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3 text-center">
@@ -474,12 +516,17 @@
                                                                 alt="Cancel Cheque"
                                                                 onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
                                                             <input type="file" name="cancel_cheque"
+                                                                accept=".jpg, .jpeg, .png"
                                                                 class="form-control form-control-sm @error('cancel_cheque') is-invalid @enderror"
                                                                 {{ $userprofile->userDetail->wallet_status !== 'pending' ? 'disabled' : '' }} />
                                                             @error('cancel_cheque')
                                                                 <div class="invalid-feedback d-block">{{ $message }}
                                                                 </div>
                                                             @enderror
+                                                        </div>
+                                                        <div id="cancel_cheque_preview_container"
+                                                            class="d-flex gap-2 mt-2 justify-content-center">
+                                                            <!-- image preview will be append here -->
                                                         </div>
                                                     </div>
                                                 </div>
@@ -575,7 +622,58 @@
 @section('script')
     <script src="{{ asset('assets/js/countries.js') }}"></script>
     <script>
+        function previewImages(input, previewContainerId) {
+            let previewContainer = $('#' + previewContainerId);
+            let file = input.files[0];
+
+            // Clear previous preview
+            previewContainer.empty();
+
+            if (file && file.type.startsWith('image/')) {
+                let reader = new FileReader();
+
+                reader.onload = function(e) {
+                    let img = $('<img>', {
+                        src: e.target.result,
+                        class: 'img-thumbnail',
+                        css: {
+                            maxHeight: '150px'
+                        }
+                    });
+
+                    previewContainer.append(img);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
         $(document).ready(function() {
+            $('input[name="pan_image"], input[name="aadhar_1_image"], input[name="aadhar_2_image"], input[name="cancel_cheque"]')
+                .on('change', function() {
+                    let inputName = $(this).attr('name');
+                    let previewId = '';
+
+                    switch (inputName) {
+                        case 'pan_image':
+                            previewId = 'pan_image_preview_container';
+                            break;
+                        case 'aadhar_1_image':
+                            previewId = 'aadhar_1_image_preview_container';
+                            break;
+                        case 'aadhar_2_image':
+                            previewId = 'aadhar_2_image_preview_container';
+                            break;
+                        case 'cancel_cheque':
+                            previewId = 'cancel_cheque_preview_container';
+                            break;
+                    }
+
+                    if (previewId) {
+                        previewImages(this, previewId);
+                    }
+                });
+
             $(document).on('click', '.verify-code', function() {
                 $('#wallet-verification-code-modal').modal('show');
             });

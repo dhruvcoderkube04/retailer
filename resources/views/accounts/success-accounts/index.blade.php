@@ -3,143 +3,140 @@
     Retailer's Success Wallet Transactions | TechtrendMart
 @endsection
 @section('content')
-    @if ($user->userDetail->wallet_status == 'approved')
-        <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                    <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
-                        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                            <h1
-                                class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                                Success Wallet Transactions</h1>
+    <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+        <div class="d-flex flex-column flex-column-fluid">
+            <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+                <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
+                    <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                            Success Wallet Transactions</h1>
 
-                            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                                <li class="breadcrumb-item text-muted">
-                                    <a href="{{ route('retailer.dashboard') }}"
-                                        class="text-muted text-hover-primary">Home</a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <span class="bullet bg-gray-500 w-5px h-2px"></span>
-                                </li>
-                                <li class="breadcrumb-item text-muted">Success Wallet Transactions</li>
-                            </ul>
-                        </div>
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                            <li class="breadcrumb-item text-muted">
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <span class="bullet bg-gray-500 w-5px h-2px"></span>
+                            </li>
+                            <li class="breadcrumb-item text-muted">Success Wallet Transactions</li>
+                        </ul>
                     </div>
                 </div>
+            </div>
 
-                <div id="kt_app_content" class="app-content flex-column-fluid my-5">
-                    <div id="kt_app_content_container" class="app-container mx-auto">
+            <div id="kt_app_content" class="app-content flex-column-fluid my-5">
+                <div id="kt_app_content_container" class="app-container mx-auto">
 
-                        <div class="card mb-2 pb-5 mb-xl-5">
-                            <div class="card-body pt-9 pb-0">
-                                <div class="row gy-5 align-items-center flex-column flex-md-row">
+                    <div class="card mb-2 pb-5 mb-xl-5">
+                        <div class="card-body pt-9 pb-0">
+                            <div class="row gy-5 align-items-center flex-column flex-md-row">
 
-                                    <!-- Profile Image -->
-                                    <div class="col-md-auto text-center">
-                                        @php
-                                            $userDetail = Auth::user()->userDetail;
-                                            $logoUrl =
-                                                $userDetail && $userDetail->company_logo
-                                                    ? Storage::disk('spaces')->url($userDetail->company_logo)
-                                                    : asset('assets/media/avatars/no-profile.png');
-                                        @endphp
+                                <!-- Profile Image -->
+                                <div class="col-md-auto text-center">
+                                    @php
+                                        $userDetail = Auth::user()->userDetail;
+                                        $logoUrl =
+                                            $userDetail && $userDetail->company_logo
+                                                ? Storage::disk('spaces')->url($userDetail->company_logo)
+                                                : asset('assets/media/avatars/no-profile.png');
+                                    @endphp
+                                    <div class="symbol symbol-100px symbol-lg-150px symbol-fixed position-relative mx-auto">
+                                        <img src="{{ $logoUrl }}"
+                                            onerror="this.onerror=null;this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
+                                            alt="image" class="img-fluid rounded-circle">
+                                    </div>
+                                </div>
+
+                                <!-- User Info & Stats -->
+                                <div class="col-md flex-grow-1 text-center text-md-start">
+                                    <div class="mb-4">
                                         <div
-                                            class="symbol symbol-100px symbol-lg-150px symbol-fixed position-relative mx-auto">
-                                            <img src="{{ $logoUrl }}"
-                                                onerror="this.onerror=null;this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
-                                                alt="image" class="img-fluid rounded-circle">
-                                        </div>
-                                    </div>
-
-                                    <!-- User Info & Stats -->
-                                    <div class="col-md flex-grow-1 text-center text-md-start">
-                                        <div class="mb-4">
-                                            <div
-                                                class="d-flex align-items-center justify-content-center justify-content-md-start mb-2 flex-wrap">
-                                                <div class="text-gray-900 fs-2 fw-bold me-2">
-                                                    {{ Auth::user()->firstname }}
-                                                </div>
-                                                <i class="ki-duotone ki-verify fs-1 text-primary"></i>
+                                            class="d-flex align-items-center justify-content-center justify-content-md-start mb-2 flex-wrap">
+                                            <div class="text-gray-900 fs-2 fw-bold me-2">
+                                                {{ Auth::user()->firstname }}
                                             </div>
-
-                                            <div
-                                                class="d-flex flex-wrap justify-content-center justify-content-md-start text-gray-500 fw-semibold fs-6">
-                                                <div class="me-4 mb-2 d-flex align-items-center">
-                                                    <i class="ki-duotone ki-geolocation fs-4 me-1">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    {{ Auth::user()->userDetail->state }},
-                                                    {{ Auth::user()->userDetail->city }}
-                                                </div>
-                                                <div class="mb-2 d-flex align-items-center">
-                                                    <i class="ki-duotone ki-sms fs-4 me-1">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    {{ Auth::user()->email }}
-                                                </div>
-                                            </div>
+                                            <i class="ki-duotone ki-verify fs-1 text-primary"></i>
                                         </div>
 
-                                        <!-- Credit, Debit & Income Stats -->
-                                        <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-                                            <!-- Credit -->
-                                            <div
-                                                class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                                <div class="d-flex align-items-center justify-content-center mb-1">
-                                                    <i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    <div class="fs-4 fw-bold" id="total_credit_section">
-                                                        <span class="fs-7">₹ </span>0
-                                                    </div>
-                                                </div>
-                                                <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
+                                        <div
+                                            class="d-flex flex-wrap justify-content-center justify-content-md-start text-gray-500 fw-semibold fs-6">
+                                            <div class="me-4 mb-2 d-flex align-items-center">
+                                                <i class="ki-duotone ki-geolocation fs-4 me-1">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                {{ Auth::user()->userDetail->state }},
+                                                {{ Auth::user()->userDetail->city }}
                                             </div>
-
-                                            <!-- Debit -->
-                                            <div
-                                                class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                                <div class="d-flex align-items-center justify-content-center mb-1">
-                                                    <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    <div class="fs-4 fw-bold" id="total_debit_section">
-                                                        <span class="fs-7">₹ </span>0
-                                                    </div>
-                                                </div>
-                                                <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
-                                            </div>
-
-                                            <!-- Income -->
-                                            <div
-                                                class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                                <div class="d-flex align-items-center justify-content-center mb-1"
-                                                    id="total_income_section">
-                                                    <div class="fs-4 fw-bold">
-                                                        <span class="fs-7">₹ </span>0
-                                                    </div>
-                                                </div>
-                                                <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
+                                            <div class="mb-2 d-flex align-items-center">
+                                                <i class="ki-duotone ki-sms fs-4 me-1">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                {{ Auth::user()->email }}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Wallet -->
-                                    <div class="col-md-auto text-center">
-                                        <div class="border border-gray-300 border-dashed rounded p-4 w-130">
-                                            <div class="fs-1 fw-bold">
-                                                <span class="fs-5">₹ </span>{{ $user->userDetail->success_wallet }}
+                                    <!-- Credit, Debit & Income Stats -->
+                                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
+                                        <!-- Credit -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                                <i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                <div class="fs-4 fw-bold" id="total_credit_section">
+                                                    <span class="fs-7">₹ </span>0
+                                                </div>
                                             </div>
-                                            <div class="d-flex justify-content-center align-items-center mt-2">
-                                                <i class="fa-solid fa-circle fs-9 me-2 text-success"></i>
-                                                <div class="fw-semibold fs-5 text-gray-500">Success Wallet</div>
-                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
                                         </div>
 
+                                        <!-- Debit -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                                <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                <div class="fs-4 fw-bold" id="total_debit_section">
+                                                    <span class="fs-7">₹ </span>0
+                                                </div>
+                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
+                                        </div>
+
+                                        <!-- Income -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1"
+                                                id="total_income_section">
+                                                <div class="fs-4 fw-bold">
+                                                    <span class="fs-7">₹ </span>0
+                                                </div>
+                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Wallet -->
+                                <div class="col-md-auto text-center">
+                                    <div class="border border-gray-300 border-dashed rounded px-8 py-4 w-130">
+                                        <div class="fs-1 fw-bold">
+                                            <span class="fs-5">₹ </span>{{ $user->userDetail->success_wallet }}
+                                        </div>
+                                        <div class="d-flex justify-content-center align-items-center mt-2">
+                                            <i class="fa-solid fa-circle fs-9 me-2 text-success"></i>
+                                            <div class="fw-semibold fs-5 text-gray-500">Success Wallet</div>
+                                        </div>
+                                    </div>
+
+                                    @if ($user->userDetail->wallet_status == 'approved')
                                         <div class="mt-3">
                                             <button type="button" class="btn btn-sm btn-flex btn-primary"
                                                 data-bs-toggle="modal" data-bs-target="#withdrawalRequestModal">
@@ -150,304 +147,260 @@
                                                 Withdrawal Request
                                             </button>
                                         </div>
-                                    </div>
+                                    @endif
+                                </div>
 
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card card-flush">
+                        <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+                            <div class="card-title">
+                                <div class="d-flex align-items-center w-100 w-sm-auto">
+                                    <div class="input-group mw-250px bg-secondary">
+                                        <input type="text" class="form-control form-control-solid bg-secondary border-0"
+                                            placeholder="Pick date range" id="kt_daterangepicker_account_transactions">
+                                        <span class="input-group-text bg-secondary border-0">
+                                            <i class="ki-duotone ki-calendar-8 fs-2">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                                <span class="path3"></span>
+                                                <span class="path4"></span>
+                                                <span class="path5"></span>
+                                                <span class="path6"></span>
+                                            </i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
+                        <div class="card-body pt-0">
+                            <div class="tab-content">
+                                <table class="table align-middle table-row-dashed fs-7"
+                                    id="kt_datatable_account_transactions">
+                                    <thead>
+                                        <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle w-80px">Info</th>
+                                            <th class="text-center align-middle"></th>
+                                            <th class="text-center align-middle w-250px">Description</th>
+                                            <th class="text-center align-middle w-150px">Date & Time</th>
+                                            <th class="text-center align-middle">Order ID</th>
+                                            <th class="text-center align-middle w-100px">Transaction Amount</th>
+                                            <th class="text-center align-middle w-100px">Current Balance</th>
+                                            <th class="text-center align-middle w-100px">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="fw-semibold text-gray-600">
 
-                        <div class="card card-flush">
-                            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
-                                <div class="card-title">
-                                    <div class="d-flex align-items-center w-100 w-sm-auto">
-                                        <div class="input-group mw-250px bg-secondary">
-                                            <input type="text"
-                                                class="form-control form-control-solid bg-secondary border-0"
-                                                placeholder="Pick date range" id="kt_daterangepicker_account_transactions">
-                                            <span class="input-group-text bg-secondary border-0">
-                                                <i class="ki-duotone ki-calendar-8 fs-2">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                    <span class="path3"></span>
-                                                    <span class="path4"></span>
-                                                    <span class="path5"></span>
-                                                    <span class="path6"></span>
-                                                </i>
-                                            </span>
-                                        </div>
-                                    </div>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- transaction-summary-modal --}}
+            <div class="modal fade" id="transactionSummaryModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-450px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-white border-bottom">
+                            <h2 class="fw-bold mb-0">Transaction Summary</h2>
+                            <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2 text-dark"></span>
+                                </i>
+                            </div>
+                        </div>
+
+                        <div class="modal-body p-5" id="transaction-info-section">
+                            <div class="d-flex flex-column gap-2 fs-6 fw-semibold text-gray-700">
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Product Name :</span>
+                                    <span>N/A</span>
                                 </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Tracking ID :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Remark :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Date :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Order ID :</span>
+                                    <span class="text-primary text-hover-underline">N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Transaction Amount :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Charges :</span>
+                                    <span>N/A</span>
+                                </div>
+
                             </div>
 
-                            <div class="card-body pt-0">
-                                <div class="tab-content">
-                                    <table class="table align-middle table-row-dashed fs-7"
-                                        id="kt_datatable_account_transactions">
-                                        <thead>
-                                            <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center align-middle w-80px">Info</th>
-                                                <th class="text-center align-middle"></th>
-                                                <th class="text-center align-middle w-250px">Description</th>
-                                                <th class="text-center align-middle w-150px">Date & Time</th>
-                                                <th class="text-center align-middle">Order ID</th>
-                                                <th class="text-center align-middle w-100px">Transaction Amount</th>
-                                                <th class="text-center align-middle w-100px">Current Balance</th>
-                                                <th class="text-center align-middle w-100px">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="fw-semibold text-gray-600">
-
-                                        </tbody>
-                                    </table>
+                            <!-- Total Section -->
+                            <div class="border-top pt-4 mt-5">
+                                <div class="d-flex justify-content-between align-items-center fs-2 fw-bold">
+                                    <span>Total</span>
+                                    <span class="text-success">0.00</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {{-- transaction-summary-modal --}}
-                <div class="modal fade" id="transactionSummaryModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered mw-450px">
-                        <div class="modal-content">
-                            <div class="modal-header bg-white border-bottom">
-                                <h2 class="fw-bold mb-0">Transaction Summary</h2>
-                                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                                    <i class="ki-duotone ki-cross fs-2">
-                                        <span class="path1"></span>
-                                        <span class="path2 text-dark"></span>
-                                    </i>
-                                </div>
-                            </div>
-
-                            <div class="modal-body p-5" id="transaction-info-section">
-                                <div class="d-flex flex-column gap-2 fs-6 fw-semibold text-gray-700">
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Product Name :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Tracking ID :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Remark :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Date :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Order ID :</span>
-                                        <span class="text-primary text-hover-underline">N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Transaction Amount :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Charges :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                </div>
-
-                                <!-- Total Section -->
-                                <div class="border-top pt-4 mt-5">
-                                    <div class="d-flex justify-content-between align-items-center fs-2 fw-bold">
-                                        <span>Total</span>
-                                        <span class="text-success">0.00</span>
-                                    </div>
-                                </div>
+            {{-- withdrawal-request-modal --}}
+            <div class="modal fade" id="withdrawalRequestModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-550px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-white border-bottom">
+                            <h2 class="fw-bold mb-0">Withdrawal Request</h2>
+                            <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2 text-dark"></span>
+                                </i>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {{-- withdrawal-request-modal --}}
-                <div class="modal fade" id="withdrawalRequestModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered mw-550px">
-                        <div class="modal-content">
-                            <div class="modal-header bg-white border-bottom">
-                                <h2 class="fw-bold mb-0">Withdrawal Request</h2>
-                                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                                    <i class="ki-duotone ki-cross fs-2">
-                                        <span class="path1"></span>
-                                        <span class="path2 text-dark"></span>
-                                    </i>
+                        <div class="modal-body p-5">
+                            <div class="mb-7">
+                                <div class="bg-light-primary p-4 rounded">
+                                    <div class="text-gray-700 fs-6">
+                                        <div class="mb-2"><strong>Current Balance:</strong>
+                                            ₹{{ number_format($user->userDetail->success_wallet, 2) }}</div>
+                                        <div class="mb-2"><strong>Account Number:</strong>
+                                            {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
+                                        <div class="mb-2"><strong>IFSC Code:</strong>
+                                            {{ Auth::user()->userDetail->ifsc_code ?? 'N/A' }}</div>
+                                        <div><strong>Account Holder Name:</strong>
+                                            {{ Auth::user()->userDetail->account_holder_name ?? 'N/A' }}</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="modal-body p-5">
-                                <div class="mb-7">
-                                    <div class="bg-light-primary p-4 rounded">
-                                        <div class="text-gray-700 fs-6">
-                                            <div class="mb-2"><strong>Current Balance:</strong>
-                                                ₹{{ number_format($user->userDetail->success_wallet, 2) }}</div>
-                                            <div class="mb-2"><strong>Account Number:</strong>
-                                                {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
-                                            <div class="mb-2"><strong>IFSC Code:</strong>
-                                                {{ Auth::user()->userDetail->ifsc_code ?? 'N/A' }}</div>
-                                            <div><strong>Account Holder Name:</strong>
-                                                {{ Auth::user()->userDetail->account_holder_name ?? 'N/A' }}</div>
-                                        </div>
-                                    </div>
+                            <form method="POST" id="withdrawalRequestForm" class="m-1">
+                                @csrf
+                                {{-- Request Amount --}}
+                                <div class="form-group mb-5">
+                                    <label class="form-label fw-semibold">Request Amount <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" name="request_amount"
+                                        class="form-control form-control-solid border-secondary"
+                                        placeholder="Enter amount" min="1" step="0.01" autocomplete="off">
+                                    <span class="error error_request_amount text-danger m-2 d-none"></span>
                                 </div>
 
-                                <form method="POST" id="withdrawalRequestForm" class="m-1">
-                                    @csrf
-                                    {{-- Request Amount --}}
-                                    <div class="form-group mb-5">
-                                        <label class="form-label fw-semibold">Request Amount <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" name="request_amount"
+                                {{-- Request Type --}}
+                                <div class="form-group mb-5">
+                                    <label class="form-label fw-semibold d-block">Request Type <span
+                                            class="text-danger">*</span></label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="request_type"
+                                            id="toAccount" value="to_account" checked>
+                                        <label class="form-check-label" for="toAccount">To Self Account</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="request_type"
+                                            id="toWholesaler" value="to_wholesaler">
+                                        <label class="form-check-label" for="toWholesaler">To Wholesaler</label>
+                                    </div>
+                                    <span class="error error_request_type text-danger m-2 d-none"></span>
+                                </div>
+
+                                {{-- Wholesaler Email --}}
+                                <div class="form-group mb-5 d-none" id="wholesalerDetailSection">
+                                    <label class="form-label fw-semibold">Wholesaler Email <span
+                                            class="text-danger">*</span></label>
+
+                                    <div class="input-group mb-2 position-relative" id="emailInputGroup">
+                                        <input type="email" name="wholesaler_email"
                                             class="form-control form-control-solid border-secondary"
-                                            placeholder="Enter amount" min="1" step="0.01" autocomplete="off">
-                                        <span class="error error_request_amount text-danger m-2 d-none"></span>
+                                            placeholder="Enter wholesaler email" id="wholesaler_email_input">
+                                        <button type="button" class="btn btn-light-primary"
+                                            id="verifyWholesalerEmail">Verify</button>
+
+                                        {{-- Verified checkmark --}}
+                                        <span id="verifiedBadge"
+                                            class="position-absolute top-50 translate-middle-y end-0 d-none"
+                                            style="z-index: 10; margin-right: 7.5rem;">
+                                            <i class="bi bi-patch-check-fill text-success fs-4"></i>
+                                        </span>
                                     </div>
 
-                                    {{-- Request Type --}}
-                                    <div class="form-group mb-5">
-                                        <label class="form-label fw-semibold d-block">Request Type <span
-                                                class="text-danger">*</span></label>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="request_type"
-                                                id="toAccount" value="to_account" checked>
-                                            <label class="form-check-label" for="toAccount">To Self Account</label>
+                                    <span class="error error_wholesaler_email text-danger m-2 d-none"></span>
+
+                                    {{-- Verified Details --}}
+                                    <div id="wholesalerDetails"
+                                        class="border border-success bg-light-success rounded p-3 d-none mt-2">
+                                        <div class="fw-bold mb-2 text-success">
+                                            <i class="bi bi-person-check-fill me-1 text-success"></i> Wholesaler
+                                            Verified
                                         </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="request_type"
-                                                id="toWholesaler" value="to_wholesaler">
-                                            <label class="form-check-label" for="toWholesaler">To Wholesaler</label>
+                                        <div class="mb-1"><strong>Name:</strong> <span id="wholesalerName"></span>
                                         </div>
-                                        <span class="error error_request_type text-danger m-2 d-none"></span>
+                                        <div class="mb-1"><strong>Company Name:</strong> <span
+                                                id="wholesalerCompany"></span></div>
+                                        <div class="mb-1"><strong>Mobile No:</strong> <span
+                                                id="wholesalerMobile"></span></div>
+                                        <div class="mb-1"><strong>Wallet Status:</strong> <span
+                                                id="walletStatus"></span></div>
+                                        <input type="hidden" name="wholesaler_id" id="wholesaler_id_hidden">
+                                        <input type="hidden" name="wholesaler_wallet_status"
+                                            id="wholesaler_wallet_status_hidden">
                                     </div>
 
-                                    {{-- Wholesaler Email --}}
-                                    <div class="form-group mb-5 d-none" id="wholesalerDetailSection">
-                                        <label class="form-label fw-semibold">Wholesaler Email <span
-                                                class="text-danger">*</span></label>
-
-                                        <div class="input-group mb-2 position-relative" id="emailInputGroup">
-                                            <input type="email" name="wholesaler_email"
-                                                class="form-control form-control-solid border-secondary"
-                                                placeholder="Enter wholesaler email" id="wholesaler_email_input">
-                                            <button type="button" class="btn btn-light-primary"
-                                                id="verifyWholesalerEmail">Verify</button>
-
-                                            {{-- Verified checkmark --}}
-                                            <span id="verifiedBadge"
-                                                class="position-absolute top-50 translate-middle-y end-0 d-none"
-                                                style="z-index: 10; margin-right: 7.5rem;">
-                                                <i class="bi bi-patch-check-fill text-success fs-4"></i>
-                                            </span>
-                                        </div>
-
-                                        <span class="error error_wholesaler_email text-danger m-2 d-none"></span>
-
-                                        {{-- Verified Details --}}
-                                        <div id="wholesalerDetails"
-                                            class="border border-success bg-light-success rounded p-3 d-none mt-2">
-                                            <div class="fw-bold mb-2 text-success">
-                                                <i class="bi bi-person-check-fill me-1 text-success"></i> Wholesaler
-                                                Verified
-                                            </div>
-                                            <div class="mb-1"><strong>Name:</strong> <span id="wholesalerName"></span>
-                                            </div>
-                                            <div class="mb-1"><strong>Company Name:</strong> <span
-                                                    id="wholesalerCompany"></span></div>
-                                            <div class="mb-1"><strong>Mobile No:</strong> <span
-                                                    id="wholesalerMobile"></span></div>
-                                            <div class="mb-1"><strong>Wallet Status:</strong> <span
-                                                    id="walletStatus"></span></div>
-                                            <input type="hidden" name="wholesaler_id" id="wholesaler_id_hidden">
-                                            <input type="hidden" name="wholesaler_wallet_status"
-                                                id="wholesaler_wallet_status_hidden">
-                                        </div>
-
-                                        {{-- If Not Found --}}
-                                        <div id="wholesalerNotFoundSection" class="alert alert-danger d-none mt-3 mb-0">
-                                            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
-                                            <span id="wholesalerNotFound">Wholesaler not exist.</span>
-                                        </div>
+                                    {{-- If Not Found --}}
+                                    <div id="wholesalerNotFoundSection" class="alert alert-danger d-none mt-3 mb-0">
+                                        <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
+                                        <span id="wholesalerNotFound">Wholesaler not exist.</span>
                                     </div>
+                                </div>
 
-                                    {{-- Remarks --}}
-                                    <div class="form-group mb-5">
-                                        <label class="form-label fw-semibold">Remarks</label>
-                                        <textarea name="remarks" class="form-control form-control-solid border-secondary" placeholder="Enter remarks"
-                                            autocomplete="off"></textarea>
-                                        <span class="error error_remarks text-danger m-2 d-none"></span>
-                                    </div>
+                                {{-- Remarks --}}
+                                <div class="form-group mb-5">
+                                    <label class="form-label fw-semibold">Remarks</label>
+                                    <textarea name="remarks" class="form-control form-control-solid border-secondary" placeholder="Enter remarks"
+                                        autocomplete="off"></textarea>
+                                    <span class="error error_remarks text-danger m-2 d-none"></span>
+                                </div>
 
-                                    <div class="d-flex justify-content-end">
-                                        <button type="button" class="btn btn-light me-3"
-                                            data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-primary">
-                                            <span class="indicator-label">Submit Request</span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-light me-3"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="indicator-label">Submit Request</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-
-                @include('layouts.footer')
             </div>
+
+            @include('layouts.footer')
         </div>
-    @else
-        <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_content" class="app-content flex-column-fluid my-7">
-                    <div id="kt_app_content_container" class="app-container mx-auto">
-
-                        <div
-                            class="alert alert-dismissible bg-light-danger d-flex align-items-start flex-column flex-sm-row p-5 mb-10">
-                            <i class="ki-duotone ki-message-text-2 fs-2hx text-danger me-4 mb-3 mb-sm-0">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                                <span class="path3"></span>
-                            </i>
-
-                            <div class="d-flex flex-column ps-sm-3 pe-sm-10">
-                                <h2 class="fw-semibold mt-1 mb-5">No Access</h2>
-
-                                <p class="mb-2 fs-6">
-                                    Your wallet is not activated. Please update your bank details to activate your wallet.
-                                </p>
-
-                                <p class="mb-2 fs-6">
-                                    <a href="{{ route('retailer.profile.bank-details') }}"
-                                        class="text-primary text-decoration-underline">
-                                        Click here
-                                    </a> to activate your wallet.
-                                </p>
-
-                                <p class="mb-0 fs-6">
-                                    Or connect with our support team
-                                    <a href="{{ route('retailer.create.ticket') }}"
-                                        class="text-primary text-decoration-underline">
-                                        Click here
-                                    </a>.
-                                </p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        @include('layouts.footer')
-    @endif
+    </div>
 @endsection
 
 @section('script')

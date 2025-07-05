@@ -2431,7 +2431,8 @@ class RetilerController extends Controller
             'account_holder_name' => 'required|string|max:100',
             'pancard_number' => 'required|string|min:10|max:10',
             'pan_image' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'aadhar_image' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'aadhar_1_image' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'aadhar_2_image' => 'required|mimes:jpeg,png,jpg|max:2048',
             'cancel_cheque' => 'required|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -2448,7 +2449,7 @@ class RetilerController extends Controller
             ]);
 
             // Upload to DigitalOcean Spaces
-            foreach (['pan_image', 'aadhar_image', 'cancel_cheque'] as $field) {
+            foreach (['pan_image', 'aadhar_1_image' , 'aadhar_2_image', 'cancel_cheque'] as $field) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
                     $data[$field] = uploadOrUpdateImageToSpaces($file, 'account_documents', $userDetail->$field);

@@ -3,311 +3,262 @@
     Retailer's Pending Wallet Transactions | TechtrendMart
 @endsection
 @section('content')
-    @if ($user->userDetail->wallet_status == 'approved')
-        <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                    <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
-                        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                            <h1
-                                class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                                Pending Wallet Transactions</h1>
+    <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+        <div class="d-flex flex-column flex-column-fluid">
+            <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+                <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
+                    <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                            Pending Wallet Transactions</h1>
 
-                            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                                <li class="breadcrumb-item text-muted">
-                                    <a href="{{ route('retailer.dashboard') }}"
-                                        class="text-muted text-hover-primary">Home</a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <span class="bullet bg-gray-500 w-5px h-2px"></span>
-                                </li>
-                                <li class="breadcrumb-item text-muted">Pending Wallet Transactions</li>
-                            </ul>
-                        </div>
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                            <li class="breadcrumb-item text-muted">
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <span class="bullet bg-gray-500 w-5px h-2px"></span>
+                            </li>
+                            <li class="breadcrumb-item text-muted">Pending Wallet Transactions</li>
+                        </ul>
                     </div>
                 </div>
+            </div>
 
-                <div id="kt_app_content" class="app-content flex-column-fluid my-5">
-                    <div id="kt_app_content_container" class="app-container mx-auto">
+            <div id="kt_app_content" class="app-content flex-column-fluid my-5">
+                <div id="kt_app_content_container" class="app-container mx-auto">
 
-                        <div class="card mb-2 pb-5 mb-xl-5">
-                            <div class="card-body pt-9 pb-0">
-                                <div class="row gy-5 align-items-center flex-column flex-md-row">
+                    <div class="card mb-2 pb-5 mb-xl-5">
+                        <div class="card-body pt-9 pb-0">
+                            <div class="row gy-5 align-items-center flex-column flex-md-row">
 
-                                    <!-- Profile Image -->
-                                    <div class="col-md-auto text-center">
-                                        @php
-                                            $userDetail = Auth::user()->userDetail;
-                                            $logoUrl =
-                                                $userDetail && $userDetail->company_logo
-                                                    ? Storage::disk('spaces')->url($userDetail->company_logo)
-                                                    : asset('assets/media/avatars/no-profile.png');
-                                        @endphp
-                                        <div
-                                            class="symbol symbol-100px symbol-lg-150px symbol-fixed position-relative mx-auto">
-                                            <img src="{{ $logoUrl }}"
-                                                onerror="this.onerror=null; this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
-                                                alt="image" class="img-fluid rounded-circle">
-                                        </div>
+                                <!-- Profile Image -->
+                                <div class="col-md-auto text-center">
+                                    @php
+                                        $userDetail = Auth::user()->userDetail;
+                                        $logoUrl =
+                                            $userDetail && $userDetail->company_logo
+                                                ? Storage::disk('spaces')->url($userDetail->company_logo)
+                                                : asset('assets/media/avatars/no-profile.png');
+                                    @endphp
+                                    <div class="symbol symbol-100px symbol-lg-150px symbol-fixed position-relative mx-auto">
+                                        <img src="{{ $logoUrl }}"
+                                            onerror="this.onerror=null; this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
+                                            alt="image" class="img-fluid rounded-circle">
                                     </div>
-
-                                    <!-- User Info & Stats -->
-                                    <div class="col-md flex-grow-1 text-center text-md-start">
-                                        <div class="mb-4">
-                                            <div
-                                                class="d-flex align-items-center justify-content-center justify-content-md-start mb-2 flex-wrap">
-                                                <div class="text-gray-900 fs-2 fw-bold me-2">
-                                                    {{ Auth::user()->firstname }}
-                                                </div>
-                                                <i class="ki-duotone ki-verify fs-1 text-primary"></i>
-                                            </div>
-
-                                            <div
-                                                class="d-flex flex-wrap justify-content-center justify-content-md-start text-gray-500 fw-semibold fs-6">
-                                                <div class="me-4 mb-2 d-flex align-items-center">
-                                                    <i class="ki-duotone ki-geolocation fs-4 me-1">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    {{ Auth::user()->userDetail->state }},
-                                                    {{ Auth::user()->userDetail->city }}
-                                                </div>
-                                                <div class="mb-2 d-flex align-items-center">
-                                                    <i class="ki-duotone ki-sms fs-4 me-1">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    {{ Auth::user()->email }}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Credit, Debit & Income Stats -->
-                                        <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-                                            <!-- Credit -->
-                                            <div
-                                                class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                                <div class="d-flex align-items-center justify-content-center mb-1">
-                                                    <i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    <div class="fs-4 fw-bold" id="total_credit_section">
-                                                        <span class="fs-7">₹ </span>0
-                                                    </div>
-                                                </div>
-                                                <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
-                                            </div>
-
-                                            <!-- Debit -->
-                                            <div
-                                                class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                                <div class="d-flex align-items-center justify-content-center mb-1">
-                                                    <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                    <div class="fs-4 fw-bold" id="total_debit_section">
-                                                        <span class="fs-7">₹ </span>0
-                                                    </div>
-                                                </div>
-                                                <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
-                                            </div>
-
-                                            <!-- Income -->
-                                            <div
-                                                class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
-                                                <div class="d-flex align-items-center justify-content-center mb-1"
-                                                    id="total_income_section">
-                                                    <div class="fs-4 fw-bold">
-                                                        <span class="fs-7">₹ </span>0
-                                                    </div>
-                                                </div>
-                                                <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Wallet -->
-                                    <div class="col-md-auto text-center">
-                                        <div class="border border-gray-300 border-dashed rounded p-4 w-130">
-                                            <div class="fs-1 fw-bold">
-                                                <span class="fs-5">₹ </span>{{ $user->userDetail->pending_wallet }}
-                                            </div>
-                                            <div class="d-flex justify-content-center align-items-center mt-2">
-                                                <i class="fa-solid fa-circle fs-9 me-2 text-danger"></i>
-                                                <div class="fw-semibold fs-5 text-gray-500">Pending Wallet</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
-                            </div>
-                        </div>
 
+                                <!-- User Info & Stats -->
+                                <div class="col-md flex-grow-1 text-center text-md-start">
+                                    <div class="mb-4">
+                                        <div
+                                            class="d-flex align-items-center justify-content-center justify-content-md-start mb-2 flex-wrap">
+                                            <div class="text-gray-900 fs-2 fw-bold me-2">
+                                                {{ Auth::user()->firstname }}
+                                            </div>
+                                            <i class="ki-duotone ki-verify fs-1 text-primary"></i>
+                                        </div>
 
-                        <div class="card card-flush">
-                            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
-                                <div class="card-title">
-                                    <div class="d-flex align-items-center w-100 w-sm-auto">
-                                        <div class="input-group mw-250px bg-secondary">
-                                            <input type="text"
-                                                class="form-control form-control-solid bg-secondary border-0"
-                                                placeholder="Pick date range" id="kt_daterangepicker_account_transactions">
-                                            <span class="input-group-text bg-secondary border-0">
-                                                <i class="ki-duotone ki-calendar-8 fs-2">
+                                        <div
+                                            class="d-flex flex-wrap justify-content-center justify-content-md-start text-gray-500 fw-semibold fs-6">
+                                            <div class="me-4 mb-2 d-flex align-items-center">
+                                                <i class="ki-duotone ki-geolocation fs-4 me-1">
                                                     <span class="path1"></span>
                                                     <span class="path2"></span>
-                                                    <span class="path3"></span>
-                                                    <span class="path4"></span>
-                                                    <span class="path5"></span>
-                                                    <span class="path6"></span>
                                                 </i>
-                                            </span>
+                                                {{ Auth::user()->userDetail->state }},
+                                                {{ Auth::user()->userDetail->city }}
+                                            </div>
+                                            <div class="mb-2 d-flex align-items-center">
+                                                <i class="ki-duotone ki-sms fs-4 me-1">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                {{ Auth::user()->email }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Credit, Debit & Income Stats -->
+                                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
+                                        <!-- Credit -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                                <i class="ki-duotone ki-arrow-up fs-4 text-success me-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                <div class="fs-4 fw-bold" id="total_credit_section">
+                                                    <span class="fs-7">₹ </span>0
+                                                </div>
+                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
+                                        </div>
+
+                                        <!-- Debit -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                                <i class="ki-duotone ki-arrow-down fs-4 text-danger me-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                <div class="fs-4 fw-bold" id="total_debit_section">
+                                                    <span class="fs-7">₹ </span>0
+                                                </div>
+                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
+                                        </div>
+
+                                        <!-- Income -->
+                                        <div
+                                            class="border border-gray-300 border-dashed rounded py-3 px-4 text-center min-w-125px">
+                                            <div class="d-flex align-items-center justify-content-center mb-1"
+                                                id="total_income_section">
+                                                <div class="fs-4 fw-bold">
+                                                    <span class="fs-7">₹ </span>0
+                                                </div>
+                                            </div>
+                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="card-body pt-0">
-                                <div class="tab-content">
-                                    <table class="table align-middle table-row-dashed fs-7"
-                                        id="kt_datatable_account_transactions">
-                                        <thead>
-                                            <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center align-middle w-80px">Info</th>
-                                                <th class="text-center align-middle"></th>
-                                                <th class="text-center align-middle w-250px">Description</th>
-                                                <th class="text-center align-middle w-150px">Date & Time</th>
-                                                <th class="text-center align-middle">Order ID</th>
-                                                <th class="text-center align-middle w-100px">Transaction Amount</th>
-                                                <th class="text-center align-middle w-100px">Current Balance</th>
-                                                <th class="text-center align-middle w-100px">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="fw-semibold text-gray-600">
-
-                                        </tbody>
-                                    </table>
+                                <!-- Wallet -->
+                                <div class="col-md-auto text-center">
+                                    <div class="border border-gray-300 border-dashed rounded px-8 py-4 w-130">
+                                        <div class="fs-1 fw-bold">
+                                            <span class="fs-5">₹ </span>{{ $user->userDetail->pending_wallet }}
+                                        </div>
+                                        <div class="d-flex justify-content-center align-items-center mt-2">
+                                            <i class="fa-solid fa-circle fs-9 me-2 text-danger"></i>
+                                            <div class="fw-semibold fs-5 text-gray-500">Pending Wallet</div>
+                                        </div>
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {{-- transaction-summary-modal --}}
-                <div class="modal fade" id="transactionSummaryModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered mw-450px">
-                        <div class="modal-content">
-                            <div class="modal-header bg-white border-bottom">
-                                <h2 class="fw-bold mb-0">Transaction Summary</h2>
-                                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                                    <i class="ki-duotone ki-cross fs-2">
-                                        <span class="path1"></span>
-                                        <span class="path2 text-dark"></span>
-                                    </i>
-                                </div>
-                            </div>
 
-                            <div class="modal-body p-5" id="transaction-info-section">
-                                <div class="d-flex flex-column gap-2 fs-6 fw-semibold text-gray-700">
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Product Name :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Tracking ID :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Remark :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Date :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Order ID :</span>
-                                        <span class="text-primary text-hover-underline">N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Transaction Amount :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between py-1 border-bottom">
-                                        <span>Charges :</span>
-                                        <span>N/A</span>
-                                    </div>
-
-                                </div>
-
-                                <!-- Total Section -->
-                                <div class="border-top pt-4 mt-5">
-                                    <div class="d-flex justify-content-between align-items-center fs-2 fw-bold">
-                                        <span>Total</span>
-                                        <span class="text-success">0.00</span>
+                    <div class="card card-flush">
+                        <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+                            <div class="card-title">
+                                <div class="d-flex align-items-center w-100 w-sm-auto">
+                                    <div class="input-group mw-250px bg-secondary">
+                                        <input type="text" class="form-control form-control-solid bg-secondary border-0"
+                                            placeholder="Pick date range" id="kt_daterangepicker_account_transactions">
+                                        <span class="input-group-text bg-secondary border-0">
+                                            <i class="ki-duotone ki-calendar-8 fs-2">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                                <span class="path3"></span>
+                                                <span class="path4"></span>
+                                                <span class="path5"></span>
+                                                <span class="path6"></span>
+                                            </i>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                @include('layouts.footer')
-            </div>
-        </div>
-    @else
-        <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_content" class="app-content flex-column-fluid my-7">
-                    <div id="kt_app_content_container" class="app-container mx-auto">
+                        <div class="card-body pt-0">
+                            <div class="tab-content">
+                                <table class="table align-middle table-row-dashed fs-7"
+                                    id="kt_datatable_account_transactions">
+                                    <thead>
+                                        <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle w-80px">Info</th>
+                                            <th class="text-center align-middle"></th>
+                                            <th class="text-center align-middle w-250px">Description</th>
+                                            <th class="text-center align-middle w-150px">Date & Time</th>
+                                            <th class="text-center align-middle">Order ID</th>
+                                            <th class="text-center align-middle w-100px">Transaction Amount</th>
+                                            <th class="text-center align-middle w-100px">Current Balance</th>
+                                            <th class="text-center align-middle w-100px">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="fw-semibold text-gray-600">
 
-                        <div
-                            class="alert alert-dismissible bg-light-danger d-flex align-items-start flex-column flex-sm-row p-5 mb-10">
-                            <i class="ki-duotone ki-message-text-2 fs-2hx text-danger me-4 mb-3 mb-sm-0">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                                <span class="path3"></span>
-                            </i>
-
-                            <div class="d-flex flex-column ps-sm-3 pe-sm-10">
-                                <h2 class="fw-semibold mt-1 mb-5">No Access</h2>
-
-                                <p class="mb-2 fs-6">
-                                    Your wallet is not activated. Please update your bank details to activate your wallet.
-                                </p>
-
-                                <p class="mb-2 fs-6">
-                                    <a href="{{ route('retailer.profile.bank-details') }}"
-                                        class="text-primary text-decoration-underline">
-                                        Click here
-                                    </a> to activate your wallet.
-                                </p>
-
-                                <p class="mb-0 fs-6">
-                                    Or connect with our support team
-                                    <a href="{{ route('retailer.create.ticket') }}"
-                                        class="text-primary text-decoration-underline">
-                                        Click here
-                                    </a>.
-                                </p>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
+
+            {{-- transaction-summary-modal --}}
+            <div class="modal fade" id="transactionSummaryModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered mw-450px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-white border-bottom">
+                            <h2 class="fw-bold mb-0">Transaction Summary</h2>
+                            <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                                <i class="ki-duotone ki-cross fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2 text-dark"></span>
+                                </i>
+                            </div>
+                        </div>
+
+                        <div class="modal-body p-5" id="transaction-info-section">
+                            <div class="d-flex flex-column gap-2 fs-6 fw-semibold text-gray-700">
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Product Name :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Tracking ID :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Remark :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Date :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Order ID :</span>
+                                    <span class="text-primary text-hover-underline">N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Transaction Amount :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span>Charges :</span>
+                                    <span>N/A</span>
+                                </div>
+
+                            </div>
+
+                            <!-- Total Section -->
+                            <div class="border-top pt-4 mt-5">
+                                <div class="d-flex justify-content-between align-items-center fs-2 fw-bold">
+                                    <span>Total</span>
+                                    <span class="text-success">0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @include('layouts.footer')
         </div>
-        @include('layouts.footer')
-    @endif
+    </div>
 @endsection
 
 @section('script')

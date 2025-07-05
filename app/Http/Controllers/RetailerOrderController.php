@@ -913,7 +913,7 @@ class RetailerOrderController extends Controller
 
 
     //<-------------- START : Default Private Function to Re-use ---------------->
-    // APPROVED BY RETAILER
+    // APPROVED BY RETAILER (New to Approved)
     private function handleApproveByRetailer($customerOrder)
     {
         $customerOrder->update([
@@ -924,7 +924,7 @@ class RetailerOrderController extends Controller
         return [true, 'Order has been approved successfully', 'approved-by-retailer'];
     }
 
-    // TRANSFER TO WHOLESALER
+    // TRANSFER TO WHOLESALER (Approved to Transfer-to-wholesaler)
     private function handleTransferToWholesaler($customerOrder)
     {
         $customerOrder->update([
@@ -949,7 +949,7 @@ class RetailerOrderController extends Controller
         return [true, 'Wholesaler will ship this product', 'new'];
     }
 
-    // PICKUP
+    // PICKUP (Approved to Pickup)
     private function handlePickupStatus($request, $customerOrder, $pickup_address)
     {
         $productName = $customerOrder->order_product_detail->name ?? 'N/A';
@@ -1208,7 +1208,7 @@ class RetailerOrderController extends Controller
         }
     }
 
-    // IN-TRANSIT
+    // IN-TRANSIT (Pickup to Intransit)
     private function handleInTransitStatus($customerOrder)
     {
         $customerOrder->update([
@@ -1219,7 +1219,7 @@ class RetailerOrderController extends Controller
         return [true, 'Order has been transferred to In-transit', 'in-transit'];
     }
 
-    // DELIVERED
+    // DELIVERED (Intransit to Delivered)
     private function handleDeliveredOrder($retailer, $customerOrder)
     {
         $retailerDetail = UserDetail::where('user_id', $retailer->id)->first();
@@ -1348,7 +1348,7 @@ class RetailerOrderController extends Controller
         return [true, 'Order has been marked as delivered', 'delivered'];
     }
 
-    // CANCELLED
+    // CANCELLED (Any-stage to Cancel)
     private function handleCancelledOrder($retailer, $customerOrder, $request)
     {
         // increase quantity in wholesaler-product
@@ -1407,7 +1407,7 @@ class RetailerOrderController extends Controller
         return [true, 'Order has been cancelled by retailer', 'cancel'];
     }
 
-    // CANCELLED WITH CHARGES
+    // CANCELLED WITH CHARGES (Pickup ke bad & Delivery se pehle Order cancel hota hai)
     private function handleCancelledOrderWithCharges($retailer, $customerOrder, $request)
     {
         // increase quantity in wholesaler-product
