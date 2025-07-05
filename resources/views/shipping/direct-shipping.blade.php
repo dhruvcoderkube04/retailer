@@ -68,7 +68,7 @@
 
                     <!-- Buttons -->
                     <div class="d-flex gap-3">
-                        <button type="button" class="btn btn-warning">Self paid order</button>
+                        {{-- <button type="button" class="btn btn-warning">Self paid order</button> --}}
                         <button type="submit" class="btn btn-dark">Cash on delivery</button>
                     </div>
                 </form>
