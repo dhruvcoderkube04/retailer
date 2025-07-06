@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use App\Services\CourierServiceManager;
 
-class TrackShipments extends Command
+class TrackShipments11 extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'track:shipment';
+    protected $signature = 'track11:shipment';
 
     /**
      * The console command description.
@@ -105,7 +105,6 @@ class TrackShipments extends Command
 
         // Step 2: Load all courier services (active + inactive)
         $services = CourierServiceManager::getAllServicesForTracking(); // returns array keyed by courier code
-
         foreach ($orders as $order) {
             $partnerCode = $order->courier_partner_code;
 

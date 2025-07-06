@@ -13,7 +13,7 @@ use App\Models\CustomerOrders;
 
 class TrackShipments extends Command
 {
-    protected $signature = 'shipments:track';
+    protected $signature = 'track:shipment';
     protected $description = 'Get shipment status and update in customer order table';
 
     public function handle()
@@ -43,12 +43,18 @@ class TrackShipments extends Command
         ];
 
         $stageDateMap = [
-            'pending' => 'created_at', 'approved-by-retailer' => 'approved_by_retailer_at',
+            'pending' => 'created_at',
+            'approved-by-retailer' => 'approved_by_retailer_at',
             'transferred-to-wholesaler' => 'transfered_retailer_to_wholesaler_at',
-            'pickup' => 'pickup_at', 'in_transit' => 'in_transit_at',
-            'ofd' => 'ofd_at', 'delivered' => 'delivered_at', 'rto' => 'rto_at',
-            'rtn_to_seller' => 'rtn_to_seller_at', 'close' => 'close_at',
-            'cancel' => 'cancel_at', 'lost' => 'lost_at',
+            'pickup' => 'pickup_at',
+            'in_transit' => 'in_transit_at',
+            'ofd' => 'ofd_at',
+            'delivered' => 'delivered_at',
+            'rto' => 'rto_at',
+            'rtn_to_seller' => 'rtn_to_seller_at',
+            'close' => 'close_at',
+            'cancel' => 'cancel_at',
+            'lost' => 'lost_at'
         ];
 
         $orders = DB::table('customer_orders')
@@ -65,88 +71,102 @@ class TrackShipments extends Command
 
         $services = CourierServiceManager::getAllServicesForTracking();
 
-        DB::beginTransaction(); // START transaction
-
-        try {
-            foreach ($orders as $order) {
+        foreach ($orders as $order) {
+            DB::beginTransaction();
+            try {
                 $partnerCode = $order->courier_partner_code;
 
                 if (!isset($services[$partnerCode])) {
-                    Log::warning("⚠️ Skipping order #{$order->order_id}: Unknown or unsupported courier partner code '{$partnerCode}'");
+                    Log::warning("⚠️ Skipping order #{$order->order_id}: Unknown courier partner '{$partnerCode}'");
+                    DB::rollBack();
                     continue;
                 }
 
                 $courierService = $services[$partnerCode];
-                Log::info("🔍 Tracking order #{$order->order_id} via courier '{$partnerCode}' with tracking number: {$order->tracking_number}");
+                $response = $courierService->trackPackage($order->tracking_number);
 
-                try {
-                    $response = $courierService->trackPackage($order->tracking_number);
+                if (isset($response['status']) && $response['status'] && isset($response['summary'])) {
+                    $summary = $response['summary'];
 
-                    if (isset($response['status']) && $response['status'] && isset($response['summary'])) {
-                        $summary = $response['summary'];
+                    DB::table('customer_orders')
+                        ->where('order_id', $order->order_id)
+                        ->update([
+                            'shipment_status' => $summary['status'] ?? $order->shipment_status,
+                            'fulfilledby' => $summary['fulfilledby'] ?? $order->fulfilledby,
+                            'shipment_status_updated_at' => now(),
+                        ]);
 
-                        DB::table('customer_orders')
-                            ->where('order_id', $order->order_id)
-                            ->update([
-                                'shipment_status' => $summary['status'] ?? $order->shipment_status,
-                                'fulfilledby' => $summary['fulfilledby'] ?? $order->fulfilledby,
-                                'shipment_status_updated_at' => now(),
-                            ]);
+                    Log::info("✅ Order #{$order->order_id} updated: {$summary['status']}");
 
-                            // update status
+                } elseif (isset($response['valid']) && $response['valid'] && isset($response['order'])) {
+                    $bucket_id = $response['order']['bucket'];
+                    $key = $bucketKeyMap[$bucket_id] ?? null;
+                    $bucket_status = $key ? ($statusTextMap[$key] ?? '') : 'unknown';
+                    $dateColumn = $stageDateMap[$bucket_status] ?? null;
 
-                        Log::info("✅ Order #{$order->order_id} updated: {$summary['status']}");
+                    $latestStage = collect($response['order']['orderStages'] ?? [])->last();
+                    $status = $latestStage['action'] ?? $order->shipment_status;
 
-                    } elseif (isset($response['valid']) && $response['valid'] && isset($response['order'])) {
-                        $bucket_id = $response['order']['bucket'];
-                        $key = $bucketKeyMap[$bucket_id] ?? null;
-                        $bucket_status = $key ? ($statusTextMap[$key] ?? '') : 'unknown';
-                        $dateColumn = $stageDateMap[$bucket_status] ?? null;
+                    $updateData = [
+                        'shipment_status' => $status,
+                        'fulfilledby' => $response['order']['carrierName'] ?? $order->fulfilledby,
+                    ];
 
-                        $latestStage = collect($response['order']['orderStages'] ?? [])->last();
-                        $status = $latestStage['action'] ?? $order->shipment_status;
-
-                        $updateData = [
-                            'shipment_status' => $status,
-                            'fulfilledby' => $response['order']['carrierName'] ?? $order->fulfilledby,
-                            // 'status' => $bucket_status,
-                        ];
-
-                        if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
-                            $updateData[$dateColumn] = now();
-                        }
-
-                        DB::table('customer_orders')
-                            ->where('order_id', $order->order_id)
-                            ->update($updateData);
-
-                        Log::info("✅ Order #{$order->order_id} updated (Lorrigo): {$status}");
-
-                        if ($bucket_status === 'delivered') {
-                            $orderModel = CustomerOrders::with('retailer')->where('order_id',$order->order_id)->first();
-
-                            if ($orderModel && $orderModel->retailer) {
-                                $statusService = new OrderStatusService();
-                                [$success, $msg, $finalStatus] = $statusService->handleDeliveredOrder($orderModel->retailer, $orderModel);
-                                Log::info("🎯 Delivery processed for order #{$order->order_id}: {$msg}");
-                            }
-                        }
-
-                    } else {
-                        Log::warning("⚠️ Tracking failed for order #{$order->order_id}: No valid summary in response");
+                    if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
+                        $updateData[$dateColumn] = now();
                     }
-                } catch (\Exception $e) {
-                    Log::error("❌ Tracking error for order #{$order->order_id}: " . $e->getMessage());
+
+                    DB::table('customer_orders')->where('order_id', $order->order_id)->update($updateData);
+
+                    $orderModel = CustomerOrders::with('retailer')->where('order_id', $order->order_id)->first();
+
+                    if ($orderModel && $orderModel->retailer) {
+                        $statusService = new OrderStatusService();
+
+                        if ($bucket_status === 'in_transit') {
+                            if ($orderModel->status === 'in_transit' && $orderModel->in_transit_at) {
+                                Log::info("🚫 Order #{$order->order_id} already in_transit. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleInTransitStatus($orderModel);
+                            Log::info("🎯 In Transit processed for order #{$order->order_id}: {$msg}");
+
+                        } elseif ($bucket_status === 'delivered') {
+                            if ($orderModel->status === 'delivered' && $orderModel->delivered_at) {
+                                Log::info("🚫 Order #{$order->order_id} already delivered. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleDeliveredOrder($orderModel->retailer, $orderModel);
+                            Log::info("🎯 Delivered processed for order #{$order->order_id}: {$msg}");
+
+                        } elseif ($bucket_status === 'cancel') {
+                            if ($orderModel->status === 'cancel' && $orderModel->cancel_at) {
+                                Log::info("🚫 Order #{$order->order_id} already cancelled. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleCancelledOrderWithCharges($orderModel->retailer, $orderModel);
+                            Log::info("🎯 Cancel processed for order #{$order->order_id}: {$msg}");
+                        }
+                    }
+                } else {
+                    Log::warning("⚠️ Order #{$order->order_id} tracking failed: No valid data.");
+                    DB::rollBack();
+                    continue;
                 }
+
+                DB::commit(); // only this order's changes committed
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                Log::error("❌ Error processing order #{$order->order_id}: " . $e->getMessage());
+                continue;
             }
-
-            DB::commit(); // COMMIT transaction
-            Log::info('✅ All orders tracked and updated successfully.');
-        } catch (\Throwable $e) {
-            DB::rollBack(); // ROLLBACK on any failure
-            Log::error("❌ Transaction failed. Rolled back. Error: " . $e->getMessage());
         }
-
         Log::info('✅ TrackShipments command completed at ' . now());
     }
 }

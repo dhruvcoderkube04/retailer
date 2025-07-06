@@ -1498,6 +1498,7 @@ class RetailerOrderController extends Controller
 
         return [true, 'Order has been cancelled by retailer', 'cancel'];
     }
+
     //<-------------- END : Default Private Function to Re-use ---------------->
 
 
