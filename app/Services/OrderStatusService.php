@@ -69,6 +69,7 @@ class OrderStatusService
             }
 
             if (!$marginFetch || !$marginFetch->margin) {
+                Log::error('For Order ID '.$customerOrder->order_id.', Product category margin not added, Please go to Wholesaler section and add margin first');
                 return [false, 'Product category margin not added, Please go to Wholesaler section and add margin first', 'delivered'];
             }
 
@@ -298,15 +299,15 @@ class OrderStatusService
         $retailerDetail->pending_wallet = $retailerDetail->pending_wallet - $total_charges;
         $retailerDetail->save();
 
-        $cancelled_reason = ($request->reject_reason_select == 'Other')
-            ? $request->reject_reason_input
-            : $request->reject_reason_select;
+        // $cancelled_reason = ($request->reject_reason_select == 'Other')
+        //     ? $request->reject_reason_input
+        //     : $request->reject_reason_select;
 
         $customerOrder->update([
             'status' => 'cancel',
             'cancel_at' => Carbon::now(),
             'cancelled_by' => $retailer->id,
-            'cancelled_reason' => $cancelled_reason
+            'cancelled_reason' => 'Rejected from the courier service'
         ]);
 
         return [true, 'Order has been cancelled by retailer', 'cancel'];
