@@ -22,8 +22,8 @@ class CourierServiceManager
         // Choose the appropriate courier service based on the code
         return match ($partner->code) {
             'fship'    => new FShipService($partner->toArray()),
-            'lorrigotest'  => new LorrigoService($partner->toArray()),
             'lorrigolive'  => new LorrigoServiceLive($partner->toArray()),
+            'lorrigotest'  => new LorrigoService($partner->toArray()),
             // 'yship'    => new YShipService($partner->toArray()),
             // 'bluedart' => new BluedartService($partner->toArray()),
             // 'professional' => new ProfessionalService($partner->toArray()),

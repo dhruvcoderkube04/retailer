@@ -276,12 +276,11 @@ Route::middleware(['retailer'])->group(function () {
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);
 
 Route::get('/cc', function () {
-    Artisan::call('config:cache');
+    Artisan::call('config:clear');
     Artisan::call('route:cache');
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
     Artisan::call('optimize');
-
     return 'DONE';
 });
 
