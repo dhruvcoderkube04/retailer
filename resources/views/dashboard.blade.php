@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Retailers | TechtrendMart 
+    Retailers | TechtrendMart
 @endsection
 @section('content')
     <style>
@@ -209,7 +209,7 @@
                                         $retailer_ratio = 0;
                                     }
                                 @endphp
-                                <a href="{{ url('retailer-product?active-tab=2') }}">
+                                <a href="{{ url('my-product?active-tab=2') }}">
                                     <div class="card-header pt-5">
                                         <div class="card-title d-flex flex-column">
                                             <div class="d-flex align-items-center">

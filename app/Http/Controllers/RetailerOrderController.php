@@ -602,9 +602,9 @@ class RetailerOrderController extends Controller
             } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . '>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' disabled>Action</button>';
             } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . '>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' disabled>Action</button>';
             } else {
                 $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
             }
@@ -968,7 +968,6 @@ class RetailerOrderController extends Controller
         $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
         $marginTagName = $user->userDetail?->margin_tag_name;
         $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-
         if ($getMargin) {
             $marginType = $getMargin->type; // 'percentage' or 'flat'
             $flatAmount = (float) ($getMargin->flat_percentage ?? 0);
@@ -993,6 +992,17 @@ class RetailerOrderController extends Controller
                 $codProfit = round($flatAmount, 2);
                 $rtoProfit = round($flatAmount, 2);
             }
+        }
+        else
+        {
+            // No margin and percentage calculation applied, use request values as is
+            $shippingBase = $finalShipping;
+            $codBase = $finalCod;
+            $rtoBase = $finalRto;
+
+            $shippingProfit = 0.0;
+            $codProfit = 0.0;
+            $rtoProfit = 0.0;
         }
 
         $updateData = [

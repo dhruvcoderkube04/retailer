@@ -112,7 +112,7 @@ class TrackShipments extends Command
                         'fulfilledby' => $response['order']['carrierName'] ?? $order->fulfilledby,
                     ];
 
-                    if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
+                    if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn) ) {
                         $updateData[$dateColumn] = now();
                     }
 
