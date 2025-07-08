@@ -17,6 +17,7 @@ class CustomerOrders extends Model
         'wholesaler_id',
         'product_variation',
         'quantity',
+        'retailer_margin_amount',
         'final_amount',
         'margin',
         'order_process_by',

@@ -722,7 +722,6 @@ class RetailerProductController extends Controller
 
     public function checkout(Request $request)
     {
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|max:30',
             'lastname' => 'required|max:30',
@@ -806,6 +805,7 @@ class RetailerProductController extends Controller
                 $variationOldPrice = null;
                 $variationNewPrice = null;
                 $variationStock = null;
+                $retailer_margin_amount = 0;
                 if ($productId) {
                     $productModel = Product::with('productVariations')
                         ->where('id', $productId)
@@ -817,6 +817,32 @@ class RetailerProductController extends Controller
                             'message' => 'Product ID ' . $productId . ' not found.'
                         ], 404);
                     }
+
+                    // START : get retailer's margin of this product
+                    $retailerMargin = RetailerProducts::where('product_id', $productId)
+                        ->where('retailer_id', $retailerId)
+                        ->first();
+                    if ($retailerMargin) {
+                        if ($retailerMargin->product_status == 'inactive' || $retailerMargin->is_deleted_product == 1) {
+                            return response()->json([
+                                'error' => true,
+                                'message' => 'Product ID ' . $productId . ' is unavailable for sell.'
+                            ], 404);
+                        }
+
+                        $retailer_margin_amount = $retailerMargin->margin;
+                    } else {
+                        $retailerMargin = RetailerProducts::where('retailer_id', $retailerId)
+                            ->where('wholesaler_id', $productModel->wholesaler_id)
+                            ->where('sub_category_id', $productModel->sub_category_id)
+                            ->whereNull('product_id')
+                            ->first();
+
+                        if ($retailerMargin) {
+                            $retailer_margin_amount = $retailerMargin->margin;
+                        }
+                    }
+                    // END : get retailer's margin of this product
 
                     if ($productModel->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
@@ -987,6 +1013,7 @@ class RetailerProductController extends Controller
                     'wholesaler_id' => $wholesalerId,
                     'product_variation' => $variation ?? null,
                     'quantity' => $quantity,
+                    'retailer_margin_amount' => $retailer_margin_amount,
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,

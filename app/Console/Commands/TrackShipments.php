@@ -21,22 +21,41 @@ class TrackShipments extends Command
         Log::info('📦 TrackShipments command started at ' . now());
 
         $bucketKeyMap = [
-            0 => 'NEW', 1 => 'READY_TO_SHIP', 2 => 'IN_TRANSIT', 3 => 'NDR',
-            4 => 'DELIVERED', 5 => 'RTO', 6 => 'CANCELED', 7 => 'LOST_DAMAGED',
-            8 => 'DISPOSED', 9 => 'RTO_DELIVERED',
-            101 => 'RETURN_CONFIRMED', 102 => 'RETURN_PICKED',
-            103 => 'RETURN_CANCELLATION', 104 => 'RETURN_DELIVERED',
+            0 => 'NEW',
+            1 => 'READY_TO_SHIP',
+            2 => 'IN_TRANSIT',
+            3 => 'NDR',
+            4 => 'DELIVERED',
+            5 => 'RTO',
+            6 => 'CANCELED',
+            7 => 'LOST_DAMAGED',
+            8 => 'DISPOSED',
+            9 => 'RTO_DELIVERED',
+            101 => 'RETURN_CONFIRMED',
+            102 => 'RETURN_PICKED',
+            103 => 'RETURN_CANCELLATION',
+            104 => 'RETURN_DELIVERED',
             105 => 'RETURN_SHIPMENT_LOST',
         ];
 
         $statusTextMap = [
-            'NEW' => 'pending', 'READY_TO_SHIP' => 'pickup', 'IN_TRANSIT' => 'in_transit',
-            'NDR' => 'rto', 'DELIVERED' => 'delivered', 'RTO' => 'rto',
-            'RTO_DELIVERED' => 'rtn_to_seller', 'CANCELED' => 'cancel', 'LOST_DAMAGED' => 'lost',
-            'DISPOSED' => 'lost', 'RETURN_CONFIRMED' => 'rtn_to_seller',
-            'RETURN_ORDER_MANIFESTED' => 'rtn_to_seller', 'RETURN_PICKED' => 'rtn_to_seller',
-            'RETURN_CANCELLATION' => 'rtn_to_seller', 'RETURN_DELIVERED' => 'rtn_to_seller',
-            'RETURN_OUT_FOR_PICKUP' => 'rtn_to_seller', 'RETURN_IN_TRANSIT' => 'rtn_to_seller',
+            'NEW' => 'pending',
+            'READY_TO_SHIP' => 'pickup',
+            'IN_TRANSIT' => 'in_transit',
+            'NDR' => 'rto',
+            'DELIVERED' => 'delivered',
+            'RTO' => 'rto',
+            'RTO_DELIVERED' => 'rtn_to_seller',
+            'CANCELED' => 'cancel',
+            'LOST_DAMAGED' => 'lost',
+            'DISPOSED' => 'lost',
+            'RETURN_CONFIRMED' => 'rtn_to_seller',
+            'RETURN_ORDER_MANIFESTED' => 'rtn_to_seller',
+            'RETURN_PICKED' => 'rtn_to_seller',
+            'RETURN_CANCELLATION' => 'rtn_to_seller',
+            'RETURN_DELIVERED' => 'rtn_to_seller',
+            'RETURN_OUT_FOR_PICKUP' => 'rtn_to_seller',
+            'RETURN_IN_TRANSIT' => 'rtn_to_seller',
             'RETURN_CANCELLED_BY_SMARTSHIP' => 'rtn_to_seller',
             'RETURN_CANCELLED_BY_CLIENT' => 'rtn_to_seller',
             'RETURN_SHIPMENT_LOST' => 'rtn_to_seller',
@@ -97,7 +116,6 @@ class TrackShipments extends Command
                         ]);
 
                     Log::info("✅ Order #{$order->order_id} updated: {$summary['status']}");
-
                 } elseif (isset($response['valid']) && $response['valid'] && isset($response['order'])) {
                     $bucket_id = $response['order']['bucket'];
                     $key = $bucketKeyMap[$bucket_id] ?? null;
@@ -112,7 +130,7 @@ class TrackShipments extends Command
                         'fulfilledby' => $response['order']['carrierName'] ?? $order->fulfilledby,
                     ];
 
-                    if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn) ) {
+                    if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
                         $updateData[$dateColumn] = now();
                     }
 
@@ -132,7 +150,6 @@ class TrackShipments extends Command
 
                             [$success, $msg, $finalStatus] = $statusService->handleInTransitStatus($orderModel);
                             Log::info("🎯 In Transit processed for order #{$order->order_id}: {$msg}");
-
                         } elseif ($bucket_status === 'delivered') {
                             if ($orderModel->status === 'delivered' && $orderModel->delivered_at) {
                                 Log::info("🚫 Order #{$order->order_id} already delivered. Skipping update.");
@@ -142,7 +159,6 @@ class TrackShipments extends Command
 
                             [$success, $msg, $finalStatus] = $statusService->handleDeliveredOrder($orderModel->retailer, $orderModel);
                             Log::info("🎯 Delivered processed for order #{$order->order_id}: {$msg}");
-
                         } elseif ($bucket_status === 'cancel') {
                             if ($orderModel->status === 'cancel' && $orderModel->cancel_at) {
                                 Log::info("🚫 Order #{$order->order_id} already cancelled. Skipping update.");
@@ -150,7 +166,10 @@ class TrackShipments extends Command
                                 continue;
                             }
 
-                            [$success, $msg, $finalStatus] = $statusService->handleCancelledOrderWithCharges($orderModel->retailer, $orderModel);
+                            $reject_reason_select = 'Other';
+                            $reject_reason_input = 'Rejected from the courier service';
+
+                            [$success, $msg, $finalStatus] = $statusService->handleCancelledOrderWithCharges($orderModel->retailer, $orderModel, $reject_reason_select, $reject_reason_input);
                             Log::info("🎯 Cancel processed for order #{$order->order_id}: {$msg}");
                         }
                     }
