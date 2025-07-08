@@ -67,9 +67,10 @@ class ShippingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:100',
+            'lastname' => 'required|string|max:100',
             'email' => 'required|email',
-            'phone_number' => 'required|string|max:20',
-            'pincode' => 'required|string|max:10',
+            'phone_number' => 'required|string|max:10',
+            'pincode' => 'required|string|max:6',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:100',
             'state' => 'required|string|max:100',

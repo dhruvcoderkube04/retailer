@@ -270,7 +270,6 @@
         .then(data => {
             if (data.success) {
                 form.reset();
-                fetchCustomers(); // Your existing function to reload customer list
                 Swal.fire({
                     icon: 'success',
                     title: 'Customer Added',
