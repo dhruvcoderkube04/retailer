@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class ShippingController extends Controller
 {
@@ -46,25 +47,43 @@ class ShippingController extends Controller
     public function getCustomerRecrodAccrodingOrder(Request $request)
     {
         $userId = Auth::id();
-        $customerRecords = CustomerDetails::where('user_id', $userId)->get();
+        $search = $request->input('query');
+
+        $customerRecords = CustomerDetails::where('user_id', $userId)
+            ->when($search, function ($queryBuilder, $search) {
+                $queryBuilder->where(function ($q) use ($search) {
+                    $q->where('firstname', 'like', "%$search%")
+                    ->orWhere('lastname', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('phone_number', 'like', "%$search%");
+                });
+            })
+            ->get();
 
         return response()->json($customerRecords);
     }
 
     public function storeCustomer(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:100',
-            'lastname' => 'required|string|max:100',
-            'email' =>'required|email',
+            'email' => 'required|email',
             'phone_number' => 'required|string|max:20',
             'pincode' => 'required|string|max:10',
-            'address' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
         ]);
 
-        $validated['user_id'] = Auth::user()->id; // Add logged-in user
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422); // Important for catching in JS
+        }
+
+        $validated = $validator->validated();
+        $validated['user_id'] = auth()->id();
 
         $customer = CustomerDetails::create($validated);
 
@@ -74,6 +93,7 @@ class ShippingController extends Controller
             'customer' => $customer
         ]);
     }
+
     public function directShippingPlaceOrder(Request $request)
     {
         DB::beginTransaction();

@@ -81,14 +81,24 @@
 <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
+
+            <!-- Modal Header with Close Button -->
             <div class="modal-header">
-                <h5 class="modal-title">Select or Add Customer</h5>
+                <h5 class="modal-title" id="customerModalLabel">Select or Add Customer</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body row">
                 <!-- Customer List -->
-                <div class="col-md-6 border-end" id="customerList">
-                    <p>Loading customers...</p>
+                <div class="col-md-6 border-end" id="customerListWrapper">
+                    <!-- Search Input Group -->
+                    <div class="input-group mb-2">
+                        <input type="text" id="customerSearch" class="form-control" placeholder="Search by name, phone, or email">
+                        <button id="customerSearchBtn" class="btn btn-primary" type="button">Search</button>
+                    </div>
+
+                    <!-- Customer List Output -->
+                    <div id="customerList"></div>
                 </div>
 
                 <!-- Add Customer Form -->
@@ -96,30 +106,47 @@
                     <h6>Add New Customer</h6>
                     <form id="addCustomerForm">
                         @csrf
+
                         <div class="mb-2">
-                            <input type="text" class="form-control" name="firstname" placeholder="First name" required>
+                            <input type="text" class="form-control" name="firstname" placeholder="First name">
+                            <div class="invalid-feedback error-firstname"></div>
                         </div>
+
                         <div class="mb-2">
-                            <input type="text" class="form-control" name="lastname" placeholder="Last name" required>
+                            <input type="text" class="form-control" name="lastname" placeholder="Last name">
+                            <div class="invalid-feedback error-lastname"></div>
                         </div>
+
                         <div class="mb-2">
-                            <input type="email" class="form-control" name="email" placeholder="Email" required>
+                            <input type="email" class="form-control" name="email" placeholder="Email">
+                            <div class="invalid-feedback error-email"></div>
                         </div>
+
                         <div class="mb-2">
-                            <input type="text" class="form-control" name="phone_number" placeholder="Mobile number" required>
+                            <input type="text" class="form-control" name="phone_number" placeholder="Mobile number">
+                            <div class="invalid-feedback error-phone_number"></div>
                         </div>
+
                         <div class="mb-2">
                             <input type="text" class="form-control" name="pincode" placeholder="Pincode">
+                            <div class="invalid-feedback error-pincode"></div>
                         </div>
+
                         <div class="mb-2">
                             <input type="text" class="form-control" name="address" placeholder="Address">
+                            <div class="invalid-feedback error-address"></div>
                         </div>
+
                         <div class="mb-2">
                             <input type="text" class="form-control" name="city" placeholder="City">
+                            <div class="invalid-feedback error-city"></div>
                         </div>
+
                         <div class="mb-2">
                             <input type="text" class="form-control" name="state" placeholder="State">
+                            <div class="invalid-feedback error-state"></div>
                         </div>
+
                         <button type="submit" class="btn btn-success w-100">Add Customer</button>
                     </form>
                 </div>
@@ -127,58 +154,86 @@
         </div>
     </div>
 </div>
+
+
+
 @endsection
 
 @section('script')
 <script>
     // Show modal and fetch customer records
-    function showCustomerModal() {
+   function showCustomerModal() {
+    // Show modal
         $('#customerModal').modal('show');
-        fetchCustomers();
+
+        // Reset form fields
+        document.getElementById('addCustomerForm').reset();
+
+        // Remove error messages and invalid classes
+        document.querySelectorAll('#addCustomerForm .form-control').forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+
+        document.querySelectorAll('#addCustomerForm .invalid-feedback').forEach(div => {
+            div.textContent = '';
+        });
+
+        // Clear customer search input
+        document.getElementById('customerSearch').value = '';
+
+        // Clear customer list display
+        document.getElementById('customerList').innerHTML = '';
+
     }
 
-    // Fetch customers from server
-    function fetchCustomers() {
+
+    document.getElementById('customerSearchBtn').addEventListener('click', function () {
+        const query = document.getElementById('customerSearch').value.trim();
+
+        // Clear customer list if input is empty
+        if (query === '') {
+            document.getElementById('customerList').innerHTML = '';
+            return;
+        }
+
         fetch("{{ route('retailer.getcustomer.data') }}", {
             method: "POST",
             headers: {
+                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
+            },
+            body: JSON.stringify({ query: query })
         })
-        .then(response => response.text()) // get raw response
-        .then(raw => {
-            console.log("RAW RESPONSE:", raw); // for debugging
-            try {
-                const data = JSON.parse(raw); // try parsing
-                renderCustomerList(data); // render list
-            } catch (error) {
-                console.error("JSON Parse Error:", error);
-            document.getElementById('customerList').innerHTML = `<p class="text-danger">Failed to load customers.</p>`;
-            }
+        .then(res => res.json())
+        .then(customers => {
+            renderCustomerList(customers);
         })
         .catch(err => {
-            console.error("Fetch error:", err);
-            document.getElementById('customerList').innerHTML = `<p class="text-danger">Error fetching customers.</p>`;
+            console.error("Search error:", err);
+            document.getElementById('customerList').innerHTML = `<p class="text-danger">Search failed.</p>`;
         });
-    }
+    });
 
-    // Render customer list
     function renderCustomerList(customers) {
+        const container = document.getElementById('customerList');
         let html = '';
+
         if (customers.length === 0) {
-            html = '<p>No customers found.</p>';
+            html = '<p>No matching customers found.</p>';
         } else {
             customers.forEach(customer => {
                 html += `
-                    <div class="border-bottom p-2">
+                    <div class="border-bottom p-2 customer-item">
                         <strong>${customer.id} ${customer.firstname} ${customer.lastname}</strong><br/>
                         <small>${customer.phone_number}</small><br/>
                         <button type="button" class="btn btn-sm btn-primary text-white mt-1" onclick='selectCustomer(${JSON.stringify(customer)})'>Select</button>
                     </div>`;
             });
         }
-        document.getElementById('customerList').innerHTML = html;
+
+        container.innerHTML = html;
     }
+
 
     // When customer is selected
     function selectCustomer(customer) {
@@ -193,7 +248,16 @@
     // Add new customer form submit
     document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const formData = new FormData(this);
+        const form = this;
+        const formData = new FormData(form);
+
+        // Clear old errors and red borders
+        form.querySelectorAll('.form-control').forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+        form.querySelectorAll('.invalid-feedback').forEach(div => {
+            div.innerText = '';
+        });
 
         fetch("{{ route('retailer.customerdata.store') }}", {
             method: "POST",
@@ -205,8 +269,8 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                this.reset();
-                fetchCustomers();
+                form.reset();
+                fetchCustomers(); // Your existing function to reload customer list
                 Swal.fire({
                     icon: 'success',
                     title: 'Customer Added',
@@ -214,6 +278,13 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
+            } else if (data.errors) {
+                for (const field in data.errors) {
+                    const input = form.querySelector(`[name="${field}"]`);
+                    const errorDiv = form.querySelector(`.error-${field}`);
+                    if (input) input.classList.add('is-invalid');
+                    if (errorDiv) errorDiv.innerText = data.errors[field][0];
+                }
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -224,6 +295,11 @@
         })
         .catch(err => {
             console.error("Error adding customer:", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong while adding the customer.'
+            });
         });
     });
 
