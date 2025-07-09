@@ -605,12 +605,12 @@ class RetailerOrderController extends Controller
             } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' >Action</button>';
+                // $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' disabled>Action</button>';
                 $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' disabled>Action</button>';
                 $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
-            } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
+            } elseif ($item->status == 'ofd' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } else {
