@@ -132,6 +132,7 @@ Route::middleware(['retailer'])->group(function () {
         Route::get('/pickup-image/fetch', [RetailerOrderController::class, 'pickupImageFetch'])->name('retailer.order.pickup-image.fetch');
         Route::post('/pickup-image/upload', [RetailerOrderController::class, 'pickupImageUpload'])->name('retailer.order.pickup-image.upload');
         Route::post('/action/in-transit-order', [RetailerOrderController::class, 'inTransitOrderAction'])->name('retailer.order.action.in-transit-order');
+        Route::post('/action/cancel-order', [RetailerOrderController::class, 'cancelOrderAction'])->name('retailer.order.action.cancel-order');
     });
 
     // my-order

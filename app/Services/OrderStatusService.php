@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 
@@ -174,7 +175,7 @@ class OrderStatusService
                 "ewaybill" => "",
                 "order_reference_id" => $customerOrder->order_id . rand(1, 9999999),
                 "payment_mode" => 1,
-                "orderWeight" => 0.5,
+                "orderWeight" => $request->product_weight,
                 "orderWeightUnit" => "kg",
                 "order_invoice_date" => "",
                 "order_invoice_number" => "",
@@ -221,7 +222,7 @@ class OrderStatusService
                 $updateData['api_order_id'] = $response['apiorderid'];
                 $updateData['courier_service'] = $request->courier_service;
                 $updateData['courier_partner_id'] = $active_courier_partners->id;
-                $updateData['courier_partner_code'] = 'fship';
+                $updateData['courier_partner_code'] = $active_courier_partners->code;
 
                 $pdf = PDF::loadView('orders.pdf.order-shipping-label', [
                     'courier_service_response' => $response,
@@ -514,6 +515,36 @@ class OrderStatusService
             ? $reject_reason_input
             : $reject_reason_select;
 
+        if ($customerOrder->status == 'pickup') {
+            if ($customerOrder->courier_partner_code == 'fship') {
+                $apiUrl = config('services.fship.base_url');
+                $signature = config('services.fship.signature');
+
+                $response = Http::withHeaders([
+                    'signature' => $signature,
+                    'Content-Type' => 'application/json',
+                ])->post($apiUrl . '/cancelorder', [
+                    'reason' => $cancelled_reason,
+                    'waybill' => $customerOrder->tracking_number,
+                ]);
+
+                if ($response->successful()) {
+                    Log::info('FSHIP Cancel Order Successfull', [
+                        'status' => $response->status(),
+                        'response' => $response->json(),
+                    ]);
+                } else {
+                    Log::error('FSHIP Cancel Order Failed', [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]);
+                    return [false, 'FSHIP Cancel Order Failed', 'cancel'];
+                }
+            } else if ($customerOrder->courier_partner_code == 'lorrigolive') {
+                // call lorrigo cancel order API
+            }
+        }
+
         $customerOrder->update([
             'status' => 'cancel',
             'cancel_at' => Carbon::now(),
@@ -612,6 +643,34 @@ class OrderStatusService
             'cancelled_by' => $retailer->id,
             'cancelled_reason' => $cancelled_reason
         ]);
+
+        if ($customerOrder->courier_partner_code == 'fship') {
+            $apiUrl = config('services.fship.base_url');
+            $signature = config('services.fship.signature');
+
+            $response = Http::withHeaders([
+                'signature' => $signature,
+                'Content-Type' => 'application/json',
+            ])->post($apiUrl . '/cancelorder', [
+                'reason' => $cancelled_reason,
+                'waybill' => $customerOrder->tracking_number,
+            ]);
+
+            if ($response->successful()) {
+                Log::info('FSHIP Cancel Order Successfull', [
+                    'status' => $response->status(),
+                    'response' => $response->json(),
+                ]);
+            } else {
+                Log::error('FSHIP Cancel Order Failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [false, 'FSHIP Cancel Order Failed', 'cancel'];
+            }
+        } else if ($customerOrder->courier_partner_code == 'lorrigolive') {
+            // call lorrigo cancel order API
+        }
 
         return [true, 'Order has been cancelled by retailer', 'cancel'];
     }

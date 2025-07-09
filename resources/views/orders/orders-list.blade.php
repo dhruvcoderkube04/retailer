@@ -175,7 +175,7 @@
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bolder fs-6 text-uppercase gs-0">
                                         <th class="text-center min-w-50px">SR NO</th>
-                                        <th class="text-center min-w-70px">ACTION</th>  
+                                        <th class="text-center min-w-70px">ACTION</th>
                                         <th class="text-center min-w-100px">ORDER DATE</th>
                                         <th class="text-center min-w-300px">ORDER DETAIL</th>
                                         <th class="text-center min-w-150px">MEDIA</th>
@@ -933,6 +933,96 @@
         </div>
     </div>
     <!-- END: In Transit Order Modal -->
+
+    <!-- START: Cancel Order Modal -->
+    <div class="modal fade" id="cancel-order-action-modal" tabindex="-1"
+        aria-labelledby="cancel-order-action-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title d-flex align-item-center gap-4 mt-1" id="cancel-order-action-modal-label">
+                        <span class="menu-icon">
+                            <i class="ki-duotone ki-delivery-3 fs-1" style="color: rgb(51, 51, 51)">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </span>
+                        <span>Order Cancel</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="cancelOrderForm" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        {{-- Reject Reason Select --}}
+                        <div class="mt-12 mx-7 rejectReasonSelectContainer">
+                            <h5 class="fw-bold text-gray-800 mb-3">
+                                <i class="bi bi-journal-x text-primary me-2"></i> Select Reject Reason
+                            </h5>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonSelectCancelOrder"
+                                        class="form-label fw-semibold text-gray-700">Choose
+                                        a reject reason:</label>
+                                    <select name="reject_reason_select"
+                                        class="form-select form-select-lg reject_reason_select_cancel_order"
+                                        id="rejectReasonSelectCancelOrder" data-control="select2">
+                                        <option value="" disabled selected>-- Select Reason --</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                        <option value="Pricing Issue">Pricing Issue</option>
+                                        <option value="Customer Request">Customer Requested Cancellation</option>
+                                        <option value="Payment Issue">Payment Not Received</option>
+                                        <option value="Shipping Restriction">Cannot Deliver to Customer's Location</option>
+                                        <option value="Product Discontinued">Product Discontinued</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="text-danger mt-5 reject-reason-select-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-select-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Reject Reason Input --}}
+                        <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-3">
+                                    <label for="rejectReasonInputCancelOrder"
+                                        class="form-label fw-semibold text-gray-700">Enter
+                                        Reason Here:</label>
+                                    <input type="text" class="form-control reject_reason_input_cancel_order"
+                                        name="reject_reason_input" id="rejectReasonInputCancelOrder" min="1"
+                                        placeholder="Enter reject reason">
+
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <span class="reject-reason-input-error"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="order_id" class="order_id">
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="submit" class="btn btn-primary" for="cancelOrderForm">
+                            <i class="bi bi-send"></i> Submit Action
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- END: Cancel Order Modal -->
 @endsection
 
 
@@ -2162,6 +2252,120 @@
             });
             //<-------------- END: In Transit Order --------------->
 
+            //<----------------- START : Cancel order while in shipping ---------------->
+            $(document).on('click', '.cancelOrder', function() {
+                let order_id = $(this).attr('data-order-id');
+                $('.order_id').val(order_id);
+
+                $('#cancel-order-action-modal').modal('show');
+            });
+
+            $('.reject_reason_select_cancel_order').change(function() {
+                let selectedReason = $(this).val();
+                if (selectedReason == "Other") {
+                    $('.rejectReasonInputContainer').show();
+                } else {
+                    $('.rejectReasonInputContainer').hide();
+                }
+            });
+
+            $(document).on('submit', '#cancelOrderForm', function(e) {
+                e.preventDefault();
+                let form = new FormData(this);
+
+                // START: validation
+                let reject_reason_select_cancel_order = $('.reject_reason_select_cancel_order').val();
+                let reject_reason_input_cancel_order = $('.reject_reason_input_cancel_order').val();
+
+                let errors = [];
+                $('.reject-reason-select-error-section, .reject-reason-input-error-section').hide();
+
+                if (!reject_reason_select_cancel_order) {
+                    $(".reject-reason-select-error").text("Please select a reject reason");
+                    $(".reject-reason-select-error-section").show();
+                    errors.push("reject_reason_select_cancel_order");
+                }
+
+                if (reject_reason_select_cancel_order === "Other") {
+                    if (!reject_reason_input_cancel_order || reject_reason_input_cancel_order.trim() ===
+                        "") {
+                        $(".reject-reason-input-error").text("Please enter a valid reject reason");
+                        $(".reject-reason-input-error-section").show();
+                        errors.push("reject_reason_input_cancel_order");
+                    }
+                }
+
+                if (errors.length) return;
+                // END: validation
+
+                $('#cancel-order-action-modal').modal('hide');
+
+                let swalConfig = {
+                    title: "Are you sure?",
+                    text: "You are about to reject this order.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, Reject it!",
+                };
+
+                Swal.fire(swalConfig).then((result) => {
+                    if (result.isConfirmed) {
+                        const submitBtn = document.getElementById('submitButton');
+                        if (submitBtn) submitBtn.disabled = true;
+
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we process your request.",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: "{{ route('retailer.order.action.cancel-order') }}",
+                            type: "POST",
+                            data: form,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.status) {
+                                    Swal.fire({
+                                        title: "Success!",
+                                        text: response.msg,
+                                        icon: "success",
+                                        confirmButtonText: "OK",
+                                    }).then(() => {
+                                        window.location.href =
+                                            `{{ route('retailer.order.list', ':type') }}`
+                                            .replace(":type", response.type);
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: response.msg,
+                                        icon: "error",
+                                        confirmButtonText: "OK"
+                                    });
+                                    if (submitBtn) submitBtn.disabled = false;
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Something went wrong, Please try later!",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                                if (submitBtn) submitBtn.disabled = false;
+                            }
+                        });
+                    }
+                });
+            });
+            //<----------------- END : Cancel order while in shipping ---------------->
 
             //<----------------- START : raise issue ---------------->
             $(document).on('click', '.raise-issue', function() {
@@ -2216,12 +2420,12 @@
                                 }
                                 if (response.errors.description) {
                                     $('#description_error').text(response.errors.description[
-                                    0]);
+                                        0]);
                                     $('#ticket_description').addClass('is-invalid');
                                 }
                                 if (response.errors.screenshots) {
                                     $('#screenshots_error').text(response.errors.screenshots[
-                                    0]);
+                                        0]);
                                     $('#screenshots').addClass('is-invalid');
                                 }
                             }

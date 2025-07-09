@@ -539,14 +539,16 @@ class RetailerOrderController extends Controller
                         </tr>
                     </table>';
 
-            if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
                 $order_detail .= '
                     <div class="mt-2">
                         <a href="' . $item->shipping_label_url . '" target="_blank">
                             <i class="fa-solid fa-download me-1"></i> Shipping Label
                         </a>
-                    </div>
-                    <div class="mt-1">
+                    </div>';
+            }
+            if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+                $order_detail .= '<div class="mt-1">
                         <a href="javascript:void(0)" id="uploadPickupImage" data-order-id="' . $item->id . '">
                             <i class="fa-solid fa-upload me-1"></i> Upload Pickup Image
                         </a>
@@ -595,16 +597,22 @@ class RetailerOrderController extends Controller
                     data-order-id="' . $item->id . '"
                     data-product-amount="' . ($item?->final_amount) . '"
                 data-product-pincode="' . $item->customer->pincode . '"
-                    data-c-order-id="' . $item->order_id . '"';
+                    data-c-order-id="' . $item->order_id . '"
+                    data-order-status="' . $item->status . '"';
 
             if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm newOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' >Action</button>';
+                $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' disabled>Action</button>';
+                // $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
+            } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
+                // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } else {
                 $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
             }
@@ -914,6 +922,63 @@ class RetailerOrderController extends Controller
                     ];
                     Mail::to($customerOrder->customer->email)->send(new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason));
                 }
+
+                return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
+            } else {
+                DB::rollBack();
+                return response()->json(['status' => false, 'msg' => $message ?? 'Invalid Order Status']);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            // return response()->json(['status' => false, 'msg' => $e->getmessage()]);
+            return response()->json(['status' => false, 'msg' => 'Something went wrong, Plase try later!']);
+        }
+    }
+
+    // ACTION: Cancel Order
+    public function cancelOrderAction(Request $request)
+    {
+        $request->validate([
+            'reject_reason_select' => 'required',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $retailer = Auth::user();
+
+            $customerOrder = CustomerOrders::with('order_product_detail')
+                ->find($request->order_id);
+
+            if (!$customerOrder) {
+                return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
+            }
+
+            $success = false;
+            $message = '';
+            $type = '';
+            $statusService = new OrderStatusService();
+
+            $reject_reason_select = $request->reject_reason_select;
+            $reject_reason_input = $request->reject_reason_input;
+
+            if ($customerOrder->status == 'pickup') {
+                [$success, $message, $type] = $statusService->handleCancelledOrder($retailer, $customerOrder, $reject_reason_select, $reject_reason_input);
+            } else if ($customerOrder->status == 'in_transit' || $customerOrder->status == 'ofd') {
+                [$success, $message, $type] = $statusService->handleCancelledOrderWithCharges($retailer, $customerOrder, $reject_reason_select, $reject_reason_input);
+            }
+
+            if ($success) {
+                DB::commit();
+
+                $cancelled_reason = ($request->reject_reason_select == 'Other')
+                    ? $request->reject_reason_input
+                    : $request->reject_reason_select;
+
+                $customer = [
+                    'name' => $customerOrder->customer->firstname,
+                    'email' => $customerOrder->customer->email,
+                ];
+                Mail::to($customerOrder->customer->email)->send(new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason));
 
                 return response()->json(['status' => true, 'msg' => $message, 'type' => $type]);
             } else {
