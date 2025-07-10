@@ -637,13 +637,6 @@ class OrderStatusService
             ? $reject_reason_input
             : $reject_reason_select;
 
-        $customerOrder->update([
-            'status' => 'cancel',
-            'cancel_at' => Carbon::now(),
-            'cancelled_by' => $retailer->id,
-            'cancelled_reason' => $cancelled_reason
-        ]);
-
         if ($customerOrder->courier_partner_code == 'fship') {
             $apiUrl = config('services.fship.base_url');
             $signature = config('services.fship.signature');
@@ -671,6 +664,13 @@ class OrderStatusService
         } else if ($customerOrder->courier_partner_code == 'lorrigolive') {
             // call lorrigo cancel order API
         }
+
+        $customerOrder->update([
+            'status' => 'cancel',
+            'cancel_at' => Carbon::now(),
+            'cancelled_by' => $retailer->id,
+            'cancelled_reason' => $cancelled_reason
+        ]);
 
         return [true, 'Order has been cancelled by retailer', 'cancel'];
     }
