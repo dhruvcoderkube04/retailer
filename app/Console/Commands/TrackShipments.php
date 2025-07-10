@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\CancelOrderMailToCustomer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,11 +11,12 @@ use App\Services\CourierServiceManager;
 use App\Services\OrderStatusService;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrders;
+use Illuminate\Support\Facades\Mail;
 
 class TrackShipments extends Command
 {
     protected $signature = 'track:shipment';
-    protected $description = 'Get shipment status and update in customer order table';
+    protected $description = 'Get shipment status and update the retailer orders in customer orders table';
 
     public function handle()
     {
@@ -78,6 +80,8 @@ class TrackShipments extends Command
 
         $orders = DB::table('customer_orders')
             ->whereIn('status', ['in_transit', 'pickup', 'ofd', 'rto', 'delivered', 'rtn_to_seller', 'lost', 'cancel'])
+            ->where('order_process_by', 'retailer')
+            ->where('checkout_type', 'normal')
             ->whereNotNull('tracking_number')
             ->whereNotNull('courier_partner_code')
             ->get(['order_id', 'tracking_number', 'courier_partner_code']);
@@ -115,6 +119,7 @@ class TrackShipments extends Command
                             'shipment_status_updated_at' => now(),
                         ]);
 
+                    DB::commit();
                     Log::info("✅ Order #{$order->order_id} updated: {$summary['status']}");
                 } elseif (isset($response['valid']) && $response['valid'] && isset($response['order'])) {
                     $bucket_id = $response['order']['bucket'];
@@ -141,6 +146,7 @@ class TrackShipments extends Command
                     if ($orderModel && $orderModel->retailer) {
                         $statusService = new OrderStatusService();
 
+                        // IN-TRANSIT
                         if ($bucket_status === 'in_transit') {
                             if ($orderModel->status === 'in_transit' && $orderModel->in_transit_at) {
                                 Log::info("🚫 Order #{$order->order_id} already in_transit. Skipping update.");
@@ -149,8 +155,17 @@ class TrackShipments extends Command
                             }
 
                             [$success, $msg, $finalStatus] = $statusService->handleInTransitStatus($orderModel);
-                            Log::info("🎯 In Transit processed for order #{$order->order_id}: {$msg}");
-                        } elseif ($bucket_status === 'delivered') {
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : In Transit processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : In Transit processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // DELIVERED
+                        elseif ($bucket_status === 'delivered') {
                             if ($orderModel->status === 'delivered' && $orderModel->delivered_at) {
                                 Log::info("🚫 Order #{$order->order_id} already delivered. Skipping update.");
                                 DB::rollBack();
@@ -158,8 +173,17 @@ class TrackShipments extends Command
                             }
 
                             [$success, $msg, $finalStatus] = $statusService->handleDeliveredOrder($orderModel->retailer, $orderModel);
-                            Log::info("🎯 Delivered processed for order #{$order->order_id}: {$msg}");
-                        } elseif ($bucket_status === 'cancel') {
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : Delivered processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : Delivered processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // CANCEL
+                        elseif ($bucket_status === 'cancel') {
                             if ($orderModel->status === 'cancel' && $orderModel->cancel_at) {
                                 Log::info("🚫 Order #{$order->order_id} already cancelled. Skipping update.");
                                 DB::rollBack();
@@ -170,7 +194,25 @@ class TrackShipments extends Command
                             $reject_reason_input = 'Rejected from the courier service';
 
                             [$success, $msg, $finalStatus] = $statusService->handleCancelledOrderWithCharges($orderModel->retailer, $orderModel, $reject_reason_select, $reject_reason_input);
-                            Log::info("🎯 Cancel processed for order #{$order->order_id}: {$msg}");
+
+                            if ($success) {
+                                DB::commit();
+
+                                $cancelled_reason = ($reject_reason_select == 'Other')
+                                    ? $reject_reason_input
+                                    : $reject_reason_select;
+
+                                $customer = [
+                                    'name' => $orderModel->customer->firstname,
+                                    'email' => $orderModel->customer->email,
+                                ];
+                                Mail::to($orderModel->customer->email)->send(new CancelOrderMailToCustomer($orderModel, $customer, $cancelled_reason));
+
+                                Log::info("🎯 Success : Cancel processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : Cancel processed for order #{$order->order_id}: {$msg}");
+                            }
                         }
                     }
                 } else {
@@ -178,8 +220,6 @@ class TrackShipments extends Command
                     DB::rollBack();
                     continue;
                 }
-
-                DB::commit(); // only this order's changes committed
             } catch (\Throwable $e) {
                 DB::rollBack();
                 Log::error("❌ Error processing order #{$order->order_id}: " . $e->getMessage());
