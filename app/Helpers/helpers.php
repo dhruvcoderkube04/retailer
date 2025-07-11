@@ -31,6 +31,7 @@ if (!function_exists('order_status')) {
          'pickup' => 'Pickup',
          'in_transit' => 'In Transit',
          'ofd' => 'OFD',
+         'ndr'=>'NDR',
          'delivered' => 'Delivered',
          'rto' => 'RTO',
          'rtn_to_seller' => 'RTN To Seller',

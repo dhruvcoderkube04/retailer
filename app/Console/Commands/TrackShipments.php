@@ -44,7 +44,7 @@ class TrackShipments extends Command
             'NEW' => 'pending',
             'READY_TO_SHIP' => 'pickup',
             'IN_TRANSIT' => 'in_transit',
-            'NDR' => 'rto',
+            'NDR' => 'ndr',
             'DELIVERED' => 'delivered',
             'RTO' => 'rto',
             'RTO_DELIVERED' => 'rtn_to_seller',
@@ -70,6 +70,7 @@ class TrackShipments extends Command
             'pickup' => 'pickup_at',
             'in_transit' => 'in_transit_at',
             'ofd' => 'ofd_at',
+            'ndr' => 'ndr_at',
             'delivered' => 'delivered_at',
             'rto' => 'rto_at',
             'rtn_to_seller' => 'rtn_to_seller_at',
@@ -79,12 +80,13 @@ class TrackShipments extends Command
         ];
 
         $orders = DB::table('customer_orders')
-            ->whereIn('status', ['in_transit', 'pickup', 'ofd', 'rto', 'delivered', 'rtn_to_seller', 'lost', 'cancel'])
+            ->whereIn('status', ['in_transit', 'pickup', 'ofd', 'rto', 'delivered', 'rtn_to_seller','ndr','lost', 'cancel'])
             ->where('order_process_by', 'retailer')
             ->where('checkout_type', 'normal')
             ->whereNotNull('tracking_number')
             ->whereNotNull('courier_partner_code')
             ->get(['order_id', 'tracking_number', 'courier_partner_code']);
+
 
 
         if ($orders->isEmpty()) {
@@ -129,10 +131,12 @@ class TrackShipments extends Command
 
                     $latestStage = collect($response['order']['orderStages'] ?? [])->last();
                     $status = $latestStage['action'] ?? $order->shipment_status;
+                    $stage_reason  = $latestStage['activity'] ?? '';
 
                     $updateData = [
                         'shipment_status' => $status,
                         'fulfilledby' => $response['order']['carrierName'] ?? $order->fulfilledby,
+                        'shipment_activity' => $stage_reason
                     ];
 
                     if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
@@ -180,6 +184,26 @@ class TrackShipments extends Command
                             } else {
                                 DB::rollBack();
                                 Log::error("🚫 Failed : Delivered processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // ndr  customer not accept
+
+                        elseif ($bucket_status === 'ndr')
+                        {
+                            if ($orderModel->status === 'ndr' && $orderModel->ndr_at) {
+                                Log::info("🚫 Order #{$order->order_id} already Non Delivered Report. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleNdrOrder($orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : NDR processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : NDR processed for order #{$order->order_id}: {$msg}");
                             }
                         }
                         // CANCEL

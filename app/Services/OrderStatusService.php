@@ -19,6 +19,7 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\RetailerNdrNotification;
 
 class OrderStatusService
 {
@@ -334,6 +335,22 @@ class OrderStatusService
         ]);
 
         return [true, 'Order has been transferred to In-transit', 'in-transit'];
+    }
+
+    public function handleNdrOrder($customerOrder)
+    {
+        $customerOrder->update([
+            'status' => 'ndr',
+            'ndr_at' => Carbon::now(),
+        ]);
+
+        // Send email to retailer
+        if ($customerOrder->retailer && $customerOrder->retailer->email) {
+            Mail::to($customerOrder->retailer->email)->send(
+                new RetailerNdrNotification($customerOrder)
+            );
+        }
+        return [true, 'Order has been transferred to Non Delivered Report', 'ndr'];
     }
 
     // DELIVERED (Intransit to Delivered)

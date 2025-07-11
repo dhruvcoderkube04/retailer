@@ -124,6 +124,12 @@
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
+                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'ndr' ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'ndr']) }}">
+                                            <i class="fas fa-truck pe-2 text-danger"></i> NDR
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-2">
                                         <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'delivered']) }}">
                                             <i class="fas fa-check-circle pe-2 text-success"></i> Delivered

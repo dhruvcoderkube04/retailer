@@ -164,6 +164,7 @@ class RetailerOrderController extends Controller
                 SUM(CASE WHEN status = 'pickup' THEN 1 ELSE 0 END) as pickup,
                 SUM(CASE WHEN status = 'in_transit' THEN 1 ELSE 0 END) as in_transit,
                 SUM(CASE WHEN status = 'ofd' THEN 1 ELSE 0 END) as ofd,
+                SUM(CASE WHEN status = 'ndr' THEN 1 ELSE 0 END) as ndr,
                 SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
                 SUM(CASE WHEN status = 'rto' THEN 1 ELSE 0 END) as rto,
                 SUM(CASE WHEN status = 'rtn_to_seller' THEN 1 ELSE 0 END) as rtn_to_seller,
@@ -196,6 +197,7 @@ class RetailerOrderController extends Controller
             'pickup' => 'pickup',
             'in-transit' => 'in_transit',
             'ofd' => 'ofd',
+            'ndr' => 'ndr',
             'delivered' => 'delivered',
             'rto' => 'rto',
             'rtn-to-seller' => 'rtn_to_seller',
@@ -244,6 +246,7 @@ class RetailerOrderController extends Controller
             'pickup' => 'pickup',
             'in-transit' => 'in_transit',
             'ofd' => 'ofd',
+            'ndr' => 'ndr',
             'delivered' => 'delivered',
             'rto' => 'rto',
             'rtn-to-seller' => 'rtn_to_seller',
@@ -260,6 +263,7 @@ class RetailerOrderController extends Controller
             'pickup' => 'pickup_at',
             'in-transit' => 'in_transit_at',
             'ofd' => 'ofd_at',
+            'ndr' => 'ndr_at',
             'delivered' => 'delivered_at',
             'rto' => 'rto_at',
             'rtn-to-seller' => 'rtn_to_seller_at',
@@ -276,6 +280,7 @@ class RetailerOrderController extends Controller
             'pickup' => 'Pickup',
             'in-transit' => 'In Transit',
             'ofd' => 'OFD',
+            'ndr' => 'NDR',
             'delivered' => 'Delivered',
             'rto' => 'RTO',
             'rtn-to-seller' => 'RTN to Seller',
@@ -292,6 +297,7 @@ class RetailerOrderController extends Controller
             'pickup' => 'success',
             'in-transit' => 'warning',
             'ofd' => 'warning',
+            'ndr' => 'danger',
             'delivered' => 'success',
             'rto' => 'danger',
             'rtn-to-seller' => 'success',
@@ -309,6 +315,7 @@ class RetailerOrderController extends Controller
             'pickup' => 'success',
             'in_transit' => 'warning',
             'ofd' => 'warning',
+            'ndr' => 'danger',
             'delivered' => 'success',
             'rto' => 'danger',
             'rtn_to_seller' => 'success',
@@ -539,7 +546,7 @@ class RetailerOrderController extends Controller
                         </tr>
                     </table>';
 
-            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd'||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
                 $order_detail .= '
                     <div class="mt-2">
                         <a href="' . $item->shipping_label_url . '" target="_blank">
@@ -552,6 +559,14 @@ class RetailerOrderController extends Controller
                         <a href="javascript:void(0)" id="uploadPickupImage" data-order-id="' . $item->id . '">
                             <i class="fa-solid fa-upload me-1"></i> Upload Pickup Image
                         </a>
+                    </div>';
+            }
+            if ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
+                $order_detail .= '<div class="mt-1">
+                        <tr>
+                            <td style="padding: 0 !important;"><strong>Reason:</strong></td>
+                            <td style="padding: 0 !important;">' . ($item->shipment_activity ?? '') . '</td>
+                        </tr>
                     </div>';
             }
 
@@ -616,7 +631,12 @@ class RetailerOrderController extends Controller
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
-             } elseif ($item->status == 'delivered' && $type !== 'transferred-to-wholesaler') {
+             }elseif ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
+                $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' >Re-Attempet Order</button>';
+                // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
+                // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
+
+            } elseif ($item->status == 'delivered' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
@@ -1077,6 +1097,7 @@ class RetailerOrderController extends Controller
                     'pickup' => 'Pickup',
                     'in_transit' => 'In Transit',
                     'ofd' => 'OFD',
+                    'ndr' => 'NDR',
                     'delivered' => 'Delivered',
                     'rto' => 'RTO',
                     'rtn_to_seller' => 'RTN To Seller',
@@ -1095,6 +1116,7 @@ class RetailerOrderController extends Controller
                     'pickup' => 'success',
                     'in_transit' => 'warning',
                     'ofd' => 'warning',
+                    'ndr' => 'danger',
                     'delivered' => 'success',
                     'rto' => 'danger',
                     'rtn_to_seller' => 'success',
@@ -1122,7 +1144,14 @@ class RetailerOrderController extends Controller
                         <span class='badge badge-" . $typeColorMap[$order->status] . "'>
                             " . ($orderStatus[$order->status] ?? 'Unknown') . "
                         </span>
-                    </div>";
+                    </div>
+                    <div class='my-2'>
+                        <strong>Reason:</strong>
+                        <span>
+                            " . ($orderStatus[$order->status] ?? 'Unknown') . "
+                        </span>
+                    </div>
+                    ";
 
                 if ($order->status == 'cancel') {
                     $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
@@ -1172,4 +1201,5 @@ class RetailerOrderController extends Controller
         }
     }
     //<-------------- END : My Orders (Retailer's own orders) ------------------>
+
 }

@@ -62,7 +62,9 @@ class CustomerOrders extends Model
         'expected_delivery',
         'payment_status',
         'payment_method',
-        'coupon_applied_id'
+        'coupon_applied_id',
+        'ndr_at',
+        'shipment_activity'
     ];
 
     protected $casts = [
