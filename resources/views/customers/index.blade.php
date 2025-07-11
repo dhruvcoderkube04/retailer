@@ -30,8 +30,7 @@
                     <div class="card card-flush">
                         <div class="card-body mt-1">
                             <div class="tab-content">
-                                <table class="table align-middle table-row-dashed fs-7"
-                                    id="kt_datatable_customer_list">
+                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_customer_list">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                             <th class="text-center align-middle">Sr No</th>
@@ -147,6 +146,7 @@
             order: [],
             columns: [{
                     data: 'sr_no',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {
@@ -159,7 +159,7 @@
                 },
                 {
                     data: 'email',
-                    className: 'text-end',
+                    className: 'text-center',
                 },
                 {
                     data: 'state',

@@ -322,8 +322,31 @@ class RetilerController extends Controller
     // subscribed category index
     public function subscribedCategoryIndex()
     {
-        $isAllWholesalerVisibleCheck = Auth::user()->is_all_wholesaler_visible;
-        return view('subscribed-category.index', ['is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck]);
+        $retailer = Auth::user();
+
+        $isAllWholesalerVisibleCheck = $retailer->is_all_wholesaler_visible;
+
+        $wholesalerIds = RetailerProducts::where('retailer_id', $retailer->id)
+            ->whereNull('product_id')
+            ->pluck('wholesaler_id');
+        $wholesalers = User::with('userDetail')
+            ->whereIn('id', $wholesalerIds)
+            ->where('status', 1)
+            ->where('is_delete', 0)
+            ->get();
+
+        $subCategoryIds = RetailerProducts::where('retailer_id', $retailer->id)
+            ->whereNull('product_id')
+            ->pluck('sub_category_id');
+        $sub_category_list = SubCategory::whereIn('id', $subCategoryIds)
+            ->where('status', 1)
+            ->get();
+
+        return view('subscribed-category.index', [
+            'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
+            'wholesalers' => $wholesalers,
+            'sub_category_list' => $sub_category_list,
+        ]);
     }
 
     // AJAX : server-side data-table to fetch record of subscribed category list
@@ -331,14 +354,14 @@ class RetilerController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
         $retailer = Auth::user();
 
         $query = RetailerProducts::with('wholesaler', 'sub_category', 'wholesaler.userDetail')
             ->where('retailer_id', $retailer->id)
             ->whereNull('product_id');
 
-        if (!empty($search)) {
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->orWhere('payment_method', 'like', '%' . $search . '%')
                     ->orWhere('margin', 'like', '%' . $search . '%')
@@ -354,6 +377,14 @@ class RetilerController extends Controller
                         $q->where('company_name', 'like', '%' . $search . '%');
                     });
             });
+        }
+
+        if ($request->has('wholesaler_filter') && $request->wholesaler_filter !== 'all') {
+            $query->where('wholesaler_id', $request->wholesaler_filter);
+        }
+
+        if ($request->has('sub_category_filter') && $request->sub_category_filter !== 'all') {
+            $query->where('sub_category_id', $request->sub_category_filter);
         }
 
         if ($request->has('order') && isset($request->order[0])) {
@@ -2449,7 +2480,7 @@ class RetilerController extends Controller
             ]);
 
             // Upload to DigitalOcean Spaces
-            foreach (['pan_image', 'aadhar_1_image' , 'aadhar_2_image', 'cancel_cheque'] as $field) {
+            foreach (['pan_image', 'aadhar_1_image', 'aadhar_2_image', 'cancel_cheque'] as $field) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
                     $data[$field] = uploadOrUpdateImageToSpaces($file, 'account_documents', $userDetail->$field);

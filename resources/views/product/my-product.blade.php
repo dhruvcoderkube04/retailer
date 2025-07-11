@@ -96,14 +96,14 @@
                                                 </select>
                                             </div>
 
-                                            {{-- Category Dropdown --}}
+                                            {{-- Sub Category Dropdown --}}
                                             <div class="col-12 col-md-3">
                                                 <label for="available_sub_category_filter"
                                                     class="form-label fw-semibold mb-1">Sub Category</label>
                                                 <select id="available_sub_category_filter"
                                                     class="form-select form-select-solid bg-secondary"
-                                                    data-control="select2" data-placeholder="Select Category">
-                                                    <option value="all">All Category</option>
+                                                    data-control="select2" data-placeholder="Select Sub Category">
+                                                    <option value="all">All Sub Category</option>
                                                     @foreach ($sub_category_filter as $sub_category)
                                                         <option value="{{ $sub_category->id }}">
                                                             {{ $sub_category->sub_category_name }}
@@ -138,7 +138,7 @@
                                                 <th class="text-center align-middle min-w-100px">Actions</th>
                                                 <th class="text-center align-middle min-w-70px">Image</th>
                                                 <th class="text-center align-middle min-w-200px">Product</th>
-                                                <th class="text-center align-middle min-w-100px">Category</th>
+                                                <th class="text-center align-middle min-w-100px">Sub Category</th>
                                                 <th class="text-center align-middle min-w-100px">Price</th>
                                                 <th class="text-center align-middle min-w-50px">Qty</th>
                                                 <th class="text-center align-middle min-w-70px"
@@ -176,14 +176,14 @@
                                                 </select>
                                             </div>
 
-                                            {{-- Category Dropdown --}}
+                                            {{-- Sub Category Dropdown --}}
                                             <div class="col-12 col-md-3">
                                                 <label for="unavailable_sub_category_filter"
                                                     class="form-label fw-semibold mb-1">Sub Category</label>
                                                 <select id="unavailable_sub_category_filter"
                                                     class="form-select form-select-solid bg-secondary w-100"
-                                                    data-control="select2" data-placeholder="Select Category">
-                                                    <option value="all">All Category</option>
+                                                    data-control="select2" data-placeholder="Select Sub Category">
+                                                    <option value="all">All Sub Category</option>
                                                     @foreach ($sub_category_filter as $sub_category)
                                                         <option value="{{ $sub_category->id }}">
                                                             {{ $sub_category->sub_category_name }}
@@ -218,7 +218,7 @@
                                                 <th class="text-center align-middle min-w-100px">Actions</th>
                                                 <th class="text-center align-middle min-w-70px">Image</th>
                                                 <th class="text-center align-middle min-w-200px">Product</th>
-                                                <th class="text-center align-middle min-w-100px">Category</th>
+                                                <th class="text-center align-middle min-w-100px">Sub Category</th>
                                                 <th class="text-center align-middle min-w-100px">Price</th>
                                                 <th class="text-center align-middle min-w-50px">Qty</th>
                                                 <th class="text-center align-middle min-w-70px"
