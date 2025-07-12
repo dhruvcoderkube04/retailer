@@ -287,8 +287,12 @@
                                     </label>
                                 </div> --}}
                                 <div class="mb-10 fv-row">
-                                    <a href="{{ route('retailer.download-stock-sample') }}">Download Sample Product
-                                        File</a>
+                                    <div><a href="{{ route('retailer.download-stock-sample-with-variations') }}">Download
+                                            Sample Product File
+                                        </a> <span class="text-primary"><strong>(With Variations)</strong></span></div>
+                                    <div><a href="{{ route('retailer.download-stock-sample-without-variations') }}">Download
+                                            Sample Product File
+                                        </a> <span class="text-primary"><strong>(Without Variations)</strong></span></div>
                                     <p class="text-danger">(Only accepted .xlsx format)</p>
                                 </div>
                                 <div

@@ -2575,14 +2575,24 @@ class RetilerController extends Controller
     }
     //<---------------------- END : profile section ------------------------>
 
-    public function downloadStockSample()
+    public function downloadStockSampleWithVariations()
     {
-        $filePath = public_path('samplestock/product_import_sample.xlsx');
+        $filePath = public_path('samplestock/product_import_sample_with_variations.xlsx');
 
         if (!file_exists($filePath)) {
             return back()->with('error', 'File not found.');
         }
-        return Response::download($filePath, 'product_import_sample.xlsx');
+        return Response::download($filePath, 'product_import_sample (with variations).xlsx');
+    }
+
+    public function downloadStockSampleWithoutVariations()
+    {
+        $filePath = public_path('samplestock/product_import_sample_without_variations.xlsx');
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+        return Response::download($filePath, 'product_import_sample (without variations).xlsx');
     }
 
     // IMPORT : Retailer own product (retailer_clone_products) import
@@ -2594,11 +2604,13 @@ class RetilerController extends Controller
         ]);
 
         $file = $request->file('product_file');
+
         $subCategoryId = $request->input('sub_category');
+        $sub_category = SubCategory::where('id', $subCategoryId)->first();
         $images_and_video_update = $request->images_and_video_update ? true : false;
 
         try {
-            $import = new ProductImport($subCategoryId, $images_and_video_update);
+            $import = new ProductImport($subCategoryId, $images_and_video_update, $sub_category);
 
             // Check headers (column names)
             $excelData = Excel::toArray($import, $file);

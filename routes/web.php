@@ -107,7 +107,8 @@ Route::middleware(['retailer'])->group(function () {
     //<-------------------- END : retailer product -------------------->
 
     // Bulk product upload
-    Route::get('/download-stock-sample', [RetilerController::class, 'downloadStockSample'])->name('retailer.download-stock-sample'); // retailer (added, clone, own) product view page
+    Route::get('/download-stock-sample/with-variations', [RetilerController::class, 'downloadStockSampleWithVariations'])->name('retailer.download-stock-sample-with-variations'); // retailer (added, clone, own) product view page
+    Route::get('/download-stock-sample/without-variations', [RetilerController::class, 'downloadStockSampleWithoutVariations'])->name('retailer.download-stock-sample-without-variations'); // retailer (added, clone, own) product view page
     Route::post('/upload-bulk-product', [RetilerController::class, 'uploadBulkProduct'])->name('retailer.upload.bulkproduct'); // retailer (added, clone, own) product view page
 
     Route::get('/clone-product/{product_id}', [RetilerController::class, 'cloneProductView'])->name('retailer.clone-product-view'); // clone product view // encrypted
