@@ -30,6 +30,10 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 
+use App\Services\Courier\FShipService;
+use App\Services\Courier\LorrigoService;  //for test
+use App\Services\Courier\LorrigoServiceLive; // for live
+
 class RetailerOrderController extends Controller
 {
     // place-order page view
@@ -613,7 +617,8 @@ class RetailerOrderController extends Controller
                     data-product-amount="' . ($item?->final_amount) . '"
                 data-product-pincode="' . $item->customer->pincode . '"
                     data-c-order-id="' . $item->order_id . '"
-                    data-order-status="' . $item->status . '"';
+                    data-order-status="' . $item->status . '"
+                    data-api-order_id="' . $item->api_order_id . '"';
 
             if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" class="btn btn-primary btn-sm newOrderAction"' . $common_attrs . '>Action</button>';
@@ -621,28 +626,28 @@ class RetailerOrderController extends Controller
                 $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
-                // $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
-                // $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'ofd' && $type !== 'transferred-to-wholesaler') {
-                // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
              }elseif ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' >Re-Attempet Order</button>';
+                $action .= '<button type="button" style="white-space: nowrap;" class="btn btn-primary btn-sm ndr-reattempt"' . $common_attrs . ' >Re-Attempet Order</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
 
             } elseif ($item->status == 'delivered' && $type !== 'transferred-to-wholesaler') {
-                // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
 
             } else {
-                $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button>';
             }
 
             if ($type !== 'transferred-to-wholesaler') {
@@ -1202,4 +1207,112 @@ class RetailerOrderController extends Controller
     }
     //<-------------- END : My Orders (Retailer's own orders) ------------------>
 
+    //<-------------- Start : NDR ------------------>
+    public function reattemptNdr(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|string',
+            'type' => 'required|in:1,2',
+            'reschedule_date' => 'nullable|date',
+        ]);
+
+        $reschedule_date_time = Carbon::parse($request->reschedule_date)->setTimezone('Asia/Kolkata');
+        $customerOrder = CustomerOrders::with('customer')->where('api_order_id', $request->order_id)->first();
+
+        try {
+            DB::beginTransaction();
+
+            // ✅ Choose courier service based on partner code
+            $courierCode = $customerOrder->courier_partner_code;
+
+            $courierService = match ($courierCode) {
+                'fship' => new \App\Services\Courier\FShipService(),
+                'lorrigolive' => new \App\Services\Courier\LorrigoServiceLive(),
+                'lorrigotest' => new \App\Services\Courier\LorrigoService(),
+                default => throw new \Exception('Unsupported courier partner: ' . $courierCode)
+            };
+
+            if ($request->type == 1) {
+                // 🚀 Reattempt logic
+                $payload = [
+                    'orderId' => $customerOrder->api_order_id,
+                    'ndrInfo' => [
+                        'name' => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+                        'rescheduleDate' => $reschedule_date_time,
+                        'contact' => $customerOrder->customer->phone_number,
+                        'address' => $customerOrder->customer->address ?? '',
+                        'comment' => ''
+                    ],
+                    'type' => 1,
+                ];
+
+                $response = $courierService->reattemptShipment($payload);
+
+                if (isset($response['valid'])) {
+                    throw new \Exception($response['message']);
+                }
+
+                $customerOrder->update([
+                    'status' => 'in_transit',
+                    'ndr_at' => null,
+                    'reschedule_date' => Carbon::parse($request->reschedule_date),
+                    'shipment_activity' => 'Reattempt scheduled for ' . $request->reschedule_date,
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    // 'message' => 'Order reattempted successfully.',
+                    'api_response' => $response,
+                    'type'=>'in-transit'
+                ]);
+
+            } elseif ($request->type == 2) {
+                // 🛑 RTO logic
+                $retailer = Auth::user();
+
+                $payload = [
+                    'orderId' => $customerOrder->api_order_id,
+                    // 'ndrInfo' => [
+                    //     'name' => trim(($customerOrder->customer->firstname ?? '') . ' ' . ($customerOrder->customer->lastname ?? '')),
+                    //     'rescheduleDate' => $reschedule_date_time,
+                    //     'contact' => $customerOrder->customer->phone_number,
+                    //     'address' => $customerOrder->customer->address ?? '',
+                    //     'comment' => ''
+                    // ],
+                    'type' => 2,
+                ];
+
+                $response = $courierService->reattemptShipment($payload);
+
+                if (isset($response['valid'])) {
+                    throw new \Exception($response['message']);
+                }
+
+                $statusService = new OrderStatusService();
+                [$success, $message, $type] = $statusService->NdrtoRto($retailer, $customerOrder);
+
+                $customerOrder->update([
+                    'status' => 'rto',
+                    'shipment_activity' => 'Marked as RTO by system',
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Order marked as RTO.',
+                    'type' => 'rto'
+                ]);
+            }
+
+            DB::rollBack();
+            return response()->json(['message' => 'Invalid action'], 400);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('ReattemptNdr error: ' . $e->getMessage());
+            return response()->json(['message' =>  $e->getMessage()], 500);
+        }
+    }
+    //<-------------- END : NDR ------------------>
 }

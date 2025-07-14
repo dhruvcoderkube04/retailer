@@ -384,9 +384,43 @@ class LorrigoServiceLive implements CourierInterface
        return [];
     }
 
+    // public function reattemptShipment(array $data): array
+    // {
+    //     return [];
+    // }
+
     public function reattemptShipment(array $data): array
     {
-        return [];
+        Log::info('Reattempt payload for Lorrigo Live', $data);
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $this->token,
+            ])->post($this->apiUrl . '/api/shipment/order-reattempt', $data);
+
+            if ($response->successful()) {
+                Log::info('Reattempt Shipment Success', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return $response->json();
+            }
+
+            Log::error('Reattempt Shipment Failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['error' => 'Reattempt failed'];
+        } catch (\Throwable $e) {
+            Log::error('Reattempt Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return ['error' => 'Exception occurred during reattempt'];
+        }
     }
 
     public function courierList(): array

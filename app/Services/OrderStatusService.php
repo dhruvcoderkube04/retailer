@@ -149,7 +149,8 @@ class OrderStatusService
                 "extra_Charges" => 0,
                 "total_Amount" => $customerOrder->final_amount,
                 "cod_Amount" => $customerOrder->final_amount ?? 0,
-                "shipment_Weight" => $request->product_weight,
+                // "shipment_Weight" => (float) preg_replace('/[^0-9.]/', '', $request->product_weight),
+                "shipment_Weight" => 0.5,
                 "shipment_Length" => 12,
                 "shipment_Width" => 12,
                 "shipment_Height" => 12,
@@ -176,7 +177,8 @@ class OrderStatusService
                 "ewaybill" => "",
                 "order_reference_id" => $customerOrder->order_id . rand(1, 9999999),
                 "payment_mode" => 1,
-                "orderWeight" => $request->product_weight,
+                "orderWeight" => (float) preg_replace('/[^0-9.]/', '', $request->product_weight),
+                // "orderWeight" => $request->product_weight,
                 "orderWeightUnit" => "kg",
                 "order_invoice_date" => "",
                 "order_invoice_number" => "",
@@ -687,6 +689,93 @@ class OrderStatusService
             'cancel_at' => Carbon::now(),
             'cancelled_by' => $retailer->id,
             'cancelled_reason' => $cancelled_reason
+        ]);
+
+        return [true, 'Order has been cancelled by retailer', 'cancel'];
+    }
+
+    // CANCELLED WITH CHARGES (Pickup ke bad & Delivery se pehle Order cancel hota hai)
+    public function NdrtoRto($retailer, $customerOrder)
+    {
+        // increase quantity in wholesaler-product
+        if ($customerOrder->quantity && $customerOrder->product_id) {
+            $wholesalerProduct = Product::with('productVariations')
+                ->where('id', $customerOrder->product_id)
+                ->first();
+            if ($wholesalerProduct) {
+                if ($wholesalerProduct->productVariations->isNotEmpty()) {
+                    $productVariation = ProductVariation::where('product_id', $customerOrder->product_id)
+                        ->where('product_variation', $customerOrder->product_variation)
+                        ->first();
+                    if ($productVariation) {
+                        $productVariation->stock += $customerOrder->quantity;
+                        $productVariation->save();
+                    }
+                } else {
+                    $wholesalerProduct->quantity += $customerOrder->quantity;
+                    $wholesalerProduct->save();
+                }
+            }
+        }
+
+        // increase quantity in retailer-product
+        if ($customerOrder->quantity && $customerOrder->retailer_clone_product_id) {
+            $retailerProduct = RetailerCloneProduct::with('productVariations')
+                ->where('id', $customerOrder->retailer_clone_product_id)
+                ->first();
+            if ($retailerProduct) {
+                if ($retailerProduct->productVariations->isNotEmpty()) {
+                    $productVariation = ProductVariation::where('product_id', $customerOrder->retailer_clone_product_id)
+                        ->where('product_variation', $customerOrder->product_variation)
+                        ->first();
+                    if ($productVariation) {
+                        $productVariation->stock += $customerOrder->quantity;
+                        $productVariation->save();
+                    }
+                } else {
+                    $retailerProduct->quantity += $customerOrder->quantity;
+                    $retailerProduct->save();
+                }
+            }
+        }
+
+        $retailerDetail = UserDetail::where('user_id', $retailer->id)->first();
+
+        $total_charges = ($customerOrder->shipping_charge ?? 0) +
+            ($customerOrder->cod_charge ?? 0) +
+            ($customerOrder->rto_charge ?? 0) +
+            ($customerOrder->shipping_charge_profit ?? 0) +
+            ($customerOrder->cod_charge_profit ?? 0) +
+            ($customerOrder->rto_charge_profit ?? 0);
+
+        $charges = [
+            'Shipping Charge' => ($customerOrder->shipping_charge ?? 0) + ($customerOrder->shipping_charge_profit ?? 0),
+            'COD Charge'      => ($customerOrder->cod_charge ?? 0) + ($customerOrder->cod_charge_profit ?? 0),
+            'RTO Charge'      => ($customerOrder->rto_charge ?? 0) + ($customerOrder->rto_charge_profit ?? 0),
+        ];
+
+        // retailer entry
+        AccountTransaction::create([
+            'customer_order_id' => $customerOrder->id,
+            'tracking_number' => $customerOrder->tracking_number,
+            'user_id' => $retailer->id,
+            'user_type' => 'retailer',
+            'description' => 'Charges deducted for Order ' . $customerOrder->order_id . ' cancelled from In-transit stage',
+            'transaction_amount' => 0,
+            'charges' => $charges,
+            'final_transaction_amount' => -abs($total_charges),
+            'current_balance' => $retailerDetail->pending_wallet - $total_charges,
+            'order_type' => 'cancelled',
+            'status' => 0,
+            'type' => 'pending'
+        ]);
+        $retailerDetail->pending_wallet = $retailerDetail->pending_wallet - $total_charges;
+        $retailerDetail->save();
+
+        $customerOrder->update([
+            'status' => 'rto',
+            'shipment_activity' => 'Marked as RTO by system',
+            'rto_at' => Carbon::now(),
         ]);
 
         return [true, 'Order has been cancelled by retailer', 'cancel'];

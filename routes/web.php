@@ -142,6 +142,9 @@ Route::middleware(['retailer'])->group(function () {
         Route::post('/fetch-record', [RetailerOrderController::class, 'fetchmyOrderList'])->name('retailer.my-order.fetch-record');
     });
 
+    // ndr
+    Route::post('/ndr-reattempt', [RetailerOrderController::class, 'reattemptNdr'])->name('retailer.ndr.reattempt');
+
     // mange Profile
     Route::get('/profile/details', [RetilerController::class, 'Profile'])->name('retailer.profile.details');
     Route::get('/profile/bank-details', [RetilerController::class, 'Profile'])->name('retailer.profile.bank-details');

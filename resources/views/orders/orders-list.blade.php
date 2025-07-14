@@ -2451,6 +2451,158 @@
                 });
             });
             //<----------------- END : raise issue ---------------->
+
+            //<----------------- START : NDR ---------------->
+            // $(document).on('click', '.ndr-reattempt', function () {
+            //     let orderId = $(this).data('c-order-id');
+
+            //     Swal.fire({
+            //         title: 'Select Action',
+            //         text: "Choose to Reattempt delivery or mark the order as RTO.",
+            //         icon: 'question',
+            //         showDenyButton: true,
+            //         showCancelButton: true,
+            //         confirmButtonText: 'Reattempt',
+            //         denyButtonText: 'Mark as RTO',
+            //     }).then((result) => {
+            //         if (result.isConfirmed) {
+            //             // Reattempt: ask for reschedule date
+            //             Swal.fire({
+            //                 title: 'Reschedule Delivery',
+            //                 html: `
+            //                     <label>Select Reschedule Date & Time</label>
+            //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+            //                 `,
+            //                 confirmButtonText: 'Submit',
+            //                 focusConfirm: false,
+            //                 preConfirm: () => {
+            //                     const date = document.getElementById('rescheduleDate').value;
+            //                     if (!date) {
+            //                         Swal.showValidationMessage('Reschedule date is required.');
+            //                     }
+            //                     return date;
+            //                 }
+            //             }).then((res) => {
+            //                 const rescheduleDate = res.value;
+
+            //                 // 🚀 Single API call with type = 1 (Reattempt)
+            //                 callNdrActionApi(orderId, 1, rescheduleDate);
+            //             });
+
+            //         } else if (result.isDenied) {
+            //             // 🚀 Single API call with type = 2 (RTO)
+            //             callNdrActionApi(orderId, 2, null);
+            //         }
+            //     });
+
+            //     function callNdrActionApi(orderId, type, rescheduleDate = null) {
+            //         $.ajax({
+            //             url: '/ndr-reattempt', // single backend API route
+            //             type: 'POST',
+            //             data: {
+            //                 order_id: orderId,
+            //                 type: type,
+            //                 reschedule_date: rescheduleDate,
+            //                 _token: $('meta[name="csrf-token"]').attr('content')
+            //             },
+
+            //             success: function (response) {
+            //                 // Swal.fire('Success!', response.message, 'success');
+            //                  Swal.fire({
+            //                     title: "Success!",
+            //                     text: response.message,
+            //                     icon: "success",
+            //                     confirmButtonText: "OK",
+            //                 }).then(() => {
+            //                     window.location.href =
+            //                         `{{ route('retailer.order.list', ':type') }}`
+            //                         .replace(":type", response.type);
+            //                 });
+            //             },
+            //             error: function (xhr) {
+            //                 Swal.fire('Error!', xhr.responseJSON?.message || 'Something went wrong.', 'error');
+            //             }
+            //         });
+            //     }
+            // });
+            //<----------------- END : NDR ---------------->
+
+            //<----------------- START : NDR ---------------->
+            $(document).on('click', '.ndr-reattempt', function () {
+                let orderId = $(this).data('api-order_id');
+
+                Swal.fire({
+                    title: 'Select Action',
+                    text: "Choose to Reattempt delivery or mark the order as RTO.",
+                    icon: 'question',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Reattempt',
+                    denyButtonText: 'Mark as RTO',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Reattempt flow: Ask for reschedule date/time
+                        Swal.fire({
+                            title: 'Reschedule Delivery',
+                            html: `
+                                <label>Select Reschedule Date & Time</label>
+                                <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+                            `,
+                            confirmButtonText: 'Submit',
+                            focusConfirm: false,
+                            allowOutsideClick: false, // 🚫 Prevent closing by clicking outside
+                            allowEscapeKey: false,    // 🚫 Prevent closing with ESC
+                            preConfirm: () => {
+                                const date = document.getElementById('rescheduleDate').value;
+                                if (!date) {
+                                    Swal.showValidationMessage('Reschedule date is required.');
+                                    return false;
+                                }
+                                return date;
+                            }
+                        }).then((res) => {
+                            if (res.isConfirmed) {
+                                const rescheduleDate = res.value;
+                                // 🔁 API call for Reattempt (type = 1)
+                                callNdrActionApi(orderId, 1, rescheduleDate);
+                            }
+                        });
+
+                    } else if (result.isDenied) {
+                        // 🚚 API call for RTO (type = 2)
+                        callNdrActionApi(orderId, 2, null);
+                    }
+                });
+
+                // 🔧 Function: Handle NDR action API
+                function callNdrActionApi(orderId, type, rescheduleDate = null) {
+                    $.ajax({
+                        url: '/ndr-reattempt',
+                        type: 'POST',
+                        data: {
+                            order_id: orderId,
+                            type: type,
+                            reschedule_date: rescheduleDate,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            Swal.fire({
+                                title: "Success!",
+                                text: response.message,
+                                icon: "success",
+                                confirmButtonText: "OK",
+                            }).then(() => {
+                                // 🔁 Redirect to updated order list
+                                window.location.href = `{{ route('retailer.order.list', ':type') }}`.replace(":type", response.type);
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error!', xhr.responseJSON?.message || 'Something went wrong.', 'error');
+                        }
+                    });
+                }
+            });
+            //<----------------- END : NDR ---------------->
         });
     </script>
 @endsection
