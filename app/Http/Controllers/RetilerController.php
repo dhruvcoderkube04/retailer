@@ -217,9 +217,16 @@ class RetilerController extends Controller
     // wholesaler list
     public function wholesalerList()
     {
-        $isAllWholesalerVisibleCheck = Auth::user()->is_all_wholesaler_visible;
+        $retailer = Auth::user();
+        $isAllWholesalerVisibleCheck = $retailer->is_all_wholesaler_visible;
+        $retailer_sub_category_count = RetailerCategory::where('retailer_id', $retailer->id)
+            ->distinct()
+            ->count('sub_category_id');
 
-        return view('wholesaler.wholesaler-list', ['is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck]);
+        return view('wholesaler.wholesaler-list', [
+            'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
+            'retailer_sub_category_count' => $retailer_sub_category_count
+        ]);
     }
 
     // AJAX : server-side data-table to fetch record of wholesaler list

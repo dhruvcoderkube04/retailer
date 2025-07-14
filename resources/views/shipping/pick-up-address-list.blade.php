@@ -4,10 +4,10 @@
 @endsection
 @section('content')
     <!--begin::Content-->
-<div id="kt_app_content" class="app-content flex-column-fluid my-5">
-    <div id="kt_app_content_container" class="app-container mx-auto">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+    <div id="kt_app_content" class="app-content flex-column-fluid my-5">
+        <div id="kt_app_content_container" class="app-container mx-auto">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
                     <!--begin::Title-->
                     <div class="card-title">
                         <h3 class="m-0">Add Pick Up Address</h3>
@@ -19,7 +19,7 @@
                 <!--end::Card header-->
                 <!--begin::Tab content-->
                 <div id="kt_billing_payment_tab_content" class="card-body">
-                    @if(session('error'))
+                    @if (session('error'))
                         <div class="alert alert-danger">
                             {{ session('error') }}
                         </div>
@@ -33,7 +33,8 @@
                                     <!--begin::Info-->
                                     <div class="d-flex flex-column py-2">
                                         <!--begin::Owner-->
-                                        <div class="d-flex align-items-center fs-4 fw-bold mb-5">{{ $address->warehouse_name }}
+                                        <div class="d-flex align-items-center fs-4 fw-bold mb-5">
+                                            {{ $address->warehouse_name }}
                                         </div>
                                         <div class="d-flex align-items-center fs-4 fw-bold mb-5">{{ $address->first_name }}
                                             {{ $address->last_name }}
@@ -126,8 +127,7 @@
     </div>
     <!--end::Content-->
 
-    <div class="modal fade @if ($errors->any() || session('custom_errors')) show d-block @endif"
-     id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -148,12 +148,13 @@
                     @endif
 
                     <!-- Address Form -->
-                    <form id="addressForm" action="{{ url('/pick-address/store') }}" method="POST">
+                    <form id="addAddressForm">
                         @csrf
                         <div class="mb-3">
-                            <label for="first_name" class="form-label"><span class="text-danger">*</span>Warehouse Name</label>
+                            <label for="first_name" class="form-label"><span class="text-danger">*</span>Warehouse
+                                Name</label>
                             <input type="text" class="form-control @error('warehouse_name') is-invalid @enderror"
-                                name="warehouse_name" value="{{ old('warehouse_name') }}" required>
+                                name="warehouse_name" value="{{ old('warehouse_name') }}">
                             @error('warehouse_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -162,7 +163,7 @@
                         <div class="mb-3">
                             <label for="first_name" class="form-label"><span class="text-danger">*</span>First Name</label>
                             <input type="text" class="form-control @error('first_name') is-invalid @enderror"
-                                name="first_name" value="{{ old('first_name') }}" required>
+                                name="first_name" value="{{ old('first_name') }}">
                             @error('first_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -171,7 +172,7 @@
                         <div class="mb-3">
                             <label for="last_name" class="form-label"><span class="text-danger">*</span>Last Name</label>
                             <input type="text" class="form-control @error('last_name') is-invalid @enderror"
-                                name="last_name" value="{{ old('last_name') }}" required>
+                                name="last_name" value="{{ old('last_name') }}">
                             @error('last_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -180,7 +181,7 @@
                         <div class="mb-3">
                             <label for="mobile" class="form-label"><span class="text-danger">*</span>Mobile Number</label>
                             <input type="text" class="form-control @error('mobile') is-invalid @enderror" name="mobile"
-                                value="{{ old('mobile') }}" required>
+                                value="{{ old('mobile') }}">
                             @error('mobile')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -189,7 +190,7 @@
                         <div class="mb-3">
                             <label for="pincode" class="form-label"><span class="text-danger">*</span>Pincode</label>
                             <input type="text" class="form-control @error('pincode') is-invalid @enderror" name="pincode"
-                                value="{{ old('pincode') }}" required>
+                                value="{{ old('pincode') }}">
                             @error('pincode')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -197,7 +198,7 @@
 
                         <div class="mb-3">
                             <label for="address" class="form-label"><span class="text-danger">*</span>Address</label>
-                            <textarea class="form-control @error('address') is-invalid @enderror" name="address" rows="2" required>{{ old('address') }}</textarea>
+                            <textarea class="form-control @error('address') is-invalid @enderror" name="address" rows="2">{{ old('address') }}</textarea>
                             @error('address')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -207,7 +208,7 @@
                             <div class="col-md-6">
                                 <label for="state" class="form-label"><span class="text-danger">*</span>State</label>
                                 <input type="text" class="form-control @error('state') is-invalid @enderror"
-                                    name="state" value="{{ old('state') }}" required>
+                                    name="state" value="{{ old('state') }}">
                                 @error('state')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -215,7 +216,7 @@
                             <div class="col-md-6">
                                 <label for="city" class="form-label"><span class="text-danger">*</span>City</label>
                                 <input type="text" class="form-control @error('city') is-invalid @enderror"
-                                    name="city" value="{{ old('city') }}" required>
+                                    name="city" value="{{ old('city') }}">
                                 @error('city')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -224,7 +225,8 @@
 
                         <div class="modal-footer mt-3">
                             <button type="submit" id="submitBtn" class="btn btn-success">Add</button>
-                            <button type="button" id="cancelBtn" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" id="cancelBtn" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -252,7 +254,7 @@
                         <div class="mb-3">
                             <label class="form-label">Warehouse Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('warehouse_name') is-invalid @enderror"
-                                name="warehouse_name" id="edit_warehouse_name" disabled >
+                                name="warehouse_name" id="edit_warehouse_name" disabled>
                             @error('warehouse_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -325,7 +327,8 @@
 
                         <div class="modal-footer mt-3">
                             <button type="submit" id="editsubmitBtn" class="btn btn-success">Update</button>
-                            <button type="button" id="editcancelBtn" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" id="editcancelBtn" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
                         </div>
 
                     </form>
@@ -370,7 +373,7 @@
                                             "The address has been deleted.",
                                             "success");
                                         location
-                                    .reload(); // Reload page after successful deletion
+                                            .reload(); // Reload page after successful deletion
                                     } else {
                                         Swal.fire("Error!",
                                             "There was a problem deleting the address.",
@@ -397,7 +400,7 @@
                 // console.log('addressId' , addressId);
                 $.ajax({
                     url: '/pick-address/edit/' +
-                    addressId, // Backend route to fetch address details
+                        addressId, // Backend route to fetch address details
                     type: 'GET',
                     success: function(response) {
                         $('#edit_id').val(response.warehouse_id);
@@ -414,13 +417,72 @@
                     }
                 });
             });
-            
-            $('#addressForm').on('submit', function () {
-                $('#submitBtn').prop('disabled', true).html('Adding... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-                $('#cancelBtn').prop('disabled', true);
+
+            $('#addAddressForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let form = $(this)[0];
+                let formData = new FormData(form);
+
+                $('#submitBtn').prop('disabled', true).text('Please wait...');
+                $('#formErrors').html('');
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
+
+                $.ajax({
+                    url: '{{ route('retailer.pickaddress.pickAddressStore') }}',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#submitBtn').prop('disabled', false).text('Add');
+                        if (response.status) {
+                            $('#addAddressModal').modal('hide');
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Address added successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Error!',
+                                text: response.message ??
+                                    'Something went wrong. Please try again.',
+                                showConfirmButton: true
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#submitBtn').prop('disabled', false).text('Add');
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            $.each(errors, function(field, messages) {
+                                let input = $('[name="' + field + '"]');
+                                input.addClass('is-invalid');
+                                input.after('<div class="invalid-feedback">' + messages[
+                                    0] + '</div>');
+                            });
+                        } else {
+                            $('html, body').animate({
+                                scrollTop: firstErrorField.offset().top - 100
+                            }, 500);
+                            firstErrorField.focus();
+                        }
+                    }
+                });
             });
-            $('#editAddressForm').on('submit', function () {
-                $('#editsubmitBtn').prop('disabled', true).html('Updating... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+            $('#editAddressForm').on('submit', function() {
+                $('#editsubmitBtn').prop('disabled', true).html(
+                    'Updating... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
+                );
                 $('#editcancelBtn').prop('disabled', true);
             });
         });

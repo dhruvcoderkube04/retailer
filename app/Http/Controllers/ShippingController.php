@@ -24,7 +24,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ShippingController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         return view('shipping.shipping-list');
     }
 
@@ -53,9 +54,9 @@ class ShippingController extends Controller
             ->when($search, function ($queryBuilder, $search) {
                 $queryBuilder->where(function ($q) use ($search) {
                     $q->where('firstname', 'like', "%$search%")
-                    ->orWhere('lastname', 'like', "%$search%")
-                    ->orWhere('email', 'like', "%$search%")
-                    ->orWhere('phone_number', 'like', "%$search%");
+                        ->orWhere('lastname', 'like', "%$search%")
+                        ->orWhere('email', 'like', "%$search%")
+                        ->orWhere('phone_number', 'like', "%$search%");
                 });
             })
             ->get();
@@ -229,13 +230,16 @@ class ShippingController extends Controller
         return $sku;
     }
 
-    public function CreateOwnOrder(){
+    public function CreateOwnOrder()
+    {
         return view('shipping.create-own-order');
     }
-    public function NDR(){
+    public function NDR()
+    {
         return view('shipping.ndr');
     }
-    public function labelSetting(){
+    public function labelSetting()
+    {
         return view('shipping.label-setting');
     }
     // public function pickAddressList()
@@ -257,19 +261,21 @@ class ShippingController extends Controller
             ->groupBy('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
             ->get();
 
-        return view('shipping.pick-up-address-list',['addresses' => $addresses]);
+        return view('shipping.pick-up-address-list', ['addresses' => $addresses]);
     }
 
     public function rtoAddress()
     {
         $user = Auth::user();
-        $RTOaddresses = RTOAddress::where('retailer_id',$user->id)->get();
-        return view('shipping.rto-address',['RTOaddresses' => $RTOaddresses]);
+        $RTOaddresses = RTOAddress::where('retailer_id', $user->id)->get();
+        return view('shipping.rto-address', ['RTOaddresses' => $RTOaddresses]);
     }
-    public function reportPage(){
+    public function reportPage()
+    {
         return view('shipping.report-page');
     }
-    public function shippingCharges(){
+    public function shippingCharges()
+    {
         return view('shipping.shipping-charges');
     }
 
@@ -390,91 +396,114 @@ class ShippingController extends Controller
     public function pickAddressStore(Request $request)
     {
         $request->validate([
-            'warehouse_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'warehouse_name' => 'required|string|max:255|unique:pickup_addresses,warehouse_name',
+            'first_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-z\s]+$/'
+            ],
+            'last_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-z\s]+$/'
+            ],
             'mobile' => 'required|digits:10',
             'pincode' => 'required|digits:6',
             'address' => 'required|string',
             'state' => 'required|string',
             'city' => 'required|string',
+        ], [
+            'first_name.regex' => 'Only letters allow as first name',
+            'last_name.regex' => 'Only letters allow as last name',
         ]);
 
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        $warehouseData = [
-            "warehouseName" => $request->warehouse_name,
-            "contactName" => $request->first_name,
-            "addressLine1" => $request->address,
-            "addressLine2" => "",
-            "pincode" => $request->pincode,
-            "city" => $request->city,
-            "phoneNumber" => $request->mobile,
-            "email" => $user->email,
-        ];
+            $warehouseData = [
+                "warehouseName" => $request->warehouse_name,
+                "contactName" => $request->first_name,
+                "addressLine1" => $request->address,
+                "addressLine2" => "",
+                "pincode" => $request->pincode,
+                "city" => $request->city,
+                "phoneNumber" => $request->mobile,
+                "email" => $user->email,
+            ];
 
-        $services = CourierServiceManager::getAllServicesForWarehouse();
-        $successCount = 0;
-        $errorList = [];
+            $services = CourierServiceManager::getAllServicesForWarehouse();
+            $successCount = 0;
+            $errorList = [];
 
-        foreach ($services as $entry) {
-            $courierService = $entry['service'];
-            $partner = $entry['partner'];
+            foreach ($services as $entry) {
+                $courierService = $entry['service'];
+                $partner = $entry['partner'];
 
-            try {
-                // Check if warehouse already exists for this courier & user
-                $existingWarehouse = PickAddress::where('user_id', $user->id)
-                    ->where('warehouse_name', $request->warehouse_name)
-                    ->where('courier_partner_id', $partner->id)
-                    ->first();
+                try {
+                    $existingWarehouse = PickAddress::where('user_id', $user->id)
+                        ->where('warehouse_name', $request->warehouse_name)
+                        ->where('courier_partner_id', $partner->id)
+                        ->first();
 
-                if ($existingWarehouse && $existingWarehouse->warehouse_id) {
-                    $warehouseData['warehouseId'] = $existingWarehouse->warehouse_id;
-                    $response = $courierService->updateWarehouse($warehouseData);
-                } else {
-                    $response = $courierService->addWarehouse($warehouseData);
+                    if ($existingWarehouse && $existingWarehouse->warehouse_id) {
+                        $warehouseData['warehouseId'] = $existingWarehouse->warehouse_id;
+                        $response = $courierService->updateWarehouse($warehouseData);
+                    } else {
+                        $response = $courierService->addWarehouse($warehouseData);
+                    }
+
+                    $res = is_array($response) ? $response : $response->json();
+
+                    if (!($res['status'] ?? false)) {
+                        $errorList[] = "{$partner->name} failed: " . ($res['message'] ?? 'Unknown error');
+                        continue;
+                    }
+
+                    $warehouseId = $res['warehouseId'] ?? null;
+
+                    $address = $existingWarehouse ?? new PickAddress();
+                    $address->warehouse_id = $warehouseId;
+                    $address->warehouse_name = $request->warehouse_name;
+                    $address->first_name = $request->first_name;
+                    $address->last_name = $request->last_name;
+                    $address->mobile_number = $request->mobile;
+                    $address->pincode = $request->pincode;
+                    $address->address = $request->address;
+                    $address->state = $request->state;
+                    $address->city = $request->city;
+                    $address->user_id = $user->id;
+                    $address->courier_partner_id = $partner->id;
+                    $address->save();
+
+                    $successCount++;
+                } catch (\Exception $e) {
+                    \Log::error("Warehouse add error for {$partner->name}", ['error' => $e->getMessage()]);
+                    $errorList[] = "{$partner->name} error: " . $e->getMessage();
                 }
-
-                $res = is_array($response) ? $response : $response->json();
-
-                if (!($res['status'] ?? false)) {
-                    $errorList[] = "{$partner->name} failed: " . ($res['message'] ?? 'Unknown error');
-                    continue;
-                }
-
-                $warehouseId = $res['warehouseId'] ?? null;
-
-                // Save or update PickAddress
-                $address = $existingWarehouse ?? new PickAddress();
-                $address->warehouse_id = $warehouseId;
-                $address->warehouse_name = $request->warehouse_name;
-                $address->first_name = $request->first_name;
-                $address->last_name = $request->last_name;
-                $address->mobile_number = $request->mobile;
-                $address->pincode = $request->pincode;
-                $address->address = $request->address;
-                $address->state = $request->state;
-                $address->city = $request->city;
-                $address->user_id = $user->id;
-                $address->courier_partner_id = $partner->id;
-                $address->save();
-
-                $successCount++;
-
-            } catch (\Exception $e) {
-                \Log::error("Warehouse add error for {$partner->name}", ['error' => $e->getMessage()]);
-                $errorList[] = "{$partner->name} error: " . $e->getMessage();
             }
-        }
 
-        if ($successCount > 0) {
-            return back()
-                ->with('success', "Warehouse saved with {$successCount} courier partners.")
-                ->with('custom_errors', $errorList);
-        } else {
-            return back()
-                ->with('error', 'Failed to add warehouse to all courier partners.')
-                ->with('custom_errors', $errorList);
+            if ($successCount > 0) {
+                return response()->json([
+                    'status' => true,
+                    'message' => "Warehouse saved with {$successCount} courier partners.",
+                    'errors' => $errorList,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to add warehouse to all courier partners.",
+                    'errors' => $errorList,
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Pick Address Store Error', ['exception' => $e]);
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred.',
+                'errors' => [$e->getMessage()]
+            ], 500);
         }
     }
 
@@ -489,13 +518,27 @@ class ShippingController extends Controller
     public function pickAddressupdate(Request $request, $id)
     {
         $request->validate([
-            'first_name'    => 'required|string|max:255',
-            'last_name'     => 'required|string|max:255',
-            'mobile_number' => 'required|digits:10',
-            'pincode'       => 'required|digits:6',
-            'address'       => 'required|string',
-            'state'         => 'required|string',
-            'city'          => 'required|string',
+            'warehouse_name' => 'required|string|max:255|unique:pickup_addresses,warehouse_name,' . $id . ',id',
+            'first_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-z\s]+$/'
+            ],
+            'last_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-z\s]+$/'
+            ],
+            'mobile' => 'required|digits:10',
+            'pincode' => 'required|digits:6',
+            'address' => 'required|string',
+            'state' => 'required|string',
+            'city' => 'required|string',
+        ], [
+            'first_name.regex' => 'Only letters allow as first name',
+            'last_name.regex' => 'Only letters allow as last name',
         ]);
 
         $user = Auth::user();
@@ -666,7 +709,7 @@ class ShippingController extends Controller
     public function pincodeServiceable()
     {
         $partner = CourierPartner::where('is_active', true)->firstOrFail();
-        return view('shipping.pincode-serviceable',compact('partner'));
+        return view('shipping.pincode-serviceable', compact('partner'));
     }
 
     public function pincodeCheckAvailability(Request $request)

@@ -40,10 +40,20 @@
                             </div>
                         @endif
 
+                        @if ($retailer_sub_category_count <= 0)
+                            <div class="text-danger fw-semibold mb-4 mx-2 fs-5">
+                                You haven't selected any categories yet. Please select categories to access this feature.
+                                <br>
+                                <a href="{{ route('retailer.category.list') }}"
+                                    class="text-danger text-decoration-underline">
+                                    Click here
+                                </a> to choose your categories.
+                            </div>
+                        @endif
+
                         <div class="card">
                             <div class="card-body pt-4">
-                                <table class="table align-middle table-row-dashed fs-7"
-                                    id="kt_datatable_wholesaler_list">
+                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                             <th class="text-center align-middle min-w-100px">Action</th>
@@ -118,8 +128,7 @@
                 }
             },
             order: [],
-            columns: [
-                {
+            columns: [{
                     data: 'action',
                     className: 'text-center',
                     orderable: false,
