@@ -33,10 +33,13 @@
                                     <!--begin::Info-->
                                     <div class="d-flex flex-column py-2">
                                         <!--begin::Owner-->
-                                        <div class="d-flex align-items-center fs-4 fw-bold mb-5">
-                                            {{ $address->warehouse_name }}
+                                        <div class="mb-5">
+                                            <span class="badge bg-light-primary fs-6 fw-bold py-2 px-3">
+                                                {{ $address->warehouse_name }}
+                                            </span>
                                         </div>
-                                        <div class="d-flex align-items-center fs-4 fw-bold mb-5">{{ $address->first_name }}
+                                        <div class="d-flex align-items-center fs-4 fw-bold mb-5 mx-1">
+                                            {{ $address->first_name }}
                                             {{ $address->last_name }}
                                             {{-- <span class="badge badge-light-success fs-7 ms-2">Primary</span> --}}
                                         </div>
@@ -471,10 +474,13 @@
                                     0] + '</div>');
                             });
                         } else {
-                            $('html, body').animate({
-                                scrollTop: firstErrorField.offset().top - 100
-                            }, 500);
-                            firstErrorField.focus();
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Error!',
+                                text: xhr.responseJSON.errors ??
+                                    'Something went wrong. Please try again.',
+                                showConfirmButton: true
+                            });
                         }
                     }
                 });
