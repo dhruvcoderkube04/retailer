@@ -778,6 +778,6 @@ class OrderStatusService
             'rto_at' => Carbon::now(),
         ]);
 
-        return [true, 'Order has been cancelled by retailer', 'cancel'];
+        return [true, 'Order has been RTO By Courier Partner', 'cancel'];
     }
 }
