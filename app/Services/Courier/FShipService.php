@@ -333,7 +333,7 @@ class FShipService implements CourierInterface
         ]);
         return [
             'status' => true,
-            'shipment_rates' => $data['shipment_rates'] ?? [],
+            'rates' => $data['shipment_rates'] ?? [],
         ];
     }
 

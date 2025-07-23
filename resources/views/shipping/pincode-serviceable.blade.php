@@ -123,37 +123,34 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: response.message || 'Something went wrong!',
+                        text: response.message || 'No courier is available for these pincodes.',
                     });
+                    resultBox.style.display = "none";
                     return;
                 }
 
                 const data = response.data;
+                const courier = response.courier || 'N/A';
+                const isAvailable = data.available === true;
 
-                const isAvailable = data.available ?? data.status;
+                // Set status text and styling
                 statusEl.innerText = isAvailable ? "Service Available" : "Service Not Available";
                 resultBox.classList.remove("alert-success", "alert-danger");
                 resultBox.classList.add(isAvailable ? "alert-success" : "alert-danger");
 
-                if (data.city && data.state) {
-                    // Lorrigo type response
-                    detailsEl.innerHTML = `
-                        <strong>City:</strong> ${data.city || 'N/A'}<br>
-                        <strong>State:</strong> ${data.state || 'N/A'}<br>
-                        <strong>Message:</strong> ${data.message || 'No message'}
-                    `;
-                } else {
-                    // Other partner type response
-                    detailsEl.innerHTML = `
-                        <strong>Source:</strong> ${data.source || 'N/A'}<br>
-                        <strong>Destination:</strong> ${data.destination || 'N/A'}<br>
-                        <strong>Zone:</strong> ${data.zone || 'N/A'}<br>
-                        <strong>Pickup:</strong> ${data.pickup || 'No'}<br>
-                        <strong>Delivery:</strong> ${data.delivery || 'No'}<br>
-                        <strong>COD:</strong> ${data.cod || 'No'}<br>
-                        <strong>Message:</strong> ${data.response || 'No message'}
-                    `;
-                }
+                // Show normalized courier info
+                // <strong>Courier:</strong> ${courier}<br>
+                // <strong>State:</strong> ${data.state || 'N/A'}<br>
+                detailsEl.innerHTML = `
+                    <strong>City:</strong> ${data.city || 'N/A'}<br>
+                    <strong>Source:</strong> ${data.source || 'N/A'}<br>
+                    <strong>Destination:</strong> ${data.destination || 'N/A'}<br>
+                    <strong>Zone:</strong> ${data.zone || 'N/A'}<br>
+                    <strong>Pickup:</strong> ${data.pickup || 'No'}<br>
+                    <strong>Delivery:</strong> ${data.delivery || 'No'}<br>
+                    <strong>COD:</strong> ${data.cod || 'No'}<br>
+                    <strong>Message:</strong> ${data.message || 'No message'}
+                `;
 
                 resultBox.style.display = "block";
             })
@@ -161,11 +158,11 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Something went wrong while checking pincode serviceable.',
+                    text: 'Something went wrong while checking pincode serviceability.',
                 });
+                console.error('Fetch Error:', error);
             })
             .finally(() => {
-                // Enable the submit button back
                 submitButton.disabled = false;
                 submitButton.innerHTML = 'Check Availability';
             });

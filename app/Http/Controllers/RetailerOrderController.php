@@ -186,8 +186,9 @@ class RetailerOrderController extends Controller
 
         // Courier list via service manager
         try {
-            $courierService = \App\Services\CourierServiceManager::getService();
+            $courierService = \App\Services\CourierServiceManager::getServiceByCode('fship'); #only get couier list api call
             $courierServices = $courierService->courierList();
+            // $courierServices = [];
         } catch (Exception $e) {
             Log::error('Failed to fetch courier list: ' . $e->getMessage());
             $courierServices = [];
@@ -761,7 +762,6 @@ class RetailerOrderController extends Controller
             }
 
             $pickup_address = PickAddress::where('id', $request->pickup_address_id)->first();
-
             $success = false;
             $message = '';
             $type = '';

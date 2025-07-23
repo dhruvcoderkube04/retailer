@@ -105,78 +105,55 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: formData
-        })
-        .then(res => res.json())
-        .then(res => {
-            let total_rates_list = [];
-            submitBtn.disabled = false;
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Calculate';
-            // Detect API type and parse accordingly
-            // console.log(res.data.rates && Array.isArray(res.data.rates));
-            if (res.shipment_rates && Array.isArray(res.shipment_rates)) {
-                // Fship API
-                total_rates_list = res.shipment_rates.map(rate => ({
-                    courier_name: rate.courier_name || '',
-                    shipping_charge: rate.shipping_charge || 0,
-                    cod_charge: rate.cod_charge || 0,
-                    rto_charge: rate.rto_charge || 0,
-                    service_mode: rate.service_mode || '',
-                    expected_pickup : rate.expectedPickup || ''
-                }));
+            })
+            .then(res => res.json())
+            .then(res => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Calculate';
+                resultList.innerHTML = ''; // clear previous results
 
-            } else if (res.rates && Array.isArray(res.rates)) {
-                // Lorriog API
-                total_rates_list = res.rates.map(rate => ({
-                    courier_name: rate.name || '',
-                    shipping_charge: rate.charge || 0,
-                    cod_charge: rate.cod || 0,
-                    rto_charge: rate.rtoCharges || 0,
-                    service_mode: rate.type || '',
-                    expected_pickup : rate.expectedPickup || ''
-                }));
-            }
-            // Only if we have rates, display them
-            //    <p><strong>RTO:</strong> ₹${rate.rto_charge}</p>
-            if (total_rates_list.length > 0) {
-                resultSection.style.display = 'block';
-                total_rates_list.forEach(rate => {
-                    resultList.innerHTML += `
-                        <div class="col-md-6 mb-3">
-                            <div class="card border shadow-sm p-3">
-                                <h5>${rate.courier_name}</h5>
-                                <p><strong>Shipping:</strong> ₹${rate.shipping_charge}</p>
-                                <p><strong>COD:</strong> ₹${rate.cod_charge}</p>
-                                <p><strong>Mode:</strong> ${rate.service_mode}</p>
-                                 <p><strong>Expected Pickup :</strong> ${rate.expected_pickup}</p>
+                // Use correct key: res.data instead of res.shipment_rates
+                if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    resultSection.style.display = 'block';
+
+                    res.data.forEach(rate => {
+                        // <h5 class="mb-2">${rate.courier_name}</h5>
+                        // <p><strong>RTO Charge:</strong> ₹${rate.rto_charge || 0}</p>
+                        // <p><strong>Total Price:</strong> ₹${rate.total_price || 0}</p>
+                        resultList.innerHTML += `
+                            <div class="col-md-6 mb-3">
+                                <div class="card border shadow-sm p-3">
+                                    ${rate.logoUrl ? `<img src="${rate.logoUrl}" alt="${rate.courier_name}" class="me-2 mb-2" style="height: 40px;">` : ''}
+                                    <p><strong>Service Name:</strong> ${rate.service_name || 'N/A'}</p>
+                                    <p><strong>Shipping Charge:</strong> ₹${rate.shipping_charge || 0}</p>
+                                    <p><strong>COD Charge:</strong> ₹${rate.cod_charge || 0}</p>
+                                    <p><strong>Weight:</strong> ${rate.weight || 'N/A'} kg</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    resultList.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-danger text-center">
+                                No courier services found.
                             </div>
                         </div>
                     `;
+                    resultSection.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Calculate';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong while calculating rates.',
                 });
-            } else {
-                resultList.innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-danger text-center">
-                            No courier services found.
-                        </div>
-                    </div>
-                `;
-                resultSection.style.display = 'block';
-            }
-
-
-        })
-        .catch(err => {
-            console.error(err);
-            submitBtn.disabled = false;
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Calculate';
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Something went wrong while calculating rates.',
             });
         });
-    });
 </script>
 @endsection

@@ -962,9 +962,9 @@ class RetilerController extends Controller
             $image = trim(stripslashes($image), "\"' ");
             $defaultImage = asset('assets/media/images/no_image.jpg');
             $imageUrl = !empty($image) ? Storage::disk('spaces')->url($image) : $defaultImage;
-            $product_image = '<img src="' . $imageUrl . '" 
-                        alt="Product Image" 
-                        style="width: 50px; height: 50px; object-fit: cover;" 
+            $product_image = '<img src="' . $imageUrl . '"
+                        alt="Product Image"
+                        style="width: 50px; height: 50px; object-fit: cover;"
                         onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
 
             $variations = json_decode($product->product_variations, true);
@@ -1012,11 +1012,11 @@ class RetilerController extends Controller
                             <input type="checkbox"
                                 class="form-check-input changeStatusToggle"
                                 style="height: 1.45rem; width: 2.75rem; background-color:rgb(76, 196, 118);"
-                                data-product-id="' . $product->id . '" 
-                                data-wholesaler-id="' . $product->wholesaler_id . '" 
-                                data-sub-category-id="' . $product->sub_category_id . '" 
-                                data-margin="' . $product->margin . '" 
-                                data-payment-method="' . $product->payment_method . '" 
+                                data-product-id="' . $product->id . '"
+                                data-wholesaler-id="' . $product->wholesaler_id . '"
+                                data-sub-category-id="' . $product->sub_category_id . '"
+                                data-margin="' . $product->margin . '"
+                                data-payment-method="' . $product->payment_method . '"
                                 checked>
                         </label>
                     </div>'
@@ -1026,11 +1026,11 @@ class RetilerController extends Controller
                             <input type="checkbox"
                                 class="form-check-input changeStatusToggle"
                                 style="height: 1.45rem; width: 2.75rem; background-color:rgb(240, 57, 57);"
-                                data-product-id="' . $product->id . '" 
-                                data-wholesaler-id="' . $product->wholesaler_id . '" 
-                                data-sub-category-id="' . $product->sub_category_id . '" 
-                                data-margin="' . $product->margin . '" 
-                                data-payment-method="' . $product->payment_method . '" 
+                                data-product-id="' . $product->id . '"
+                                data-wholesaler-id="' . $product->wholesaler_id . '"
+                                data-sub-category-id="' . $product->sub_category_id . '"
+                                data-margin="' . $product->margin . '"
+                                data-payment-method="' . $product->payment_method . '"
                                 >
                         </label>
                     </div>';
@@ -1436,9 +1436,9 @@ class RetilerController extends Controller
                 </a>
             </div>';
 
-            $product_image = '<img src="' . $imageUrl . '" 
-                        alt="Product Image" 
-                        style="width: 50px; height: 50px; object-fit: cover;" 
+            $product_image = '<img src="' . $imageUrl . '"
+                        alt="Product Image"
+                        style="width: 50px; height: 50px; object-fit: cover;"
                         onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
 
             $stock = '<div class="badge badge-light-success">Available</div>';
@@ -1625,9 +1625,9 @@ class RetilerController extends Controller
                 </a>
             </div>';
 
-            $product_image = '<img src="' . $imageUrl . '" 
-                        alt="Product Image" 
-                        style="width: 50px; height: 50px; object-fit: cover;" 
+            $product_image = '<img src="' . $imageUrl . '"
+                        alt="Product Image"
+                        style="width: 50px; height: 50px; object-fit: cover;"
                         onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
 
             $stock = '<div class="badge badge-light-danger">Unavailable</div>';
@@ -2769,6 +2769,41 @@ class RetilerController extends Controller
     }
 
     // use couire service manager
+    // public function ratecCalculationPost(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'source_Pincode' => 'required|digits:6',
+    //         'destination_Pincode' => 'required|digits:6',
+    //         'payment_Mode' => 'required|string',
+    //         'amount' => 'required|numeric',
+    //         'shipment_Weight' => 'required|numeric',
+    //         'shipment_Length' => 'nullable|numeric',
+    //         'shipment_Width' => 'nullable|numeric',
+    //         'shipment_Height' => 'nullable|numeric',
+    //         'volumetric_Weight' => 'nullable|numeric',
+    //     ]);
+
+    //     try {
+    //         $courierService = \App\Services\CourierServiceManager::getService();
+    //         $response = $courierService->calculateRate($data);
+
+    //         if (!empty($response['status']) && $response['status'] === true) {
+    //             return response()->json($response);
+    //         }
+
+    //         if (!empty($response['valid']) && $response['valid'] === true) {
+    //             return response()->json($response);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Error communicating with courier service.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+
     public function ratecCalculationPost(Request $request)
     {
         $data = $request->validate([
@@ -2783,21 +2818,28 @@ class RetilerController extends Controller
             'volumetric_Weight' => 'nullable|numeric',
         ]);
 
+        // Remove any keys with null values (e.g., null dimensions)
+        $data = array_filter($data, fn($value) => !is_null($value));
+
         try {
-            $courierService = \App\Services\CourierServiceManager::getService();
-            $response = $courierService->calculateRate($data);
-
-            if (!empty($response['status']) && $response['status'] === true) {
-                return response()->json($response);
+            $rates = \App\Services\CourierServiceManager::calculateRatesFromAllCouriers($data);
+            if (empty($rates)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No courier rates available.',
+                    'data' => [],
+                ]);
             }
 
-            if (!empty($response['valid']) && $response['valid'] === true) {
-                return response()->json($response);
-            }
-        } catch (\Exception $e) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Rate comparison successful',
+                'data' => $rates, // already formatted in the manager
+            ]);
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error communicating with courier service.',
+                'message' => 'Error fetching courier rates',
                 'error' => $e->getMessage(),
             ], 500);
         }

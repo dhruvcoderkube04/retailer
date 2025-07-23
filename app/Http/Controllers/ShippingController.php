@@ -436,11 +436,9 @@ class ShippingController extends Controller
             $services = CourierServiceManager::getAllServicesForWarehouse();
             $successCount = 0;
             $errorList = [];
-
             foreach ($services as $entry) {
                 $courierService = $entry['service'];
                 $partner = $entry['partner'];
-
                 try {
                     $existingWarehouse = PickAddress::where('user_id', $user->id)
                         ->where('warehouse_name', $request->warehouse_name)
@@ -475,6 +473,7 @@ class ShippingController extends Controller
                     $address->city = $request->city;
                     $address->user_id = $user->id;
                     $address->courier_partner_id = $partner->id;
+                    $address->courier_code = $partner->code;
                     $address->save();
 
                     $successCount++;
@@ -712,16 +711,39 @@ class ShippingController extends Controller
         return view('shipping.pincode-serviceable', compact('partner'));
     }
 
+    // public function pincodeCheckAvailability(Request $request)
+    // {
+    //     try {
+    //         $response = CourierServiceManager::checkServiceAvailableFromAllCouriers($request->all());
+
+    //         return response()->json([
+    //             'success' => $response['success'],
+    //             'data' => $response['data'] ?? [],
+    //         ]);
+    //     } catch (\InvalidArgumentException $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage(),
+    //         ], 422);
+    //     } catch (\Exception $e) {
+    //         \Log::error('Courier API Error (Pincode Check): ' . $e->getMessage());
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Something went wrong. Please try again later.',
+    //         ], 500);
+    //     }
+    // }
+
     public function pincodeCheckAvailability(Request $request)
     {
         try {
-            $courierService = CourierServiceManager::getService();
+            $response = CourierServiceManager::checkServiceAvailableFromAllCouriers($request->all());
 
-            // Let the service itself handle validation
-            $response = $courierService->checkPincodeAvailability($request->all());
             return response()->json([
-                'success' => true,
-                'data' => $response,
+                'success' => $response['success'],
+                'courier' => $response['courier'] ?? null,  // ✅ Include courier name
+                'data' => $response['data'] ?? [],
             ]);
         } catch (\InvalidArgumentException $e) {
             return response()->json([
@@ -751,9 +773,19 @@ class ShippingController extends Controller
         ]);
 
         try {
-            $courierService = \App\Services\CourierServiceManager::getService();
-
-            $response = $courierService->trackPackage($request->track_no);
+            $get_couier = CustomerOrders::select('courier_partner_code')->where('tracking_number',$request->track_no)->first();
+            if($get_couier)
+            {
+                $courierService = \App\Services\CourierServiceManager::getServiceByCode($get_couier->courier_partner_code);
+                $response = $courierService->trackPackage($request->track_no);
+            }
+            else
+            {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tracking Id Not Found',
+                ], 200);
+            }
 
             return response()->json([
                 'success' => true,

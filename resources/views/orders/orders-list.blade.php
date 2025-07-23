@@ -562,6 +562,7 @@
                         <input type="hidden" name="rto_charge" class="rto_charge" id="rto_charge">
                         <input type="hidden" name="cod_charge" class="cod_charge" id="cod_charge">
                         <input type="hidden" name="shipping_charge" class="shipping_charge" id="shipping_charge">
+                        <input type="hidden" name="courier_code" class="courier_code" id="courier_code">
                     </div>
 
                     <div class="modal-footer bg-light">
@@ -1226,7 +1227,6 @@
 
             // Courier services from controller (passed as JSON)
             const courierServices = @json($courierServices);
-
             // Initial payload for the API
             let payload = {
                 source_Pincode: "",
@@ -1275,18 +1275,26 @@
                     },
                     data: JSON.stringify(payload),
                     success: function(response) {
-
-                        if (response.status && response.shipment_rates && response.shipment_rates
-                            .length > 0) {
-                            populateModalTable(response.shipment_rates);
-                        } else if (response.rates && Array.isArray(response.rates) && response.rates
-                            .length > 0) {
-                            populateModalTableLorrigo(response.rates);
+                        if (response.status && Array.isArray(response.data) && response.data.length > 0) {
+                            populateMergedCourierRates(response.data);
                         } else {
                             $('#courierDetailsBody').html(
                                 '<tr><td colspan="6">No courier services available</td></tr>');
                         }
                     },
+                    // success: function(response) {
+
+                    //     if (response.status && response.shipment_rates && response.shipment_rates
+                    //         .length > 0) {
+                    //         populateModalTable(response.shipment_rates);
+                    //     } else if (response.rates && Array.isArray(response.rates) && response.rates
+                    //         .length > 0) {
+                    //         populateModalTableLorrigo(response.rates);
+                    //     } else {
+                    //         $('#courierDetailsBody').html(
+                    //             '<tr><td colspan="6">No courier services available</td></tr>');
+                    //     }
+                    // },
                     error: function(xhr) {
                         console.error('Error fetching courier rates:', xhr.responseText);
                         let errorMessage = 'Error fetching courier rates';
@@ -1300,71 +1308,104 @@
 
             // Function to populate the courier modal table  for fship
             // <td>₹${(courier.rto_charge || 0).toFixed(2)}</td>  remove
-            function populateModalTable(shipmentRates) {
+            // function populateModalTable(shipmentRates) {
+            //     let tableBody = '';
+            //     shipmentRates.forEach(function(courier) {
+            //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
+            //             .courier_name) || {};
+            //         tableBody += `
+            //             <tr>
+            //                 <td>${courier.service_mode || 'N/A'}</td>
+            //                 <td>
+            //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
+            //                     ${courier.courier_name}
+            //                 </td>
+            //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+            //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+
+            //                 <td>
+            //                     <button class="btn btn-sm btn-primary select-courier"
+            //                             data-courier="${courier.courier_name}"
+            //                             data-courier-id="${matchingCourier.courierId || ''}"
+            //                             data-courier-logo="${matchingCourier.logoUrl || null}"
+            //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+            //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+            //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+            //                             data-service-mode="${courier.service_mode || 'N/A'}
+            //                             data-cpartner="fship">
+            //                         Select
+            //                     </button>
+            //                 </td>
+            //             </tr>`;
+            //     });
+            //     $('#courierDetailsBody').html(tableBody);
+            // }
+
+            // Function to populate the courier modal table  for lorrigo
+            // <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
+            // function populateModalTableLorrigo(shipmentRates) {
+            //     let tableBody = '';
+            //     shipmentRates.forEach(function(courier) {
+
+            //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
+            //             .courier_name) || {};
+            //         tableBody += `
+            //             <tr>
+            //                 <td>${courier.type || 'N/A'}</td>
+            //                 <td>
+            //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
+            //                     ${courier.name}
+            //                 </td>
+            //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
+            //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
+            //                 <td>
+            //                     <button class="btn btn-sm btn-primary select-courier"
+            //                             data-courier="${courier.name}"
+            //                             data-courier-id="${courier.carrierID || ''}"
+            //                             data-courier-logo="${courier.name || null}"
+            //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
+            //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
+            //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
+            //                             data-service-mode="${courier.type || 'N/A'}"
+            //                             data-cpartner="lorrigo">
+            //                         Select
+            //                     </button>
+            //                 </td>
+            //             </tr>`;
+            //     });
+            //     $('#courierDetailsBody').html(tableBody);
+            // }
+
+            function populateMergedCourierRates(rates) {
                 let tableBody = '';
-                shipmentRates.forEach(function(courier) {
-                    const matchingCourier = courierServices.find(cs => cs.courierName === courier
-                        .courier_name) || {};
+                rates.forEach(function(courier) {
+                    const matchingCourier = courierServices.find(cs => cs.courierName === courier.service_name) || {};
                     tableBody += `
                         <tr>
                             <td>${courier.service_mode || 'N/A'}</td>
                             <td>
                                 ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
-                                ${courier.courier_name}
+                                ${courier.service_name}
                             </td>
                             <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
                             <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
-
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
-                                        data-courier="${courier.courier_name}"
+                                        data-courier="${courier.service_name}"
                                         data-courier-id="${matchingCourier.courierId || ''}"
                                         data-courier-logo="${matchingCourier.logoUrl || null}"
                                         data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
                                         data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
                                         data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || 'N/A'}
-                                        data-cpartner="fship">
+                                        data-service-mode="${courier.service_mode || 'N/A'}"
+                                        data-cpartner="${courier.service_mode}"
+                                        data-courier_code="${courier.courier_code}">
                                     Select
                                 </button>
                             </td>
                         </tr>`;
                 });
-                $('#courierDetailsBody').html(tableBody);
-            }
 
-            // Function to populate the courier modal table  for lorrigo
-            // <td>₹${(courier.rtoCharges || 0).toFixed(2)}</td>
-            function populateModalTableLorrigo(shipmentRates) {
-                let tableBody = '';
-                shipmentRates.forEach(function(courier) {
-
-                    const matchingCourier = courierServices.find(cs => cs.courierName === courier
-                        .courier_name) || {};
-                    tableBody += `
-                        <tr>
-                            <td>${courier.type || 'N/A'}</td>
-                            <td>
-                                ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
-                                ${courier.name}
-                            </td>
-                            <td>₹${(courier.charge || 0).toFixed(2)}</td>
-                            <td>₹${(courier.cod || 0).toFixed(2)}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary select-courier"
-                                        data-courier="${courier.name}"
-                                        data-courier-id="${courier.carrierID || ''}"
-                                        data-courier-logo="${courier.name || null}"
-                                        data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
-                                        data-cod-charge="${(courier.cod || 0).toFixed(2)}"
-                                        data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
-                                        data-service-mode="${courier.type || 'N/A'}"
-                                        data-cpartner="lorrigo">
-                                    Select
-                                </button>
-                            </td>
-                        </tr>`;
-                });
                 $('#courierDetailsBody').html(tableBody);
             }
 
@@ -1421,6 +1462,7 @@
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
                 const serviceMode = $(this).data('service-mode') || 'N/A';
                 const cpartner = $(this).data('cpartner');
+                const courier_code = $(this).data('courier_code');
                 console.log(courierId, courierName, "courier Info");
 
                 // Store selected courier in hidden inputs
@@ -1431,7 +1473,10 @@
 
                 $('#courier_service').val(courierName);
                 $('#courier_service_id').val(courierId);
+
                 $('#courier_service_logo').val(courierLogo);
+                console.log(courier_code,"value in couier id");
+                $('#courier_code').val(courier_code);
 
                 // Display all courier details below the Select Courier button
                 $('#selected-courier-display').html(`
