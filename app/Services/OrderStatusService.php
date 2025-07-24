@@ -288,7 +288,7 @@ class OrderStatusService
                             "type" => $get_carrier->type
                         ];
                         $createshipment = $courierService->createShipment($create_shipment_payload);
-                        
+
                         if ($createshipment['valid']  && $createshipment['order']) {
                             $updateData['tracking_number'] = $createshipment['order']['awb'];
                             $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
@@ -357,7 +357,6 @@ class OrderStatusService
             'status' => 'ndr',
             'ndr_at' => Carbon::now(),
         ]);
-
         // Send email to retailer
         if ($customerOrder->retailer && $customerOrder->retailer->email) {
             Mail::to($customerOrder->retailer->email)->send(
@@ -586,6 +585,21 @@ class OrderStatusService
         return [true, 'Order has been cancelled by retailer', 'cancel'];
     }
 
+    // Rto
+    public function handleRtoOrder($customerOrder)
+    {
+        $customerOrder->update([
+            'status' => 'rto',
+            'rto_at' => Carbon::now(),
+        ]);
+
+        return [true, 'Order has been transferred to RTO', 'rto'];
+    }
+
+    // Return to seller
+
+
+
     // CANCELLED WITH CHARGES (Pickup ke bad & Delivery se pehle Order cancel hota hai)
     public function handleCancelledOrderWithCharges($retailer, $customerOrder, $reject_reason_select, $reject_reason_input)
     {
@@ -706,7 +720,7 @@ class OrderStatusService
         return [true, 'Order has been cancelled by retailer', 'cancel'];
     }
 
-    // CANCELLED WITH CHARGES (Pickup ke bad & Delivery se pehle Order cancel hota hai)
+    // CANCELLED WITH CHARGES (Pickup ke bad & Delivery se pehle Order cancel hota hai) (Return to seller)
     public function NdrtoRto($retailer, $customerOrder)
     {
         // increase quantity in wholesaler-product
@@ -785,9 +799,9 @@ class OrderStatusService
         $retailerDetail->save();
 
         $customerOrder->update([
-            'status' => 'rto',
+            'status' => 'rtn_to_seller',
             'shipment_activity' => 'Marked as RTO by system',
-            'rto_at' => Carbon::now(),
+            'rtn_to_seller_at' => Carbon::now(),
         ]);
 
         return [true, 'Order has been RTO By Courier Partner', 'cancel'];

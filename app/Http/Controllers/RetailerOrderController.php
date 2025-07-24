@@ -1233,7 +1233,7 @@ class RetailerOrderController extends Controller
             };
 
             if ($request->type == 1) {
-                // 🚀 Reattempt logic
+                //  Reattempt logic
                 $payload = [
                     'orderId' => $customerOrder->api_order_id,
                     'ndrInfo' => [
@@ -1268,7 +1268,7 @@ class RetailerOrderController extends Controller
                 ]);
 
             } elseif ($request->type == 2) {
-                // 🛑 RTO logic
+                // RTO logic
                 $retailer = Auth::user();
 
                 $payload = [
@@ -1283,14 +1283,14 @@ class RetailerOrderController extends Controller
                     'type' => 2,
                 ];
 
-                $response = $courierService->reattemptShipment($payload);
+                $response = $courierService->reattemptShipment($payload);  # rto
 
                 if (isset($response['valid'])) {
                     throw new \Exception($response['message']);
                 }
 
                 $statusService = new OrderStatusService();
-                [$success, $message, $type] = $statusService->NdrtoRto($retailer, $customerOrder);
+                [$success, $message, $type] = $statusService->handleRtoOrder($customerOrder);
 
                 $customerOrder->update([
                     'status' => 'rto',

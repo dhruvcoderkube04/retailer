@@ -80,7 +80,7 @@ class TrackShipments extends Command
         ];
 
         $orders = DB::table('customer_orders')
-            ->whereIn('status', ['in_transit', 'pickup', 'ofd', 'rto', 'delivered', 'rtn_to_seller','ndr','lost', 'cancel'])
+            ->whereIn('status', ['in_transit', 'pickup', 'ofd', 'rto', 'delivered','ndr','lost', 'cancel'])
             ->where('order_process_by', 'retailer')
             ->where('checkout_type', 'normal')
             ->whereNotNull('tracking_number')
@@ -204,6 +204,44 @@ class TrackShipments extends Command
                             } else {
                                 DB::rollBack();
                                 Log::error("🚫 Failed : NDR processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // rto
+                        elseif ($bucket_status === 'rto')
+                        {
+                            if ($orderModel->status === 'rto' && $orderModel->rto_at) {
+                                Log::info("🚫 Order #{$order->order_id} already RTO. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleRtoOrder($orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : RTO processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : RTO processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // rto to seller
+                        elseif ($bucket_status === 'rtn_to_seller')
+                        {
+                            if ($orderModel->status === 'rtn_to_seller' && $orderModel->rtn_to_seller_at) {
+                                Log::info("🚫 Order #{$order->order_id} already Return to Seller. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->NdrtoRto($orderModel->retailer,$orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : Return to Seller processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : Return to Seller processed for order #{$order->order_id}: {$msg}");
                             }
                         }
                         // CANCEL
