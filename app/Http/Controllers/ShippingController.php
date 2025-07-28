@@ -411,7 +411,7 @@ class ShippingController extends Controller
             ],
             'mobile' => 'required|digits:10',
             'pincode' => 'required|digits:6',
-            'address' => 'required|string',
+            'address' => 'required|string|min:10|max:255',
             'state' => 'required|string',
             'city' => 'required|string',
         ], [

@@ -1724,7 +1724,7 @@ class RetilerController extends Controller
             'status' => 'required|string|in:active,inactive',
             'product_description' => 'nullable|string|max:1000',
             'images' => 'required|array|max:3',
-            'images.*' => 'mimes:jpeg,png,jpg|max:4096',
+            'images.*' => 'mimes:jpeg,png,jpg,webp|max:4096',
             'video' => 'nullable|mimes:mp4|max:10240',
             'sku' => [
                 'nullable',
