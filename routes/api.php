@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Retailer\CustomerRegisterController;
 use App\Http\Controllers\API\Retailer\OtpController;
 use App\Http\Controllers\API\Retailer\RetailerProductController;
 use Illuminate\Http\Request;
@@ -15,8 +16,36 @@ Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);
 Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
 
-
 // Route::post('/retailer-products', [RetailerProductController::class, 'getProducts']);
 // Route::post('/retailer-products', [RetailerProductController::class, 'getRetailerProducts']);
 // Route::post('/send-otp', [RetailerProductController::class, 'sendOtp']);
 // Route::post('/verify-otp', [RetailerProductController::class, 'verifyOtp']);
+
+// for customer register api
+Route::prefix('customer')->group(function () {
+    // Auth routes
+    Route::post('register', [CustomerRegisterController::class, 'register']);
+    Route::post('login', [CustomerRegisterController::class, 'login']);
+    Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:customer');
+    Route::post('forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
+    Route::post('reset-password', [CustomerRegisterController::class, 'resetPassword']);
+
+    Route::get('verify-email/{token}', [CustomerRegisterController::class, 'verifyEmail']);
+
+    // Account
+    Route::middleware('auth:customer')->group(function () {
+        Route::get('account', [CustomerRegisterController::class, 'details']);
+        Route::post('account', [CustomerRegisterController::class, 'update']);
+
+        // Shipping Address CRUD
+        Route::get('addresses', [CustomerRegisterController::class, 'index']);
+        Route::post('addresses', [CustomerRegisterController::class, 'store']);
+        Route::post('addresses/{id}', [CustomerRegisterController::class, 'update']);
+        Route::delete('addresses/{id}', [CustomerRegisterController::class, 'destroy']);
+
+        // Wishlist
+        Route::get('wishlist', [CustomerRegisterController::class, 'index']);
+        Route::post('wishlist', [CustomerRegisterController::class, 'store']);
+        Route::delete('wishlist/{id}', [CustomerRegisterController::class, 'destroy']);
+    });
+});

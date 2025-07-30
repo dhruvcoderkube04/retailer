@@ -22,6 +22,12 @@ class FShipService implements CourierInterface
 
     public function createOrder(array $data): array
     {
+
+        // log payload
+        Log::info('createOrder In Fship Payload  (Retailer side)', [
+            'payload' => $data,
+        ]);
+
         try {
             $response = Http::timeout(300)
                 ->withHeaders($this->getHeaders())
