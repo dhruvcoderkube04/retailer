@@ -11,7 +11,7 @@ Route::post('/store-info', [RetailerProductController::class, 'storeInfo']);
 Route::post('/get-products', [RetailerProductController::class, 'getProducts']);
 Route::post('/search-products', [RetailerProductController::class, 'searchProducts']);
 Route::get('/singal-product-details/{slug}', [RetailerProductController::class, 'getSingalProductDetails']);
-Route::post('/checkout', [RetailerProductController::class, 'checkout']);
+Route::post('/checkout', [RetailerProductController::class, 'checkout'])->middleware('auth:sanctum');
 Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);
 Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
@@ -21,6 +21,10 @@ Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
 // Route::post('/send-otp', [RetailerProductController::class, 'sendOtp']);
 // Route::post('/verify-otp', [RetailerProductController::class, 'verifyOtp']);
 
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 // for customer register api
 Route::prefix('customer')->group(function () {
     // Auth routes
@@ -48,4 +52,17 @@ Route::prefix('customer')->group(function () {
         Route::post('wishlist', [CustomerRegisterController::class, 'store']);
         Route::delete('wishlist/{id}', [CustomerRegisterController::class, 'destroy']);
     });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/details', [CustomerRegisterController::class, 'getCustomerDetails']);
+        Route::get('/orders', [RetailerProductController::class, 'customerOrders']);
+        Route::post('/shipping-address', [RetailerProductController::class, 'shippingAddress']);
+        Route::post('/account-details', [RetailerProductController::class, 'accountDetails']);
+        Route::post('/reset-password', [RetailerProductController::class, 'resetPassword']);
+        Route::get('/wishlist', [RetailerProductController::class, 'wishlist']);
+        Route::get('/cart', [RetailerProductController::class, 'cart']);
+        Route::post('/remove-to-wishlist', [RetailerProductController::class, 'removeToWishlist']);
+        Route::post('/remove-to-cart', [RetailerProductController::class, 'removeToCart']);
+    });
+
 });

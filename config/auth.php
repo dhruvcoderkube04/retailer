@@ -42,11 +42,11 @@ return [
         ],
         'api' => [
             'driver' => 'sanctum',
-            'provider' => ' customers ',
+            'provider' => ' customer_details ',
         ],
         'customer' => [
             'driver' => 'sanctum',
-            'provider' => 'customers',
+            'provider' => 'customer_details',
         ],
     ],
 
@@ -74,7 +74,7 @@ return [
         ],
         'customers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Customer::class,
+            'model' => App\Models\CustomerDetails::class,
         ],
 
 

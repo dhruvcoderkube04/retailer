@@ -4,8 +4,11 @@ namespace App\Http\Controllers\API\Retailer;
 
 use App\Http\Controllers\Controller;
 use App\Mail\RetailerOrderMail;
+use App\Mail\WelcomeCustomerMail;
 use App\Models\Category;
 use App\Models\Coupon;
+use App\Models\Customer;
+use App\Models\CustomerCart;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
@@ -20,6 +23,7 @@ use App\Models\User;
 use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use App\Models\OrderNotification;
+use Auth;
 use Dotenv\Util\Regex;
 use Exception;
 use Illuminate\Http\Request;
@@ -32,6 +36,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+
 
 class RetailerProductController extends Controller
 {
@@ -105,9 +111,11 @@ class RetailerProductController extends Controller
                 $storeinfo->theme_data->theme_image = $storeinfo->theme_data->theme_image ? Storage::disk('spaces')->url($storeinfo->theme_data->theme_image) : '';
             }
 
-            $subCategories = SubCategory::with(['retailer_categories' => function ($q) use ($storeinfo) {
-                $q->where('retailer_id', $storeinfo->retailer_id);
-            }])
+            $subCategories = SubCategory::with([
+                'retailer_categories' => function ($q) use ($storeinfo) {
+                    $q->where('retailer_id', $storeinfo->retailer_id);
+                }
+            ])
                 ->whereHas('retailer_categories', function ($q) use ($storeinfo) {
                     $q->where('retailer_id', $storeinfo->retailer_id);
                 })
@@ -234,12 +242,7 @@ class RetailerProductController extends Controller
                 }
 
                 return $item;
-            })->filter(function ($item) use (
-                $subCategoryIds,
-                $minPrice,
-                $maxPrice,
-                $retailerEditedProducts,
-            ) {
+            })->filter(function ($item) use ($subCategoryIds, $minPrice, $maxPrice, $retailerEditedProducts, ) {
                 //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
                 foreach ($retailerEditedProducts as $editedProduct) {
                     if ($item->id == $editedProduct->product_id) {
@@ -356,14 +359,14 @@ class RetailerProductController extends Controller
 
             // <---------------- return data ---------------------->
             return response()->json([
-                'success'    => true,
-                'products'   => $paginatedProducts,
+                'success' => true,
+                'products' => $paginatedProducts,
                 'sub_categories' => $subCategories,
             ]);
         } catch (Exception $e) {
             Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
-                'line'  => $e->getLine(),
-                'file'  => $e->getFile(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
@@ -567,14 +570,14 @@ class RetailerProductController extends Controller
 
             // <---------------- return data ---------------------->
             return response()->json([
-                'success'    => true,
-                'products'   => $paginatedProducts,
+                'success' => true,
+                'products' => $paginatedProducts,
                 'sub_categories' => $subCategories,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
-                'line'  => $e->getLine(),
-                'file'  => $e->getFile(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
@@ -585,6 +588,7 @@ class RetailerProductController extends Controller
 
     public function getSingalProductDetails(Request $request, $slug = null)
     {
+
         try {
             //<------------- validate user ---------------->
             $apiKey = $request->header('API-KEY');
@@ -722,20 +726,33 @@ class RetailerProductController extends Controller
 
     public function checkout(Request $request)
     {
+
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to place an order.'
+            ], 401);
+        }
+
+        $isLoggedIn = Auth::check();
+        $user = $isLoggedIn ? Auth::user() : null;
+        $customerId = $user->id;
+
+
         $validator = Validator::make($request->all(), [
-            'firstname' => 'required|max:30',
-            'lastname' => 'required|max:30',
+            'firstname' => $isLoggedIn ? 'nullable' : 'required|string|max:30',
+            'lastname' => $isLoggedIn ? 'nullable' : 'required|string|max:30',
             'phone_number' => 'required|numeric|digits:10',
-            'email' => 'required|email',
-            'address' => 'required|max:250',
+            'email' => $isLoggedIn ? 'nullable|email' : 'required|email',
+            'address' => 'required|string|max:250',
             'payment_method' => 'required|in:cod,upi',
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'nullable',
-            'products.*.retailer_product_id' => 'nullable',
-            'products.*.wholesaler_id' => 'nullable',
-            'products.*.retailer_id' => 'nullable',
+            'products.*.product_id' => 'nullable|integer',
+            'products.*.retailer_product_id' => 'nullable|integer',
+            'products.*.wholesaler_id' => 'nullable|integer',
+            'products.*.retailer_id' => 'nullable|integer',
             'products.*.quantity' => 'required|integer|min:1',
-            'products.*.final_amount' => 'required|numeric|min:0'
+            'products.*.final_amount' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -750,9 +767,11 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'API Key is required.'], 401);
         }
 
-        $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
-            $query->where('is_delete', 0)->where('status', 1);
-        }])->whereHas('retailer', function ($query) {
+        $retailer = RetailerWebManagement::with([
+            'retailer' => function ($query) {
+                $query->where('is_delete', 0)->where('status', 1);
+            }
+        ])->whereHas('retailer', function ($query) {
             $query->where('is_delete', 0)->where('status', 1);
         })->where('product_listing_key', $apiKey)->first();
 
@@ -761,17 +780,34 @@ class RetailerProductController extends Controller
         }
 
         DB::beginTransaction();
+
+        if ($user) {
+            $firstname = $user->firstname;
+            $lastname = $user->lastname;
+        } else {
+            $firstname = $request->firstname;
+            $lastname = $request->lastname;
+        }
         try {
-            $customerDetail = CustomerDetails::create([
-                'firstname' => $request->firstname,
-                'lastname' => $request->lastname,
-                'phone_number' => $request->phone_number,
-                'email' => $request->email ?? null,
-                'address' => $request->address,
-                'state' => $request->state,
-                'city' => $request->city,
-                'pincode' => $request->pincode
-            ]);
+
+            $verificationToken = Str::random(64);
+            $userToken = Str::random(60);
+
+            // $customerDetail = CustomerDetails::create([
+            //     'user_id' => $retailer->retailer_id,
+            //     'firstname' => $firstname,
+            //     'lastname' => $lastname,
+            //     'phone_number' => $request->phone_number,
+            //     'password' => Hash::make($request->password),
+            //     'email' => $user ? $user->email : ($request->email ?? null),
+            //     'address' => $request->address,
+            //     'state' => $request->state,
+            //     'city' => $request->city,
+            //     'pincode' => $request->pincode,
+            //     'user_token' => $userToken,
+            //     'is_active' => false,
+            //     'email_verification_token' => $verificationToken,
+            // ]);
 
             $orderItems = [];
             $orderIDs = [];
@@ -1005,7 +1041,7 @@ class RetailerProductController extends Controller
 
                 $orderItems[] = [
                     'order_id' => $orderID,
-                    'customer_id' => $customerDetail->id,
+                    'customer_id' => $customerId,
                     'order_product_id' => $orderProductDetails->id,
                     'product_id' => $productId,
                     'retailer_clone_product_id' => $cloneId,
@@ -1017,7 +1053,7 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'coupon_applied_id' =>  @$couponid,
+                    'coupon_applied_id' => @$couponid,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
@@ -1111,9 +1147,11 @@ class RetailerProductController extends Controller
         }
 
         // Get retailer by API key
-        $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
-            $query->where('is_delete', 0)->where('status', 1);
-        }])->whereHas('retailer', function ($query) {
+        $retailer = RetailerWebManagement::with([
+            'retailer' => function ($query) {
+                $query->where('is_delete', 0)->where('status', 1);
+            }
+        ])->whereHas('retailer', function ($query) {
             $query->where('is_delete', 0)->where('status', 1);
         })->where('product_listing_key', $apiKey)->first();
 
@@ -1183,9 +1221,9 @@ class RetailerProductController extends Controller
         $totalStock = 0;
 
         if (!empty($product->productVariations) && $product->productVariations->isNotEmpty()) {
-            $oldPrices = $product->productVariations->pluck('old_price')->filter()->map(fn($v) => (float)$v);
-            $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float)$v);
-            $finalPrices = $product->productVariations->pluck('final_price')->filter()->map(fn($v) => (float)$v);
+            $oldPrices = $product->productVariations->pluck('old_price')->filter()->map(fn($v) => (float) $v);
+            $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float) $v);
+            $finalPrices = $product->productVariations->pluck('final_price')->filter()->map(fn($v) => (float) $v);
             $totalStock = $product->productVariations->sum('stock');
 
             $oldPriceRange = $oldPrices->isNotEmpty() ? round($oldPrices->min(), 2) : null;
@@ -1250,32 +1288,32 @@ class RetailerProductController extends Controller
         $product_images_implode = implode(',', $product_image_array);
 
         return [
-            'id'              => $product->id,
-            'sku'             => $product->sku,
-            'name'            => $product->name,
-            'slug'            => $product->slug,
-            'description'     => $product->description,
-            'tags'     => $product->tags,
-            'category_id'     => $product->category_id,
-            'sub_category_id'     => $product->sub_category_id,
-            'wholesaler_id'   => $product->wholesaler_id,
-            'old_price'       => $oldfinalPrice,
-            'final_price'     => $newfinalPrice,
-            'new_price'       => $product->new_price,
-            'final_price'     => $newfinalPrice,
-            'quantity'        => $product->quantity,
-            'product_images'  => $product_images_implode,
-            'product_video'   => $product->videos ? Storage::disk('spaces')->url($product->videos) : '',
-            'product_url'     => $product->url,
-            'status'     => $product->status,
-            'specifications'  => $product->specifications,
-            'retailer_id'     => $product->retailer_id ?? null,
-            'variations'      => $product->productVariations->map(function ($var) {
+            'id' => $product->id,
+            'sku' => $product->sku,
+            'name' => $product->name,
+            'slug' => $product->slug,
+            'description' => $product->description,
+            'tags' => $product->tags,
+            'category_id' => $product->category_id,
+            'sub_category_id' => $product->sub_category_id,
+            'wholesaler_id' => $product->wholesaler_id,
+            'old_price' => $oldfinalPrice,
+            'final_price' => $newfinalPrice,
+            'new_price' => $product->new_price,
+            'final_price' => $newfinalPrice,
+            'quantity' => $product->quantity,
+            'product_images' => $product_images_implode,
+            'product_video' => $product->videos ? Storage::disk('spaces')->url($product->videos) : '',
+            'product_url' => $product->url,
+            'status' => $product->status,
+            'specifications' => $product->specifications,
+            'retailer_id' => $product->retailer_id ?? null,
+            'variations' => $product->productVariations->map(function ($var) {
                 return [
                     'id' => $var->id,
                     'variation' => $var->product_variation,
-                    'price'     => $var->price,
-                    'stock'     => $var->stock,
+                    'price' => $var->price,
+                    'stock' => $var->stock,
                 ];
             })->values()
         ];
@@ -1295,33 +1333,446 @@ class RetailerProductController extends Controller
         $product_images_implode = implode(',', $product_image_array);
 
         return [
-            'id'              => $cloneProduct->id,
-            'sku'             => $cloneProduct->sku,
-            'name'            => $cloneProduct->name,
-            'slug'            => $cloneProduct->slug,
-            'description'     => $cloneProduct->description,
-            'tags'     => $cloneProduct->tags,
-            'category_id'     => $cloneProduct->category_id ?? null,
-            'sub_category_id'     => $cloneProduct->sub_category_id ?? null,
-            'wholesaler_id'   => null,
-            'old_price'       => $oldfinalPrice,
-            'new_price'       => $cloneProduct->new_price,
-            'final_price'     => $newfinalPrice,
-            'quantity'        => $cloneProduct->quantity,
-            'product_images'  => $product_images_implode,
-            'product_video'   => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : '',
-            'product_url'     => $cloneProduct->url,
-            'status'     => $cloneProduct->status,
-            'specifications'  => $cloneProduct->specifications,
-            'retailer_id'     => $cloneProduct->retailer_id ?? null,
-            'variations'      => $cloneProduct->productVariations->map(function ($var) {
+            'id' => $cloneProduct->id,
+            'sku' => $cloneProduct->sku,
+            'name' => $cloneProduct->name,
+            'slug' => $cloneProduct->slug,
+            'description' => $cloneProduct->description,
+            'tags' => $cloneProduct->tags,
+            'category_id' => $cloneProduct->category_id ?? null,
+            'sub_category_id' => $cloneProduct->sub_category_id ?? null,
+            'wholesaler_id' => null,
+            'old_price' => $oldfinalPrice,
+            'new_price' => $cloneProduct->new_price,
+            'final_price' => $newfinalPrice,
+            'quantity' => $cloneProduct->quantity,
+            'product_images' => $product_images_implode,
+            'product_video' => $cloneProduct->videos ? Storage::disk('spaces')->url($cloneProduct->videos) : '',
+            'product_url' => $cloneProduct->url,
+            'status' => $cloneProduct->status,
+            'specifications' => $cloneProduct->specifications,
+            'retailer_id' => $cloneProduct->retailer_id ?? null,
+            'variations' => $cloneProduct->productVariations->map(function ($var) {
                 return [
                     'id' => $var->id,
                     'variation' => $var->product_variation,
-                    'price'     => $var->price,
-                    'stock'     => $var->stock,
+                    'price' => $var->price,
+                    'stock' => $var->stock,
                 ];
             })->values()
         ];
     }
+
+    public function customerOrders()
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to view your orders.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        // Get all orders for this customer
+        $orders = CustomerOrders::where('customer_id', $customer->id)->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'You have not placed any orders yet.',
+                'orders' => []
+            ]);
+        }
+
+        $orderList = [];
+
+        foreach ($orders as $order) {
+            $product = OrderProductDetails::find($order->id);
+            $product_link = Product::where('id', $product->id)->first();
+            $productUrl = url('/api/singal-product-details/' . $product_link->slug);
+
+            if ($product) {
+                $imageString = $product->images ?? '';
+                $imageArray = explode(',', $imageString);
+                $orderList[] = [
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? null,
+                    'image' => $imageArray,
+                    'price' => $product->new_price ?? null,
+                    'order_date' => $order->created_at->format('d F Y'),
+                    'product_link' => $productUrl,
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'orders' => $orderList,
+        ]);
+    }
+
+    public function shippingAddress(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to manage your shipping address.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        // Validate input
+        $request->validate([
+            'address' => 'required|string|max:255',
+            'state' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
+            'pincode' => 'required|digits_between:4,10',
+        ]);
+
+        try {
+            // Check if address already exists for the user
+            $existingAddress = CustomerDetails::where('id', $customer->id)->first();
+
+            if ($existingAddress) {
+                // Update existing address
+                $existingAddress->update([
+                    'address' => $request->address,
+                    'state' => $request->state,
+                    'city' => $request->city,
+                    'pincode' => $request->pincode,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Shipping address updated successfully.',
+                    'data' => [
+                        'firstname' => $existingAddress->firstname,
+                        'lastname' => $existingAddress->lastname,
+                        'address' => $existingAddress->address,
+                        'state' => $existingAddress->state,
+                        'city' => $existingAddress->city,
+                        'pincode' => $existingAddress->pincode
+
+                    ]
+                ]);
+            } else {
+                // Create new address
+                $newAddress = CustomerDetails::create([
+                    'user_id' => $customer->id,
+                    'address' => $request->address,
+                    'state' => $request->state,
+                    'city' => $request->city,
+                    'pincode' => $request->pincode,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Shipping address saved successfully.',
+                    'data' => [
+                        'firstname' => $newAddress->firstname,
+                        'lastname' => $newAddress->lastname,
+                        'address' => $newAddress->address,
+                        'state' => $newAddress->state,
+                        'city' => $newAddress->city,
+                        'pincode' => $newAddress->pincode
+                    ]
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Something went wrong while processing the address.',
+                'details' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function accountDetails(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to manage your account details.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        // Validate input
+        $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|email',
+        ]);
+
+        try {
+            // Check if customer details already exist
+            $existingDetails = CustomerDetails::where('id', $customer->id)->first();
+
+            if ($existingDetails) {
+                $emailChanged = strtolower($existingDetails->email) !== strtolower($request->email);
+
+                $updateData = [
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'email' => $request->email,
+                ];
+
+
+                if ($emailChanged) {
+                    $verificationToken = Str::random(64);
+                    $updateData['is_active'] = false;
+                    $updateData['email_verified_at'] = null;
+                    $updateData['email_verification_token'] = $verificationToken;
+
+                    // Send email verification again
+                    Mail::to($request->email)->send(new WelcomeCustomerMail((object) [
+                        'firstname' => $request->firstname,
+                        'lastname' => $request->lastname,
+                        'email' => $request->email,
+                        'email_verification_token' => $verificationToken,
+                    ]));
+                }
+
+                $existingDetails->update($updateData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $emailChanged ? 'Account updated. Please verify your new email.' : 'Account details updated successfully.',
+                    'data' => [
+                        'firstname' => $existingDetails->firstname,
+                        'lastname' => $existingDetails->lastname,
+                        'email' => $existingDetails->email
+                    ]
+                ]);
+            } else {
+                // Create new details
+                $verificationToken = Str::random(64);
+
+                $newDetails = CustomerDetails::create([
+                    'user_id' => $customer->id,
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'email' => $request->email,
+                    'is_active' => false,
+                    'email_verification_token' => $verificationToken,
+                ]);
+
+                // Send verification email
+                Mail::to($newDetails->email)->send(new WelcomeCustomerMail($newDetails));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Account details saved. Please verify your email.',
+                    'data' => [
+                        'firstname' => $newDetails->firstname,
+                        'lastname' => $newDetails->lastname,
+                        'email' => $newDetails->email
+                    ]
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Something went wrong while processing the account details.',
+                'details' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function resetPassword(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to reset your password.'
+            ], 401);
+        }
+
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required|min:6',
+            'confirm_password' => 'required|same:new_password'
+        ]);
+
+        $customer = auth()->user();
+
+        if (!Hash::check($request->old_password, $customer->password)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Your current password is incorrect.'
+            ], 400);
+        }
+
+        $customer->password = Hash::make($request->new_password);
+        $customer->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password has been successfully updated.'
+        ]);
+    }
+
+    public function wishlist(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to view your wishlist.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        $wishlistItems = CustomerCart::where('customer_id', $customer->id)
+            ->where('type', 'wishlist')
+            ->where('status', 'active')
+            ->get();
+
+        if ($wishlistItems->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your wishlist is empty.',
+                'wishlist' => []
+            ]);
+        }
+
+        $wishList = [];
+
+        foreach ($wishlistItems as $item) {
+            $product = Product::find($item->product_id);
+
+            if ($product) {
+                $wishList[] = [
+                    'wishlist_id' => $item->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? null,
+                    'price' => $product->new_price ?? null,
+                    'product_link' => url('/api/singal-product-details/' . $product->slug),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'wishlist' => $wishList,
+        ]);
+    }
+
+
+    public function Cart(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to view your cart.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        $cartItems = CustomerCart::where('customer_id', $customer->id)
+            ->where('type', 'cart')
+            ->where('status', 'active')
+            ->get();
+
+        if ($cartItems->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your cart is empty.',
+                'cart' => []
+            ]);
+        }
+
+        $cartData = [];
+
+        foreach ($cartItems as $item) {
+            $product = Product::find($item->product_id);
+
+            if ($product) {
+                $cartData[] = [
+                    'cart_id' => $item->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? null,
+                    'price' => $product->new_price ?? null,
+                    'quantity' => $item->quantity ?? 1, // default to 1 if not set
+                    'product_link' => url('/api/singal-product-details/' . $product->slug),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'cart' => $cartData,
+        ]);
+    }
+
+
+    public function removeToWishlist(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to manage your wishlist.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        $wishlistItem = CustomerCart::where('customer_id', $customer->id)
+            ->where('type', 'wishlist')
+            ->first();
+
+        if (!$wishlistItem) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Wishlist item not found.'
+            ], 404);
+        }
+
+        $wishlistItem->status = 'inactive';
+        $wishlistItem->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Wishlist item removed successfully.'
+        ]);
+    }
+
+    public function removeToCart(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You must be logged in to manage your cart.'
+            ], 401);
+        }
+
+        $customer = auth()->user();
+
+        $cartItem = CustomerCart::where('customer_id', $customer->id)
+            ->first();
+
+        if (!$cartItem) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Cart item not found.'
+            ], 404);
+        }
+
+        $cartItem->status = 'inactive';
+        $cartItem->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart item removed successfully.'
+        ]);
+    }
+
+
 }

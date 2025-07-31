@@ -24,7 +24,7 @@ class WelcomeCustomerMail extends Mailable
         return $this->subject('Welcome! Verify your email')
                     ->markdown('emails.customer.welcome')
                     ->with([
-                        'name' => $this->customer->name,
+                        'name' => $this->customer->firstname,
                         'verificationUrl' => $this->verificationUrl,
                     ]);
     }

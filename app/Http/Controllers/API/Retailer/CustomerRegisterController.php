@@ -5,6 +5,9 @@ namespace App\Http\Controllers\API\Retailer;
 use App\Http\Controllers\Controller;
 use App\Mail\WelcomeCustomerMail;
 use App\Models\Customer;
+use App\Models\CustomerDetails;
+use App\Models\CustomerOrders;
+use App\Models\OrderProductDetails;
 use App\Models\RetailerWebManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -20,17 +23,33 @@ class CustomerRegisterController extends Controller
     {
         $request->validate([
             'user_token' => 'required|string',
-            'name' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'phone_number' => [
+                'required',
+                'regex:/^[6-9]\d{9}$/',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/^(\d)\1{9}$/', $value)) {
+                        return $fail('The :attribute should not have all repeated digits.');
+                    }
+
+                    if (strpos('1234567890', $value) !== false || strpos('9876543210', $value) !== false) {
+                        return $fail('The :attribute should not be a sequential or reverse-sequential number.');
+                    }
+                },
+            ],
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
 
-        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)->where('is_active',1)->first();
+        // dd($request->all());
+        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)->where('is_active', 1)->first();
         if (!$retailer) {
             return response()->json(['status' => false, 'message' => 'Invalid user token.'], 404);
         }
 
-        $existing = Customer::where('user_id', $retailer->id)
+
+        $existing = CustomerDetails::where('user_id', $retailer->id)
             ->whereRaw('LOWER(email) = ?', [strtolower($request->email)])
             ->first();
 
@@ -39,15 +58,19 @@ class CustomerRegisterController extends Controller
         }
 
         $verificationToken = Str::random(64);
+        $userToken = Str::random(60);
 
-        $customer = Customer::create([
-            'user_id' => $retailer->id,
-            'name' => $request->name,
+        $customer = CustomerDetails::create([
+            'user_id' => $retailer->retailer_id,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'phone_number' => $request->phone_number,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_token' => Str::random(60),
+            'user_token' => $userToken,
             'is_active' => false,
             'email_verification_token' => $verificationToken,
+
         ]);
 
         Mail::to($customer->email)->send(new WelcomeCustomerMail($customer));
@@ -60,7 +83,7 @@ class CustomerRegisterController extends Controller
 
     public function verifyEmail($token)
     {
-        $customer = Customer::where('email_verification_token', $token)->first();
+        $customer = CustomerDetails::where('email_verification_token', $token)->first();
 
         if (!$customer) {
             return response()->json(['status' => false, 'message' => 'Invalid or expired token.'], 400);
@@ -76,6 +99,7 @@ class CustomerRegisterController extends Controller
 
     public function login(Request $request)
     {
+
         $request->validate([
             'user_token' => 'required|string',
             'email' => 'required|email',
@@ -95,19 +119,19 @@ class CustomerRegisterController extends Controller
         }
 
         // Find customer
-        $customer = Customer::where('user_id', $retailer->id)
+        $customer = CustomerDetails::where('user_id', $retailer->retailer_id)
             ->where('email', $request->email)
             ->where('is_active', true)
             ->first();
-        
-       
+
+
         if (!$customer) {
             return response()->json([
                 'status' => false,
                 'message' => 'Please Verify your email.'
             ], 404);
         }
-       
+
         // Validate credentials
         if (!$customer || !Hash::check($request->password, $customer->password)) {
             throw ValidationException::withMessages([
@@ -135,7 +159,7 @@ class CustomerRegisterController extends Controller
             'status' => true,
             'message' => 'Login successful.',
             'token' => $token,
-            'user_token' => $request->user_token,
+            'user_token' => $request->user_token,   
             'data' => [
                 'id' => $customer->id,
                 'name' => $customer->name,
@@ -162,4 +186,19 @@ class CustomerRegisterController extends Controller
             'message' => 'User not authenticated'
         ], 401);
     }
+
+    public function getCustomerDetails(Request $request)
+    {
+        $customer = auth()->user();
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'email' => $customer->email,
+            ]
+        ]);
+    }
+
 }

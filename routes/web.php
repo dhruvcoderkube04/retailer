@@ -10,7 +10,8 @@ use App\Http\Controllers\RetailerAccountTransactionController;
 use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\RetailerOrderController;
-use App\Http\Controllers\RetilerController;;
+use App\Http\Controllers\RetilerController;
+;
 
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
@@ -44,7 +45,14 @@ Route::controller(RetailerAuthController::class)->group(function () {
     })->name('terms-and-conditions');
 
     Route::post('logout', 'logout')->name('retailer.logout')->middleware('auth'); // Use retailer guard
+
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/customer-details', [CustomerController::class, 'getCustomerDetails']);
+});
+
+
 
 // Email Verification Routes
 Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
