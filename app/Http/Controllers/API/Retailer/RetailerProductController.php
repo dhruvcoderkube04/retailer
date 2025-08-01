@@ -15,6 +15,7 @@ use App\Models\OrderProductDetails;
 use App\Models\RetailerProducts;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerWebManagement;
+use App\Models\StoreCustomersDetails;
 use App\Models\UserDetail;
 use App\Models\Otp;
 use App\Models\Product;
@@ -727,17 +728,9 @@ class RetailerProductController extends Controller
     public function checkout(Request $request)
     {
 
-        if (!Auth::check()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to place an order.'
-            ], 401);
-        }
-
         $isLoggedIn = Auth::check();
         $user = $isLoggedIn ? Auth::user() : null;
         $customerId = $user->id;
-
 
         $validator = Validator::make($request->all(), [
             'firstname' => $isLoggedIn ? 'nullable' : 'required|string|max:30',
@@ -1363,223 +1356,182 @@ class RetailerProductController extends Controller
         ];
     }
 
+
     public function customerOrders()
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to view your orders.'
-            ], 401);
-        }
+        try {
+            $customer = auth()->user();
 
-        $customer = auth()->user();
+            $orders = CustomerOrders::where('customer_id', $customer->id)->get();
 
-        // Get all orders for this customer
-        $orders = CustomerOrders::where('customer_id', $customer->id)->get();
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'You have not placed any orders yet.',
+                    'orders' => []
+                ]);
+            }
 
-        if ($orders->isEmpty()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'You have not placed any orders yet.',
-                'orders' => []
-            ]);
-        }
+            $orderList = [];
 
-        $orderList = [];
+            foreach ($orders as $order) {
+                $product = OrderProductDetails::find($order->order_product_id);
 
-        foreach ($orders as $order) {
-            $product = OrderProductDetails::find($order->id);
-            $product_link = Product::where('id', $product->id)->first();
-            $productUrl = url('/api/singal-product-details/' . $product_link->slug);
+                if (!$product) {
+                    Log::warning("OrderProductDetails not found for order_id: {$order->id}");
+                    continue;
+                }
 
-            if ($product) {
+                $product_link = Product::find($product->product_id ?? $product->id);
+
+                if (!$product_link) {
+                    Log::warning("Product not found for order_product_id: {$product->id}");
+                    continue;
+                }
+
+                $productUrl = url('/api/singal-product-details/' . $product_link->slug);
+
                 $imageString = $product->images ?? '';
                 $imageArray = explode(',', $imageString);
+
                 $orderList[] = [
                     'order_id' => $order->id,
                     'product_id' => $product->id,
-                    'product_name' => $product->name ?? null,
+                    'product_name' => $product_link->name ?? null,
                     'image' => $imageArray,
-                    'price' => $product->new_price ?? null,
+                    'price' => $product_link->new_price ?? null,
                     'order_date' => $order->created_at->format('d F Y'),
                     'product_link' => $productUrl,
                 ];
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'orders' => $orderList,
-        ]);
-    }
-
-    public function shippingAddress(Request $request)
-    {
-        if (!Auth::check()) {
             return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to manage your shipping address.'
-            ], 401);
-        }
+                'success' => true,
+                'orders' => $orderList,
+            ]);
 
-        $customer = auth()->user();
+        } catch (\Throwable $e) {
+            Log::error('Error in customerOrders(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        // Validate input
-        $request->validate([
-            'address' => 'required|string|max:255',
-            'state' => 'required|string|max:100',
-            'city' => 'required|string|max:100',
-            'pincode' => 'required|digits_between:4,10',
-        ]);
-
-        try {
-            // Check if address already exists for the user
-            $existingAddress = CustomerDetails::where('id', $customer->id)->first();
-
-            if ($existingAddress) {
-                // Update existing address
-                $existingAddress->update([
-                    'address' => $request->address,
-                    'state' => $request->state,
-                    'city' => $request->city,
-                    'pincode' => $request->pincode,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Shipping address updated successfully.',
-                    'data' => [
-                        'firstname' => $existingAddress->firstname,
-                        'lastname' => $existingAddress->lastname,
-                        'address' => $existingAddress->address,
-                        'state' => $existingAddress->state,
-                        'city' => $existingAddress->city,
-                        'pincode' => $existingAddress->pincode
-
-                    ]
-                ]);
-            } else {
-                // Create new address
-                $newAddress = CustomerDetails::create([
-                    'user_id' => $customer->id,
-                    'address' => $request->address,
-                    'state' => $request->state,
-                    'city' => $request->city,
-                    'pincode' => $request->pincode,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Shipping address saved successfully.',
-                    'data' => [
-                        'firstname' => $newAddress->firstname,
-                        'lastname' => $newAddress->lastname,
-                        'address' => $newAddress->address,
-                        'state' => $newAddress->state,
-                        'city' => $newAddress->city,
-                        'pincode' => $newAddress->pincode
-                    ]
-                ]);
-            }
-        } catch (\Throwable $th) {
             return response()->json([
-                'error' => true,
-                'message' => 'Something went wrong while processing the address.',
-                'details' => $th->getMessage()
+                'success' => false,
+                'message' => 'Something went wrong while fetching orders.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
 
+    public function shippingAddress(Request $request)
+    {
+        try {
+            $customer = auth()->user();
+
+            $request->validate([
+                'address' => 'required|string|max:255',
+                'state' => 'required|string|max:100',
+                'city' => 'required|string|max:100',
+                'pincode' => 'required|digits_between:4,10',
+            ]);
+
+            $customerDetails = CustomerDetails::find($customer->customer_id);
+
+            if (!$customerDetails) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer record not found.',
+                ], 404);
+            }
+
+            // ✅ Update address in customer_details
+            $customerDetails->update([
+                'address' => $request->address,
+                'state' => $request->state,
+                'city' => $request->city,
+                'pincode' => $request->pincode,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Shipping address updated successfully.',
+                'data' => [
+                    'firstname' => $customerDetails->firstname,
+                    'lastname' => $customerDetails->lastname,
+                    'address' => $customerDetails->address,
+                    'state' => $customerDetails->state,
+                    'city' => $customerDetails->city,
+                    'pincode' => $customerDetails->pincode,
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error in shippingAddress(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while processing the address.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
     public function accountDetails(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to manage your account details.'
-            ], 401);
-        }
-
-        $customer = auth()->user();
-
-        // Validate input
-        $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email',
-        ]);
-
         try {
-            // Check if customer details already exist
-            $existingDetails = CustomerDetails::where('id', $customer->id)->first();
+            $customer = auth()->user();
 
-            if ($existingDetails) {
-                $emailChanged = strtolower($existingDetails->email) !== strtolower($request->email);
+            // Validate request
+            $request->validate([
+                'firstname' => 'required|string|max:255',
+                'lastname' => 'required|string|max:255',
+            ]);
 
-                $updateData = [
-                    'firstname' => $request->firstname,
-                    'lastname' => $request->lastname,
-                    'email' => $request->email,
-                ];
+            $customerDetails = CustomerDetails::find($customer->customer_id);
 
-
-                if ($emailChanged) {
-                    $verificationToken = Str::random(64);
-                    $updateData['is_active'] = false;
-                    $updateData['email_verified_at'] = null;
-                    $updateData['email_verification_token'] = $verificationToken;
-
-                    // Send email verification again
-                    Mail::to($request->email)->send(new WelcomeCustomerMail((object) [
-                        'firstname' => $request->firstname,
-                        'lastname' => $request->lastname,
-                        'email' => $request->email,
-                        'email_verification_token' => $verificationToken,
-                    ]));
-                }
-
-                $existingDetails->update($updateData);
-
+            if (!$customerDetails) {
                 return response()->json([
-                    'success' => true,
-                    'message' => $emailChanged ? 'Account updated. Please verify your new email.' : 'Account details updated successfully.',
-                    'data' => [
-                        'firstname' => $existingDetails->firstname,
-                        'lastname' => $existingDetails->lastname,
-                        'email' => $existingDetails->email
-                    ]
-                ]);
-            } else {
-                // Create new details
-                $verificationToken = Str::random(64);
-
-                $newDetails = CustomerDetails::create([
-                    'user_id' => $customer->id,
-                    'firstname' => $request->firstname,
-                    'lastname' => $request->lastname,
-                    'email' => $request->email,
-                    'is_active' => false,
-                    'email_verification_token' => $verificationToken,
-                ]);
-
-                // Send verification email
-                Mail::to($newDetails->email)->send(new WelcomeCustomerMail($newDetails));
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Account details saved. Please verify your email.',
-                    'data' => [
-                        'firstname' => $newDetails->firstname,
-                        'lastname' => $newDetails->lastname,
-                        'email' => $newDetails->email
-                    ]
-                ]);
+                    'success' => false,
+                    'message' => 'Customer record not found.',
+                ], 404);
             }
-        } catch (\Throwable $th) {
+
+            $updateData = [
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+            ];
+
+
+            $customerDetails->update($updateData);
+
             return response()->json([
-                'error' => true,
-                'message' => 'Something went wrong while processing the account details.',
-                'details' => $th->getMessage()
+                'success' => true,
+                'message' => 'Account details updated successfully.',
+                'data' => [
+                    'firstname' => $customerDetails->firstname,
+                    'lastname' => $customerDetails->lastname,
+                ]
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Error in accountDetails(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while processing account details.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -1587,67 +1539,131 @@ class RetailerProductController extends Controller
 
     public function resetPassword(Request $request)
     {
-        if (!Auth::check()) {
+        try {
+            // Validate request
+            $request->validate([
+                'old_password' => 'required',
+                'new_password' => 'required|min:6',
+                'confirm_password' => 'required|same:new_password'
+            ]);
+
+            $customer = auth()->user();
+
+            if (!Hash::check($request->old_password, $customer->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your current password is incorrect.'
+                ], 400);
+            }
+
+            $customer->password = Hash::make($request->new_password);
+            $customer->save();
+
             return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to reset your password.'
-            ], 401);
-        }
+                'success' => true,
+                'message' => 'Password has been successfully updated.'
+            ]);
 
-        $request->validate([
-            'old_password' => 'required',
-            'new_password' => 'required|min:6',
-            'confirm_password' => 'required|same:new_password'
-        ]);
+        } catch (\Throwable $e) {
+            Log::error('Error in resetPassword(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        $customer = auth()->user();
-
-        if (!Hash::check($request->old_password, $customer->password)) {
             return response()->json([
-                'error' => true,
-                'message' => 'Your current password is incorrect.'
-            ], 400);
+                'success' => false,
+                'message' => 'Something went wrong while resetting the password.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $customer->password = Hash::make($request->new_password);
-        $customer->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Password has been successfully updated.'
-        ]);
     }
+
+
+
+    public function addToWishlist(Request $request)
+    {
+        try {
+            $request->validate([
+                'product_id' => 'required|exists:products,id'
+            ]);
+
+            $customer = auth()->user();
+
+            // Check if already in wishlist
+            $existing = CustomerCart::where('customer_id', $customer->customer_id)
+                ->where('product_id', $request->product_id)
+                ->where('type', 'wishlist')
+                ->where('status', 'active')
+                ->first();
+
+            if ($existing) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Product is already in your wishlist.',
+                ]);
+            }
+
+            // Add to wishlist
+            $wishlist = CustomerCart::create([
+                'customer_id' => $customer->customer_id,
+                'product_id' => $request->product_id,
+                'type' => 'wishlist',
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to wishlist.',
+                'wishlist_id' => $wishlist->id,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Error in addToWishlist(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while adding to wishlist.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
 
     public function wishlist(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to view your wishlist.'
-            ], 401);
-        }
+        try {
+            $customer = auth()->user();
 
-        $customer = auth()->user();
+            $wishlistItems = CustomerCart::where('customer_id', $customer->customer_id)
+                ->where('type', 'wishlist')
+                ->where('status', 'active')
+                ->get();
 
-        $wishlistItems = CustomerCart::where('customer_id', $customer->id)
-            ->where('type', 'wishlist')
-            ->where('status', 'active')
-            ->get();
+            if ($wishlistItems->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Your wishlist is empty.',
+                    'wishlist' => []
+                ]);
+            }
 
-        if ($wishlistItems->isEmpty()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Your wishlist is empty.',
-                'wishlist' => []
-            ]);
-        }
+            $wishList = [];
 
-        $wishList = [];
+            foreach ($wishlistItems as $item) {
+                $product = Product::find($item->product_id);
 
-        foreach ($wishlistItems as $item) {
-            $product = Product::find($item->product_id);
+                if (!$product) {
+                    Log::warning("Product not found for wishlist item ID: {$item->id}");
+                    continue;
+                }
 
-            if ($product) {
                 $wishList[] = [
                     'wishlist_id' => $item->id,
                     'product_id' => $product->id,
@@ -1656,123 +1672,239 @@ class RetailerProductController extends Controller
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
                 ];
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'wishlist' => $wishList,
-        ]);
+            return response()->json([
+                'success' => true,
+                'wishlist' => $wishList,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Error in wishlist(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching your wishlist.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
+
+
+    public function addToCart(Request $request)
+    {
+        try {
+            $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'nullable|integer|min:1'
+            ]);
+
+            $customer = auth()->user();
+            $quantity = $request->quantity ?? 1;
+
+            // Check if product already in cart
+            $existing = CustomerCart::where('customer_id', $customer->customer_id)
+                ->where('product_id', $request->product_id)
+                ->where('type', 'cart')
+                ->where('status', 'active')
+                ->first();
+
+            if ($existing) {
+                $existing->quantity += $quantity;
+                $existing->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cart updated successfully.',
+                    'cart_id' => $existing->id
+                ]);
+            }
+
+            $cart = CustomerCart::create([
+                'customer_id' => $customer->customer_id,
+                'product_id' => $request->product_id,
+                'type' => 'cart',
+                'quantity' => $quantity,
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to cart.',
+                'cart_id' => $cart->id
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Error in addToCart(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while adding to cart.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 
     public function Cart(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to view your cart.'
-            ], 401);
-        }
+        try {
+            $customer = auth()->user();
 
-        $customer = auth()->user();
+            $cartItems = CustomerCart::where('customer_id', $customer->customer_id)
+                ->where('type', 'cart')
+                ->where('status', 'active')
+                ->get();
 
-        $cartItems = CustomerCart::where('customer_id', $customer->id)
-            ->where('type', 'cart')
-            ->where('status', 'active')
-            ->get();
+            if ($cartItems->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Your cart is empty.',
+                    'cart' => []
+                ]);
+            }
 
-        if ($cartItems->isEmpty()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Your cart is empty.',
-                'cart' => []
-            ]);
-        }
+            $cartData = [];
 
-        $cartData = [];
+            foreach ($cartItems as $item) {
+                $product = Product::find($item->product_id);
 
-        foreach ($cartItems as $item) {
-            $product = Product::find($item->product_id);
+                if (!$product) {
+                    Log::warning("Product not found for cart item ID: {$item->id}, Product ID: {$item->product_id}");
+                    continue;
+                }
 
-            if ($product) {
                 $cartData[] = [
                     'cart_id' => $item->id,
                     'product_id' => $product->id,
                     'product_name' => $product->name ?? null,
                     'price' => $product->new_price ?? null,
-                    'quantity' => $item->quantity ?? 1, // default to 1 if not set
+                    'quantity' => $item->quantity ?? 1,
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
                 ];
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'cart' => $cartData,
-        ]);
+            return response()->json([
+                'success' => true,
+                'cart' => $cartData,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Error in Cart(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching your cart.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
 
     public function removeToWishlist(Request $request)
     {
-        if (!Auth::check()) {
+        try {
+            $request->validate([
+                'product_id' => 'required|exists:products,id'
+            ]);
+
+            $customer = auth()->user();
+
+            $wishlistItem = CustomerCart::where('customer_id', $customer->customer_id)
+                ->where('type', 'wishlist')
+                ->where('product_id', $request->product_id)
+                ->where('status', 'active')
+                ->first();
+
+            if (!$wishlistItem) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Wishlist item not found.'
+                ], 404);
+            }
+
+            $wishlistItem->status = 'inactive';
+            $wishlistItem->save();
+
             return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to manage your wishlist.'
-            ], 401);
-        }
+                'success' => true,
+                'message' => 'Wishlist item removed successfully.'
+            ]);
 
-        $customer = auth()->user();
+        } catch (\Throwable $e) {
+            Log::error('Error in removeToWishlist(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-        $wishlistItem = CustomerCart::where('customer_id', $customer->id)
-            ->where('type', 'wishlist')
-            ->first();
-
-        if (!$wishlistItem) {
             return response()->json([
-                'error' => true,
-                'message' => 'Wishlist item not found.'
-            ], 404);
+                'success' => false,
+                'message' => 'Something went wrong while removing the wishlist item.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $wishlistItem->status = 'inactive';
-        $wishlistItem->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Wishlist item removed successfully.'
-        ]);
     }
+
+
 
     public function removeToCart(Request $request)
     {
-        if (!Auth::check()) {
+        try {
+            $request->validate([
+                'product_id' => 'required|exists:products,id'
+            ]);
+
+            $customer = auth()->user();
+
+            $cartItem = CustomerCart::where('customer_id', $customer->customer_id)
+                ->where('product_id', $request->product_id)
+                ->where('type', 'cart')
+                ->where('status', 'active')
+                ->first();
+
+            if (!$cartItem) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Cart item not found.'
+                ], 404);
+            }
+
+            $cartItem->status = 'inactive';
+            $cartItem->save();
+
             return response()->json([
-                'error' => true,
-                'message' => 'You must be logged in to manage your cart.'
-            ], 401);
-        }
+                'success' => true,
+                'message' => 'Cart item removed successfully.'
+            ]);
 
-        $customer = auth()->user();
+        } catch (\Throwable $e) {
+            Log::error('Error in removeToCart(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-        $cartItem = CustomerCart::where('customer_id', $customer->id)
-            ->first();
-
-        if (!$cartItem) {
             return response()->json([
-                'error' => true,
-                'message' => 'Cart item not found.'
-            ], 404);
+                'success' => false,
+                'message' => 'Something went wrong while removing the cart item.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $cartItem->status = 'inactive';
-        $cartItem->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Cart item removed successfully.'
-        ]);
     }
+
 
 
 }

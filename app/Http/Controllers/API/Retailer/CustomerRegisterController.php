@@ -9,6 +9,8 @@ use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
 use App\Models\RetailerWebManagement;
+use App\Models\StoreCustomers;
+use App\Models\StoreCustomersDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +18,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+
 
 class CustomerRegisterController extends Controller
 {
@@ -42,14 +46,13 @@ class CustomerRegisterController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // dd($request->all());
         $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)->where('is_active', 1)->first();
         if (!$retailer) {
             return response()->json(['status' => false, 'message' => 'Invalid user token.'], 404);
         }
 
 
-        $existing = CustomerDetails::where('user_id', $retailer->id)
+        $existing = StoreCustomersDetails::where('user_id', $retailer->id)
             ->whereRaw('LOWER(email) = ?', [strtolower($request->email)])
             ->first();
 
@@ -59,8 +62,9 @@ class CustomerRegisterController extends Controller
 
         $verificationToken = Str::random(64);
         $userToken = Str::random(60);
+   
 
-        $customer = CustomerDetails::create([
+        $customer = StoreCustomersDetails::create([
             'user_id' => $retailer->retailer_id,
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
@@ -70,8 +74,8 @@ class CustomerRegisterController extends Controller
             'user_token' => $userToken,
             'is_active' => false,
             'email_verification_token' => $verificationToken,
-
         ]);
+
 
         Mail::to($customer->email)->send(new WelcomeCustomerMail($customer));
 
@@ -81,20 +85,62 @@ class CustomerRegisterController extends Controller
         ], 201);
     }
 
+
     public function verifyEmail($token)
     {
-        $customer = CustomerDetails::where('email_verification_token', $token)->first();
+        DB::beginTransaction();
 
-        if (!$customer) {
-            return response()->json(['status' => false, 'message' => 'Invalid or expired token.'], 400);
+        try {
+            $customer = StoreCustomersDetails::where('email_verification_token', $token)->first();
+
+            if (!$customer) {
+                return response()->json(['status' => false, 'message' => 'Invalid or expired token.'], 400);
+            }
+
+            // Step 1: Update email verification status
+            $customer->email_verified_at = now();
+            $customer->email_verification_token = null;
+            $customer->is_active = true;
+            $customer->save();
+
+            // Step 2: Check if customer_details exists
+            $existing = CustomerDetails::where('user_id', $customer->user_id)
+                ->where('email', $customer->email)
+                ->first();
+
+            // Step 3: Create if not exists, and update store table with its ID
+            if (!$existing) {
+                $newCustomerDetail = CustomerDetails::create([
+                    'user_id' => $customer->user_id,
+                    'firstname' => $customer->firstname,
+                    'lastname' => $customer->lastname,
+                    'phone_number' => $customer->phone_number,
+                    'email' => $customer->email,
+                ]);
+
+                // Step 4: Store FK in store_customers_details
+                $customer->customer_id = $newCustomerDetail->id;
+                $customer->save();
+            } else {
+                // If already exists, still update FK if not set
+                if (!$customer->customer_id) {
+                    $customer->customer_id = $existing->id;
+                    $customer->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'Email verified successfully!']);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong during verification.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $customer->email_verified_at = now();
-        $customer->email_verification_token = null;
-        $customer->is_active = true;
-        $customer->save();
-
-        return response()->json(['status' => true, 'message' => 'Email verified successfully!']);
     }
 
     public function login(Request $request)
@@ -119,7 +165,7 @@ class CustomerRegisterController extends Controller
         }
 
         // Find customer
-        $customer = CustomerDetails::where('user_id', $retailer->retailer_id)
+        $customer = StoreCustomersDetails::where('user_id', $retailer->retailer_id)
             ->where('email', $request->email)
             ->where('is_active', true)
             ->first();
@@ -159,10 +205,10 @@ class CustomerRegisterController extends Controller
             'status' => true,
             'message' => 'Login successful.',
             'token' => $token,
-            'user_token' => $request->user_token,   
+            'user_token' => $request->user_token,
             'data' => [
                 'id' => $customer->id,
-                'name' => $customer->name,
+                'name' => $customer->firstname,
                 'email' => $customer->email
             ]
         ]);
