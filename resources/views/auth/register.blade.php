@@ -92,7 +92,7 @@
 
                                 <div class="fv-row mb-8">
                                     <!--begin::Email-->
-                                    <input type="text" placeholder="Email" name="email" autocomplete="off"
+                                    <input type="email" placeholder="Email" name="email" autocomplete="off"
                                         class="form-control bg-transparent" value="{{ old('email') }}" />
                                     @error('email')
                                         <span class="text-danger">{{ $message }}</span>
@@ -202,7 +202,7 @@
             const inputId = element.getAttribute('data-target');
             const input = document.getElementById(inputId);
             const icon = element.querySelector('i');
-    
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye-slash');

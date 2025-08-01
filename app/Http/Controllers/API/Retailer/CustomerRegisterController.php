@@ -25,8 +25,22 @@ class CustomerRegisterController extends Controller
 {
     public function register(Request $request)
     {
+        // Step 1: Validate input
         $request->validate([
-            'user_token' => 'required|string',
+            'user_token' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    $existing = DB::table('store_customers_details')
+                        ->where('email', $request->email)
+                        ->where('user_token', $value)
+                        ->first();
+
+                    if ($existing) {
+                        $fail('This email is already registered.');
+                    }
+                },
+            ],
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'phone_number' => [
@@ -46,45 +60,52 @@ class CustomerRegisterController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)->where('is_active', 1)->first();
-        if (!$retailer) {
-            return response()->json(['status' => false, 'message' => 'Invalid user token.'], 404);
-        }
-
-
-        $existing = StoreCustomersDetails::where('user_id', $retailer->id)
-            ->whereRaw('LOWER(email) = ?', [strtolower($request->email)])
+        // Step 2: Validate token (Retailer exists & active)
+        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
+            ->where('is_active', 1)
             ->first();
 
-        if ($existing) {
-            return response()->json(['status' => false, 'message' => 'Email already registered.'], 409);
+        if (!$retailer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid user token.'
+            ], 404);
         }
 
-        $verificationToken = Str::random(64);
-        $userToken = Str::random(60);
-   
+        // Step 3: Register user, catch DB duplicate errors
+        try {
+            $verificationToken = Str::random(64);
 
-        $customer = StoreCustomersDetails::create([
-            'user_id' => $retailer->retailer_id,
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'phone_number' => $request->phone_number,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'user_token' => $userToken,
-            'is_active' => false,
-            'email_verification_token' => $verificationToken,
-        ]);
+            $customer = StoreCustomersDetails::create([
+                'user_id' => $retailer->retailer_id,
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'phone_number' => $request->phone_number,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'user_token' => $request->user_token, // ✅ Save user-provided token
+                'is_active' => false,
+                'email_verification_token' => $verificationToken,
+            ]);
 
+            // Send welcome mail
+            Mail::to($customer->email)->send(new WelcomeCustomerMail($customer));
 
-        Mail::to($customer->email)->send(new WelcomeCustomerMail($customer));
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer registered. Please verify your email.'
+            ], 201);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This email is already registered.'
+                ], 409);
+            }
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Customer registered. Please verify your email.',
-        ], 201);
+            throw $e; // or log the unexpected error
+        }
     }
-
 
     public function verifyEmail($token)
     {
