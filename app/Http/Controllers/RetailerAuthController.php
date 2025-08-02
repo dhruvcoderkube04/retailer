@@ -28,12 +28,12 @@ class RetailerAuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'companyname' => 'required|string|max:255',
+            'firstname' => 'required|string|alpha|max:255',
+            'lastname' => 'required|string|alpha|max:255',
+            'companyname' => ['required','string','regex:/^[a-zA-Z0-9 ]+$/', 'max:255'],
             'phonenumber' => [
                 'required',
-                'regex:/^[0-9]{10}$/',
+                'regex:/^[6-9][0-9]{9}$/',
                 function ($attribute, $value, $fail) {
                     $exists = \App\Models\User::where('phone_number', $value)
                         ->where('user_type', 3)

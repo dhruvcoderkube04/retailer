@@ -87,7 +87,7 @@ Sing-in Retailer | TechtrendMart
                             <!--end::Wrapper-->
                             <!--begin::Submit button-->
                             <div class="d-grid mb-10">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary"  id="submit_button" disabled>
                                     <!--begin::Indicator label-->
                                     <span class="indicator-label">Sign In</span>
                                     <!--end::Indicator label-->
@@ -131,5 +131,23 @@ Sing-in Retailer | TechtrendMart
             icon.classList.add('fa-eye-slash');
         }
     }
+
+    const emailInput = document.querySelector('input[name="email"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+    const submitBtn = document.getElementById('submit_button');
+
+    function validateForm() {
+        const emailValid = emailInput.value.trim().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+        const passwordValid = passwordInput.value.trim().length > 0;
+
+        if (emailValid && passwordValid) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+
+    emailInput.addEventListener('input', validateForm);
+    passwordInput.addEventListener('input', validateForm);
 </script>
 @endsection

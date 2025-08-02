@@ -84,7 +84,7 @@
 
                                 <div class="fv-row mb-8">
                                     <input type="text" placeholder="Phone Number" name="phonenumber" autocomplete="off"
-                                        class="form-control bg-transparent" value="{{ old('phonenumber') }}" />
+                                        class="form-control bg-transparent"  pattern="[6-9][0-9]{9}" inputmode="numeric" maxlength="10" value="{{ old('phonenumber') }}" />
                                     @error('phonenumber')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
