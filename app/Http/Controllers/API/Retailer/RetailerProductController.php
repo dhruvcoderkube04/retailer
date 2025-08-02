@@ -1584,18 +1584,74 @@ class RetailerProductController extends Controller
     public function addToWishlist(Request $request)
     {
         try {
-            $request->validate([
-                'product_id' => 'required|exists:products,id'
-            ]);
+
 
             $customer = auth()->user();
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $user = User::find($customerDetails->user_id);
 
-            // Check if already in wishlist
-            $existing = CustomerCart::where('customer_id', $customer->customer_id)
-                ->where('product_id', $request->product_id)
-                ->where('type', 'wishlist')
-                ->where('status', 'active')
-                ->first();
+            if ($user->user_type === "3") {
+                $request->validate([
+                    'retailer_product_id' => 'required|exists:retailer_clone_products,id',
+                ]);
+            } elseif ($user->user_type === "2") {
+                $request->validate([
+                    'product_id' => 'required|exists:products,id',
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user type.',
+                ], 400);
+            }
+
+            $productId = null;
+            $retailerProductId = null;
+
+            if ($user && $user->user_type === "3") {
+                $productId = $request->retailer_product_id;
+                $retailerProduct = RetailerCloneProduct::find($productId);
+                if (!$retailerProduct) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Retailer product not found.',
+                    ], 404);
+                }
+
+                $retailerProductId = $retailerProduct->id;
+
+                $existing = CustomerCart::where('customer_id', $customer->customer_id)
+                    ->where('retailer_product_id', $retailerProductId)
+                    ->whereNull('product_id')
+                    ->where('type', 'wishlist')
+                    ->where('status', 'active')
+                    ->first();
+
+            } elseif ($user && $user->user_type === "2") {
+                $productId = $request->product_id;
+                
+                $product = Product::find($productId);
+                if (!$product) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Product not found.',
+                    ], 404);
+                }
+
+                $productId = $product->id;
+
+                $existing = CustomerCart::where('customer_id', $customer->customer_id)
+                    ->where('product_id', $productId)
+                    ->whereNull('retailer_product_id')
+                    ->where('type', 'wishlist')
+                    ->where('status', 'active')
+                    ->first();
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user type.',
+                ], 400);
+            }
 
             if ($existing) {
                 return response()->json([
@@ -1607,7 +1663,8 @@ class RetailerProductController extends Controller
             // Add to wishlist
             $wishlist = CustomerCart::create([
                 'customer_id' => $customer->customer_id,
-                'product_id' => $request->product_id,
+                'product_id' => $productId,
+                'retailer_product_id' => $retailerProductId,
                 'type' => 'wishlist',
                 'status' => 'active',
             ]);
@@ -1640,6 +1697,8 @@ class RetailerProductController extends Controller
     {
         try {
             $customer = auth()->user();
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $user = User::find($customerDetails->user_id);
 
             $wishlistItems = CustomerCart::where('customer_id', $customer->customer_id)
                 ->where('type', 'wishlist')
@@ -1657,20 +1716,42 @@ class RetailerProductController extends Controller
             $wishList = [];
 
             foreach ($wishlistItems as $item) {
-                $product = Product::find($item->product_id);
+                if ($user && $user->user_type === "3" && $item->retailer_product_id) {
+                    // Retailer product
+                    $product = RetailerCloneProduct::find($item->retailer_product_id);
 
-                if (!$product) {
-                    Log::warning("Product not found for wishlist item ID: {$item->id}");
-                    continue;
+                    if (!$product) {
+                        Log::warning("Retailer product not found for wishlist item ID: {$item->id}");
+                        continue;
+                    }
+
+                    $wishList[] = [
+                        'wishlist_id' => $item->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name ?? null,
+                        'price' => $product->new_price ?? null,
+                        'product_link' => url('/api/singal-product-details/' . $product->slug),
+                        'type' => 'retailer'
+                    ];
+
+                } elseif ($user && $user->user_type === "2" && $item->product_id) {
+                    // Wholesaler product
+                    $product = Product::find($item->product_id);
+
+                    if (!$product) {
+                        Log::warning("Product not found for wishlist item ID: {$item->id}");
+                        continue;
+                    }
+
+                    $wishList[] = [
+                        'wishlist_id' => $item->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name ?? null,
+                        'price' => $product->new_price ?? null,
+                        'product_link' => url('/api/singal-product-details/' . $product->slug),
+                        'type' => 'wholesaler'
+                    ];
                 }
-
-                $wishList[] = [
-                    'wishlist_id' => $item->id,
-                    'product_id' => $product->id,
-                    'product_name' => $product->name ?? null,
-                    'price' => $product->new_price ?? null,
-                    'product_link' => url('/api/singal-product-details/' . $product->slug),
-                ];
             }
 
             return response()->json([
@@ -1694,24 +1775,82 @@ class RetailerProductController extends Controller
     }
 
 
-
     public function addToCart(Request $request)
     {
         try {
-            $request->validate([
-                'product_id' => 'required|exists:products,id',
-                'quantity' => 'nullable|integer|min:1'
-            ]);
-
+          
             $customer = auth()->user();
             $quantity = $request->quantity ?? 1;
 
-            // Check if product already in cart
-            $existing = CustomerCart::where('customer_id', $customer->customer_id)
-                ->where('product_id', $request->product_id)
-                ->where('type', 'cart')
-                ->where('status', 'active')
-                ->first();
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $user = User::find($customerDetails->user_id);
+
+            $productId = null;
+            $retailerProductId = null;
+
+
+            if ($user->user_type === "3") {
+                $request->validate([
+                    'retailer_product_id' => 'required|exists:retailer_clone_products,id',
+                ]);
+            } elseif ($user->user_type === "2") {
+                $request->validate([
+                    'product_id' => 'required|exists:products,id',
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user type.',
+                ], 400);
+            }
+
+
+            if ($user && $user->user_type === "3") {
+                $productId = $request->retailer_product_id;
+                $retailerProduct = RetailerCloneProduct::find($productId);
+                if (!$retailerProduct) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Retailer product not found.',
+                    ], 404);
+                }
+
+                $retailerProductId = $retailerProduct->id;
+
+                // Check if product already in cart
+                $existing = CustomerCart::where('customer_id', $customer->customer_id)
+                    ->where('retailer_product_id', $retailerProductId)
+                    ->whereNull('product_id')
+                    ->where('type', 'cart')
+                    ->where('status', 'active')
+                    ->first();
+
+            } elseif ($user && $user->user_type === "2") {
+                $productId = $request->product_id;
+                $product = Product::find($productId);
+                if (!$product) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Product not found.',
+                    ], 404);
+                }
+
+                $productId = $product->id;
+
+                // Check if product already in cart
+                $existing = CustomerCart::where('customer_id', $customer->customer_id)
+                    ->where('product_id', $productId)
+                    ->whereNull('retailer_product_id')
+                    ->where('type', 'cart')
+                    ->where('status', 'active')
+                    ->first();
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user type.',
+                ], 400);
+            }
+
 
             if ($existing) {
                 $existing->quantity += $quantity;
@@ -1724,9 +1863,11 @@ class RetailerProductController extends Controller
                 ]);
             }
 
+            // Add to cart
             $cart = CustomerCart::create([
                 'customer_id' => $customer->customer_id,
-                'product_id' => $request->product_id,
+                'product_id' => $productId,
+                'retailer_product_id' => $retailerProductId,
                 'type' => 'cart',
                 'quantity' => $quantity,
                 'status' => 'active',
@@ -1755,10 +1896,12 @@ class RetailerProductController extends Controller
 
 
 
-    public function Cart(Request $request)
+    public function cart(Request $request)
     {
         try {
             $customer = auth()->user();
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $user = User::find($customerDetails->user_id);
 
             $cartItems = CustomerCart::where('customer_id', $customer->customer_id)
                 ->where('type', 'cart')
@@ -1776,21 +1919,44 @@ class RetailerProductController extends Controller
             $cartData = [];
 
             foreach ($cartItems as $item) {
-                $product = Product::find($item->product_id);
+                if ($user && $user->user_type === "3" && $item->retailer_product_id) {
+                    // Retailer product
+                    $product = RetailerCloneProduct::find($item->retailer_product_id);
 
-                if (!$product) {
-                    Log::warning("Product not found for cart item ID: {$item->id}, Product ID: {$item->product_id}");
-                    continue;
+                    if (!$product) {
+                        Log::warning("Retailer product not found for cart item ID: {$item->id}");
+                        continue;
+                    }
+
+                    $cartData[] = [
+                        'cart_id' => $item->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name ?? null,
+                        'price' => $product->new_price ?? null,
+                        'quantity' => $item->quantity ?? 1,
+                        'product_link' => url('/api/singal-product-details/' . $product->slug),
+                        'type' => 'retailer'
+                    ];
+
+                } elseif ($user && $user->user_type === "2" && $item->product_id) {
+                    // Wholesaler product
+                    $product = Product::find($item->product_id);
+
+                    if (!$product) {
+                        Log::warning("Wholesaler product not found for cart item ID: {$item->id}");
+                        continue;
+                    }
+
+                    $cartData[] = [
+                        'cart_id' => $item->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name ?? null,
+                        'price' => $product->new_price ?? null,
+                        'quantity' => $item->quantity ?? 1,
+                        'product_link' => url('/api/singal-product-details/' . $product->slug),
+                        'type' => 'wholesaler'
+                    ];
                 }
-
-                $cartData[] = [
-                    'cart_id' => $item->id,
-                    'product_id' => $product->id,
-                    'product_name' => $product->name ?? null,
-                    'price' => $product->new_price ?? null,
-                    'quantity' => $item->quantity ?? 1,
-                    'product_link' => url('/api/singal-product-details/' . $product->slug),
-                ];
             }
 
             return response()->json([
@@ -1799,7 +1965,7 @@ class RetailerProductController extends Controller
             ]);
 
         } catch (\Throwable $e) {
-            Log::error('Error in Cart(): ' . $e->getMessage(), [
+            Log::error('Error in cart(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
@@ -1818,21 +1984,44 @@ class RetailerProductController extends Controller
     public function removeToWishlist(Request $request)
     {
         try {
-            $request->validate([
-                'product_id' => 'required|exists:products,id'
-            ]);
-
             $customer = auth()->user();
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $user = User::find($customerDetails->user_id);
 
-            $wishlistItem = CustomerCart::where('customer_id', $customer->customer_id)
+            // Validate based on user type
+            if ($user->user_type === "3") {
+                $request->validate([
+                    'retailer_product_id' => 'required|exists:retailer_clone_products,id'
+                ]);
+            } elseif ($user->user_type === "2") {
+                $request->validate([
+                    'product_id' => 'required|exists:products,id'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user type.'
+                ], 400);
+            }
+
+            // Build query
+            $wishlistQuery = CustomerCart::where('customer_id', $customer->customer_id)
                 ->where('type', 'wishlist')
-                ->where('product_id', $request->product_id)
-                ->where('status', 'active')
-                ->first();
+                ->where('status', 'active');
+
+            if ($user->user_type == "3") {
+                $productId = $request->retailer_product_id;
+                $wishlistQuery->where('retailer_product_id', $productId);
+            } elseif ($user->user_type == "2") {
+                $productId = $request->product_id;
+                $wishlistQuery->where('product_id', $productId);
+            }
+
+            $wishlistItem = $wishlistQuery->first();
 
             if (!$wishlistItem) {
                 return response()->json([
-                    'error' => true,
+                    'success' => false,
                     'message' => 'Wishlist item not found.'
                 ], 404);
             }
@@ -1861,24 +2050,48 @@ class RetailerProductController extends Controller
 
 
 
+
     public function removeToCart(Request $request)
     {
         try {
-            $request->validate([
-                'product_id' => 'required|exists:products,id'
-            ]);
-
             $customer = auth()->user();
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $user = User::find($customerDetails->user_id);
 
-            $cartItem = CustomerCart::where('customer_id', $customer->customer_id)
-                ->where('product_id', $request->product_id)
+            // Validate input based on user type
+            if ($user->user_type == "3") {
+                $request->validate([
+                    'retailer_product_id' => 'required|exists:retailer_clone_products,id'
+                ]);
+            } elseif ($user->user_type == "2") {
+                $request->validate([
+                    'product_id' => 'required|exists:products,id'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user type.'
+                ], 400);
+            }
+
+            // Build query
+            $cartQuery = CustomerCart::where('customer_id', $customer->customer_id)
                 ->where('type', 'cart')
-                ->where('status', 'active')
-                ->first();
+                ->where('status', 'active');
+
+            if ($user->user_type == "3") {
+                $productId = $request->retailer_product_id;
+                $cartQuery->where('retailer_product_id', $productId);
+            } elseif ($user->user_type == "2") {
+                $productId = $request->product_id;
+                $cartQuery->where('product_id', $productId);
+            }
+
+            $cartItem = $cartQuery->first();
 
             if (!$cartItem) {
                 return response()->json([
-                    'error' => true,
+                    'success' => false,
                     'message' => 'Cart item not found.'
                 ], 404);
             }
@@ -1904,6 +2117,7 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
+
 
 
 
