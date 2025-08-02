@@ -36,8 +36,8 @@ Route::controller(RetailerAuthController::class)->group(function () {
 
     Route::get('forget-password', 'forgetPassword')->name('retailer.forget.password');
     Route::post('forget-password', 'sendResetLink')->name('retailer.password.email');
-    Route::get('/password/reset/{token}', 'showResetPasswordForm')->name('retailer.password.reset');
-    Route::post('password/update', [RetailerAuthController::class, 'resetPassword'])->name('retailer.password.update');
+    Route::get('/retailer/reset-password/{token}', 'showResetPasswordForm')->name('retailer.password.reset');
+    Route::post('/retailer/password/update', [RetailerAuthController::class, 'resetPassword'])->name('retailer.password.update');
 
     // term-conditions
     Route::get('/terms-and-conditions', function () {

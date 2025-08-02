@@ -67,7 +67,7 @@
         <div class="email-body">
             <h3 style="text-align: left; padding-left:18px;">Hello,</h3>
             <p>You have requested to reset your password. Click the button below to reset your password:</p>
-            <a href="{{ url('password/reset', $token) }}" class="password-reset">Password Reset</a>
+            <a href="{{ route('retailer.password.reset', ['token' => $token]) }}" class="password-reset">Reset Password</a>
             <p>If you did not request this, please ignore this email.</p>
         </div>
     </div>

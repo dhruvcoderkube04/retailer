@@ -62,7 +62,7 @@ Forgot Password | TechtrendMart
                             </div>
 
                             <div class="d-grid mb-10">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submit_button" disabled>
                                     <span class="indicator-label">Send Reset Link</span>
                                     <span class="indicator-progress">Please wait...
                                         <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
@@ -74,10 +74,22 @@ Forgot Password | TechtrendMart
                                 <a href="{{ route('retailer.login') }}" class="link-primary">Sign In</a>
                             </div>
                         </form>
-                    </div>  
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const emailInput = document.querySelector('input[name="email"]');
+        const submitButton = document.getElementById('submit_button');
+
+        emailInput.addEventListener('input', function () {
+            const emailValid = emailInput.value.trim().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+            submitButton.disabled = !emailInput.value.trim() || !emailValid;
+        });
+    });
+</script>
 @endsection
