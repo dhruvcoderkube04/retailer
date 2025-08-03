@@ -369,14 +369,14 @@ class OrderStatusService
     // DELIVERED (Intransit to Delivered)
     public function handleDeliveredOrder($retailer, $customerOrder)
     {
-        $retailerDetail = UserDetail::where('user_id', $retailer->id)->first();
+        $retailerDetail = UserDetail::where('user_id', $retailer->id)->first(); 
 
         $total_charges = ($customerOrder->shipping_charge ?? 0) +
             ($customerOrder->cod_charge ?? 0) +
-            ($customerOrder->rto_charge ?? 0) +
+            // ($customerOrder->rto_charge ?? 0) +
             ($customerOrder->shipping_charge_profit ?? 0) +
-            ($customerOrder->cod_charge_profit ?? 0) +
-            ($customerOrder->rto_charge_profit ?? 0);
+            ($customerOrder->cod_charge_profit ?? 0);
+            // ($customerOrder->rto_charge_profit ?? 0);
 
         $charges = [
             'Shipping Charge' => ($customerOrder->shipping_charge ?? 0) + ($customerOrder->shipping_charge_profit ?? 0),

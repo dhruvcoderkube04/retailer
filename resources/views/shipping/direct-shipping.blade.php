@@ -18,23 +18,38 @@
                     <!-- Product Image -->
                     <div class="col-md-4 mb-4">
                         <label for="product_image" class="d-block mb-2">Choose Product Image</label>
-                        <input type="file" class="form-control" id="product_image" name="product_image" accept="image/*" />
+                        <input type="file" class="form-control" id="product_image" name="product_image" accept="image/png, image/jpeg, image/jpg" />
                     </div>
 
                     <!-- Product Details -->
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Product Name</label>
-                        <input type="text" class="form-control" name="product_name" required />
+                        <input type="text" class="form-control" name="product_name" id="product_name"
+                               required pattern="^[A-Za-z0-9 ]+$"
+                               title="Only letters, numbers, and spaces allowed." />
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
-                            <label class="form-label">Price (₹)</label>
-                            <input type="number" class="form-control" name="price" step="0.01" />
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                Price (₹)
+                                <span class="fw-bold text-primary">Price per piece</span>
+                            </label>
+                            <input type="number" class="form-control" name="price" id="price"
+                                   required pattern="^[1-9][0-9]*$" max="5000" min="1"
+                                   title="Only positive whole numbers allowed." />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Quantity</label>
-                            <input type="number" class="form-control" name="qty" min="1" />
+                            <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
+                                   required pattern="^[1-5]$"
+                                   title="Only numbers 1 to 5 allowed." />
                         </div>
+                    </div>
+
+                    <!-- Total Price -->
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label">Total Price</label>
+                        <input type="text" class="form-control" id="total_price" disabled placeholder="₹ 0.00" />
                     </div>
 
                     <!-- Category -->
@@ -68,7 +83,6 @@
 
                     <!-- Buttons -->
                     <div class="d-flex gap-3">
-                        {{-- <button type="button" class="btn btn-warning">Self paid order</button> --}}
                         <button type="submit" class="btn btn-dark">Cash on delivery</button>
                     </div>
                 </form>
@@ -154,48 +168,25 @@
         </div>
     </div>
 </div>
-
-
-
 @endsection
 
 @section('script')
 <script>
-    // Show modal and fetch customer records
-   function showCustomerModal() {
-    // Show modal
+    function showCustomerModal() {
         $('#customerModal').modal('show');
-
-        // Reset form fields
         document.getElementById('addCustomerForm').reset();
-
-        // Remove error messages and invalid classes
-        document.querySelectorAll('#addCustomerForm .form-control').forEach(input => {
-            input.classList.remove('is-invalid');
-        });
-
-        document.querySelectorAll('#addCustomerForm .invalid-feedback').forEach(div => {
-            div.textContent = '';
-        });
-
-        // Clear customer search input
+        document.querySelectorAll('#addCustomerForm .form-control').forEach(input => input.classList.remove('is-invalid'));
+        document.querySelectorAll('#addCustomerForm .invalid-feedback').forEach(div => div.textContent = '');
         document.getElementById('customerSearch').value = '';
-
-        // Clear customer list display
         document.getElementById('customerList').innerHTML = '';
-
     }
-
 
     document.getElementById('customerSearchBtn').addEventListener('click', function () {
         const query = document.getElementById('customerSearch').value.trim();
-
-        // Clear customer list if input is empty
         if (query === '') {
             document.getElementById('customerList').innerHTML = '';
             return;
         }
-
         fetch("{{ route('retailer.getcustomer.data') }}", {
             method: "POST",
             headers: {
@@ -205,9 +196,7 @@
             body: JSON.stringify({ query: query })
         })
         .then(res => res.json())
-        .then(customers => {
-            renderCustomerList(customers);
-        })
+        .then(customers => renderCustomerList(customers))
         .catch(err => {
             console.error("Search error:", err);
             document.getElementById('customerList').innerHTML = `<p class="text-danger">Search failed.</p>`;
@@ -217,7 +206,6 @@
     function renderCustomerList(customers) {
         const container = document.getElementById('customerList');
         let html = '';
-
         if (customers.length === 0) {
             html = '<p>No matching customers found.</p>';
         } else {
@@ -230,40 +218,26 @@
                     </div>`;
             });
         }
-
         container.innerHTML = html;
     }
 
-
-    // When customer is selected
     function selectCustomer(customer) {
         document.getElementById('selectedCustomer').innerHTML =
             `<strong>Selected:</strong> ${customer.id} ${customer.firstname} ${customer.lastname}, ${customer.phone_number}`;
         $('#customerModal').modal('hide');
-
-        // OPTIONAL: Store selected customer for use later
         window.selectedCustomer = customer;
     }
 
-    // Add new customer form submit
     document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
-
-        // Clear old errors and red borders
-        form.querySelectorAll('.form-control').forEach(input => {
-            input.classList.remove('is-invalid');
-        });
-        form.querySelectorAll('.invalid-feedback').forEach(div => {
-            div.innerText = '';
-        });
+        form.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(div => div.innerText = '');
 
         fetch("{{ route('retailer.customerdata.store') }}", {
             method: "POST",
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             body: formData
         })
         .then(res => res.json())
@@ -285,70 +259,85 @@
                     if (errorDiv) errorDiv.innerText = data.errors[field][0];
                 }
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.message || 'Something went wrong'
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Something went wrong' });
             }
         })
         .catch(err => {
             console.error("Error adding customer:", err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Something went wrong while adding the customer.'
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong while adding the customer.' });
         });
     });
 
-    // Handle shipping form submit
     document.getElementById("directShippingForm").addEventListener("submit", function (e) {
         e.preventDefault();
-
         if (!window.selectedCustomer) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Select Customer',
-                text: 'Please select a customer before placing the order.',
-            });
+            Swal.fire({ icon: 'warning', title: 'Select Customer', text: 'Please select a customer before placing the order.' });
             return;
         }
-
         const formData = new FormData(this);
         formData.append('customer_id', window.selectedCustomer.id);
 
         fetch("{{ route('retailer.directshipping.place.order') }}", {
             method: "POST",
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             body: formData
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Order Placed',
-                    text: data.message,
-                });
+                Swal.fire({ icon: 'success', title: 'Order Placed', text: data.message });
                 this.reset();
                 document.getElementById('selectedCustomer').innerHTML = '';
                 window.selectedCustomer = null;
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.message,
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
             }
         })
-        .catch(err => {
-            console.error("Order placement error:", err);
-        });
+        .catch(err => console.error("Order placement error:", err));
     });
 
+    document.getElementById('price').addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        calculateTotal();
+    });
+    document.getElementById('qty').addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        const price = parseInt(document.getElementById('price').value.replace(/[^\d]/g, '')) || 0;
+        const qty = parseInt(document.getElementById('qty').value.replace(/[^\d]/g, '')) || 0;
+        const total = price * qty;
+        document.getElementById('total_price').value = total > 0 ? '₹ ' + total.toLocaleString() : '₹ 0.00';
+    }
+
+    document.getElementById("directShippingForm").addEventListener("submit", function (e) {
+        const name = document.getElementById('product_name').value.trim();
+        const price = document.getElementById('price').value.trim();
+        const qty = document.getElementById('qty').value.trim();
+
+        const nameRegex = /^[A-Za-z0-9 ]+$/;
+        const priceRegex = /^[1-9][0-9]*$/;
+        const qtyRegex = /^[1-5]$/;
+
+        if (!nameRegex.test(name)) {
+            e.preventDefault();
+            Swal.fire('Invalid Product Name', 'Only letters, numbers, and spaces are allowed.', 'warning');
+            return;
+        }
+
+        if (!priceRegex.test(price)) {
+            e.preventDefault();
+            Swal.fire('Invalid Price', 'Price must be a positive whole number (no decimals or special characters).', 'warning');
+            return;
+        }
+
+        if (!qtyRegex.test(qty)) {
+            e.preventDefault();
+            Swal.fire('Invalid Quantity', 'Quantity must be a number between 1 and 5.', 'warning');
+            return;
+        }
+    });
 </script>
 @endsection
-

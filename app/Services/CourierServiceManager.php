@@ -144,13 +144,32 @@ class CourierServiceManager
                 $response = $service->calculateRate($payload);
                 if (!empty($response['status']) && !empty($response['rates'])) {
                     foreach ($response['rates'] as $rate) {
+                        
+                        // fship come differnt rto,shipping, cod charge (shiiping + cod)
+                        // lorrigo come shipping not comming so charge - rto  charge after get shipping charge
+                        $shippingCharge = null;
+                        if (isset($rate['charge'], $rate['rtoCharges'])) {
+                            $shippingCharge = $rate['charge'] - $rate['rtoCharges'];
+                        } elseif (isset($rate['shipping_charge'])) {
+                            $shippingCharge = $rate['shipping_charge'];
+                        }
+
+                        $totalPrice = null;
+                        if (isset($rate['charge'])) {
+                            $totalPrice = $rate['charge'];
+                        } elseif (isset($rate['shipping_charge'], $rate['cod_charge'])) {
+                            $totalPrice = $rate['shipping_charge'] + $rate['cod_charge'];
+                        }
+
                         $results[] = [
                             'courier_code'        => $partner->code,
                             'courier_name'        => $partner->name,
                             'zone'                => $rate['order_zone'] ?? ($rate['zone'] ?? null),
                             'estimated_delivery'  => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
-                            'total_price'         => $rate['charge'] ?? ($rate['shipping_charge'] ?? null),
-                            'shipping_charge'     => $rate['charge'] ?? ($rate['shipping_charge'] ?? null),
+                            // 'total_price'         => $rate['charge'] ?? (($rate['shipping_charge'] + $rate['cod_charge']) ?? null),
+                            // 'shipping_charge'     => ($rate['charge'] - $rate['rtoCharges']) ?? ($rate['shipping_charge'] ?? null),
+                            'total_price'         => $totalPrice,
+                            'shipping_charge'     => $shippingCharge,
                             'cod_charge'          => $rate['cod'] ?? ($rate['cod_charge'] ?? null),
                             'rto_charge'          => $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null),
                             'weight'              => $payload['shipment_Weight'],
@@ -170,7 +189,7 @@ class CourierServiceManager
             }
         }
 
-        // 🟢 Sort by total price first, then by delivery score (lower is better)
+        // Sort by total price first, then by delivery score (lower is better)
         usort($results, function ($a, $b) {
             if ($a['total_price'] === $b['total_price']) {
                 return $a['delivery_score'] <=> $b['delivery_score'];

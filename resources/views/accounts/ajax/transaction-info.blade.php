@@ -57,10 +57,12 @@
     @if ($transactionDetail->charges)
         @foreach ($transactionDetail->charges as $key => $charge)
             <div class="d-flex justify-content-between py-1 border-bottom flex-wrap">
-                <span>{{ $key }} :</span>
-                <span class="text-end text-break text-danger" style="max-width: 240px;">
-                    {{ $charge }}
-                </span>
+               @if ($key != 'RTO Charge')
+                    <span>{{ $key }} :</span>
+                    <span class="text-end text-break text-danger" style="max-width: 240px;">
+                        {{ $charge }}
+                    </span>
+               @endif
             </div>
         @endforeach
     @endif
