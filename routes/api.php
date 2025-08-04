@@ -12,7 +12,7 @@ Route::post('/get-products', [RetailerProductController::class, 'getProducts']);
 Route::post('/search-products', [RetailerProductController::class, 'searchProducts']);
 Route::get('/singal-product-details/{slug}', [RetailerProductController::class, 'getSingalProductDetails']);
 Route::post('/checkout', [RetailerProductController::class, 'checkout']);
-Route::post('/checkout1', [RetailerProductController::class, 'checkoutNew'])->middleware('auth:sanctum');
+Route::post('/checkout1', [RetailerProductController::class, 'checkoutNew']);
 
 Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);
@@ -32,7 +32,7 @@ Route::prefix('customer')->group(function () {
     // Auth routes
     Route::post('register', [CustomerRegisterController::class, 'register']);
     Route::post('login', [CustomerRegisterController::class, 'login']);
-    Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:customer');
     Route::post('forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
     Route::post('reset-password', [CustomerRegisterController::class, 'resetPassword']);
 
@@ -60,8 +60,6 @@ Route::prefix('customer')->group(function () {
         Route::get('/orders', [RetailerProductController::class, 'customerOrders']);
         Route::post('/shipping-address', [RetailerProductController::class, 'shippingAddress']);
         Route::post('/account-details', [RetailerProductController::class, 'accountDetails']);
-        Route::post('/add-to-wishlist', [RetailerProductController::class, 'addToWishlist']);
-        Route::post('/add-to-cart', [RetailerProductController::class, 'addToCart']);
         Route::post('/reset-password', [RetailerProductController::class, 'resetPassword']);
         Route::get('/wishlist', [RetailerProductController::class, 'wishlist']);
         Route::get('/cart', [RetailerProductController::class, 'cart']);

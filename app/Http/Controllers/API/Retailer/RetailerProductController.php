@@ -38,6 +38,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use App\Services\OtpService;
+
 
 
 class RetailerProductController extends Controller
@@ -728,15 +730,172 @@ class RetailerProductController extends Controller
     public function checkoutNew(Request $request)
     {
 
-        $isLoggedIn = Auth::check();
-        $user = $isLoggedIn ? Auth::user() : null;
-        $customerId = $user->id;
+        $user = Auth::guard('sanctum')->user();
+
+        if (!$user) {
+            // ========== GUEST USER FLOW ==========
+            $request->validate([
+                'phone_number' => 'required|digits:10',
+            ]);
+
+            $otpService = new OtpService();
+
+            // Step 1: Send OTP if not present
+            if (!$request->has('otp')) {
+                if (!$otpService->send($request->phone_number)) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Failed to send OTP. Please try again.'
+                    ], 500);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'OTP sent successfully',
+                    'otp_required' => true,
+                ], 200);
+            }
+
+            // Step 2: Verify OTP
+            $request->validate([
+                'otp' => 'required|digits:6',
+            ]);
+
+            if (!$otpService->verify($request->phone_number, $request->otp)) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Invalid or expired OTP.'
+                ], 401);
+            }
+
+            // Step 3: Check if customer already exists
+            $existCustomer = CustomerDetails::where('phone_number', $request->phone_number)->first();
+
+            if ($existCustomer) {
+                $customerId = $existCustomer->id;
+            } else {
+                // Step 4: Create new customer
+                $request->validate([
+                    'firstname' => 'required|string|max:30',
+                    'lastname' => 'nullable|string|max:30',
+                    'email' => 'nullable|email',
+                    'address' => 'required|string|max:250',
+                    'state' => 'required|string',
+                    'city' => 'required|string',
+                    'pincode' => 'required|digits:6',
+                    'user_token' => 'required|string',
+                ]);
+
+                $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
+                    ->where('is_active', 1)
+                    ->first();
+
+                if (!$retailer) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Invalid user token.'
+                    ], 404);
+                }
+
+                $randomPassword = Str::random(10) . '@' . rand(10, 99);
+                $hashedPassword = Hash::make($randomPassword);
+
+                $customerDetails = CustomerDetails::create([
+                    'user_id' => $retailer->retailer_id,
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'email' => $request->email,
+                    'phone_number' => $request->phone_number,
+                    'address' => $request->address,
+                    'state' => $request->state,
+                    'city' => $request->city,
+                    'pincode' => $request->pincode,
+                ]);
+
+                $storeCustomerDetails = StoreCustomersDetails::create([
+                    'user_id' => $retailer->retailer_id,
+                    'firstname' => $request->firstname,
+                    'lastname' => $request->lastname,
+                    'phone_number' => $request->phone_number,
+                    'email' => $request->email,
+                    'password' => $hashedPassword,
+                    'customer_id' => $customerDetails->id,
+                    'user_token' => $request->user_token,
+                    'is_active' => true,
+                    'email_verification_token' => null,
+                    'email_verified_at' => now(),
+                ]);
+
+                if ($request->email) {
+                    Mail::to($storeCustomerDetails->email)
+                        ->send(new WelcomeCustomerMail($storeCustomerDetails, $randomPassword));
+                }
+
+                $customerId = $customerDetails->id;
+            }
+        } else {
+            // ========== LOGGED-IN USER FLOW ==========
+            $customerId = $user->customer_id;
+            $customerDetails = CustomerDetails::find($customerId);
+
+            // Check if any required fields are missing in DB
+            $missingFields = [];
+
+            if (empty($customerDetails->address)) {
+                $missingFields[] = 'address';
+            }
+            if (empty($customerDetails->state)) {
+                $missingFields[] = 'state';
+            }
+            if (empty($customerDetails->city)) {
+                $missingFields[] = 'city';
+            }
+            if (empty($customerDetails->pincode)) {
+                $missingFields[] = 'pincode';
+            }
+
+            // If any field is missing in DB, validate from request
+            if (!empty($missingFields)) {
+                $validationRules = [];
+                $customMessages = [];
+
+                foreach ($missingFields as $field) {
+                    if ($field === 'pincode') {
+                        $validationRules[$field] = 'required|digits:6';
+                        $customMessages["$field.required"] = 'Pincode is required.';
+                        $customMessages["$field.digits"] = 'Pincode must be exactly 6 digits.';
+                    } else {
+                        $validationRules[$field] = 'required|string|max:250';
+                        $customMessages["$field.required"] = ucfirst($field) . ' is required.';
+                    }
+                }
+
+                $validator = Validator::make($request->all(), $validationRules, $customMessages);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Order not placed. Required address details missing.',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+
+                // Update only the missing fields from request
+                $updateData = [];
+                foreach ($missingFields as $field) {
+                    $updateData[$field] = $request->$field;
+                }
+
+                $customerDetails->update($updateData);
+            }
+
+        }
 
         $validator = Validator::make($request->all(), [
-            'firstname' => $isLoggedIn ? 'nullable' : 'required|string|max:30',
-            'lastname' => $isLoggedIn ? 'nullable' : 'required|string|max:30',
+            'firstname' => $user ? 'nullable' : 'required|string|max:30',
+            'lastname' => $user ? 'nullable' : 'required|string|max:30',
             'phone_number' => 'required|numeric|digits:10',
-            'email' => $isLoggedIn ? 'nullable|email' : 'required|email',
+            'email' => $user ? 'nullable|email' : 'required|email',
             'address' => 'required|string|max:250',
             'payment_method' => 'required|in:cod,upi',
             'products' => 'required|array|min:1',
@@ -774,17 +933,10 @@ class RetailerProductController extends Controller
 
         DB::beginTransaction();
 
-        if ($user) {
-            $firstname = $user->firstname;
-            $lastname = $user->lastname;
-        } else {
-            $firstname = $request->firstname;
-            $lastname = $request->lastname;
-        }
         try {
 
-            $verificationToken = Str::random(64);
-            $userToken = Str::random(60);
+            // $verificationToken = Str::random(64);
+            // $userToken = Str::random(60);
 
             // $customerDetail = CustomerDetails::create([
             //     'user_id' => $retailer->retailer_id,
@@ -1956,37 +2108,37 @@ class RetailerProductController extends Controller
     public function addToWishlist(Request $request)
     {
         try {
-
-
             $customer = auth()->user();
             $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-            $user = User::find($customerDetails->user_id);
 
-            if ($user->user_type === "3") {
-                $request->validate([
-                    'retailer_product_id' => 'required|exists:retailer_clone_products,id',
-                ]);
-            } elseif ($user->user_type === "2") {
-                $request->validate([
-                    'product_id' => 'required|exists:products,id',
-                ]);
-            } else {
+            $request->validate([
+                'product_id' => 'required|integer',
+                'wholesaler_id' => 'nullable|integer',
+                'retailer_id' => 'nullable|integer',
+            ]);
+
+            $productId = $request->product_id;
+            $wholesalerId = $request->wholesaler_id;
+            $retailerId = $request->retailer_id;
+
+            // Ensure only one source is provided
+            if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid user type.',
-                ], 400);
+                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
+                ], 422);
             }
 
-            $productId = null;
-            $retailerProductId = null;
+            // Validate product source
+            if ($wholesalerId) {
+                $exists = Product::where('id', $productId)
+                    ->where('wholesaler_id', $wholesalerId)
+                    ->exists();
 
-            if ($user && $user->user_type === "3") {
-                $productId = $request->retailer_product_id;
-                $retailerProduct = RetailerCloneProduct::find($productId);
-                if (!$retailerProduct) {
+                if (!$exists) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Retailer product not found.',
+                        'message' => 'Invalid wholesaler product.',
                     ], 404);
                 }
 
@@ -2006,62 +2158,60 @@ class RetailerProductController extends Controller
                 if (!$product) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Product not found.',
+                        'message' => 'Invalid retailer product.',
                     ], 404);
                 }
-
-                $productId = $product->id;
-
-                $existing = CustomerCart::where('customer_id', $customer->customer_id)
-                    ->where('product_id', $productId)
-                    ->whereNull('retailer_product_id')
-                    ->where('type', 'wishlist')
-                    ->where('status', 'active')
-                    ->first();
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid user type.',
-                ], 400);
             }
 
-            if ($existing) {
+            // Prevent duplicate
+            $alreadyExists = CustomerCart::where('customer_id', $customerDetails->id)
+                ->where(function ($query) use ($productId, $wholesalerId, $retailerId) {
+                    if ($wholesalerId) {
+                        $query->where('product_id', $productId);
+                    } else {
+                        $query->where('retailer_product_id', $productId);
+                    }
+                })
+                ->where('type', 'wishlist')
+                ->where('status', 'active')
+                ->exists();
+
+            if ($alreadyExists) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Product is already in your wishlist.',
                 ]);
             }
 
-            // Add to wishlist
-            $wishlist = CustomerCart::create([
-                'customer_id' => $customer->customer_id,
-                'product_id' => $productId,
-                'retailer_product_id' => $retailerProductId,
+            // Create record with correct field
+            $wishlistData = [
+                'customer_id' => $customerDetails->id,
                 'type' => 'wishlist',
                 'status' => 'active',
-            ]);
+            ];
+
+            if ($wholesalerId) {
+                $wishlistData['product_id'] = $productId;
+            } else {
+                $wishlistData['retailer_product_id'] = $productId;
+            }
+
+            $wishlist = CustomerCart::create($wishlistData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product added to wishlist.',
+                'message' => 'Product added to wishlist successfully.',
                 'wishlist_id' => $wishlist->id,
             ]);
 
         } catch (\Throwable $e) {
-            Log::error('Error in addToWishlist(): ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong while adding to wishlist.',
-                'error' => $e->getMessage()
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-
 
 
 
@@ -2070,9 +2220,8 @@ class RetailerProductController extends Controller
         try {
             $customer = auth()->user();
             $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-            $user = User::find($customerDetails->user_id);
 
-            $wishlistItems = CustomerCart::where('customer_id', $customer->customer_id)
+            $wishlistItems = CustomerCart::where('customer_id', $customerDetails->id)
                 ->where('type', 'wishlist')
                 ->where('status', 'active')
                 ->get();
@@ -2088,42 +2237,40 @@ class RetailerProductController extends Controller
             $wishList = [];
 
             foreach ($wishlistItems as $item) {
-                if ($user && $user->user_type === "3" && $item->retailer_product_id) {
-                    // Retailer product
-                    $product = RetailerCloneProduct::find($item->retailer_product_id);
+                $product = null;
+                $productType = null;
 
-                    if (!$product) {
-                        Log::warning("Retailer product not found for wishlist item ID: {$item->id}");
-                        continue;
+                // Check for retailer product first
+                if ($item->retailer_product_id) {
+                    $retailerProduct = RetailerCloneProduct::find($item->retailer_product_id);
+                    if ($retailerProduct) {
+                        $product = $retailerProduct;
+                        $productType = 'retailer';
                     }
-
-                    $wishList[] = [
-                        'wishlist_id' => $item->id,
-                        'product_id' => $product->id,
-                        'product_name' => $product->name ?? null,
-                        'price' => $product->new_price ?? null,
-                        'product_link' => url('/api/singal-product-details/' . $product->slug),
-                        'type' => 'retailer'
-                    ];
-
-                } elseif ($user && $user->user_type === "2" && $item->product_id) {
-                    // Wholesaler product
-                    $product = Product::find($item->product_id);
-
-                    if (!$product) {
-                        Log::warning("Product not found for wishlist item ID: {$item->id}");
-                        continue;
-                    }
-
-                    $wishList[] = [
-                        'wishlist_id' => $item->id,
-                        'product_id' => $product->id,
-                        'product_name' => $product->name ?? null,
-                        'price' => $product->new_price ?? null,
-                        'product_link' => url('/api/singal-product-details/' . $product->slug),
-                        'type' => 'wholesaler'
-                    ];
                 }
+
+                // If not a retailer, check wholesaler product using product_id
+                if (!$product && $item->product_id) {
+                    $wholesalerProduct = Product::find($item->product_id);
+                    if ($wholesalerProduct) {
+                        $product = $wholesalerProduct;
+                        $productType = 'wholesaler';
+                    }
+                }
+
+                if (!$product) {
+                    Log::warning("Product not found for wishlist item ID: {$item->id}");
+                    continue;
+                }
+
+                $wishList[] = [
+                    'wishlist_id' => $item->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? null,
+                    'price' => $product->new_price ?? null,
+                    'product_link' => url('/api/singal-product-details/' . $product->slug),
+                    'type' => $productType
+                ];
             }
 
             return response()->json([
@@ -2152,105 +2299,90 @@ class RetailerProductController extends Controller
         try {
 
             $customer = auth()->user();
+            $customerDetails = CustomerDetails::find($customer->customer_id);
+
+            // Validate inputs
+            $request->validate([
+                'product_id' => 'required|integer',
+                'wholesaler_id' => 'nullable|integer',
+                'retailer_id' => 'nullable|integer',
+                'quantity' => 'nullable|integer|min:1',
+            ]);
+
+            $productId = $request->product_id;
+            $wholesalerId = $request->wholesaler_id;
+            $retailerId = $request->retailer_id;
             $quantity = $request->quantity ?? 1;
 
-            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-            $user = User::find($customerDetails->user_id);
-
-            $productId = null;
-            $retailerProductId = null;
-
-
-            if ($user->user_type === "3") {
-                $request->validate([
-                    'retailer_product_id' => 'required|exists:retailer_clone_products,id',
-                ]);
-            } elseif ($user->user_type === "2") {
-                $request->validate([
-                    'product_id' => 'required|exists:products,id',
-                ]);
-            } else {
+            // Ensure only one of wholesaler_id or retailer_id is provided
+            if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid user type.',
-                ], 400);
+                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
+                ], 422);
             }
 
+            // Validate product existence
+            if ($wholesalerId) {
+                $isValid = Product::where('id', $productId)
+                    ->where('wholesaler_id', $wholesalerId)
+                    ->exists();
 
-            if ($user && $user->user_type === "3") {
-                $productId = $request->retailer_product_id;
-                $retailerProduct = RetailerCloneProduct::find($productId);
-                if (!$retailerProduct) {
+                if (!$isValid) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Retailer product not found.',
+                        'message' => 'Invalid wholesaler product.',
                     ], 404);
                 }
+            } elseif ($retailerId) {
+                $isValid = RetailerCloneProduct::where('id', $productId)
+                    ->where('retailer_id', $retailerId)
+                    ->exists();
 
-                $retailerProductId = $retailerProduct->id;
-
-                // Check if product already in cart
-                $existing = CustomerCart::where('customer_id', $customer->customer_id)
-                    ->where('retailer_product_id', $retailerProductId)
-                    ->whereNull('product_id')
-                    ->where('type', 'cart')
-                    ->where('status', 'active')
-                    ->first();
-
-            } elseif ($user && $user->user_type === "2") {
-                $productId = $request->product_id;
-                $product = Product::find($productId);
-                if (!$product) {
+                if (!$isValid) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Product not found.',
+                        'message' => 'Invalid retailer product.',
                     ], 404);
                 }
-
-                $productId = $product->id;
-
-                // Check if product already in cart
-                $existing = CustomerCart::where('customer_id', $customer->customer_id)
-                    ->where('product_id', $productId)
-                    ->whereNull('retailer_product_id')
-                    ->where('type', 'cart')
-                    ->where('status', 'active')
-                    ->first();
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid user type.',
-                ], 400);
             }
 
+            // Check if already in wishlist
+            $exists = CustomerCart::where('customer_id', $customerDetails->id)
+                ->when($wholesalerId, fn($query) => $query->where('product_id', $productId))
+                ->when($retailerId, fn($query) => $query->where('retailer_product_id', $productId))
+                ->where('type', 'cart')
+                ->where('status', 'active')
+                ->exists();
 
-            if ($existing) {
-                $existing->quantity += $quantity;
-                $existing->save();
-
+            if ($exists) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Cart updated successfully.',
-                    'cart_id' => $existing->id
+                    'message' => 'Product is already in your cart.',
                 ]);
             }
 
-            // Add to cart
-            $cart = CustomerCart::create([
-                'customer_id' => $customer->customer_id,
-                'product_id' => $productId,
-                'retailer_product_id' => $retailerProductId,
-                'type' => 'cart',
+            // Create wishlist record
+            $cartData = [
+                'customer_id' => $customerDetails->id,
                 'quantity' => $quantity,
+                'type' => 'cart',
                 'status' => 'active',
-            ]);
+            ];
+
+            if ($wholesalerId) {
+                $cartData['product_id'] = $productId;
+            } else {
+                $cartData['retailer_product_id'] = $productId;
+            }
+
+            $wishlist = CustomerCart::create($cartData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product added to cart.',
-                'cart_id' => $cart->id
+                'message' => 'Product added to wishlist successfully.',
+                'wishlist_id' => $wishlist->id,
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Error in addToCart(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2268,14 +2400,14 @@ class RetailerProductController extends Controller
 
 
 
+
     public function cart(Request $request)
     {
         try {
             $customer = auth()->user();
             $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-            $user = User::find($customerDetails->user_id);
 
-            $cartItems = CustomerCart::where('customer_id', $customer->customer_id)
+            $cartItems = CustomerCart::where('customer_id', $customerDetails->id)
                 ->where('type', 'cart')
                 ->where('status', 'active')
                 ->get();
@@ -2284,56 +2416,53 @@ class RetailerProductController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Your cart is empty.',
-                    'cart' => []
+                    'wishlist' => []
                 ]);
             }
 
-            $cartData = [];
+            $cart = [];
 
             foreach ($cartItems as $item) {
-                if ($user && $user->user_type === "3" && $item->retailer_product_id) {
-                    // Retailer product
-                    $product = RetailerCloneProduct::find($item->retailer_product_id);
+                $product = null;
+                $productType = null;
 
-                    if (!$product) {
-                        Log::warning("Retailer product not found for cart item ID: {$item->id}");
-                        continue;
+                // Check for retailer product first
+                if ($item->retailer_product_id) {
+                    $retailerProduct = RetailerCloneProduct::find($item->retailer_product_id);
+                    if ($retailerProduct) {
+                        $product = $retailerProduct;
+                        $productType = 'retailer';
                     }
-
-                    $cartData[] = [
-                        'cart_id' => $item->id,
-                        'product_id' => $product->id,
-                        'product_name' => $product->name ?? null,
-                        'price' => $product->new_price ?? null,
-                        'quantity' => $item->quantity ?? 1,
-                        'product_link' => url('/api/singal-product-details/' . $product->slug),
-                        'type' => 'retailer'
-                    ];
-
-                } elseif ($user && $user->user_type === "2" && $item->product_id) {
-                    // Wholesaler product
-                    $product = Product::find($item->product_id);
-
-                    if (!$product) {
-                        Log::warning("Wholesaler product not found for cart item ID: {$item->id}");
-                        continue;
-                    }
-
-                    $cartData[] = [
-                        'cart_id' => $item->id,
-                        'product_id' => $product->id,
-                        'product_name' => $product->name ?? null,
-                        'price' => $product->new_price ?? null,
-                        'quantity' => $item->quantity ?? 1,
-                        'product_link' => url('/api/singal-product-details/' . $product->slug),
-                        'type' => 'wholesaler'
-                    ];
                 }
+
+                // If not a retailer, check wholesaler product using product_id
+                if (!$product && $item->product_id) {
+                    $wholesalerProduct = Product::find($item->product_id);
+                    if ($wholesalerProduct) {
+                        $product = $wholesalerProduct;
+                        $productType = 'wholesaler';
+                    }
+                }
+
+                if (!$product) {
+                    Log::warning("Product not found for wishlist item ID: {$item->id}");
+                    continue;
+                }
+
+                $cart[] = [
+                    'wishlist_id' => $item->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? null,
+                    'quantity' => $item->quantity,
+                    'price' => $product->new_price ?? null,
+                    'product_link' => url('/api/singal-product-details/' . $product->slug),
+                    'type' => $productType
+                ];
             }
 
             return response()->json([
                 'success' => true,
-                'cart' => $cartData,
+                'cart' => $cart,
             ]);
 
         } catch (\Throwable $e) {
@@ -2357,55 +2486,78 @@ class RetailerProductController extends Controller
     {
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-            $user = User::find($customerDetails->user_id);
+            $customerDetails = CustomerDetails::find($customer->customer_id);
 
-            // Validate based on user type
-            if ($user->user_type === "3") {
-                $request->validate([
-                    'retailer_product_id' => 'required|exists:retailer_clone_products,id'
-                ]);
-            } elseif ($user->user_type === "2") {
-                $request->validate([
-                    'product_id' => 'required|exists:products,id'
-                ]);
-            } else {
+            // Validate input
+            $request->validate([
+                'product_id' => 'required|integer',
+                'wholesaler_id' => 'nullable|integer',
+                'retailer_id' => 'nullable|integer',
+            ]);
+
+            $productId = $request->product_id;
+            $wholesalerId = $request->wholesaler_id;
+            $retailerId = $request->retailer_id;
+
+            // Ensure only one source is provided
+            if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid user type.'
-                ], 400);
+                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
+                ], 422);
             }
 
-            // Build query
-            $wishlistQuery = CustomerCart::where('customer_id', $customer->customer_id)
+            // Build base query
+            $wishlistQuery = CustomerCart::where('customer_id', $customerDetails->id)
                 ->where('type', 'wishlist')
                 ->where('status', 'active');
 
-            if ($user->user_type == "3") {
-                $productId = $request->retailer_product_id;
-                $wishlistQuery->where('retailer_product_id', $productId);
-            } elseif ($user->user_type == "2") {
-                $productId = $request->product_id;
+            // Add correct condition based on product type
+            if ($wholesalerId) {
+                $exists = Product::where('id', $productId)
+                    ->where('wholesaler_id', $wholesalerId)
+                    ->exists();
+
+                if (!$exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid wholesaler product.',
+                    ], 404);
+                }
+
                 $wishlistQuery->where('product_id', $productId);
+            } elseif ($retailerId) {
+                $exists = RetailerCloneProduct::where('id', $productId)
+                    ->where('retailer_id', $retailerId)
+                    ->exists();
+
+                if (!$exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid retailer product.',
+                    ], 404);
+                }
+
+                $wishlistQuery->where('retailer_product_id', $productId);
             }
 
+            // Get wishlist item
             $wishlistItem = $wishlistQuery->first();
 
             if (!$wishlistItem) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Wishlist item not found.'
+                    'message' => 'Wishlist item not found.',
                 ], 404);
             }
 
-            $wishlistItem->status = 'inactive';
-            $wishlistItem->save();
+            // Soft delete (set status to inactive)
+            $wishlistItem->update(['status' => 'inactive']);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Wishlist item removed successfully.'
+                'message' => 'Wishlist item removed successfully.',
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Error in removeToWishlist(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2421,42 +2573,65 @@ class RetailerProductController extends Controller
     }
 
 
-
-
     public function removeToCart(Request $request)
     {
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-            $user = User::find($customerDetails->user_id);
+            $customerDetails = CustomerDetails::find($customer->customer_id);
 
-            // Validate input based on user type
-            if ($user->user_type == "3") {
-                $request->validate([
-                    'retailer_product_id' => 'required|exists:retailer_clone_products,id'
-                ]);
-            } elseif ($user->user_type == "2") {
-                $request->validate([
-                    'product_id' => 'required|exists:products,id'
-                ]);
-            } else {
+            // Validate input
+            $request->validate([
+                'product_id' => 'required|integer',
+                'wholesaler_id' => 'nullable|integer',
+                'retailer_id' => 'nullable|integer',
+            ]);
+
+            $productId = $request->product_id;
+            $wholesalerId = $request->wholesaler_id;
+            $retailerId = $request->retailer_id;
+
+            // Ensure only one product source is selected
+            if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid user type.'
-                ], 400);
+                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
+                ], 422);
             }
 
-            // Build query
-            $cartQuery = CustomerCart::where('customer_id', $customer->customer_id)
+            // Validate product existence
+            if ($wholesalerId) {
+                $exists = Product::where('id', $productId)
+                    ->where('wholesaler_id', $wholesalerId)
+                    ->exists();
+
+                if (!$exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid wholesaler product.',
+                    ], 404);
+                }
+            } elseif ($retailerId) {
+                $exists = RetailerCloneProduct::where('id', $productId)
+                    ->where('retailer_id', $retailerId)
+                    ->exists();
+
+                if (!$exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid retailer product.',
+                    ], 404);
+                }
+            }
+
+            // Build cart query
+            $cartQuery = CustomerCart::where('customer_id', $customerDetails->id)
                 ->where('type', 'cart')
                 ->where('status', 'active');
 
-            if ($user->user_type == "3") {
-                $productId = $request->retailer_product_id;
-                $cartQuery->where('retailer_product_id', $productId);
-            } elseif ($user->user_type == "2") {
-                $productId = $request->product_id;
+            if ($wholesalerId) {
                 $cartQuery->where('product_id', $productId);
+            } else {
+                $cartQuery->where('retailer_product_id', $productId);
             }
 
             $cartItem = $cartQuery->first();
@@ -2464,18 +2639,17 @@ class RetailerProductController extends Controller
             if (!$cartItem) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cart item not found.'
+                    'message' => 'Cart item not found.',
                 ], 404);
             }
 
-            $cartItem->status = 'inactive';
-            $cartItem->save();
+            // Soft delete the cart item
+            $cartItem->update(['status' => 'inactive']);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cart item removed successfully.'
+                'message' => 'Cart item removed successfully.',
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Error in removeToCart(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2489,6 +2663,7 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
+
 
 
 

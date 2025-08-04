@@ -6,28 +6,25 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class WelcomeCustomerMail extends Mailable
+class WelcomeVerifyCustomerMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $storeCutsomerDetails;
     public $verificationUrl;
-    public $randomPassword; 
 
-    public function __construct($storeCutsomerDetails, $randomPassword)
+    public function __construct($storeCutsomerDetails)
     {
         $this->storeCutsomerDetails = $storeCutsomerDetails;
-        $this->randomPassword = $randomPassword;
         $this->verificationUrl = url("/api/customer/verify-email/" . $storeCutsomerDetails->email_verification_token);
     }
 
     public function build()
     {
         return $this->subject('Welcome! Verify your email')
-                    ->markdown('emails.customer.welcome')
+                    ->markdown('emails.customer.welcomeverify')
                     ->with([
                         'name' => $this->storeCutsomerDetails->firstname,
-                        'randompassword' => $this->randomPassword, 
                         'verificationUrl' => $this->verificationUrl,
                     ]);
     }

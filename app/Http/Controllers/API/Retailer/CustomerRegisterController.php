@@ -19,6 +19,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Mail\WelcomeVerifyCustomerMail;
+
 
 
 class CustomerRegisterController extends Controller
@@ -88,8 +90,7 @@ class CustomerRegisterController extends Controller
                 'email_verification_token' => $verificationToken,
             ]);
 
-            // Send welcome mail
-            Mail::to($customer->email)->send(new WelcomeCustomerMail($customer));
+            Mail::to($customer->email)->send(new WelcomeVerifyCustomerMail($customer));
 
             return response()->json([
                 'status' => true,
