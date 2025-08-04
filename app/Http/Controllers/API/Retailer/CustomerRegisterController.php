@@ -19,13 +19,14 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Mail\WelcomeVerifyCustomerMail;
+
 
 
 class CustomerRegisterController extends Controller
 {
     public function register(Request $request)
     {
-        // Step 1: Validate input
         $request->validate([
             'user_token' => [
                 'required',
@@ -60,7 +61,6 @@ class CustomerRegisterController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // Step 2: Validate token (Retailer exists & active)
         $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
             ->where('is_active', 1)
             ->first();
@@ -72,7 +72,6 @@ class CustomerRegisterController extends Controller
             ], 404);
         }
 
-        // Step 3: Register user, catch DB duplicate errors
         try {
             $verificationToken = Str::random(64);
 
@@ -88,8 +87,7 @@ class CustomerRegisterController extends Controller
                 'email_verification_token' => $verificationToken,
             ]);
 
-            // Send welcome mail
-            Mail::to($customer->email)->send(new WelcomeCustomerMail($customer));
+            Mail::to($customer->email)->send(new WelcomeVerifyCustomerMail($customer));
 
             return response()->json([
                 'status' => true,
