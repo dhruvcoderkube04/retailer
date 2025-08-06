@@ -11,7 +11,7 @@ use App\Http\Controllers\RetailerAuthController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\RetailerOrderController;
 use App\Http\Controllers\RetilerController;
-;
+
 
 use App\Http\Controllers\RetilerWebManagement;
 use App\Http\Controllers\Setting;
