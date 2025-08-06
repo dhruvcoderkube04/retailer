@@ -144,7 +144,6 @@ class CourierServiceManager
                 $response = $service->calculateRate($payload);
                 if (!empty($response['status']) && !empty($response['rates'])) {
                     foreach ($response['rates'] as $rate) {
-                        
                         // fship come differnt rto,shipping, cod charge (shiiping + cod)
                         // lorrigo come shipping not comming so charge - rto  charge after get shipping charge
                         $shippingCharge = null;
@@ -154,30 +153,39 @@ class CourierServiceManager
                             $shippingCharge = $rate['shipping_charge'];
                         }
 
+                        $codCharge = $rate['cod'] ?? ($rate['cod_charge'] ?? null);
+                        $rtoCharge = $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null);
+
+                        // GST amounts only (18%)
+                        $gstShippingCharge = $shippingCharge ? round($shippingCharge * 0.18, 2) : null;
+                        $gstCodCharge = $codCharge ? round($codCharge * 0.18, 2) : null;
+                        $gstRtoCharge = $rtoCharge ? round($rtoCharge * 0.18, 2) : null;
+
                         $totalPrice = null;
                         if (isset($rate['charge'])) {
                             $totalPrice = $rate['charge'];
-                        } elseif (isset($rate['shipping_charge'], $rate['cod_charge'])) {
-                            $totalPrice = $rate['shipping_charge'] + $rate['cod_charge'];
+                        } elseif (isset($shippingCharge, $codCharge)) {
+                            $totalPrice = $shippingCharge + $codCharge;
                         }
 
                         $results[] = [
-                            'courier_code'        => $partner->code,
-                            'courier_name'        => $partner->name,
-                            'zone'                => $rate['order_zone'] ?? ($rate['zone'] ?? null),
-                            'estimated_delivery'  => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
-                            // 'total_price'         => $rate['charge'] ?? (($rate['shipping_charge'] + $rate['cod_charge']) ?? null),
-                            // 'shipping_charge'     => ($rate['charge'] - $rate['rtoCharges']) ?? ($rate['shipping_charge'] ?? null),
-                            'total_price'         => $totalPrice,
-                            'shipping_charge'     => $shippingCharge,
-                            'cod_charge'          => $rate['cod'] ?? ($rate['cod_charge'] ?? null),
-                            'rto_charge'          => $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null),
-                            'weight'              => $payload['shipment_Weight'],
-                            'service_name'        => $rate['name'] ?? ($rate['courier_name'] ?? null),
-                            'service_mode'        => $rate['type'] ?? ($rate['service_mode'] ?? null),
-                            'courierId'           => $rate['courierId'] ?? null,  // lorrigo courier id from datbase in carrier lorrigo
-                            'logoUrl'             => $rate['logoUrl'] ?? '',  // also image not showing in lorrgio
-                            'delivery_score'      => self::calculateDeliveryScore($rate['estimated_delivery'] ?? null)
+                            'courier_code'         => $partner->code,
+                            'courier_name'         => $partner->name,
+                            'zone'                 => $rate['order_zone'] ?? ($rate['zone'] ?? null),
+                            'estimated_delivery'   => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
+                            'total_price'          => $totalPrice,
+                            'shipping_charge'      => $shippingCharge,
+                            'cod_charge'           => $codCharge,
+                            'rto_charge'           => $rtoCharge,
+                            'g_shipping_charge'    => $gstShippingCharge,
+                            'g_cod_charge'         => $gstCodCharge,
+                            'g_rto_charge'         => $gstRtoCharge,
+                            'weight'               => $payload['shipment_Weight'],
+                            'service_name'         => $rate['name'] ?? ($rate['courier_name'] ?? null),
+                            'service_mode'         => $rate['type'] ?? ($rate['service_mode'] ?? null),
+                            'courierId'            => $rate['courierId'] ?? null,
+                            'logoUrl'              => $rate['logoUrl'] ?? '',
+                            'delivery_score'       => self::calculateDeliveryScore($rate['estimated_delivery'] ?? null),
                         ];
                     }
                 } else {

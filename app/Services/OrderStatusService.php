@@ -73,6 +73,10 @@ class OrderStatusService
         $finalCod = (float) $request->cod_charge;
         $finalRto = (float) $request->rto_charge;
 
+        $shippingChargeGstAmount = round(($finalShipping * 18) / 100, 2);
+        $codChargeGstAmount = round(($finalCod * 18) / 100, 2);
+        $rtoChargeGstAmount = round(($finalRto * 18) / 100, 2);
+
         $shippingBase = $codBase = $rtoBase = 0;
         $shippingProfit = $codProfit = $rtoProfit = 0;
 
@@ -140,6 +144,9 @@ class OrderStatusService
                 'shipping_charge_profit' => $shippingProfit,
                 'cod_charge_profit' => $codProfit,
                 'rto_charge_profit' => $rtoProfit,
+                'shipping_charge_gst_amount' => $shippingChargeGstAmount,
+                'cod_charge_gst_amount' => $codChargeGstAmount,
+                'rto_charge_gst_amount' => $rtoChargeGstAmount,
             ];
 
             if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
@@ -369,7 +376,7 @@ class OrderStatusService
     // DELIVERED (Intransit to Delivered)
     public function handleDeliveredOrder($retailer, $customerOrder)
     {
-        $retailerDetail = UserDetail::where('user_id', $retailer->id)->first(); 
+        $retailerDetail = UserDetail::where('user_id', $retailer->id)->first();
 
         $total_charges = ($customerOrder->shipping_charge ?? 0) +
             ($customerOrder->cod_charge ?? 0) +

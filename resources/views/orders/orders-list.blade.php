@@ -1384,7 +1384,7 @@
                         <tr>
                             <td>${courier.service_mode || 'N/A'}</td>
                             <td>
-                                ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
+                                ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
                                 ${courier.service_name}
                             </td>
                             <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>

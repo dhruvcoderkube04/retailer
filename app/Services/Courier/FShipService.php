@@ -299,7 +299,6 @@ class FShipService implements CourierInterface
 
         $validatedData = $validator->validated();
 
-        // Now send API request
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'signature' => $this->signature,
@@ -307,16 +306,15 @@ class FShipService implements CourierInterface
 
         $data = $response->json();
 
-
         if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
-            // $marginPercentage = 0.0;
-            // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
-            $margin_tag_name = Auth::user()->userDetail->margin_tag_name;
 
+            $margin_tag_name = Auth::user()->userDetail->margin_tag_name;
             $getMargin = MarginManagement::where('margin_name', $margin_tag_name)->first();
+
             if ($getMargin) {
                 $marginType = $getMargin->type; // either 'percentage' or 'flat'
                 $flatAmount = (float)($getMargin->flat_percentage ?? 0);
+
                 foreach ($data['shipment_rates'] as &$rate) {
                     foreach ($rate as $key => $value) {
                         if ($key !== 'courier_name' && is_numeric($value)) {
@@ -328,15 +326,18 @@ class FShipService implements CourierInterface
                         }
                     }
                 }
-                unset($rate);
+                unset($rate); // break reference
             }
         }
 
+        // Log properly using decoded response
         Log::info('calculateRate In Fship (Retailer side)', [
             'status' => $response->status(),
             'body' => $response->body(),
-            'request' => $response->json(),
+            'modified_rates' => $data['shipment_rates'] ?? [],
         ]);
+
+        //  Return modified data array
         return [
             'status' => true,
             'rates' => $data['shipment_rates'] ?? [],

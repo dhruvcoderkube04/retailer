@@ -64,7 +64,10 @@ class CustomerOrders extends Model
         'payment_method',
         'coupon_applied_id',
         'ndr_at',
-        'shipment_activity'
+        'shipment_activity',
+        'shipping_charge_gst_amount',
+        'cod_charge_gst_amount',
+        'rto_charge_gst_amount',
     ];
 
     protected $casts = [
