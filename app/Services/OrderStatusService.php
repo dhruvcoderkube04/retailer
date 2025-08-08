@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RetailerNdrNotification;
+use App\Models\GstConfiguration;
 use App\Models\PickAddress;
 
 class OrderStatusService
@@ -73,9 +74,34 @@ class OrderStatusService
         $finalCod = (float) $request->cod_charge;
         $finalRto = (float) $request->rto_charge;
 
-        $shippingChargeGstAmount = round(($finalShipping * 18) / 100, 2);
-        $codChargeGstAmount = round(($finalCod * 18) / 100, 2);
-        $rtoChargeGstAmount = round(($finalRto * 18) / 100, 2);
+        $gst_config = GstConfiguration::where('status', true)->first();
+        if ($gst_config) {
+            if ($gst_config->gst_mode == 'same') {
+                // Use only GST field, default to 0 if null
+                $gstRate = floatval($gst_config->gst ?? 0);
+
+                $shippingChargeGstAmount = round(($finalShipping * $gstRate) / 100, 2);
+                $codChargeGstAmount      = round(($finalCod * $gstRate) / 100, 2);
+                $rtoChargeGstAmount      = round(($finalRto * $gstRate) / 100, 2);
+            } else {
+                // Sum IGST + CGST + SGST, default to 0 if null
+                $igstRate = floatval($gst_config->igst ?? 0);
+                $cgstRate = floatval($gst_config->cgst ?? 0);
+                $sgstRate = floatval($gst_config->sgst ?? 0);
+
+                $totalGstRate = $igstRate + $cgstRate + $sgstRate;
+
+                $shippingChargeGstAmount = round(($finalShipping * $totalGstRate) / 100, 2);
+                $codChargeGstAmount      = round(($finalCod * $totalGstRate) / 100, 2);
+                $rtoChargeGstAmount      = round(($finalRto * $totalGstRate) / 100, 2);
+            }
+        }
+        else
+        {
+            $shippingChargeGstAmount = 0;
+            $codChargeGstAmount      = 0;
+            $rtoChargeGstAmount      = 0;
+        }
 
         $shippingBase = $codBase = $rtoBase = 0;
         $shippingProfit = $codProfit = $rtoProfit = 0;
@@ -147,6 +173,7 @@ class OrderStatusService
                 'shipping_charge_gst_amount' => $shippingChargeGstAmount,
                 'cod_charge_gst_amount' => $codChargeGstAmount,
                 'rto_charge_gst_amount' => $rtoChargeGstAmount,
+                'gst_config_id'=> $gst_config->id ?? null,
             ];
 
             if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {

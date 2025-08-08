@@ -21,7 +21,7 @@ class OtpController extends Controller
 
         return response()->json([
             'success' => true,
-	    'message' => 'OTP sent successfully. Your OTP is ' . $otp,
+	        'message' => 'OTP sent successfully. Your OTP is ' . $otp,
 
             //'message' => 'OTP sent successfully.',
             'otp' => $otp // return it for testing

@@ -40,8 +40,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Services\OtpService;
 
-
-
 class RetailerProductController extends Controller
 {
     public function storeInfo(Request $request)
@@ -587,7 +585,6 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
-
 
     public function getSingalProductDetails(Request $request, $slug = null)
     {
@@ -1880,7 +1877,6 @@ class RetailerProductController extends Controller
         ];
     }
 
-
     public function customerOrders()
     {
         try {
@@ -1949,7 +1945,6 @@ class RetailerProductController extends Controller
         }
     }
 
-
     public function shippingAddress(Request $request)
     {
         try {
@@ -2006,8 +2001,6 @@ class RetailerProductController extends Controller
         }
     }
 
-
-
     public function accountDetails(Request $request)
     {
         try {
@@ -2060,7 +2053,6 @@ class RetailerProductController extends Controller
         }
     }
 
-
     public function resetPassword(Request $request)
     {
         try {
@@ -2102,8 +2094,6 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
-
-
 
     public function addToWishlist(Request $request)
     {
@@ -2212,8 +2202,6 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
-
-
 
     public function wishlist(Request $request)
     {
@@ -2398,9 +2386,6 @@ class RetailerProductController extends Controller
         }
     }
 
-
-
-
     public function cart(Request $request)
     {
         try {
@@ -2479,8 +2464,6 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
-
-
 
     public function removeToWishlist(Request $request)
     {
@@ -2572,7 +2555,6 @@ class RetailerProductController extends Controller
         }
     }
 
-
     public function removeToCart(Request $request)
     {
         try {
@@ -2663,9 +2645,4 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
-
-
-
-
-
 }
