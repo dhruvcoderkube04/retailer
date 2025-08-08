@@ -2141,21 +2141,14 @@ class RetailerProductController extends Controller
                         'message' => 'Invalid wholesaler product.',
                     ], 404);
                 }
+            }
 
-                $retailerProductId = $retailerProduct->id;
+            if ($retailerId) {
+                $exists = RetailerCloneProduct::where('id', $productId)
+                    ->where('retailer_id', $retailerId)
+                    ->exists();
 
-                $existing = CustomerCart::where('customer_id', $customer->customer_id)
-                    ->where('retailer_product_id', $retailerProductId)
-                    ->whereNull('product_id')
-                    ->where('type', 'wishlist')
-                    ->where('status', 'active')
-                    ->first();
-
-            } elseif ($user && $user->user_type === "2") {
-                $productId = $request->product_id;
-
-                $product = Product::find($productId);
-                if (!$product) {
+                if (!$exists) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Invalid retailer product.',
@@ -2212,7 +2205,6 @@ class RetailerProductController extends Controller
             ], 500);
         }
     }
-
 
 
     public function wishlist(Request $request)

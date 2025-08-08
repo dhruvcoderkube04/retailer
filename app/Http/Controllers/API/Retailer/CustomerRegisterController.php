@@ -20,6 +20,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Mail\WelcomeVerifyCustomerMail;
+use App\Services\OtpService;
+
 
 
 
@@ -231,6 +233,86 @@ class CustomerRegisterController extends Controller
             'data' => [
                 'id' => $customer->id,
                 'name' => $customer->firstname,
+                'email' => $customer->email
+            ]
+        ]);
+    }
+
+    public function loginOtp(Request $request)
+    {
+
+        $request->validate([
+            'phone_number' => 'required|digits:10',
+        ]);
+
+        $otpService = new OtpService();
+
+        // Step 1: Send OTP if not present
+        if (!$request->has('otp')) {
+            if (!$otpService->send($request->phone_number)) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Failed to send OTP. Please try again.'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP sent successfully',
+                'otp_required' => true,
+            ], 200);
+        }
+
+        // Step 2: Verify OTP
+        $request->validate([
+            'otp' => 'required|digits:6',
+        ]);
+
+        if (!$otpService->verify($request->phone_number, $request->otp)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Invalid or expired OTP.'
+            ], 401);
+        }
+
+        // Check valid retailer
+        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$retailer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid user token.'
+            ], 404);
+        }
+
+
+        // Find customer
+        $customer = StoreCustomersDetails::where('user_id', $retailer->retailer_id)
+            ->where('phone_number', $request->phone_number)
+            ->where('is_active', true)
+            ->first();
+
+
+        if (!$customer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Please Verify your email.'
+            ], 404);
+        }
+
+        // Create Sanctum token
+        $token = $customer->createToken('customer-token')->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Login successful.',
+            'token' => $token,
+            'user_token' => $request->user_token,
+            'data' => [
+                'id' => $customer->id,
+                'name' => $customer->firstname . ' ' . $customer->lastname,
                 'email' => $customer->email
             ]
         ]);
