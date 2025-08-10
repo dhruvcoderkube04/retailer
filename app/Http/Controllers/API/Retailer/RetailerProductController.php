@@ -742,19 +742,23 @@ class RetailerProductController extends Controller
 
             // Step 1: Send OTP if not present
             if (!$request->has('otp')) {
-                if (!$otpService->send($request->phone_number)) {
+                $otp = $otpService->send($request->phone_number);
+            
+                if (!$otp) {
                     return response()->json([
                         'error' => true,
                         'message' => 'Failed to send OTP. Please try again.'
                     ], 500);
                 }
-
+            
                 return response()->json([
                     'success' => true,
                     'message' => 'OTP sent successfully',
                     'otp_required' => true,
+                    'otp' => $otp 
                 ], 200);
             }
+            
 
             // Step 2: Verify OTP
             $request->validate([
