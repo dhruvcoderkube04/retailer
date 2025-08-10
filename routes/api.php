@@ -32,6 +32,7 @@ Route::prefix('customer')->group(function () {
     // Auth routes
     Route::post('register', [CustomerRegisterController::class, 'register']);
     Route::post('login', [CustomerRegisterController::class, 'login']);
+    Route::post('login/otp', [CustomerRegisterController::class, 'loginOtp']);
     Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:customer');
     Route::post('forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
     Route::post('reset-password', [CustomerRegisterController::class, 'resetPassword']);
