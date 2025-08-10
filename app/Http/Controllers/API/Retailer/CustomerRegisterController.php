@@ -249,7 +249,9 @@ class CustomerRegisterController extends Controller
 
         // Step 1: Send OTP if not present
         if (!$request->has('otp')) {
-            if (!$otpService->send($request->phone_number)) {
+            $otp = $otpService->send($request->phone_number);
+
+            if (!$otp) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Failed to send OTP. Please try again.'
@@ -260,8 +262,10 @@ class CustomerRegisterController extends Controller
                 'success' => true,
                 'message' => 'OTP sent successfully',
                 'otp_required' => true,
+                'otp' => $otp // ✅ returning OTP in response
             ], 200);
         }
+
 
         // Step 2: Verify OTP
         $request->validate([
