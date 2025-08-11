@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MarginManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -79,10 +80,13 @@ class RetailerAuthController extends Controller
                 'ip_address' => $request->ip(),
             ]);
 
+            $margin = MarginManagement::where('default',1)->where('status',1)->first();
             // Create User Details
             UserDetail::create([
                 'user_id' => $user->id,
                 'company_name' => $request->companyname,
+                'margin_percentage_tag' => $margin->flat_percentage,
+                'margin_tag_name' => $margin->margin_name
             ]);
 
             // Attempt to send verification email
