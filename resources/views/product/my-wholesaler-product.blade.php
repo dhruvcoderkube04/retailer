@@ -159,6 +159,8 @@
         <script>
             //<------------- START : server-side datatable for margin added products ------------->
             dataTable = $('#kt_datatable_margin_added_products').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
                 ajax: {
