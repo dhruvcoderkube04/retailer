@@ -726,7 +726,6 @@ class RetailerProductController extends Controller
 
     public function checkoutNew(Request $request)
     {
-
         $user = Auth::guard('sanctum')->user();
 
         if (!$user) {
@@ -740,26 +739,26 @@ class RetailerProductController extends Controller
             // Step 1: Send OTP if not present
             if (!$request->has('otp')) {
                 $otp = $otpService->send($request->phone_number);
-            
+
                 if (!$otp) {
                     return response()->json([
                         'error' => true,
                         'message' => 'Failed to send OTP. Please try again.'
                     ], 500);
                 }
-            
+
                 return response()->json([
                     'success' => true,
                     'message' => 'OTP sent successfully',
                     'otp_required' => true,
-                    'otp' => $otp 
+                    'otp' => $otp
                 ], 200);
             }
-            
+
 
             // Step 2: Verify OTP
             $request->validate([
-                'otp' => 'required|digits:6',
+                'otp' => 'required|digits:4',
             ]);
 
             if (!$otpService->verify($request->phone_number, $request->otp)) {

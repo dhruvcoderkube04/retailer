@@ -22,9 +22,6 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\WelcomeVerifyCustomerMail;
 use App\Services\OtpService;
 
-
-
-
 class CustomerRegisterController extends Controller
 {
     public function register(Request $request)
@@ -354,5 +351,4 @@ class CustomerRegisterController extends Controller
             ]
         ]);
     }
-
 }
