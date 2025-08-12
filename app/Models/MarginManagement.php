@@ -10,6 +10,7 @@ class MarginManagement extends Model
         'margin_name',
         'status',
         'flat_percentage',
-        'type'
+        'type',
+        'default'
     ];
 }

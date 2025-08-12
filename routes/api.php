@@ -12,7 +12,7 @@ Route::post('/get-products', [RetailerProductController::class, 'getProducts']);
 Route::post('/search-products', [RetailerProductController::class, 'searchProducts']);
 Route::get('/singal-product-details/{slug}', [RetailerProductController::class, 'getSingalProductDetails']);
 Route::post('/checkout', [RetailerProductController::class, 'checkout']);
-Route::post('/checkout1', [RetailerProductController::class, 'checkoutNew']);
+Route::post('/checkout1', [RetailerProductController::class, 'checkoutNew']);  //this is checkout1
 
 Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);

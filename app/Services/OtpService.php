@@ -15,8 +15,8 @@ class OtpService
      */
     public function send(string $mobile): ?string
     {
-        // Generate a 6-digit OTP
-        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        // Generate a 4-digit OTP
+        $otp = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
 
         // Store OTP in cache with 15 minute expiration
         $otpKey = 'otp_' . $mobile;
@@ -28,6 +28,7 @@ class OtpService
         // Return the OTP for response
         return $otp;
     }
+
 
 
     /**
