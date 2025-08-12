@@ -43,7 +43,6 @@ class TrackShipments11 extends Command
             7   => 'LOST_DAMAGED',
             8   => 'DISPOSED',
             9   => 'RTO_DELIVERED',
-
             101 => 'RETURN_CONFIRMED',
             102 => 'RETURN_PICKED',
             103 => 'RETURN_CANCELLATION',
@@ -63,7 +62,6 @@ class TrackShipments11 extends Command
             'CANCELED'                   => 'cancel',
             'LOST_DAMAGED'               => 'lost',
             'DISPOSED'                   => 'lost',   // added by me
-
             'RETURN_CONFIRMED'           => 'rtn_to_seller',
             'RETURN_ORDER_MANIFESTED'    => 'rtn_to_seller',
             'RETURN_PICKED'              => 'rtn_to_seller',

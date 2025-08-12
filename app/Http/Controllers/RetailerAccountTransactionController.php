@@ -20,7 +20,7 @@ class RetailerAccountTransactionController extends Controller
     public function indexSuccessAccountsTransactions(Request $request)
     {
         $user = Auth::user();
-        if ($user->user_type != 3) { // retailer            
+        if ($user->user_type != 3) { // retailer
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 
@@ -166,7 +166,7 @@ class RetailerAccountTransactionController extends Controller
     public function indexPendingAccountsTransactions(Request $request)
     {
         $user = Auth::user();
-        if ($user->user_type != 3) { // retailer            
+        if ($user->user_type != 3) { // retailer
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 
@@ -346,7 +346,7 @@ class RetailerAccountTransactionController extends Controller
     public function withdrawalRequestIndex(Request $request)
     {
         $user = Auth::user();
-        if (!$user->user_type == 3) { // retailer            
+        if (!$user->user_type == 3) { // retailer
             return redirect()->route('retailer.dashboard')->with('error', 'Invalid user!');
         }
 
