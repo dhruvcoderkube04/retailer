@@ -1211,7 +1211,9 @@
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing'
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Hide the modal
@@ -1242,7 +1244,9 @@
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing'
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $('#confirmedOrderForm').closest('.modal').modal('hide');
