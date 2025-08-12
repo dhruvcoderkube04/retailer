@@ -88,7 +88,7 @@
                                                 </i>
                                                 <input type="text" id="search_input"
                                                     class="form-control form-control-solid ps-12 bg-secondary"
-                                                    placeholder="Search Product" />
+                                                    placeholder="Search" />
                                             </div>
                                         </div>
                                     </div>
