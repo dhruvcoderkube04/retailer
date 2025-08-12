@@ -20,6 +20,7 @@ use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
+use App\Models\WholesalerCategory;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Exception;
@@ -288,6 +289,14 @@ class RetilerController extends Controller
             $product_count_fetch = Product::where('wholesaler_id', $item->id)
                 ->where('status', 'active')
                 ->count('id');
+
+            $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
+                ->pluck('sub_category_id');
+
+            $subCategories = SubCategory::whereIn('id', $subcategory_ids)
+            ->get()->pluck('sub_category_name')
+            ->implode(',');
+
             $details = '
                 <div>
                     <span>Total Sub Category : </span>
@@ -316,11 +325,12 @@ class RetilerController extends Controller
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
+                "subcategory_names" => $subCategories,
                 "details" => $details,
                 "action" => $action
             );
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data, 'subCategories' => $subCategories));
     }
     //<------------------------- END : wholesaler list --------------------------->
 

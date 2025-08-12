@@ -53,6 +53,20 @@
 
                         <div class="card">
                             <div class="card-body pt-4">
+                                {{-- <div class="col-12 col-md-3">
+                                    <label for="wholesaler_filter"
+                                        class="form-label fw-semibold mb-1">Wholesaler</label>
+                                    <select id="wholesaler_filter"
+                                        class="form-select form-select-solid bg-secondary" data-control="select2"
+                                        data-placeholder="Select Wholesaler">
+                                        <option value="all">All Wholesaler</option>
+                                        @foreach ($wholesalers as $wholesaler)
+                                            <option value="{{ $wholesaler->id }}">
+                                                {{ $wholesaler->userDetail->company_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div> --}}
                                 <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -60,6 +74,7 @@
                                             <th class="text-center align-middle min-w-50px"></th>
                                             <th class="text-center align-middle min-w-100px">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px">Name</th>
+                                            <th class="text-center align-middle min-w-100px">Subcategories</th>
                                             <th class="text-center align-middle min-w-80px">Details</th>
                                         </tr>
                                     </thead>
@@ -149,6 +164,12 @@
                     data: 'wholesaler_name',
                     className: 'text-center',
                     orderable: false,
+                },
+                {
+                    data: 'subcategory_names',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: true
                 },
                 {
                     data: 'details',
