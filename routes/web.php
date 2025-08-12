@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AbandonardCard;
 use App\Http\Controllers\AdminAuthController;
-use App\Http\Controllers\API\Retailer\CustomerRegisterController;
 use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
 use App\Http\Controllers\CouponController;
@@ -48,12 +47,6 @@ Route::controller(RetailerAuthController::class)->group(function () {
     Route::post('logout', 'logout')->name('retailer.logout')->middleware('auth'); // Use retailer guard
 
 });
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/customer-details', [CustomerRegisterController::class, 'getCustomerDetails']);
-});
-
-
 
 // Email Verification Routes
 Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
