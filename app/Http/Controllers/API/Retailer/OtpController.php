@@ -21,7 +21,7 @@ class OtpController extends Controller
 
         return response()->json([
             'success' => true,
-	        'message' => 'OTP sent successfully. Your OTP is ' . $otp,
+            'message' => 'OTP sent successfully. Your OTP is ' . $otp,
 
             //'message' => 'OTP sent successfully.',
             'otp' => $otp // return it for testing
@@ -39,7 +39,8 @@ class OtpController extends Controller
         $storedOtp = Cache::get($otpKey);
 
         if ($storedOtp && $storedOtp == $request->otp) {
-            Cache::forget($otpKey); // Invalidate OTP after use
+            Cache::forget($otpKey); // Remove OTP
+            Cache::put('otp_verified_' . $request->mobile, true, now()->addMinutes(15)); // ✅ Set verified flag
 
             return response()->json([
                 'success' => true,

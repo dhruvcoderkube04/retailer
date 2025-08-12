@@ -39,6 +39,8 @@ use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Services\OtpService;
+use Illuminate\Support\Facades\Cache;
+
 
 class RetailerProductController extends Controller
 {
@@ -729,49 +731,98 @@ class RetailerProductController extends Controller
         $user = Auth::guard('sanctum')->user();
 
         if (!$user) {
+
             // ========== GUEST USER FLOW ==========
-            $request->validate([
-                'phone_number' => 'required|digits:10',
-            ]);
 
-            $otpService = new OtpService();
+            if (!$user) {
+                $request->validate([
+                    'phone_number' => 'required|digits:10',
+                ]);
 
-            // Step 1: Send OTP if not present
-            if (!$request->has('otp')) {
-                $otp = $otpService->send($request->phone_number);
-
-                if (!$otp) {
+                // Check if this number has been verified
+                if (!Cache::get('otp_verified_' . $request->phone_number)) {
                     return response()->json([
                         'error' => true,
-                        'message' => 'Failed to send OTP. Please try again.'
-                    ], 500);
+                        'message' => 'Phone number not verified. Please verify via OTP first.'
+                    ], 401);
                 }
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'OTP sent successfully',
-                    'otp_required' => true,
-                    'otp' => $otp
-                ], 200);
+                // Optionally clear verification after use
+                Cache::forget('otp_verified_' . $request->phone_number);
             }
 
+            // $request->validate([
+            //     'phone_number' => 'required|digits:10',
+            // ]);
 
-            // Step 2: Verify OTP
-            $request->validate([
-                'otp' => 'required|digits:4',
-            ]);
+            // $otpService = new OtpService();
 
-            if (!$otpService->verify($request->phone_number, $request->otp)) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Invalid or expired OTP.'
-                ], 401);
-            }
+            // // Step 1: Send OTP if not present
+            // if (!$request->has('otp')) {
+            //     $otp = $otpService->send($request->phone_number);
+
+            //     if (!$otp) {
+            //         return response()->json([
+            //             'error' => true,
+            //             'message' => 'Failed to send OTP. Please try again.'
+            //         ], 500);
+            //     }
+
+            //     return response()->json([
+            //         'success' => true,
+            //         'message' => 'OTP sent successfully',
+            //         'otp_required' => true,
+            //         'otp' => $otp
+            //     ], 200);
+            // }
+
+
+            // // Step 2: Verify OTP
+            // $request->validate([
+            //     'otp' => 'required|digits:4',
+            // ]);
+
+            // if (!$otpService->verify($request->phone_number, $request->otp)) {
+            //     return response()->json([
+            //         'error' => true,
+            //         'message' => 'Invalid or expired OTP.'
+            //     ], 401);
+            // }
 
             // Step 3: Check if customer already exists
             $existCustomer = CustomerDetails::where('phone_number', $request->phone_number)->first();
 
             if ($existCustomer) {
+
+                $missingFields = [];
+
+                if (empty(trim($existCustomer->address))) {
+                    $missingFields[] = 'address';
+                }
+                if (empty(trim($existCustomer->state))) {
+                    $missingFields[] = 'state';
+                }
+                if (empty(trim($existCustomer->city))) {
+                    $missingFields[] = 'city';
+                }
+                if (empty(trim($existCustomer->pincode))) {
+                    $missingFields[] = 'pincode';
+                }
+
+                if (!empty($missingFields)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Please fill these fields: ' . implode(', ', $missingFields),
+                    ], 422);
+                }
+
+                $existCustomer->address = $request->input('address', $existCustomer->address);
+                $existCustomer->state = $request->input('state', $existCustomer->state);
+                $existCustomer->city = $request->input('city', $existCustomer->city);
+                $existCustomer->pincode = $request->input('pincode', $existCustomer->pincode);
+
+                $existCustomer->save();
+
                 $customerId = $existCustomer->id;
             } else {
                 // Step 4: Create new customer
@@ -1303,9 +1354,11 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'API Key is required.'], 401);
         }
 
-        $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
-            $query->where('is_delete', 0)->where('status', 1);
-        }])->whereHas('retailer', function ($query) {
+        $retailer = RetailerWebManagement::with([
+            'retailer' => function ($query) {
+                $query->where('is_delete', 0)->where('status', 1);
+            }
+        ])->whereHas('retailer', function ($query) {
             $query->where('is_delete', 0)->where('status', 1);
         })->where('product_listing_key', $apiKey)->first();
 
@@ -1570,7 +1623,7 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'coupon_applied_id' =>  @$couponid,
+                    'coupon_applied_id' => @$couponid,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];

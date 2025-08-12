@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbandonardCard;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\API\Retailer\CustomerRegisterController;
 use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
 use App\Http\Controllers\CouponController;
@@ -49,7 +50,7 @@ Route::controller(RetailerAuthController::class)->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/customer-details', [CustomerController::class, 'getCustomerDetails']);
+    Route::get('/customer-details', [CustomerRegisterController::class, 'getCustomerDetails']);
 });
 
 
