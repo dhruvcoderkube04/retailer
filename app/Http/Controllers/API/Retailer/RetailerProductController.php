@@ -824,6 +824,7 @@ class RetailerProductController extends Controller
                 $existCustomer->save();
 
                 $customerId = $existCustomer->id;
+                $customerDetails = $existCustomer; 
             } else {
                 // Step 4: Create new customer
                 $request->validate([
