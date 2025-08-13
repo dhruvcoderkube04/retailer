@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\CustomerOrders;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class CustomerOrdersObserver
 {
@@ -33,6 +34,24 @@ class CustomerOrdersObserver
 
         Log::info('Order update response', $response);
 
-        return response()->json($response);
+        try {
+            $extenal_url = env('SHOPIFY_URL');
+            $response = Http::post($extenal_url.'/webhook/external/order/update', $responseData);
+
+            Log::info('Webhook:-Response from external endpoint', [
+
+                'status' => $response->status(),
+
+                'body'   => $response->body()
+
+            ]);
+        } catch (\Exception $e) {
+
+            Log::error('Webhook:-Failed to send order update', [
+
+                'error' => $e->getMessage()
+
+            ]);
+        }
     }
 }
