@@ -52,21 +52,22 @@
                         @endif
 
                         <div class="card">
-                            <div class="card-body pt-4">
-                                {{-- <div class="col-12 col-md-3">
-                                    <label for="wholesaler_filter"
-                                        class="form-label fw-semibold mb-1">Wholesaler</label>
-                                    <select id="wholesaler_filter"
-                                        class="form-select form-select-solid bg-secondary" data-control="select2"
-                                        data-placeholder="Select Wholesaler">
-                                        <option value="all">All Wholesaler</option>
-                                        @foreach ($wholesalers as $wholesaler)
-                                            <option value="{{ $wholesaler->id }}">
-                                                {{ $wholesaler->userDetail->company_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div> --}}
+                                {{-- Sub Category Filter --}}
+                                    <div class="row g-3 justify-content-md-start pb-4 mt-2">
+                                        <div class="col-12 col-md-3 offset-md-1">
+                                            <label for="filter_subcategory" class="form-label fw-semibold mb-1">Sub Category</label>
+                                            <select id="filter_subcategory"
+                                                    class="form-select form-select-solid bg-secondary"
+                                                    data-control="select2"
+                                                    data-placeholder="Select Sub Category">
+                                                <option value="all">All Sub Category</option>
+                                                @foreach($allSubCategories as $subCat)
+                                                    <option value="{{ $subCat->id }}">{{ $subCat->sub_category_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -120,11 +121,11 @@
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_wholesaler_list').DataTable({
             dom: "<'row mb-2'" +
-                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                ">" +
-                "<'table-responsive'tr>" +
-                "<'row'" +
+            "<'col-8 col-sm-6 col-md-11 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+            ">" +
+            "<'table-responsive'tr>" +
+            "<'row'" +
+                "<'col-12 col-md-1 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
                 "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
@@ -137,6 +138,7 @@
                     d._token = '{{ csrf_token() }}';
                     d.order = d.order; // Add order data
                     d.columns = d.columns; // Add columns data
+                    d.sub_category_filter = $('#filter_subcategory').val();
                 },
                 dataSrc: function(json) {
                     return json.data;
@@ -205,6 +207,10 @@
                     'font-size': '14px',
                 })
             }
+        });
+
+        $('#filter_subcategory').on('change', function() {
+            dataTable.ajax.reload();
         });
         //<------------- END : server-side transaction datatable ------------->
     </script>
