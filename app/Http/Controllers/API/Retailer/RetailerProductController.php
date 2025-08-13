@@ -729,7 +729,6 @@ class RetailerProductController extends Controller
     public function checkoutNew(Request $request)
     {
         $user = Auth::guard('sanctum')->user();
-
         if (!$user) {
 
             // ========== GUEST USER FLOW ==========
@@ -901,9 +900,8 @@ class RetailerProductController extends Controller
             }                
         } else {
             // ========== LOGGED-IN USER FLOW ==========
-            $customerId = $user->customer_id;
+            $customerId = $user->id;
             $customerDetails = CustomerDetails::find($customerId);
-
             // Check if any required fields are missing in DB
             $missingFields = [];
 
