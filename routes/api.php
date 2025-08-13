@@ -62,7 +62,9 @@ Route::prefix('customer')->group(function () {
         Route::post('/shipping-address', [RetailerProductController::class, 'shippingAddress']);
         Route::post('/account-details', [RetailerProductController::class, 'accountDetails']);
         Route::post('/reset-password', [RetailerProductController::class, 'resetPassword']);
+        Route::post('/add-to-wishlist', [RetailerProductController::class, 'addToWishlist']);
         Route::get('/wishlist', [RetailerProductController::class, 'wishlist']);
+        Route::post('/add-to-cart', [RetailerProductController::class, 'addToCart']);
         Route::get('/cart', [RetailerProductController::class, 'cart']);
         Route::post('/remove-to-wishlist', [RetailerProductController::class, 'removeToWishlist']);
         Route::post('/remove-to-cart', [RetailerProductController::class, 'removeToCart']);
