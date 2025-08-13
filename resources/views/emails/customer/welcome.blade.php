@@ -1,14 +1,27 @@
 @component('mail::message')
-# Welcome {{ $name }}
+# Welcome, {{ $name }} 👋
 
-Thanks for registering! Please verify your email address to activate your account.
+Thank you for registering with **{{ config('app.name') }}**!
 
-**Password**: {{ $randompassword }}
+Your account has been successfully created. Below are your login credentials:
 
+---
+
+**Email:** {{ $email }}  
+**Password:** {{ $randomPassword }}
+
+> We recommend changing your password after your first login for security purposes.
+
+{{-- Uncomment below if you add email verification --}}
+{{-- 
 @component('mail::button', ['url' => $verificationUrl])
-Verify Email
-@endcomponent
+Verify Email Address
+@endcomponent 
+--}}
 
-Thanks,  
-{{ config('app.name') }}
+If you didn't request this account, please ignore this email.
+
+Thanks again for joining us!  
+**– The {{ config('app.name') }} Team**
+
 @endcomponent
