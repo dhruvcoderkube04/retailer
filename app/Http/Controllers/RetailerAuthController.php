@@ -22,7 +22,8 @@ use Illuminate\Support\Str;
 
 class RetailerAuthController extends Controller
 {
-    public function showRegistrationForm() {
+    public function showRegistrationForm()
+    {
         return view('auth.register');
     }
 
@@ -31,7 +32,7 @@ class RetailerAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|alpha|max:255',
             'lastname' => 'required|string|alpha|max:255',
-            'companyname' => ['required','string','regex:/^[a-zA-Z0-9 ]+$/', 'max:255'],
+            'companyname' => ['required', 'string', 'regex:/^[a-zA-Z0-9 ]+$/', 'max:255'],
             'phonenumber' => [
                 'required',
                 'regex:/^[6-9][0-9]{9}$/',
@@ -39,13 +40,12 @@ class RetailerAuthController extends Controller
                     $exists = \App\Models\User::where('phone_number', $value)
                         ->where('user_type', 3)
                         ->exists();
-
+    
                     if ($exists) {
                         $fail('The phone number is already in use.');
                     }
                 }
             ],
-            // 'email' => 'required|email|max:255|unique:users',
             'email' => 'required|string|email:rfc,dns|max:255|unique:users',
             'password' => [
                 'required',
@@ -58,29 +58,30 @@ class RetailerAuthController extends Controller
             'password_confirmation' => 'required',
             'toc' => 'required|accepted',
         ]);
-
+    
         if ($validator->fails()) {
             return redirect('register')
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        // Debug only if validation passes
-
+    
         try {
+            DB::beginTransaction(); // 🔁 Start transaction
+    
             // Create User
             $user = User::create([
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
-                'phone_number' => $request->phonenumber, // Fixed typo (phonenumber)
+                'phone_number' => $request->phonenumber,
                 'email' => $request->email,
                 'user_type' => '3',
-                'status' => '0',  //Inacitve during register
+                'status' => '0',
                 'password' => Hash::make($request->password),
                 'ip_address' => $request->ip(),
             ]);
-
-            $margin = MarginManagement::where('default',1)->where('status',1)->first();
+    
+            $margin = MarginManagement::where('default', 1)->where('status', 1)->first();
+    
             // Create User Details
             UserDetail::create([
                 'user_id' => $user->id,
@@ -88,42 +89,50 @@ class RetailerAuthController extends Controller
                 'margin_percentage_tag' => $margin->flat_percentage,
                 'margin_tag_name' => $margin->margin_name
             ]);
-
-            // Attempt to send verification email
+    
+            DB::commit(); // ✅ Commit transaction
+    
+            // Send email notifications (not in transaction)
             try {
                 $user->notify(new VerifyEmail);
-                // Also notify the admin
-                 Mail::send('emails.admin_retailer_registered', ['user' => $user], function ($message) {
+    
+                Mail::send('emails.admin_retailer_registered', ['user' => $user], function ($message) {
                     $message->to('info@techtrendmart.in')
-                            ->subject('New Retailer Registration Notification');
+                        ->subject('New Retailer Registration Notification');
                 });
             } catch (Exception $e) {
                 \Log::error('Failed to send verification email: ' . $e->getMessage());
-
+    
                 return redirect()->route('retailer.login')
                     ->with('success', 'Registration successful! However, we could not send the verification email. Please try resending it from your account.');
             }
-
+    
             return redirect()->route('retailer.login')->with('success', 'Registration successful! Please check your email to verify your account.');
-
+    
         } catch (QueryException $e) {
-            if ($e->errorInfo[1] === 1062) { // MySQL duplicate entry error
-                return redirect('retailer/register')
+            DB::rollBack(); // ❌ Rollback on DB error
+    
+            if ($e->errorInfo[1] === 1062) {
+                return redirect('register')
                     ->withErrors(['email' => 'This email address is already registered.'])
                     ->withInput();
             }
-
+    
             \Log::error('Database error during registration: ' . $e->getMessage());
-            return redirect('retailer/register')
+            return redirect('register')
                 ->withErrors(['error' => 'An error occurred during registration. Please try again later.'])
                 ->withInput();
+    
         } catch (Exception $e) {
+            DB::rollBack(); // ❌ Rollback on general error
+    
             \Log::error('Unexpected error during registration: ' . $e->getMessage());
-            return redirect('retailer/register')
+            return redirect('register')
                 ->withErrors(['error' => 'An unexpected error occurred. Please try again later.'])
                 ->withInput();
         }
     }
+    
 
     public function forgetPassword()
     {
@@ -134,14 +143,13 @@ class RetailerAuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $user = User::where('email', $request->email)->where('user_type',3)->first();
-
-        if ($user->is_delete == 1) {
-            return back()->with('error', 'You Have deleted Your Account. Please contact our support team.');
-        }
+        $user = User::where('email', $request->email)->where('user_type', 3)->first();
 
         if (!$user) {
             return back()->with('error', 'This email is not registered with us.');
+        }
+        if ($user->is_delete == 1) {
+            return back()->with('error', 'You Have deleted Your Account. Please contact our support team.');
         }
 
         // Check if account is inactive
@@ -206,7 +214,7 @@ class RetailerAuthController extends Controller
             }
 
             // Find user by email
-            $user = User::where('email', $resetEntry->email)->where('user_type',3)->first();
+            $user = User::where('email', $resetEntry->email)->where('user_type', 3)->first();
 
             if ($user->is_delete == 1) {
                 return back()->with('error', 'You Have deleted Your Account. Please contact our support team.');
@@ -251,15 +259,15 @@ class RetailerAuthController extends Controller
             return redirect()->route('retailer.login');
         }
 
-        // Check if account is inactive
-        if ($user->is_delete == 1) {
-            session()->flash('error', 'You Have Deleted Your account. Please contact support for assistance.');
+         // First: Check if user exists and password is correct
+         if (!$user || !Hash::check($request->password, $user->password)) {
+            session()->flash('error', 'Invalid credentials');
             return redirect()->route('retailer.login');
         }
 
-        // First: Check if user exists and password is correct
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            session()->flash('error', 'Invalid credentials');
+        // Check if account is inactive
+        if ($user->is_delete == 1) {
+            session()->flash('error', 'You Have Deleted Your account. Please contact support for assistance.');
             return redirect()->route('retailer.login');
         }
 
@@ -276,7 +284,7 @@ class RetailerAuthController extends Controller
         }
 
         // Check user type (must be retailer)
-        if ($user->user_type != 3 ) {
+        if ($user->user_type != 3) {
             session()->flash('error', 'Invalid credentials');
             return redirect()->route('retailer.login');
         }
@@ -286,9 +294,10 @@ class RetailerAuthController extends Controller
             session()->flash('error', 'Please verify your email before logging in');
             return redirect()->route('retailer.login');
         }
-
+        // ✅ Remember Me support
+        $remember = $request->has('remember');
         // Successful login
-        Auth::login($user);
+        Auth::login($user, $remember);
         $user->update(['login_attempt' => 0, 'locked_until' => null]); // Reset login attempts
         return redirect()->route('retailer.dashboard');
     }

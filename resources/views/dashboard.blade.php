@@ -104,15 +104,17 @@
                             <div class="card h-100 text-center">
                                 <div>
                                     <a href="{{ route('retailer.order.list', 'transferred-to-wholesaler') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-exit-right fs-2hx text-primary mb-3">
-                                            <span class="path1"></span><span class="path2"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="transfered_retailer_to_wholesaler">
-                                            {{ $data['transfered_retailer_to_wholesaler_orders_count'] ?? 0 }}
-                                        </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Transfer To Wholesaler</span>
-                                    </div>
+                                        <div
+                                            class="card-body d-flex flex-column align-items-center justify-content-center p-5">
+                                            <i class="ki-duotone ki-exit-right fs-2hx text-primary mb-3">
+                                                <span class="path1"></span><span class="path2"></span>
+                                            </i>
+                                            <span class="fw-semibold fs-3x text-gray-800"
+                                                id="transfered_retailer_to_wholesaler">
+                                                {{ $data['transfered_retailer_to_wholesaler_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-2">Transfer To Wholesaler</span>
+                                        </div>
                                     </a>
                                 </div>
                             </div>
@@ -209,28 +211,53 @@
                                         $retailer_ratio = 0;
                                     }
                                 @endphp
-                                <a href="{{ url('my-product?active-tab=2') }}">
-                                    <div class="card-header pt-5">
-                                        <div class="card-title d-flex flex-column">
-                                            <div class="d-flex align-items-center">
-                                                {{-- <span class="fs-4 fw-semibold text-gray-500 me-1 align-self-start">₹</span> --}}
-                                                <span
-                                                    class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2 me-5">{{ $total_products }}</span>
-                                                <span class="badge badge-light-success fs-base">
-                                                    {{-- <i class="ki-duotone ki-arrow-up fs-5 text-success ms-n1">
-                                                    <span class="path1"></span><span class="path2"></span>
-                                                </i>  --}}
-                                                    {{ (int) $wholesaler_ratio }}% - {{ (int) $retailer_ratio }}%
-                                                </span>
-                                            </div>
-                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">Total Products</span>
+                                <div class="card-header pt-5">
+                                    <div class="card-title d-flex flex-column">
+                                        <div class="d-flex align-items-center">
+                                            <span
+                                                class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2 me-5">{{ $total_products }}</span>
+                                            <span class="badge badge-light-success fs-base">
+                                                {{ (int) $wholesaler_ratio }}% - {{ (int) $retailer_ratio }}%
+                                            </span>
                                         </div>
+                                        <span class="text-gray-500 pt-1 fw-semibold fs-6">Total Products</span>
                                     </div>
-                                    <div class="card-body pt-2 pb-4 d-flex align-items-center">
+                                </div>
+
+                                <div class="card-body pt-2 pb-4 d-flex align-items-center">
+                                    <div class="d-flex flex-center me-5 pt-2" style="width: 150px; height: 150px;">
+                                        <canvas id="productsChart" style="display: block; box-sizing: border-box; height: 150px; width: 150px;"></canvas>
+                                    </div>
+
+                                    <div class="d-flex flex-column w-100">
+                                        <a href="{{ url('my-wholesaler-product') }}" class="text-decoration-none">
+                                            <div class="d-flex fs-6 fw-semibold align-items-center">
+                                                <div class="bullet w-8px h-6px rounded-2 bg-danger me-3"></div>
+                                                <div class="text-gray-500 flex-grow-1 me-4">
+                                                    Wholesaler's products ({{ (int) $wholesaler_ratio }}%)
+                                                </div>
+                                                <div class="fw-bolder text-gray-700 text-xxl-end">
+                                                    {{ $data['wholesaler_product_count'] ?? 0 }}
+                                                </div>
+                                            </div>
+                                        </a>
+
+                                        <a href="{{ url('my-product') }}" class="text-decoration-none">
+                                            <div class="d-flex fs-6 fw-semibold align-items-center my-3">
+                                                <div class="bullet w-8px h-6px rounded-2 bg-primary me-3"></div>
+                                                <div class="text-gray-500 flex-grow-1 me-4">
+                                                    Retailer's own products ({{ (int) $retailer_ratio }}%)
+                                                </div>
+                                                <div class="fw-bolder text-gray-700 text-xxl-end">
+                                                    {{ $data['retailer_product_count'] ?? 0 }}
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="card-body pt-2 pb-4 d-flex align-items-center">
                                         <div class="d-flex flex-center me-5 pt-2">
-                                            {{-- <div id="kt_card_widget_4_chart" style="min-width: 70px; min-height: 70px">
-                                            <canvas height="70" width="70"></canvas>
-                                        </div> --}}
                                             <i class="ki-duotone ki-chart-simple fs-4hx me-6 mb-4 text-danger">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
@@ -238,24 +265,34 @@
                                                 <span class="path4"></span>
                                             </i>
                                         </div>
+
                                         <div class="d-flex flex-column w-100">
-                                            <div class="d-flex fs-6 fw-semibold align-items-center">
-                                                <div class="bullet w-8px h-6px rounded-2 bg-danger me-3"></div>
-                                                <div class="text-gray-500 flex-grow-1 me-4">Wholesaler's products
-                                                    ({{ (int) $wholesaler_ratio }}%)</div>
-                                                <div class="fw-bolder text-gray-700 text-xxl-end">
-                                                    {{ $data['wholesaler_product_count'] ?? 0 }}</div>
-                                            </div>
-                                            <div class="d-flex fs-6 fw-semibold align-items-center my-3">
-                                                <div class="bullet w-8px h-6px rounded-2 bg-primary me-3"></div>
-                                                <div class="text-gray-500 flex-grow-1 me-4">Retailer's own products
-                                                    ({{ (int) $retailer_ratio }}%)</div>
-                                                <div class="fw-bolder text-gray-700 text-xxl-end">
-                                                    {{ $data['retailer_product_count'] ?? 0 }}</div>
-                                            </div>
+                                            <a href="{{ url('my-wholesaler-product') }}" class="text-decoration-none">
+                                                <div class="d-flex fs-6 fw-semibold align-items-center">
+                                                    <div class="bullet w-8px h-6px rounded-2 bg-danger me-3"></div>
+                                                    <div class="text-gray-500 flex-grow-1 me-4">
+                                                        Wholesaler's products ({{ (int) $wholesaler_ratio }}%)
+                                                    </div>
+                                                    <div class="fw-bolder text-gray-700 text-xxl-end">
+                                                        {{ $data['wholesaler_product_count'] ?? 0 }}
+                                                    </div>
+                                                </div>
+                                            </a>
+
+                                            <a href="{{ url('my-product') }}" class="text-decoration-none">
+                                                <div class="d-flex fs-6 fw-semibold align-items-center my-3">
+                                                    <div class="bullet w-8px h-6px rounded-2 bg-primary me-3"></div>
+                                                    <div class="text-gray-500 flex-grow-1 me-4">
+                                                        Retailer's own products ({{ (int) $retailer_ratio }}%)
+                                                    </div>
+                                                    <div class="fw-bolder text-gray-700 text-xxl-end">
+                                                        {{ $data['retailer_product_count'] ?? 0 }}
+                                                    </div>
+                                                </div>
+                                            </a>
                                         </div>
-                                    </div>
-                                </a>
+                                    </div> -->
+
                             </div>
                         </div>
 
@@ -323,7 +360,7 @@
                                         </h3>
                                     </div>
 
-                                    <button
+                                    <!-- <button
                                         class="btn btn-icon btn-color-gray-500 btn-active-color-primary justify-content-end"
                                         data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end"
                                         data-kt-menu-overflow="true">
@@ -331,8 +368,8 @@
                                         <i class="ki-duotone ki-dots-square fs-1"><span class="path1"></span><span
                                                 class="path2"></span><span class="path3"></span><span
                                                 class="path4"></span></i>
-                                    </button>
-                                    <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px"
+                                    </button> -->
+                                    <!-- <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px"
                                         data-kt-menu="true" style="">
                                         <div class="menu-item px-3">
                                             <div class="menu-content fs-6 text-gray-900 fw-bold px-3 py-4">Quick Actions
@@ -342,8 +379,8 @@
                                         <div class="separator mb-3 opacity-75"></div>
 
                                         <div class="menu-item px-3">
-                                            <a href="{{ route('retailer.order.list', 'new') }}"
-                                                class="menu-link px-3">New Orders</a>
+                                            <a href="{{ route('retailer.order.list', 'new') }}" class="menu-link px-3">New
+                                                Orders</a>
                                         </div>
 
                                         <div class="menu-item px-3">
@@ -352,22 +389,21 @@
                                         </div>
 
                                         <div class="menu-item px-3">
-                                            <a href="{{ route('retailer.order.list', 'pickup') }}"
-                                                class="menu-link px-3">In Pickup Orders</a>
+                                            <a href="{{ route('retailer.order.list', 'pickup') }}" class="menu-link px-3">In
+                                                Pickup Orders</a>
                                         </div>
 
                                         <div class="menu-item px-3">
                                             <a href="{{ route('retailer.order.list', 'delivered') }}"
                                                 class="menu-link px-3">Delivered Orders</a>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
 
                                 <div class="card-body pt-2">
                                     <div class="tab-content">
 
-                                        <div class="tab-pane fade show active" id="kt_stats_widget_2_tab_1"
-                                            role="tabpanel">
+                                        <div class="tab-pane fade show active" id="kt_stats_widget_2_tab_1" role="tabpanel">
                                             <div class="table-responsive">
                                                 <table class="table table-row-dashed align-middle fs-7 my-0">
                                                     <thead>
@@ -395,9 +431,9 @@
 
                                                                             if (
                                                                                 !empty(
-                                                                                    $detail?->order_product_detail
+                                                                                $detail?->order_product_detail
                                                                                         ?->images
-                                                                                )
+                                                                            )
                                                                             ) {
                                                                                 $firstImage =
                                                                                     explode(
@@ -414,8 +450,7 @@
                                                                         @endphp
 
                                                                         @if ($imagePath)
-                                                                            <img src="{{ $imagePath }}"
-                                                                                alt="Product Image"
+                                                                            <img src="{{ $imagePath }}" alt="Product Image"
                                                                                 style="width: 100px; height: auto; border-radius: 5px;"
                                                                                 onerror="this.onerror=null;this.src='{{ $defaultImage }}';">
                                                                         @endif
@@ -506,7 +541,7 @@
         cb(start, end);
 
 
-        $(document).on('change', '#kt_daterangepicker_4', function() {
+        $(document).on('change', '#kt_daterangepicker_4', function () {
             const fullDate = $(this).val();
             const fullDateArray = fullDate.split(" - ");
             const from = fullDateArray[0];
@@ -520,7 +555,7 @@
                     to: to,
                     _token: '{{ csrf_token() }}'
                 },
-                success: function(response) {
+                success: function (response) {
                     console.log('response', response);
 
                     if (response.status) {
@@ -544,13 +579,50 @@
                         });
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     Swal.fire({
                         title: 'Error!',
                         text: 'Something went wrong. Please try again later.',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
+                }
+            });
+        });
+
+
+
+        // graph for product
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('productsChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Wholesaler Products', 'Retailer Products'],
+                    datasets: [{
+                        data: [{{ (int) $wholesaler_ratio }}, {{ (int) $retailer_ratio }}],
+                        backgroundColor: ['#dc3545', '#0d6efd'], // danger=red, primary=blue
+                        hoverBackgroundColor: ['#bb2d3b', '#0b5ed7'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    },
+                    responsive: false,
+                    maintainAspectRatio: false
                 }
             });
         });

@@ -146,6 +146,7 @@ class RetilerController extends Controller
             ->take(5)
             ->get();
 
+            // dd($data);
         return view('dashboard', compact('data', 'user', 'retailerOrders'));
     }
 
@@ -222,10 +223,11 @@ class RetilerController extends Controller
         $retailer_sub_category_count = RetailerCategory::where('retailer_id', $retailer->id)
             ->distinct()
             ->count('sub_category_id');
-
+        $retailerId = $retailer->id;
         return view('wholesaler.wholesaler-list', [
             'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
-            'retailer_sub_category_count' => $retailer_sub_category_count
+            'retailer_sub_category_count' => $retailer_sub_category_count,
+            'retaile_id'=> $retailerId,
         ]);
     }
 
@@ -322,7 +324,26 @@ class RetilerController extends Controller
         }
         return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
     }
+
+   //for wholesaler request accesss
+    public function requestAccess(Request $request)
+{
+    $user = User::find($request->user_id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found.'], 404);
+    }
+
+    // You can update a status, flag, or log a request
+    $user->is_all_wholesaler_visible = 2; // 2 = for request
+    $user->save();
+
+    return response()->json(['message' => 'Access request submitted successfully.']);
+}
+
     //<------------------------- END : wholesaler list --------------------------->
+
+
 
 
     //<------------------------- START : subscribed category list --------------------------->

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Rules\NoCodeInjection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -74,7 +75,7 @@ class TicketController extends Controller
                                 <option value="Open">Open</option>
                             </select>';
             }
-            $dropdown ='<a href="' . route('retailer.ticket.details', encryptId($ticket->ticket_id))  . '" class="btn btn-icon btn-success btn-light-success w-30px h-30px view-wholesaler" data-bs-toggle="tooltip" title="View">
+            $dropdown = '<a href="' . route('retailer.ticket.details', encryptId($ticket->ticket_id)) . '" class="btn btn-icon btn-success btn-light-success w-30px h-30px view-wholesaler" data-bs-toggle="tooltip" title="View">
                     <i class="ki-duotone ki-eye">
                         <span class="path1"></span>
                         <span class="path2"></span>
@@ -136,19 +137,47 @@ class TicketController extends Controller
     public function generateTicket(Request $request)
     {
         try {
-            $request->validate([
-                'subject' => 'required|string|max:255',
-                'ticket_description' => 'required|string',
-                'ticket_image_ref' => 'nullable|array|max:3', // max 3 images
-                'ticket_image_ref.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2MB max
-            ]);
+            $request->validate(
+                [
+                    'subject' => ['required', 'string', 'max:255', new NoCodeInjection],
+                    'category' => ['nullable'],
+                    'ticket_description' => ['required', 'string', 'max:255', new NoCodeInjection],
+                    'ticket_image_ref' => ['nullable', 'array', 'max:3'],
+                    'ticket_image_ref.*' => ['bail', 'nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+                ],
+                [
+                    'ticket_image_ref.max' => 'You can upload up to 3 images only.',
+                    'ticket_image_ref.*.image' => 'Each file must be an image.',
+                    'ticket_image_ref.*.mimes' => 'Only JPEG and PNG images are allowed.',
+                    'ticket_image_ref.*.max' => 'Each image must be less than 2MB.',
+                ]
+            );
+            
+            // Check if subject and description are the same
+            if ($request->input('subject') === $request->input('ticket_description')) {
+                return back()
+                    ->withErrors(['ticket_description' => 'Subject and Description must not be the same.'])
+                    ->withInput();
+            }
+
+            // Check if a ticket with same subject and description already exists
+            $duplicateTicket = Ticket::where('subject', $request->input('subject'))
+                ->where('description', $request->input('ticket_description'))
+                ->first();
+
+            if ($duplicateTicket) {
+                return back()
+                    ->withErrors(['subject' => 'A ticket with the same subject and description already exists.'])
+                    ->withInput();
+            }
+
             $ticket_id = 'TM' . mt_rand(100000, 999999);
 
             $ticket = new Ticket();
-            $ticket->subject =  $request->subject;
+            $ticket->subject = $request->subject;
             $ticket->description = $request->ticket_description;
+            $ticket->category = ($request->category ?? '') . '-' . ($request->product_id ?? '');
             $ticket->status = 'Open';
-            $ticket->category = ($request->category ?? '') .'-'. ($request->product_id ?? '');
             $ticket->ticket_id = $ticket_id;
             $ticket->user_id = Auth::id();
 
@@ -156,6 +185,14 @@ class TicketController extends Controller
 
             if ($request->hasFile('ticket_image_ref')) {
                 foreach ($request->file('ticket_image_ref') as $file) {
+                    if (!@getimagesize($file->getPathname())) {
+                        return $this->handleError(
+                            $request,
+                            ['ticket_image_ref' => ['One of the uploaded images is corrupted or unreadable.']],
+                            422
+                        );
+                    }
+
                     $filename = uniqid() . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('tickets', $filename, 'spaces');
                     $filenames[] = $filename;
@@ -165,20 +202,45 @@ class TicketController extends Controller
             $ticket->ref_image = implode(',', $filenames);
             $ticket->save();
 
-            return redirect()->back()->with('success', 'Ticket Created Successfully');
+            return $this->handleSuccess($request, 'Ticket created successfully.');
+
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return $this->handleError($request, $e->errors(), 422);
+
         } catch (\Exception $e) {
-            // Log the error if needed: Log::error($e);
-            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage())->withInput();
+            return $this->handleError($request, ['general' => ['Something went wrong: ' . $e->getMessage()]], 500);
         }
     }
 
-    public function ticketDetail(Request $request,$ticket_id)
+    public function ticketDetail(Request $request, $ticket_id)
     {
         $ticket_id = decryptId($ticket_id);
         $user_id = Auth::user()->id;
-        $ticket = Ticket::where('user_id',$user_id)->where('ticket_id',$ticket_id)->first();
-        return view('support.ticket-detail-show',compact('ticket'));
+        $ticket = Ticket::where('user_id', $user_id)->where('ticket_id', $ticket_id)->first();
+        return view('support.ticket-detail-show', compact('ticket'));
+    }
+
+    private function handleSuccess(Request $request, $message)
+    {
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ], 200);
+        }
+
+        return redirect()->route('wholesaler.ticket.list')->with('success', $message);
+    }
+
+    private function handleError(Request $request, $errors, $status = 422)
+    {
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $errors
+            ], $status);
+        }
+
+        return redirect()->back()->withErrors($errors)->withInput();
     }
 }
