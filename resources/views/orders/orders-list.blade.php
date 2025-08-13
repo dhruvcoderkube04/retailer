@@ -464,6 +464,7 @@
                                             <input type="hidden" name="courier_service" id="courier_service"
                                                 value="">
                                             <input type="hidden" name="courier_service_id" id="courier_service_id">
+                                            <input type="hidden" name="carrier_id" id="carrier_id">
                                             <input type="hidden" name="courier_service_logo" id="courier_service_logo">
                                             <span class="text-danger mt-5 courier-service-error-section"
                                                 style="display: none;">
@@ -1265,7 +1266,15 @@
                     $('#courierDetailsBody').html('<tr><td colspan="6">Invalid payload data</td></tr>');
                     return;
                 }
-
+                console.log({
+                    url: "{{ route('retailer.rate.calculation.post') }}",
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: payload
+                })
                 $.ajax({
                     url: "{{ route('retailer.rate.calculation.post') }}",
                     type: 'POST',
@@ -1275,7 +1284,11 @@
                     },
                     data: JSON.stringify(payload),
                     success: function(response) {
-                        if (response.status && Array.isArray(response.data) && response.data.length > 0) {
+                        if (response.status && Array.isArray(response.data) && response.data.length >
+                            0) {
+                            console.log({
+                                response: response.data
+                            })
                             populateMergedCourierRates(response.data);
                         } else {
                             $('#courierDetailsBody').html(
@@ -1314,29 +1327,29 @@
             //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
             //             .courier_name) || {};
             //         tableBody += `
-            //             <tr>
-            //                 <td>${courier.service_mode || 'N/A'}</td>
-            //                 <td>
-            //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
-            //                     ${courier.courier_name}
-            //                 </td>
-            //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
-            //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+        //             <tr>
+        //                 <td>${courier.service_mode || 'N/A'}</td>
+        //                 <td>
+        //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
+        //                     ${courier.courier_name}
+        //                 </td>
+        //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+        //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
 
-            //                 <td>
-            //                     <button class="btn btn-sm btn-primary select-courier"
-            //                             data-courier="${courier.courier_name}"
-            //                             data-courier-id="${matchingCourier.courierId || ''}"
-            //                             data-courier-logo="${matchingCourier.logoUrl || null}"
-            //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-            //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-            //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-            //                             data-service-mode="${courier.service_mode || 'N/A'}
-            //                             data-cpartner="fship">
-            //                         Select
-            //                     </button>
-            //                 </td>
-            //             </tr>`;
+        //                 <td>
+        //                     <button class="btn btn-sm btn-primary select-courier"
+        //                             data-courier="${courier.courier_name}"
+        //                             data-courier-id="${matchingCourier.courierId || ''}"
+        //                             data-courier-logo="${matchingCourier.logoUrl || null}"
+        //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+        //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+        //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+        //                             data-service-mode="${courier.service_mode || 'N/A'}
+        //                             data-cpartner="fship">
+        //                         Select
+        //                     </button>
+        //                 </td>
+        //             </tr>`;
             //     });
             //     $('#courierDetailsBody').html(tableBody);
             // }
@@ -1350,28 +1363,28 @@
             //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
             //             .courier_name) || {};
             //         tableBody += `
-            //             <tr>
-            //                 <td>${courier.type || 'N/A'}</td>
-            //                 <td>
-            //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
-            //                     ${courier.name}
-            //                 </td>
-            //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
-            //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
-            //                 <td>
-            //                     <button class="btn btn-sm btn-primary select-courier"
-            //                             data-courier="${courier.name}"
-            //                             data-courier-id="${courier.carrierID || ''}"
-            //                             data-courier-logo="${courier.name || null}"
-            //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
-            //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
-            //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
-            //                             data-service-mode="${courier.type || 'N/A'}"
-            //                             data-cpartner="lorrigo">
-            //                         Select
-            //                     </button>
-            //                 </td>
-            //             </tr>`;
+        //             <tr>
+        //                 <td>${courier.type || 'N/A'}</td>
+        //                 <td>
+        //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
+        //                     ${courier.name}
+        //                 </td>
+        //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
+        //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
+        //                 <td>
+        //                     <button class="btn btn-sm btn-primary select-courier"
+        //                             data-courier="${courier.name}"
+        //                             data-courier-id="${courier.carrierID || ''}"
+        //                             data-courier-logo="${courier.name || null}"
+        //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
+        //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
+        //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
+        //                             data-service-mode="${courier.type || 'N/A'}"
+        //                             data-cpartner="lorrigo">
+        //                         Select
+        //                     </button>
+        //                 </td>
+        //             </tr>`;
             //     });
             //     $('#courierDetailsBody').html(tableBody);
             // }
@@ -1379,7 +1392,8 @@
             function populateMergedCourierRates(rates) {
                 let tableBody = '';
                 rates.forEach(function(courier) {
-                    const matchingCourier = courierServices.find(cs => cs.courierName === courier.service_name) || {};
+                    const matchingCourier = courierServices.find(cs => cs.courierName === courier
+                        .service_name) || {};
                     tableBody += `
                         <tr>
                             <td>${courier.service_mode || 'N/A'}</td>
@@ -1393,6 +1407,7 @@
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.service_name}"
                                         data-courier-id="${matchingCourier.courierId || ''}"
+                                        data-carrier-id="${courier.carrierID || ''}"
                                         data-courier-logo="${matchingCourier.logoUrl || null}"
                                         data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
                                         data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
@@ -1456,6 +1471,7 @@
             $(document).on('click', '.select-courier', function() {
                 const courierName = $(this).data('courier') || 'Unknown';
                 const courierId = $(this).data('courier-id') || '';
+                const carrierId = $(this).data('carrier-id') || '';
                 const courierLogo = $(this).data('courier-logo') || null;
                 const shippingCharge = $(this).data('shipping-charge') || '0.00';
                 const codCharge = $(this).data('cod-charge') || '0.00';
@@ -1473,9 +1489,10 @@
 
                 $('#courier_service').val(courierName);
                 $('#courier_service_id').val(courierId);
+                $('#carrier_id').val(carrierId);
 
                 $('#courier_service_logo').val(courierLogo);
-                console.log(courier_code,"value in couier id");
+                console.log(courier_code, "value in couier id");
                 $('#courier_code').val(courier_code);
 
                 // Display all courier details below the Select Courier button
@@ -2515,9 +2532,9 @@
             //             Swal.fire({
             //                 title: 'Reschedule Delivery',
             //                 html: `
-            //                     <label>Select Reschedule Date & Time</label>
-            //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
-            //                 `,
+        //                     <label>Select Reschedule Date & Time</label>
+        //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+        //                 `,
             //                 confirmButtonText: 'Submit',
             //                 focusConfirm: false,
             //                 preConfirm: () => {
@@ -2573,7 +2590,7 @@
             //<----------------- END : NDR ---------------->
 
             //<----------------- START : NDR ---------------->
-            $(document).on('click', '.ndr-reattempt', function () {
+            $(document).on('click', '.ndr-reattempt', function() {
                 let orderId = $(this).data('api-order_id');
 
                 Swal.fire({
@@ -2596,11 +2613,13 @@
                             confirmButtonText: 'Submit',
                             focusConfirm: false,
                             allowOutsideClick: false, // 🚫 Prevent closing by clicking outside
-                            allowEscapeKey: false,    // 🚫 Prevent closing with ESC
+                            allowEscapeKey: false, // 🚫 Prevent closing with ESC
                             preConfirm: () => {
-                                const date = document.getElementById('rescheduleDate').value;
+                                const date = document.getElementById('rescheduleDate')
+                                    .value;
                                 if (!date) {
-                                    Swal.showValidationMessage('Reschedule date is required.');
+                                    Swal.showValidationMessage(
+                                        'Reschedule date is required.');
                                     return false;
                                 }
                                 return date;
@@ -2630,7 +2649,7 @@
                             reschedule_date: rescheduleDate,
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
-                        success: function (response) {
+                        success: function(response) {
                             Swal.fire({
                                 title: "Success!",
                                 text: response.message,
@@ -2638,11 +2657,14 @@
                                 confirmButtonText: "OK",
                             }).then(() => {
                                 // 🔁 Redirect to updated order list
-                                window.location.href = `{{ route('retailer.order.list', ':type') }}`.replace(":type", response.type);
+                                window.location.href =
+                                    `{{ route('retailer.order.list', ':type') }}`
+                                    .replace(":type", response.type);
                             });
                         },
-                        error: function (xhr) {
-                            Swal.fire('Error!', xhr.responseJSON?.message || 'Something went wrong.', 'error');
+                        error: function(xhr) {
+                            Swal.fire('Error!', xhr.responseJSON?.message ||
+                                'Something went wrong.', 'error');
                         }
                     });
                 }
