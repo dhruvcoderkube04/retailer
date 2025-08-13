@@ -435,7 +435,7 @@ class LorrigoService implements CourierInterface
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer '.$this->token,
             ])->post($this->apiUrl . '/api/shipment/v2', $payload);
-
+                dd($response->json());
             if ($response->successful()) {
                 Log::info('createShipment In Lorrgido Test (Retailer side)', [
                     'status' => $response->status(),

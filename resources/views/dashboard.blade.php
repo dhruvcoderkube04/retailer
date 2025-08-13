@@ -65,17 +65,21 @@
                     <div class="row gy-5 gx-xl-10">
                         <!-- New Orders -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-5">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <a href="{{ route('retailer.order.list', 'new') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-add-files fs-2hx text-primary mb-3">
-                                            <span class="path1"></span><span class="path2"></span><span
-                                                class="path3"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="new_orders">
-                                            {{ $data['new_orders_count'] ?? 0 }}
+                                    <div class="card-body d-flex align-items-center p-5 gap-3">
+                                        <span class="alert-primary p-3 rounded-3">
+                                            <i class="ki-duotone ki-add-files fs-2hx text-primary">
+                                                <span class="path1"></span><span class="path2"></span><span
+                                                    class="path3"></span>
+                                            </i>
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">New Orders</span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fw-semibold fs-2x text-gray-800" id="new_orders">
+                                                {{ $data['new_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-1">New Orders</span>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
@@ -83,17 +87,21 @@
 
                         <!-- Confirmed Orders -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-5">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <a href="{{ route('retailer.order.list', 'approved-by-retailer') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-tablet-ok fs-2hx text-info mb-3">
+                                    <div class="card-body d-flex align-items-center p-5 gap-3">
+                                        <span class="alert-info p-3 rounded-3">
+                                        <i class="ki-duotone ki-tablet-ok fs-2hx text-info">
                                             <span class="path1"></span><span class="path2"></span><span
                                                 class="path3"></span>
                                         </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="confirmed_orders">
+                                        </span>
+                                        <div class="d-flex flex-column text-start">
+                                        <span class="fw-semibold fs-2x text-gray-800" id="confirmed_orders">
                                             {{ $data['confirmed_orders_count'] ?? 0 }}
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Confirmed Orders</span>
+                                        <span class="fw-semibold fs-5 text-gray-500 mt-1">Confirmed Orders</span>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
@@ -101,17 +109,21 @@
 
                         <!-- Transfer Retailer To Wholesaler Orders -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-5">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <div>
                                     <a href="{{ route('retailer.order.list', 'transferred-to-wholesaler') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-exit-right fs-2hx text-primary mb-3">
-                                            <span class="path1"></span><span class="path2"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="transfered_retailer_to_wholesaler">
-                                            {{ $data['transfered_retailer_to_wholesaler_orders_count'] ?? 0 }}
+                                    <div class="card-body d-flex  align-items-center p-5 gap-3">
+                                        <span class="alert-primary p-3 rounded-3">
+                                            <i class="ki-duotone ki-exit-right fs-2hx text-primary">
+                                                <span class="path1"></span><span class="path2"></span>
+                                            </i>
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Transfer To Wholesaler</span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fw-semibold fs-2x text-gray-800" id="transfered_retailer_to_wholesaler">
+                                                {{ $data['transfered_retailer_to_wholesaler_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-1">Transfer To Wholesaler</span>
+                                        </div>
                                     </div>
                                     </a>
                                 </div>
@@ -120,18 +132,22 @@
 
                         <!-- Ready to Ship -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-5">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <a href="{{ route('retailer.order.list', 'pickup') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-delivery fs-2hx text-success mb-3">
-                                            <span class="path1"></span><span class="path2"></span><span
-                                                class="path3"></span>
-                                            <span class="path4"></span><span class="path5"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="ready_for_ship">
-                                            {{ $data['ready_for_ship_orders_count'] ?? 0 }}
+                                    <div class="card-body d-flex  align-items-center  p-5 gap-3">
+                                        <span class="alert-success p-3 rounded-3">
+                                            <i class="ki-duotone ki-delivery fs-2hx text-success">
+                                                <span class="path1"></span><span class="path2"></span><span
+                                                    class="path3"></span>
+                                                <span class="path4"></span><span class="path5"></span>
+                                            </i>
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Ready For Ship</span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fw-semibold fs-2x text-gray-800" id="ready_for_ship">
+                                                {{ $data['ready_for_ship_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-1">Ready For Ship</span>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
@@ -139,18 +155,22 @@
 
                         <!-- In Transit -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <a href="{{ route('retailer.order.list', 'in-transit') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-delivery fs-2hx text-warning mb-3">
-                                            <span class="path1"></span><span class="path2"></span><span
-                                                class="path3"></span>
-                                            <span class="path4"></span><span class="path5"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="in_transit">
-                                            {{ $data['in_transit_orders_count'] ?? 0 }}
+                                    <div class="card-body d-flex align-items-center p-5 gap-3">
+                                        <span class="alert-warning p-3 rounded-3 mb-3">
+                                            <i class="ki-duotone ki-delivery fs-2hx text-warning">
+                                                <span class="path1"></span><span class="path2"></span><span
+                                                    class="path3"></span>
+                                                <span class="path4"></span><span class="path5"></span>
+                                            </i>
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">In Transit</span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fw-semibold fs-2x text-gray-800" id="in_transit">
+                                                {{ $data['in_transit_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-1">In Transit</span>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
@@ -158,17 +178,21 @@
 
                         <!-- Delivered -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <a href="{{ route('retailer.order.list', 'delivered') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-delivery-3 fs-2hx text-success mb-3">
-                                            <span class="path1"></span><span class="path2"></span><span
-                                                class="path3"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="delivered">
-                                            {{ $data['delivered_orders_count'] ?? 0 }}
+                                    <div class="card-body d-flex align-items-center p-5 gap-3">
+                                        <span class="alert-success p-3 rounded-3 mb-3">
+                                            <i class="ki-duotone ki-delivery-3 fs-2hx text-success">
+                                                <span class="path1"></span><span class="path2"></span><span
+                                                    class="path3"></span>
+                                            </i>
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Delivered</span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fw-semibold fs-2x text-gray-800" id="delivered">
+                                                {{ $data['delivered_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-1">Delivered</span>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
@@ -176,16 +200,20 @@
 
                         <!-- Cancelled -->
                         <div class="col-12 col-sm-6 col-xl-3 mb-10">
-                            <div class="card h-100 text-center">
+                            <div class="card h-100 text-center shadow-sm">
                                 <a href="{{ route('retailer.order.list', 'cancel') }}">
-                                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                        <i class="ki-duotone ki-cross-square fs-2hx text-danger mb-3">
+                                    <div class="card-body d-flex align-items-center p-5 gap-3">
+                                        <span class="alert-danger p-3 rounded-3">
+                                        <i class="ki-duotone ki-cross-square fs-2hx text-danger">
                                             <span class="path1"></span><span class="path2"></span>
-                                        </i>
-                                        <span class="fw-semibold fs-3x text-gray-800" id="cancel">
-                                            {{ $data['cancelled_orders_count'] ?? 0 }}
+                                        </i>    
                                         </span>
-                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Cancelled</span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fw-semibold fs-2x text-gray-800" id="cancel">
+                                                {{ $data['cancelled_orders_count'] ?? 0 }}
+                                            </span>
+                                            <span class="fw-semibold fs-5 text-gray-500 mt-1">Cancelled</span>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
@@ -195,7 +223,7 @@
                     <div class="row gy-5 gx-xl-10">
                         <!-- Earnings Card -->
                         <div class="col-12 col-md-6 col-xl-6 col-xxl-6 mb-10">
-                            <div class="card card-flush h-100">
+                            <div class="card card-flush h-100 shadow-sm">
                                 @php
                                     $wholesaler_count = $data['wholesaler_product_count'] ?? 0;
                                     $retailer_count = $data['retailer_product_count'] ?? 0;
@@ -231,12 +259,14 @@
                                             {{-- <div id="kt_card_widget_4_chart" style="min-width: 70px; min-height: 70px">
                                             <canvas height="70" width="70"></canvas>
                                         </div> --}}
-                                            <i class="ki-duotone ki-chart-simple fs-4hx me-6 mb-4 text-danger">
+                                        <span class="alert-danger p-3 rounded-3 me-6 mb-4">
+                                            <i class="ki-duotone ki-chart-simple fs-4hx  text-danger">
                                                 <span class="path1"></span>
                                                 <span class="path2"></span>
                                                 <span class="path3"></span>
                                                 <span class="path4"></span>
                                             </i>
+                                        </span>
                                         </div>
                                         <div class="d-flex flex-column w-100">
                                             <div class="d-flex fs-6 fw-semibold align-items-center">
@@ -261,33 +291,38 @@
 
                         <!-- Total Sales -->
                         <div class="col-12 col-md-6 col-xl-3 mb-10">
-                            <div class="card h-100 text-center">
-                                <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                    <i class="ki-duotone ki-finance-calculator fs-2hx mb-4 text-primary">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                        <span class="path3"></span>
-                                        <span class="path4"></span>
-                                        <span class="path5"></span>
-                                        <span class="path6"></span>
-                                        <span class="path7"></span>
-                                    </i>
-                                    <div class="d-flex align-items-start justify-content-center">
-                                        <span class="fs-4 fw-semibold text-gray-500 me-1">₹</span>
-                                        <span class="fw-semibold fs-3x text-gray-800 lh-1 ls-n2" id="total_sales">
-                                            {{ $data['total_sales'] ?? 0 }}
-                                        </span>
-                                    </div>
-                                    <span class="fw-semibold fs-5 text-gray-500 mt-2">Total Sales</span>
+                            <div class="card h-100 text-center shadow-sm">
+                                <div class="card-body d-flex  align-items-start p-5 gap-3">
+                                    <span class="alert-primary p-3 rounded-3">
+                                        <i class="ki-duotone ki-finance-calculator fs-2hx text-primary">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                            <span class="path3"></span>
+                                            <span class="path4"></span>
+                                            <span class="path5"></span>
+                                            <span class="path6"></span>
+                                            <span class="path7"></span>
+                                        </i>
+                                    </span>
+                                     <div class="d-flex flex-column align-items-start justify-content-center">
+                                        <div class="d-flex align-items-start justify-content-center">
+                                            <span class="fs-4 fw-semibold text-gray-500 me-1">₹</span>
+                                            <span class="fw-semibold fs-2x text-gray-800 lh-1 ls-n2" id="total_sales">
+                                                {{ $data['total_sales'] ?? 0 }}
+                                            </span>
+                                        </div>
+                                        <span class="fw-semibold fs-5 text-gray-500 mt-2">Total Sales</span>
+                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Total Earning -->
                         <div class="col-12 col-md-6 col-xl-3 mb-10">
-                            <div class="card h-100 text-center">
-                                <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
-                                    <i class="ki-duotone ki-finance-calculator fs-2hx mb-4 text-primary">
+                            <div class="card h-100 text-center shadow-sm">
+                                <div class="card-body d-flex align-items-start p-5 gap-3">
+                                    <span class="alert-primary p-3 rounded-3">
+                                    <i class="ki-duotone ki-finance-calculator fs-2hx text-primary">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
                                         <span class="path3"></span>
@@ -296,13 +331,16 @@
                                         <span class="path6"></span>
                                         <span class="path7"></span>
                                     </i>
-                                    <div class="d-flex align-items-start justify-content-center">
-                                        <span class="fs-4 fw-semibold text-gray-500 me-1">₹</span>
-                                        <span class="fw-semibold fs-3x text-gray-800 lh-1 ls-n2" id="total_earning">
-                                            {{ $data['total_earning'] ?? 0 }}
-                                        </span>
-                                    </div>
+                                    </span>
+                                    <div class="d-flex flex-column align-items-start justify-content-center">
+                                        <div class="d-flex align-items-start justify-content-center">
+                                            <span class="fs-4 fw-semibold text-gray-500 me-1">₹</span>
+                                            <span class="fw-semibold fs-2x text-gray-800 lh-1 ls-n2" id="total_earning">
+                                                {{ $data['total_earning'] ?? 0 }}
+                                            </span>
+                                        </div>
                                     <span class="fw-semibold fs-5 text-gray-500 mt-2">Total Earning</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -311,13 +349,15 @@
                     <div class="row gy-5 g-xl-10">
                         <div class="col-xl-12 mb-xl-12">
 
-                            <div class="card h-md-100">
-                                <div class="card-header align-items-center border-0">
+                            <div class="card h-md-100 shadow-sm p-2">
+                                <div class="card-header align-items-start border-0">
                                     <div class="d-flex align-items-center gap-3">
-                                        <i class="ki-duotone ki-time fs-2hx text-primary">
-                                            <span class="path1"></span>
-                                            <span class="path2"></span>
-                                        </i>
+                                        {{-- <span class="alert-primary p-3 rounded-3 mb-3"> --}}
+                                            <i class="ki-duotone ki-time fs-2hx text-primary">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                            </i>
+                                        {{-- </span> --}}
                                         <h3 class="fw-bold text-gray-900 mt-1">
                                             Recent Orders
                                         </h3>

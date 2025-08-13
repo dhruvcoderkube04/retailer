@@ -266,6 +266,7 @@ class OrderStatusService
             $courierService = \App\Services\CourierServiceManager::getServiceByCode($active_courier_partners->code);
 
             $response = $courierService->createOrder($payload);
+            // dd($response);
             if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
                 if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
                     $updateData['tracking_number'] = $response['waybill'];
@@ -322,8 +323,8 @@ class OrderStatusService
                             "type" => $get_carrier->type
                         ];
                         $createshipment = $courierService->createShipment($create_shipment_payload);
-
-                        if ($createshipment['valid']  && $createshipment['order']) {
+                        dd($createshipment);
+                        if ($createshipment['valid'] == true) {
                             $updateData['tracking_number'] = $createshipment['order']['awb'];
                             $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
                             $updateData['courier_service'] = $request->courier_service;
