@@ -45,7 +45,7 @@
                     <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
                         {{-- Date Picker --}}
                         <div class="flex-grow-1">
-                            <div class="input-group bg-secondary">
+                            <div class="btn btn-sm fw-bold btn-secondary d-flex align-items-center p-0 w-100 w-sm-auto">
                                 <input type="text" class="form-control form-control-solid bg-secondary border-0"
                                     placeholder="Pick date range" id="kt_daterangepicker_order_list">
                                 <span class="input-group-text bg-secondary border-0">
@@ -1040,6 +1040,7 @@
         $("#kt_daterangepicker_order_list").daterangepicker({
             startDate: start,
             endDate: end,
+            maxDate: moment(), // Prevent future dates
             locale: {
                 format: "DD/MM/YYYY" // Set the desired format for the input field
             },
@@ -1057,6 +1058,9 @@
         cb(start, end);
         //<------------- END : date pickert ------------->
 
+        $(document).on('click', '.ki-calendar-8', function () {
+            $('#kt_daterangepicker_order_list').trigger('click');
+        });
 
         //<------------- START : server-side transaction datatable ------------->
         const type = @json($type);
