@@ -127,7 +127,7 @@
                     <!--begin::Modal header-->
                     <div class="modal-header">
                         <!--begin::Modal title-->
-                        <h2 class="fw-bold">Add New Categroy Request </h2>
+                        <h2 class="fw-bold">Add New Category and Sub Category Suggestion Request</h2>
                         <!--end::Modal title-->
 
                         <!--begin::Close-->
