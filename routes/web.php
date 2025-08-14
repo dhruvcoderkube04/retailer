@@ -48,12 +48,6 @@ Route::controller(RetailerAuthController::class)->group(function () {
 
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/customer-details', [CustomerController::class, 'getCustomerDetails']);
-});
-
-
-
 // Email Verification Routes
 Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed'])->name('verification.verify');
@@ -67,6 +61,8 @@ Route::middleware(['retailer'])->group(function () {
     // wholesaler list
     Route::get('/wholesaler-list', [RetilerController::class, 'wholesalerList'])->name('retailer.wholesaler.list'); // wholesaler list
     Route::post('/wholesaler/fetch-record', [RetilerController::class, 'wholesalerFetchRecord'])->name('retailer.wholesaler.fetch-record'); // ajax - datatable
+    Route::post('/wholesaler/request-access', [RetilerController::class, 'requestAccess'])->name('wholesaler.request.access');
+
 
     // subscribed category
     Route::prefix('subscribed-category')->group(function () {

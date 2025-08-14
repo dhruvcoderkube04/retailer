@@ -21,7 +21,63 @@ class TrackShipments extends Command
     public function handle()
     {
         Log::info('📦 TrackShipments command started at ' . now());
+        // fship status code
+        $fshipBucketKeyMap =[
+            1	=> 'New',
+            2	=> 'Booked',
+            3	=> 'Order Cancelled',
+            4	=> 'Pickup Initiated',
+            5	=> 'Pickup Cancelled',
+            7	=> 'Pickup Pending',
+            8	=> 'Pickup Completed',
+            9	=> 'In Transit',
+            10	=> 'Undelivered',
+            11	=> 'Out For Delivery',
+            12	=> 'Delivered',
+            13	=> 'RTO',
+            14	=> 'RTO In Transit',
+            15	=> 'RTO Delivered',
+            18	=> 'Shipment Lost',
+            19	=> 'Shipment Damaged',
+            22	=> 'Out for Pickup'
+        ];
 
+        $fshipStatusTextMap = [
+            'New' => 'pending',
+            'Pickup Initiated' => 'pickup',
+            'Pickup Pending' => 'pickup',
+            'Out for Pickup' => 'in_transit',
+            'In Transit' => 'in_transit',
+            'Pickup Completed' => 'in_transit',
+            'Out For Delivery' => 'in_transit',
+            'Undelivered' => 'ndr',
+            'DELIVERED' => 'delivered',
+            'RTO' => 'rto',
+            'RTO In Transit' => 'rto',
+            'RTO Delivered' => 'rtn_to_seller',
+            'Order Cancelled' => 'cancel',
+            'Pickup Cancelled' => 'cancel',
+            'Shipment Lost' => 'lost',
+            'Shipment Damaged' => 'lost'
+        ];
+
+        $fshipStageDateMap = [
+            'pending' => 'created_at',
+            'approved-by-retailer' => 'approved_by_retailer_at',
+            'transferred-to-wholesaler' => 'transfered_retailer_to_wholesaler_at',
+            'pickup' => 'pickup_at',
+            'in_transit' => 'in_transit_at',
+            'ofd' => 'ofd_at',
+            'ndr' => 'ndr_at',
+            'delivered' => 'delivered_at',
+            'rto' => 'rto_at',
+            'rtn_to_seller' => 'rtn_to_seller_at',
+            'close' => 'close_at',
+            'cancel' => 'cancel_at',
+            'lost' => 'lost_at'
+        ];
+
+        // lorrigo status code
         $bucketKeyMap = [
             0 => 'NEW',
             1 => 'READY_TO_SHIP',
@@ -95,7 +151,6 @@ class TrackShipments extends Command
         }
 
         $services = CourierServiceManager::getAllServicesForTracking();
-
         foreach ($orders as $order) {
             DB::beginTransaction();
             try {
@@ -109,20 +164,163 @@ class TrackShipments extends Command
 
                 $courierService = $services[$partnerCode];
                 $response = $courierService->trackPackage($order->tracking_number);
-
+                 // this is fship
                 if (isset($response['status']) && $response['status'] && isset($response['summary'])) {
-                    $summary = $response['summary'];
+                    $bucket_id = $response['summary']['statusid'];
+                    $key = $fshipBucketKeyMap[$bucket_id] ?? null;
+                    $bucket_status = $key ? ($fshipStatusTextMap[$key] ?? '') : 'unknown';
+                    $dateColumn = $fshipStageDateMap[$bucket_status] ?? null;
 
-                    DB::table('customer_orders')
-                        ->where('order_id', $order->order_id)
-                        ->update([
-                            'shipment_status' => $summary['status'] ?? $order->shipment_status,
-                            'fulfilledby' => $summary['fulfilledby'] ?? $order->fulfilledby,
-                            'shipment_status_updated_at' => now(),
-                        ]);
+                    $status = $response['summary']['status'] ?? $order->shipment_status;
+                    $stage_reason  = $response['summary']['status']  ?? '';
+
+                    $updateData = [
+                        'shipment_status' => $status,
+                        'fulfilledby' =>$response['summary']['fulfilledby'] ?? $order->fulfilledby,
+                        'shipment_activity' => $stage_reason
+                    ];
+
+                    if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
+                        $updateData[$dateColumn] = now();
+                    }
+
+                    DB::table('customer_orders')->where('order_id', $order->order_id)->update($updateData);
+                    $orderModel = CustomerOrders::with('retailer')->where('order_id', $order->order_id)->first();
+
+                    if ($orderModel && $orderModel->retailer) {
+                        $statusService = new OrderStatusService();
+
+                        // IN-TRANSIT
+                        if ($bucket_status === 'in_transit') {
+                            if ($orderModel->status === 'in_transit' && $orderModel->in_transit_at) {
+                                Log::info("🚫 Order #{$order->order_id} already in_transit. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleInTransitStatus($orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : In Transit processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : In Transit processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // DELIVERED
+                        elseif ($bucket_status === 'delivered') {
+                            if ($orderModel->status === 'delivered' && $orderModel->delivered_at) {
+                                Log::info("🚫 Order #{$order->order_id} already delivered. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleDeliveredOrder($orderModel->retailer, $orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : Delivered processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : Delivered processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // ndr  customer not accept
+
+                        elseif ($bucket_status === 'ndr')
+                        {
+                            if ($orderModel->status === 'ndr' && $orderModel->ndr_at) {
+                                Log::info("🚫 Order #{$order->order_id} already Non Delivered Report. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleNdrOrder($orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : NDR processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : NDR processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // rto
+                        elseif ($bucket_status === 'rto')
+                        {
+                            if ($orderModel->status === 'rto' && $orderModel->rto_at) {
+                                Log::info("🚫 Order #{$order->order_id} already RTO. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->handleRtoOrder($orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : RTO processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : RTO processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // rto to seller
+                        elseif ($bucket_status === 'rtn_to_seller')
+                        {
+                            if ($orderModel->status === 'rtn_to_seller' && $orderModel->rtn_to_seller_at) {
+                                Log::info("🚫 Order #{$order->order_id} already Return to Seller. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            [$success, $msg, $finalStatus] = $statusService->NdrtoRto($orderModel->retailer,$orderModel);
+
+                            if ($success) {
+                                DB::commit();
+                                Log::info("🎯 Success : Return to Seller processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : Return to Seller processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                        // CANCEL
+                        elseif ($bucket_status === 'cancel') {
+                            if ($orderModel->status === 'cancel' && $orderModel->cancel_at) {
+                                Log::info("🚫 Order #{$order->order_id} already cancelled. Skipping update.");
+                                DB::rollBack();
+                                continue;
+                            }
+
+                            $reject_reason_select = 'Other';
+                            $reject_reason_input = 'Rejected from the courier service';
+
+                            [$success, $msg, $finalStatus] = $statusService->handleCancelledOrderWithCharges($orderModel->retailer, $orderModel, $reject_reason_select, $reject_reason_input);
+
+                            if ($success) {
+                                DB::commit();
+
+                                $cancelled_reason = ($reject_reason_select == 'Other')
+                                    ? $reject_reason_input
+                                    : $reject_reason_select;
+
+                                $customer = [
+                                    'name' => $orderModel->customer->firstname,
+                                    'email' => $orderModel->customer->email,
+                                ];
+                                Mail::to($orderModel->customer->email)->send(new CancelOrderMailToCustomer($orderModel, $customer, $cancelled_reason));
+
+                                Log::info("🎯 Success : Cancel processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                DB::rollBack();
+                                Log::error("🚫 Failed : Cancel processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
+                    }
 
                     DB::commit();
-                    Log::info("✅ Order #{$order->order_id} updated: {$summary['status']}");
+                    Log::info("✅ Order #{$order->order_id} updated: {$response['summary']}");
+                // this for lorrigo
                 } elseif (isset($response['valid']) && $response['valid'] && isset($response['order'])) {
                     $bucket_id = $response['order']['bucket'];
                     $key = $bucketKeyMap[$bucket_id] ?? null;
@@ -291,3 +489,6 @@ class TrackShipments extends Command
         Log::info('✅ TrackShipments command completed at ' . now());
     }
 }
+
+
+

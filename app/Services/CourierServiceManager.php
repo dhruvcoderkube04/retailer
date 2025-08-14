@@ -184,6 +184,7 @@ class CourierServiceManager
                             'service_name'         => $rate['name'] ?? ($rate['courier_name'] ?? null),
                             'service_mode'         => $rate['type'] ?? ($rate['service_mode'] ?? null),
                             'courierId'            => $rate['courierId'] ?? null,
+                            'carrierID'            => $rate['id'] ?? null,
                             'logoUrl'              => $rate['logoUrl'] ?? '',
                             'delivery_score'       => self::calculateDeliveryScore($rate['estimated_delivery'] ?? null),
                         ];

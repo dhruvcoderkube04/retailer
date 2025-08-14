@@ -39,6 +39,8 @@ use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Services\OtpService;
+use Illuminate\Support\Facades\Cache;
+
 
 class RetailerProductController extends Controller
 {
@@ -727,82 +729,143 @@ class RetailerProductController extends Controller
     public function checkoutNew(Request $request)
     {
         $user = Auth::guard('sanctum')->user();
-
         if (!$user) {
+
             // ========== GUEST USER FLOW ==========
-            $request->validate([
-                'phone_number' => 'required|digits:10',
-            ]);
 
-            $otpService = new OtpService();
+            if (!$user) {
+                $request->validate([
+                    'phone_number' => 'required|digits:10',
+                ]);
 
-            // Step 1: Send OTP if not present
-            if (!$request->has('otp')) {
-                $otp = $otpService->send($request->phone_number);
-
-                if (!$otp) {
+                // Check if this number has been verified
+                if (!Cache::get('otp_verified_' . $request->phone_number)) {
                     return response()->json([
                         'error' => true,
-                        'message' => 'Failed to send OTP. Please try again.'
-                    ], 500);
+                        'message' => 'Phone number not verified. Please verify via OTP first.'
+                    ], 401);
                 }
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'OTP sent successfully',
-                    'otp_required' => true,
-                    'otp' => $otp
-                ], 200);
+                // Optionally clear verification after use
+                Cache::forget('otp_verified_' . $request->phone_number);
             }
 
+            // $request->validate([
+            //     'phone_number' => 'required|digits:10',
+            // ]);
 
-            // Step 2: Verify OTP
-            $request->validate([
-                'otp' => 'required|digits:4',
-            ]);
+            // $otpService = new OtpService();
 
-            if (!$otpService->verify($request->phone_number, $request->otp)) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Invalid or expired OTP.'
-                ], 401);
-            }
+            // // Step 1: Send OTP if not present
+            // if (!$request->has('otp')) {
+            //     $otp = $otpService->send($request->phone_number);
+
+            //     if (!$otp) {
+            //         return response()->json([
+            //             'error' => true,
+            //             'message' => 'Failed to send OTP. Please try again.'
+            //         ], 500);
+            //     }
+
+            //     return response()->json([
+            //         'success' => true,
+            //         'message' => 'OTP sent successfully',
+            //         'otp_required' => true,
+            //         'otp' => $otp
+            //     ], 200);
+            // }
+
+
+            // // Step 2: Verify OTP
+            // $request->validate([
+            //     'otp' => 'required|digits:4',
+            // ]);
+
+            // if (!$otpService->verify($request->phone_number, $request->otp)) {
+            //     return response()->json([
+            //         'error' => true,
+            //         'message' => 'Invalid or expired OTP.'
+            //     ], 401);
+            // }
 
             // Step 3: Check if customer already exists
             $existCustomer = CustomerDetails::where('phone_number', $request->phone_number)->first();
 
             if ($existCustomer) {
+
+                $missingFields = [];
+
+                if (empty(trim($existCustomer->address))) {
+                    $missingFields[] = 'address';
+                }
+                if (empty(trim($existCustomer->state))) {
+                    $missingFields[] = 'state';
+                }
+                if (empty(trim($existCustomer->city))) {
+                    $missingFields[] = 'city';
+                }
+                if (empty(trim($existCustomer->pincode))) {
+                    $missingFields[] = 'pincode';
+                }
+
+                if (!empty($missingFields)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Please fill these fields: ' . implode(', ', $missingFields),
+                    ], 422);
+                }
+
+                $existCustomer->address = $request->input('address', $existCustomer->address);
+                $existCustomer->state = $request->input('state', $existCustomer->state);
+                $existCustomer->city = $request->input('city', $existCustomer->city);
+                $existCustomer->pincode = $request->input('pincode', $existCustomer->pincode);
+
+                $existCustomer->save();
+
                 $customerId = $existCustomer->id;
+                $customerDetails = $existCustomer; 
             } else {
                 // Step 4: Create new customer
                 $request->validate([
                     'firstname' => 'required|string|max:30',
                     'lastname' => 'nullable|string|max:30',
-                    'email' => 'nullable|email',
+                    'email' => 'required|email',
                     'address' => 'required|string|max:250',
                     'state' => 'required|string',
                     'city' => 'required|string',
                     'pincode' => 'required|digits:6',
                     'user_token' => 'required|string',
                 ]);
-
+                
+                // ✅ Check if email already exists in store_customers_details
+                $existingCustomer = StoreCustomersDetails::where('email', $request->email)->first();
+                
+                if ($existingCustomer) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Email already registered. Please log in or use a different email.',
+                    ], 409); 
+                }
+                
+                // ✅ Validate user token
                 $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
                     ->where('is_active', 1)
                     ->first();
-
+                
                 if (!$retailer) {
                     return response()->json([
                         'status' => false,
                         'message' => 'Invalid user token.'
                     ], 404);
                 }
-
+                
                 $randomPassword = Str::random(10) . '@' . rand(10, 99);
                 $hashedPassword = Hash::make($randomPassword);
-
+                
+                // ✅ Create customerDetails
                 $customerDetails = CustomerDetails::create([
                     'user_id' => $retailer->retailer_id,
-                    'firstname' => $request->firstname,
+                    'firstname' => $request->firstname, 
                     'lastname' => $request->lastname,
                     'email' => $request->email,
                     'phone_number' => $request->phone_number,
@@ -811,7 +874,8 @@ class RetailerProductController extends Controller
                     'city' => $request->city,
                     'pincode' => $request->pincode,
                 ]);
-
+                
+                // ✅ Create storeCustomerDetails
                 $storeCustomerDetails = StoreCustomersDetails::create([
                     'user_id' => $retailer->retailer_id,
                     'firstname' => $request->firstname,
@@ -825,19 +889,19 @@ class RetailerProductController extends Controller
                     'email_verification_token' => null,
                     'email_verified_at' => now(),
                 ]);
-
+                
+                // ✅ Send welcome email
                 if ($request->email) {
                     Mail::to($storeCustomerDetails->email)
                         ->send(new WelcomeCustomerMail($storeCustomerDetails, $randomPassword));
                 }
-
+                
                 $customerId = $customerDetails->id;
-            }
+            }                
         } else {
             // ========== LOGGED-IN USER FLOW ==========
-            $customerId = $user->customer_id;
+            $customerId = $user->id;
             $customerDetails = CustomerDetails::find($customerId);
-
             // Check if any required fields are missing in DB
             $missingFields = [];
 
@@ -891,28 +955,28 @@ class RetailerProductController extends Controller
 
         }
 
-        $validator = Validator::make($request->all(), [
-            'firstname' => $user ? 'nullable' : 'required|string|max:30',
-            'lastname' => $user ? 'nullable' : 'required|string|max:30',
-            'phone_number' => 'required|numeric|digits:10',
-            'email' => $user ? 'nullable|email' : 'required|email',
-            'address' => 'required|string|max:250',
-            'payment_method' => 'required|in:cod,upi',
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'nullable|integer',
-            'products.*.retailer_product_id' => 'nullable|integer',
-            'products.*.wholesaler_id' => 'nullable|integer',
-            'products.*.retailer_id' => 'nullable|integer',
-            'products.*.quantity' => 'required|integer|min:1',
-            'products.*.final_amount' => 'required|numeric|min:0',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'firstname' => $user ? 'nullable' : 'required|string|max:30',
+        //     'lastname' => $user ? 'nullable' : 'required|string|max:30',
+        //     'phone_number' => 'required|numeric|digits:10',
+        //     'email' => $user ? 'nullable|email' : 'required|email',
+        //     'address' => 'required|string|max:250',
+        //     'payment_method' => 'required|in:cod,upi',
+        //     'products' => 'required|array|min:1',
+        //     'products.*.product_id' => 'nullable|integer',
+        //     'products.*.retailer_product_id' => 'nullable|integer',
+        //     'products.*.wholesaler_id' => 'nullable|integer',
+        //     'products.*.retailer_id' => 'nullable|integer',
+        //     'products.*.quantity' => 'required|integer|min:1',
+        //     'products.*.final_amount' => 'required|numeric|min:0',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
@@ -1258,10 +1322,51 @@ class RetailerProductController extends Controller
                 Mail::to($retailer->retailer->email)->send(new RetailerOrderMail($orderItemsForMail, $retailer->retailer));
             }
 
+
+
+            if ($customerDetails) {
+                $token = $customerDetails->createToken('customer-token')->plainTextToken;
+                $filtercustomerDetails = collect($customerDetails)->except(['id', 'user_id', 'created_at', 'updated_at']);
+
+                // Get all cart/wishlist entries
+                $customerCartItems = CustomerCart::where('customer_id', $customerDetails->id)->get();
+
+                $wishlistItems = [];
+                $cartItems = [];
+
+                foreach ($customerCartItems as $item) {
+                    $product = null;
+
+                    if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                        $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                    } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                        $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                    }
+
+                    if ($product) {
+                        if ($item->type === 'wishlist') {
+                            $wishlistItems[] = $product;
+                        } elseif ($item->type === 'cart') {
+                            $cartItems[] = $product;
+                        }
+                    }
+                }
+            } else {
+                $token = null;
+                $filtercustomerDetails = [];
+                $wishlistItems = [];
+                $cartItems = [];
+            }
+            $token = $customerDetails->createToken('customer-token')->plainTextToken;
+
             return response()->json([
                 'success' => true,
+                'message' => 'Your order has been placed successfully!',
                 'order_id' => $orderIDs,
-                'message' => 'Your order has been placed successfully!'
+                'token' => $token,
+                'customer' => $filtercustomerDetails,
+                'wishlist_items' => $wishlistItems,
+                'cart_items' => $cartItems
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1303,9 +1408,11 @@ class RetailerProductController extends Controller
             return response()->json(['error' => 'API Key is required.'], 401);
         }
 
-        $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
-            $query->where('is_delete', 0)->where('status', 1);
-        }])->whereHas('retailer', function ($query) {
+        $retailer = RetailerWebManagement::with([
+            'retailer' => function ($query) {
+                $query->where('is_delete', 0)->where('status', 1);
+            }
+        ])->whereHas('retailer', function ($query) {
             $query->where('is_delete', 0)->where('status', 1);
         })->where('product_listing_key', $apiKey)->first();
 
@@ -1570,7 +1677,7 @@ class RetailerProductController extends Controller
                     'final_amount' => $product['final_amount'],
                     'order_process_by' => 'retailer',
                     'payment_method' => $request->payment_method,
-                    'coupon_applied_id' =>  @$couponid,
+                    'coupon_applied_id' => @$couponid,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
