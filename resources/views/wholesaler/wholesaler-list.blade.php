@@ -10,8 +10,8 @@
                 <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
                     <div id="kt_app_toolbar_container" class="app-container d-flex flex-stack">
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                            <h1 class="page-heading text-gray-900 fw-bold fs-3 my-0">Wholesalers</h1>
-                            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                            <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Wholesalers</h1>
+                            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                                 <li class="breadcrumb-item text-muted">
                                     <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                                 </li>
@@ -45,14 +45,14 @@
 
                         <div class="card">
                             <div class="card-body pt-4">
-                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
+                                <table class="table align-middle table-row-dashed fs-6 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
-                                        <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle min-w-100px">Action</th>
-                                            <th class="text-center align-middle min-w-50px"></th>
-                                            <th class="text-center align-middle min-w-100px">Wholesaler</th>
-                                            <th class="text-center align-middle min-w-200px">Name</th>
-                                            <th class="text-center align-middle min-w-80px">Details</th>
+                                        <tr class="text-start fw-bold fs-6 text-uppercase gs-0 border-0">
+                                            <th class="text-center align-middle py-5 min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
+                                            <th class="text-center align-middle py-5 min-w-50px" style="background: #0d0e12;color:#fff !important;"></th>
+                                            <th class="text-center align-middle py-5 min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
+                                            <th class="text-center align-middle py-5 min-w-200px" style="background: #0d0e12;color:#fff !important;">Name</th>
+                                            <th class="text-center align-middle py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
@@ -133,7 +133,7 @@
     <script>
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_wholesaler_list').DataTable({
-            dom: "<'row mb-2'" +
+            dom: "<'row mb-5'" +
                 "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
                 ">" +
@@ -159,29 +159,29 @@
             order: [],
             columns: [{
                 data: 'action',
-                className: 'text-center',
+                className: 'text-center fs-5 text-dark text-capitalize',
                 orderable: false,
                 searchable: false
             },
             {
                 data: 'company_logo',
-                className: 'text-end',
+                className: 'text-end fs-5 text-dark text-capitalize',
                 orderable: false,
                 searchable: false
             },
             {
                 data: 'company_name',
-                className: 'text-center',
+                className: 'text-center fs-5 text-dark text-capitalize',
                 orderable: false,
             },
             {
                 data: 'wholesaler_name',
-                className: 'text-center',
+                className: 'text-center fs-5 text-dark text-capitalize',
                 orderable: false,
             },
             {
                 data: 'details',
-                className: 'text-center',
+                className: 'text-center fs-5 text-dark text-capitalize',
                 orderable: false,
             },
             ],
