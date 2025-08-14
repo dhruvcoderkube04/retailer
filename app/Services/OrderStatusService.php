@@ -264,13 +264,19 @@ class OrderStatusService
 
             // $courierService = \App\Services\CourierServiceManager::getService();
             $courierService = \App\Services\CourierServiceManager::getServiceByCode($active_courier_partners->code);
-
-            $response = $courierService->createOrder($payload);
-            // dd($response);
+            $apiOrderId = null;
+            if(empty($customerOrder->api_order_id) || !empty($active_courier_partners) && $active_courier_partners->code == 'fship'){
+                $response = $courierService->createOrder($payload);
+                if(!empty($response['order'])){
+                    $apiOrderId = $response['order']['_id'];
+                }
+            }else{
+                $apiOrderId = $customerOrder->api_order_id;
+            }
             if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
                 if (!empty($response['waybill']) && !empty($response['apiorderid'])) {
                     $updateData['tracking_number'] = $response['waybill'];
-                    $updateData['api_order_id'] = $response['apiorderid'];
+                    $updateData['api_order_id'] = !empty($apiOrderId) ? $apiOrderId : $response['apiorderid'];
                     $updateData['courier_service'] = $request->courier_service;
                     $updateData['courier_partner_id'] = $active_courier_partners->id;
                     $updateData['courier_partner_code'] = $active_courier_partners->code;
@@ -308,65 +314,61 @@ class OrderStatusService
                 }
             } elseif (!empty($active_courier_partners) &&  ($active_courier_partners->code == 'lorrigotest' || $active_courier_partners->code == 'lorrigolive')) {
 
-                if (!empty($response['order']['_id'])) {
-                    // $get_carrier = LorrigoCarrier::where('name',$request->courier_service)->first();
-                    $get_carrier = LorrigoCarrier::whereRaw("REPLACE(LOWER(name), ' ', '') = ?", [
-                        str_replace(' ', '', strtolower($request->courier_service))
-                    ])->first();
-                    if ($get_carrier) {
-                        $create_shipment_payload = [
-                            "carrierId" => $get_carrier->id,
-                            "orderId" => $response['order']['_id'],
-                            "carrierNickName" => $get_carrier->nickname,
-                            "charge" => $request->shipping_charge,
-                            "orderType" => 0,
-                            "type" => $get_carrier->type
-                        ];
-                        $createshipment = $courierService->createShipment($create_shipment_payload);
-                        dd($createshipment);
-                        if ($createshipment['valid'] == true) {
-                            $updateData['tracking_number'] = $createshipment['order']['awb'];
-                            $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
-                            $updateData['courier_service'] = $request->courier_service;
-                            $updateData['courier_partner_id'] = $active_courier_partners->id;
-                            $updateData['courier_partner_code'] = $active_courier_partners->code;
+                if (!empty($apiOrderId)) {
+                    if(!empty($response['order']['_id'])){
+                        $updateData['api_order_id'] = $response['order']['_id'];
+                        $customerOrder->update($updateData);
+                    }
 
-                            $pdf = PDF::loadView('pdf.lorrigo-order-shipping-label', [
-                                'courier_service_response' => $createshipment['order']['awb'],
-                                'courier_logo' => @$request->courier_service_logo,
-                                'pickupAddress' => $pickup_address,
-                                'productName' => $productName,
-                                'productSku' => $productSku,
-                                'customerOrder' => $customerOrder,
-                                'date' => Carbon::now(),
-                            ]);
+                    $create_shipment_payload = [
+                        "carrierId" => $request->carrier_id,
+                        "orderId" => $apiOrderId,
+                        "carrierNickName" => "BDS",
+                        "charge" => $request->shipping_charge,
+                        "orderType" => 0,
+                        "type" => $request->service_mode
+                    ];
+                    $createshipment = $courierService->createShipment($create_shipment_payload);
+                    if ($createshipment['valid']  && $createshipment['order']) {
+                        $updateData['tracking_number'] = $createshipment['order']['awb'];
+                        $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
+                        $updateData['courier_service'] = $request->courier_service;
+                        $updateData['courier_partner_id'] = $active_courier_partners->id;
+                        $updateData['courier_partner_code'] = $active_courier_partners->code;
 
-                            $pdf->setOptions([
-                                'isRemoteEnabled' => true,
-                                'isHtml5ParserEnabled' => true
-                            ]);
+                        $pdf = PDF::loadView('pdf.lorrigo-order-shipping-label', [
+                            'courier_service_response' => $createshipment['order']['awb'],
+                            'courier_logo' => @$request->courier_service_logo,
+                            'pickupAddress' => $pickup_address,
+                            'productName' => $productName,
+                            'productSku' => $productSku,
+                            'customerOrder' => $customerOrder,
+                            'date' => Carbon::now(),
+                        ]);
 
-                            $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+                        $pdf->setOptions([
+                            'isRemoteEnabled' => true,
+                            'isHtml5ParserEnabled' => true
+                        ]);
 
-                            if (Storage::disk('spaces')->exists($filename)) {
-                                Storage::disk('spaces')->delete($filename);
-                            }
+                        $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
 
-                            Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
-                            $pdfUrl = Storage::disk('spaces')->url($filename);
-
-                            CustomerOrders::where('id', $customerOrder->id)->update([
-                                'shipping_label_url' => $pdfUrl
-                            ]);
-
-                            $customerOrder->update($updateData);
-
-                            return [true, 'Order has been marked ready to ship', 'pickup'];
-                        } else {
-                            return [false,  $response['response'] ?? 'tracking number created failed ', ''];
+                        if (Storage::disk('spaces')->exists($filename)) {
+                            Storage::disk('spaces')->delete($filename);
                         }
+
+                        Storage::disk('spaces')->put($filename, $pdf->output(), 'public');
+                        $pdfUrl = Storage::disk('spaces')->url($filename);
+
+                        CustomerOrders::where('id', $customerOrder->id)->update([
+                            'shipping_label_url' => $pdfUrl
+                        ]);
+
+                        $customerOrder->update($updateData);
+
+                        return [true, 'Order has been marked ready to ship', 'pickup'];
                     } else {
-                        return [false, $response['response'] ?? 'Carrier id  not Select', ''];
+                        return [false,  $response['response'] ?? 'tracking number created failed ', ''];
                     }
                 }
             } else {

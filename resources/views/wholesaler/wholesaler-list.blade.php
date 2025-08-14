@@ -3,20 +3,17 @@
     Wholesaler List | TechtrendMart
 @endsection
 @section('content')
-    @if ($is_all_wholesaler_visible)
+    @if ($is_all_wholesaler_visible === 1)
+        {{-- Full Access: Show Wholesalers --}}
         <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
             <div class="d-flex flex-column flex-column-fluid">
                 <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                    <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
+                    <div id="kt_app_toolbar_container" class="app-container d-flex flex-stack">
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                            <h1
-                                class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                                Wholesalers
-                            </h1>
+                            <h1 class="page-heading text-gray-900 fw-bold fs-3 my-0">Wholesalers</h1>
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                                 <li class="breadcrumb-item text-muted">
-                                    <a href="{{ route('retailer.dashboard') }}"
-                                        class="text-muted text-hover-primary">Home</a>
+                                    <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                                 </li>
                                 <li class="breadcrumb-item">
                                     <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -28,24 +25,19 @@
                 </div>
 
                 <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container ">
+                    <div id="kt_app_content_container" class="app-container">
                         @if (session('success'))
-                            <div class="alert alert-success text-green-600 p-2">
-                                {{ session('success') }}
-                            </div>
+                            <div class="alert alert-success p-2">{{ session('success') }}</div>
                         @endif
                         @if (session('error'))
-                            <div class="alert alert-danger text-green-600 p-2">
-                                {{ session('error') }}
-                            </div>
+                            <div class="alert alert-danger p-2">{{ session('error') }}</div>
                         @endif
 
                         @if ($retailer_sub_category_count <= 0)
                             <div class="text-danger fw-semibold mb-4 mx-2 fs-5">
                                 You haven't selected any categories yet. Please select categories to access this feature.
                                 <br>
-                                <a href="{{ route('retailer.category.list') }}"
-                                    class="text-danger text-decoration-underline">
+                                <a href="{{ route('retailer.category.list') }}" class="text-danger text-decoration-underline">
                                     Click here
                                 </a> to choose your categories.
                             </div>
@@ -64,34 +56,71 @@
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
-
+                                        {{-- Data will be populated via JS --}}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 @include('layouts.footer')
             </div>
         </div>
-    @else
-        <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+
+    @elseif ($is_all_wholesaler_visible === 0)
+        {{-- Restricted Access: Show Request Access --}}
+        <div class="app-main flex-column flex-row-fluid mt-5" id="kt_app_main">
             <div class="d-flex flex-column flex-column-fluid">
                 <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container ">
-                        <div class="alert alert-dismissible bg-light-primary d-flex flex-column flex-sm-row p-5 mb-10">
-                            <i class="ki-duotone ki-message-text-2 fs-2hx text-primary me-4 mt-2 mb-5 mb-sm-0">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                                <span class="path3"></span>
-                            </i>
-                            <div class="d-flex flex-column ps-3 m-1 pe-sm-10">
-                                <h4 class="fw-semibold">No Access</h4>
-                                <p class="mb-2">Unfortunately, you do not have the required access to use this facility.
-                                </p>
-                                <p>If you believe you should have access, please contact your administrator for further
-                                    assistance.</p>
+                    <div id="kt_app_content_container" class="app-container">
+                        <div
+                            class="alert alert-info d-flex flex-column flex-md-row align-items-center justify-content-between p-4 mb-10 rounded-3 shadow-sm">
+                            <div class="d-flex align-items-center mb-3 mb-md-0">
+                                <i class="bi bi-exclamation-circle-fill text-info fs-1 me-3"></i>
+                                <div>
+                                    <h4 class="alert-heading fw-bold mb-1">Access Needed</h4>
+                                    <p class="mb-0">You currently do not have permission to access this feature. If you believe
+                                        this is a mistake, please submit an access request for approval.</p>
+                                </div>
                             </div>
+                            <input type="hidden" name="user_id" value="{{ $retaile_id }}">
+                            <button id="requestAccessBtn" type="button" class="btn btn-outline-info btn-lg fw-semibold">
+                                Request Access
+                            </button>
+                        </div>
+
+                        <div id="accessMessage" class="alert alert-success d-none" role="alert">
+                            <strong>Request Submitted!</strong> Your request has been sent to the administrator.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @elseif($is_all_wholesaler_visible === 2)
+        <div class="app-main flex-column flex-row-fluid mt-5" id="kt_app_main">
+            <div class="d-flex flex-column flex-column-fluid">
+                <div id="kt_app_content" class="app-content flex-column-fluid">
+                    <div id="kt_app_content_container" class="app-container">
+                        <div class="alert alert-success" role="alert">
+                            <strong>Request Submitted!</strong> Your request has been sent to the administrator.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @else
+        {{-- Unknown Access: Fallback --}}
+        <div class="app-main flex-column flex-row-fluid mt-5" id="kt_app_main">
+            <div class="d-flex flex-column flex-column-fluid">
+                <div id="kt_app_content" class="app-content flex-column-fluid">
+                    <div id="kt_app_content_container" class="app-container">
+                        <div class="alert alert-warning p-4">
+                            <h4 class="fw-semibold">No Access</h4>
+                            <p>Unfortunately, you do not have the required access to use this feature.</p>
+                            <p>If you believe this is a mistake, please contact your administrator for further assistance.</p>
                         </div>
                     </div>
                 </div>
@@ -118,45 +147,45 @@
             ajax: {
                 url: "{{ route('retailer.wholesaler.fetch-record') }}",
                 type: "POST",
-                data: function(d) {
+                data: function (d) {
                     d._token = '{{ csrf_token() }}';
                     d.order = d.order; // Add order data
                     d.columns = d.columns; // Add columns data
                 },
-                dataSrc: function(json) {
+                dataSrc: function (json) {
                     return json.data;
                 }
             },
             order: [],
             columns: [{
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'company_logo',
-                    className: 'text-end',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'company_name',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'wholesaler_name',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'details',
-                    className: 'text-center',
-                    orderable: false,
-                },
+                data: 'action',
+                className: 'text-center',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'company_logo',
+                className: 'text-end',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'company_name',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'wholesaler_name',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'details',
+                className: 'text-center',
+                orderable: false,
+            },
             ],
-            initComplete: function() {
+            initComplete: function () {
                 let searchBox = $('.datatable-search-section input');
                 let searchLabel = $('.datatable-search-section label');
                 let lengthSelect = $('.datatable-length-section select');
@@ -186,5 +215,45 @@
             }
         });
         //<------------- END : server-side transaction datatable ------------->
+
+
+        // submit form for request 
+        $('#requestAccessBtn').on('click', function (e) {
+            e.preventDefault();
+
+            let userId = $('input[name="user_id"]').val();
+
+            $.ajax({
+                url: '{{ route("wholesaler.request.access") }}',
+                type: 'POST',
+                data: {
+                    user_id: userId
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Access Request Sent!',
+                        text: response.message || 'Your request has been sent to the administrator. You will be notified once approved.',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    let error = xhr.responseJSON?.message || 'Something went wrong. Try again.';
+                    $('#accessMessage')
+                        .removeClass('d-none alert-success')
+                        .addClass('alert-danger')
+                        .text(error);
+                }
+            });
+        });
+
     </script>
 @endsection

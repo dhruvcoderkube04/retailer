@@ -61,6 +61,8 @@ Route::middleware(['retailer'])->group(function () {
     // wholesaler list
     Route::get('/wholesaler-list', [RetilerController::class, 'wholesalerList'])->name('retailer.wholesaler.list'); // wholesaler list
     Route::post('/wholesaler/fetch-record', [RetilerController::class, 'wholesalerFetchRecord'])->name('retailer.wholesaler.fetch-record'); // ajax - datatable
+    Route::post('/wholesaler/request-access', [RetilerController::class, 'requestAccess'])->name('wholesaler.request.access');
+
 
     // subscribed category
     Route::prefix('subscribed-category')->group(function () {

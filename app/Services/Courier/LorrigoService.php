@@ -333,7 +333,7 @@ class LorrigoService implements CourierInterface
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->token,
             ])->post($this->apiUrl . '/api/ratecalculator', $payload);
-
+                
             if ($response->successful()) {
                 // return $response->json();
                     Log::info('calculateRate In Lorrgido Test (Retailer side)', [
@@ -344,7 +344,7 @@ class LorrigoService implements CourierInterface
 
                     $responseData = $response->json();
                     // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
-                    $marginTagName = Auth::user()->userDetail->margin_tag_name;
+                    $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name :null;
                     $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
                     if (!empty($responseData['rates']) && is_array($responseData['rates']) && $getMargin) {
                         $marginType = $getMargin->type; // 'percentage' or 'flat'
