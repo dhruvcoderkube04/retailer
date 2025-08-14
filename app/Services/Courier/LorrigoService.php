@@ -343,14 +343,16 @@ class LorrigoService implements CourierInterface
                     ]);
 
                     $responseData = $response->json();
+                    $rates = collect($responseData['rates'])->where('nickName','BDS')->where('minWeight', (float) $data['shipment_Weight']);
+                    // dd($rates,(float) $data['shipment_Weight']);
                     // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
                     $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name :null;
                     $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-                    if (!empty($responseData['rates']) && is_array($responseData['rates']) && $getMargin) {
+                    if (!empty($rates) && is_array($rates) && $getMargin) {
                         $marginType = $getMargin->type; // 'percentage' or 'flat'
                         $flatAmount = (float)($getMargin->flat_percentage ?? 0);
 
-                        foreach ($responseData['rates'] as &$rate) {
+                        foreach ($rates as &$rate) {
                             foreach ($rate as $key => $value) {
                                 if ($key !== 'name' && is_numeric($value)) {
                                     if ($marginType === 'percentage') {
@@ -365,7 +367,7 @@ class LorrigoService implements CourierInterface
                     }
                     return [
                         'status' => true,
-                        'rates' => $responseData['rates'],
+                        'rates' => $rates,
                     ];
             } else {
                 Log::error('Lorrigo Rate Calculation failed', ['response' => $response->body()]);

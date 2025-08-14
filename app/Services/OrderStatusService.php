@@ -323,11 +323,13 @@ class OrderStatusService
                     $create_shipment_payload = [
                         "carrierId" => $request->carrier_id,
                         "orderId" => $apiOrderId,
-                        "carrierNickName" => "BDS",
+                        "carrierNickName" => $request->nickName,
                         "charge" => $request->shipping_charge,
                         "orderType" => 0,
                         "type" => $request->service_mode
                     ];
+                    Log::info("create shipment payload");
+                    Log::info(json_encode($create_shipment_payload));
                     $createshipment = $courierService->createShipment($create_shipment_payload);
                     if ($createshipment['valid']  && $createshipment['order']) {
                         $updateData['tracking_number'] = $createshipment['order']['awb'];
@@ -368,6 +370,8 @@ class OrderStatusService
 
                         return [true, 'Order has been marked ready to ship', 'pickup'];
                     } else {
+                        Log::info("create shipment error");
+                        Log::info(json_encode($createshipment));
                         return [false,  $response['response'] ?? 'tracking number created failed ', ''];
                     }
                 }

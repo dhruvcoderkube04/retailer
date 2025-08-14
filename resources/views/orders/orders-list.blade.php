@@ -465,6 +465,7 @@
                                                 value="">
                                             <input type="hidden" name="courier_service_id" id="courier_service_id">
                                             <input type="hidden" name="carrier_id" id="carrier_id">
+                                            <input type="hidden" name="nickName" id="nickName">
                                             <input type="hidden" name="courier_service_logo" id="courier_service_logo">
                                             <span class="text-danger mt-5 courier-service-error-section"
                                                 style="display: none;">
@@ -1266,15 +1267,8 @@
                     $('#courierDetailsBody').html('<tr><td colspan="6">Invalid payload data</td></tr>');
                     return;
                 }
-                console.log({
-                    url: "{{ route('retailer.rate.calculation.post') }}",
-                    type: 'POST',
-                    contentType: 'application/json',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: payload
-                })
+                 $('#courierDetailsBody').html(
+                                '<tr><td colspan="6">Loading curier partners...</td></tr>')
                 $.ajax({
                     url: "{{ route('retailer.rate.calculation.post') }}",
                     type: 'POST',
@@ -1414,6 +1408,7 @@
                                         data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
                                         data-service-mode="${courier.service_mode || 'N/A'}"
                                         data-cpartner="${courier.service_mode}"
+                                        data-nickname="${courier.nickName}"
                                         data-courier_code="${courier.courier_code}">
                                     Select
                                 </button>
@@ -1467,6 +1462,25 @@
                 $('#courierDetailsModal').modal('show');
             });
 
+            const clearSelectedCurier = () => {
+                $('#selected-courier-display').html(``);
+
+                // Store selected courier in hidden inputs
+                $('#rto_charge').val("");
+                $('#cod_charge').val("");
+                $('#shipping_charge').val("");
+                $('#service_mode').val("");
+
+                $('#courier_service').val('');
+                $('#courier_service_id').val('');
+                $('#carrier_id').val('');
+                $('#nickName').val('');
+
+                $('#courier_service_logo').val('');
+                // console.log(courier_code, "value in couier id");
+                $('#courier_code').val('');
+            }
+
             // Handle courier selection from modal
             $(document).on('click', '.select-courier', function() {
                 const courierName = $(this).data('courier') || 'Unknown';
@@ -1478,6 +1492,7 @@
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
                 const serviceMode = $(this).data('service-mode') || 'N/A';
                 const cpartner = $(this).data('cpartner');
+                const nickName = $(this).data('nickname');
                 const courier_code = $(this).data('courier_code');
                 console.log(courierId, courierName, "courier Info");
 
@@ -1490,6 +1505,7 @@
                 $('#courier_service').val(courierName);
                 $('#courier_service_id').val(courierId);
                 $('#carrier_id').val(carrierId);
+                $('#nickName').val(nickName);
 
                 $('#courier_service_logo').val(courierLogo);
                 console.log(courier_code, "value in couier id");
@@ -1536,6 +1552,7 @@
             // Handle changes to product weight and pickup address to toggle Select Courier button
             $(document).on('change', '#product_weight, #pickup_address_id', function() {
                 toggleSelectCourierButton();
+                clearSelectedCurier();
             });
 
             //<-------------- START: New Order --------------->

@@ -146,13 +146,13 @@ class CourierServiceManager
                     foreach ($response['rates'] as $rate) {
                         // fship come differnt rto,shipping, cod charge (shiiping + cod)
                         // lorrigo come shipping not comming so charge - rto  charge after get shipping charge
-                        $shippingCharge = null;
-                        if (isset($rate['charge'], $rate['rtoCharges'])) {
-                            $shippingCharge = $rate['charge'] - $rate['rtoCharges'];
-                        } elseif (isset($rate['shipping_charge'])) {
-                            $shippingCharge = $rate['shipping_charge'];
-                        }
-
+                        // $shippingCharge = null;
+                        // if (isset($rate['charge'], $rate['rtoCharges'])) {
+                        // } elseif (isset($rate['shipping_charge'])) {
+                        //     $shippingCharge = $rate['shipping_charge'];
+                        // }
+                        
+                        $shippingCharge = $rate['fwCharge'] ?? ($rate['shipping_charge'] ?? null);
                         $codCharge = $rate['cod'] ?? ($rate['cod_charge'] ?? null);
                         $rtoCharge = $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null);
 
@@ -161,12 +161,7 @@ class CourierServiceManager
                         $gstCodCharge = $codCharge ? round($codCharge * 0.18, 2) : null;
                         $gstRtoCharge = $rtoCharge ? round($rtoCharge * 0.18, 2) : null;
 
-                        $totalPrice = null;
-                        if (isset($rate['charge'])) {
-                            $totalPrice = $rate['charge'];
-                        } elseif (isset($shippingCharge, $codCharge)) {
-                            $totalPrice = $shippingCharge + $codCharge;
-                        }
+                        $totalPrice = $shippingCharge + $codCharge;
 
                         $results[] = [
                             'courier_code'         => $partner->code,
@@ -184,6 +179,7 @@ class CourierServiceManager
                             'service_name'         => $rate['name'] ?? ($rate['courier_name'] ?? null),
                             'service_mode'         => $rate['type'] ?? ($rate['service_mode'] ?? null),
                             'courierId'            => $rate['courierId'] ?? null,
+                            'nickName'             => $rate['nickName'] ?? null,
                             'carrierID'            => $rate['id'] ?? null,
                             'logoUrl'              => $rate['logoUrl'] ?? '',
                             'delivery_score'       => self::calculateDeliveryScore($rate['estimated_delivery'] ?? null),
