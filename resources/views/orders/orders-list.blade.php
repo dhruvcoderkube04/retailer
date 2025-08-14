@@ -45,7 +45,7 @@
                     <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
                         {{-- Date Picker --}}
                         <div class="flex-grow-1">
-                            <div class="input-group bg-secondary">
+                            <div class="btn btn-sm fw-bold btn-secondary d-flex align-items-center p-0 w-100 w-sm-auto">
                                 <input type="text" class="form-control form-control-solid bg-secondary border-0"
                                     placeholder="Pick date range" id="kt_daterangepicker_order_list">
                                 <span class="input-group-text bg-secondary border-0">
@@ -203,7 +203,7 @@
 
     <!-- START: New Order Modal -->
     <div class="modal fade" id="new-order-action-modal" tabindex="-1" aria-labelledby="new-order-action-modal-label"
-        aria-hidden="true">
+        aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -283,8 +283,7 @@
                                         name="reject_reason_input" id="rejectReasonInputNew" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section"
-                                        style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -313,7 +312,7 @@
     <!-- END: New Order Modal -->
 
     <!-- START: Confirmed Order Modal -->
-    <div class="modal fade" id="confirmed-order-action-modal" tabindex="-1"
+    <div class="modal fade" data-bs-backdrop="static" id="confirmed-order-action-modal" tabindex="-1"
         aria-labelledby="confirmed-order-action-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -328,7 +327,7 @@
                         </span>
                         <span>Order Action</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close cancelAction" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <form id="confirmedOrderForm" method="POST">
@@ -375,8 +374,7 @@
                                                     <option value="" disabled selected>-- Select Pickup Location --
                                                     </option>
                                                     @foreach ($pickupAddress as $address)
-                                                        <option value="{{ $address->id }}"
-                                                            data-pincode="{{ $address->pincode }}"
+                                                        <option value="{{ $address->id }}" data-pincode="{{ $address->pincode }}"
                                                             data-warehouse-id="{{ $address->warehouse_id }}">
                                                             📍 {{ $address->first_name }} {{ $address->last_name }} -
                                                             {{ $address->address }}, {{ $address->state }},
@@ -461,8 +459,7 @@
                                             <!-- Display selected courier -->
                                             <div id="selected-courier-display" class="mt-2 text-info"></div>
                                             <!-- Hidden input to store selected courier -->
-                                            <input type="hidden" name="courier_service" id="courier_service"
-                                                value="">
+                                            <input type="hidden" name="courier_service" id="courier_service" value="">
                                             <input type="hidden" name="courier_service_id" id="courier_service_id">
                                             <input type="hidden" name="carrier_id" id="carrier_id">
                                             <input type="hidden" name="nickName" id="nickName">
@@ -568,8 +565,8 @@
                     </div>
 
                     <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle"></i> Close
+                        <button type="button" class="btn btn-secondary cancelAction" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle cancelAction"></i> Close
                         </button>
                         <button type="submit" class="btn btn-primary" id="submitButton">
                             <i class="bi bi-send"></i> Submit Action
@@ -581,13 +578,13 @@
     </div>
 
     {{-- Raise Issue Modal --}}
-    <div class="modal fade" id="kt_modal_raise_issue" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal fade" id="kt_modal_raise_issue" data-bs-backdrop="static" tabindex="-1" style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="fw-bold">Raise Your Issue</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <i class="ki-duotone ki-cross fs-1 cancelRaise"><span class="path1"></span><span class="path2"></span></i>
                     </div>
                 </div>
                 <div class="modal-body scroll-y mx-5 mx-xl-7 my-3">
@@ -603,7 +600,7 @@
 
                         <div class="fv-row mb-7 fv-plugins-icon-container">
                             <label class="fs-6 fw-semibold form-label mb-2 required">Category</label>
-                            <select class="form-select" name="category" id="ticket_category">
+                            <select class="form-select" name="category" id="category">
                                 <option value="">Select Category</option>
                                 <option value="Product Issue">Product Issue</option>
                                 <option value="Order Issue">Order Issue</option>
@@ -621,14 +618,13 @@
                         </div>
                         <div class="fv-row mb-7 fv-plugins-icon-container">
                             <label class="fs-6 fw-semibold form-label mb-2">Upload Screenshots (optional)</label>
-                            <input type="file" class="form-control" name="ticket_image_ref" id="screenshots"
-                                multiple>
+                            <input type="file" class="form-control" name="ticket_image_ref[]" id="screenshots" multiple>
                             <small class="text-muted">Max 3 images. Allowed types: jpg, jpeg, png. Max size 2MB
                                 each</small>
                             <span class="invalid-feedback d-block" id="screenshots_error"></span>
                         </div>
                         <div class="text-center">
-                            <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
+                            <button type="reset" class="btn btn-light me-3 cancelRaise" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary"
                                 style="background-color: #ff3d60; border-color: #ff3d60;">
                                 <span class="indicator-label">Raise Issue</span>
@@ -676,8 +672,8 @@
     <!-- END: Confirmed Order Modal -->
 
     <!-- START: Pickup Order Modal -->
-    <div class="modal fade" id="pickup-order-action-modal" tabindex="-1"
-        aria-labelledby="pickup-order-action-modal-label" aria-hidden="true">
+    <div class="modal fade" id="pickup-order-action-modal" tabindex="-1" aria-labelledby="pickup-order-action-modal-label"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -752,15 +748,13 @@
                         <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
                             <div class="card shadow-sm border-0">
                                 <div class="card-body p-3">
-                                    <label for="rejectReasonInputPickup"
-                                        class="form-label fw-semibold text-gray-700">Enter
+                                    <label for="rejectReasonInputPickup" class="form-label fw-semibold text-gray-700">Enter
                                         Reason Here:</label>
                                     <input type="text" class="form-control reject_reason_input_pickup"
                                         name="reject_reason_input" id="rejectReasonInputPickup" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section"
-                                        style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -786,8 +780,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="upload-pickup-image-modal" tabindex="-1"
-        aria-labelledby="upload-pickup-image-modal-label" aria-hidden="true">
+    <div class="modal fade" id="upload-pickup-image-modal" tabindex="-1" aria-labelledby="upload-pickup-image-modal-label"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
@@ -808,8 +802,7 @@
                                     <input type="file" class="form-control" name="pickup_image" id="pickup_image"
                                         accept=".jpg,.jpeg,.webp,.png,.svg,image/jpeg,image/jpg,image/webp,image/png,image/svg+xml">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section"
-                                        style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -914,8 +907,7 @@
                                         name="reject_reason_input" id="rejectReasonInputInTransit" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section"
-                                        style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -944,8 +936,8 @@
     <!-- END: In Transit Order Modal -->
 
     <!-- START: Cancel Order Modal -->
-    <div class="modal fade" id="cancel-order-action-modal" tabindex="-1"
-        aria-labelledby="cancel-order-action-modal-label" aria-hidden="true">
+    <div class="modal fade" id="cancel-order-action-modal" tabindex="-1" aria-labelledby="cancel-order-action-modal-label"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1007,8 +999,7 @@
                                         name="reject_reason_input" id="rejectReasonInputCancelOrder" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section"
-                                        style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -1049,6 +1040,7 @@
         $("#kt_daterangepicker_order_list").daterangepicker({
             startDate: start,
             endDate: end,
+            maxDate: moment(), // Prevent future dates
             locale: {
                 format: "DD/MM/YYYY" // Set the desired format for the input field
             },
@@ -1066,6 +1058,9 @@
         cb(start, end);
         //<------------- END : date pickert ------------->
 
+        $(document).on('click', '.ki-calendar-8', function () {
+            $('#kt_daterangepicker_order_list').trigger('click');
+        });
 
         //<------------- START : server-side transaction datatable ------------->
         const type = @json($type);
@@ -1084,7 +1079,7 @@
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
                 type: "POST",
-                data: function(d) {
+                data: function (d) {
                     d._token = '{{ csrf_token() }}';
                     d.date_filter = $('#kt_daterangepicker_order_list').val();
                     d.payment_method_filter = $('#payment_method_filter').val();
@@ -1092,58 +1087,58 @@
                     d.order = d.order; // Add order data
                     d.columns = d.columns; // Add columns data
                 },
-                dataSrc: function(json) {
+                dataSrc: function (json) {
                     return json.data;
                 }
             },
             order: [],
             columns: [{
-                    data: 'sr_no',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'order_date',
-                    className: 'text-center',
-                    orderable: true,
-                },
-                {
-                    data: 'order_detail',
-                    className: 'text-start',
-                    orderable: false,
-                },
-                {
-                    data: 'media',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'customer_detail',
-                    className: 'text-start',
-                    orderable: false,
-                },
-                {
-                    data: 'wholesaler_detail',
-                    className: 'text-start',
-                    orderable: false,
-                },
+                data: 'sr_no',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'action',
+                className: 'text-center',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'order_date',
+                className: 'text-center',
+                orderable: true,
+            },
+            {
+                data: 'order_detail',
+                className: 'text-start',
+                orderable: false,
+            },
+            {
+                data: 'media',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'customer_detail',
+                className: 'text-start',
+                orderable: false,
+            },
+            {
+                data: 'wholesaler_detail',
+                className: 'text-start',
+                orderable: false,
+            },
             ],
-            createdRow: function(row, data, dataIndex) {
+            createdRow: function (row, data, dataIndex) {
                 // Apply dark border style to each cell in the row
-                $(row).find('td').each(function() {
+                $(row).find('td').each(function () {
                     $(this).css('border', '1px solidrgb(0, 0, 0)'); // or your preferred style
                 });
 
             },
-            drawCallback: function(settings) {
+            drawCallback: function (settings) {
                 // Apply light border and preserve existing styles on <th>
-                $('#kt_datatable_order_list thead th').each(function() {
+                $('#kt_datatable_order_list thead th').each(function () {
                     var existingStyle = $(this).attr('style') || '';
                     $(this).attr(
                         'style',
@@ -1164,7 +1159,7 @@
                 );
 
                 // Apply light inner borders to all <td> in main table
-                $('#kt_datatable_order_list > tbody > tr > td').each(function() {
+                $('#kt_datatable_order_list > tbody > tr > td').each(function () {
                     var existingStyle = $(this).attr('style') || '';
                     $(this).attr(
                         'style',
@@ -1172,7 +1167,7 @@
                     );
                 });
             },
-            initComplete: function() {
+            initComplete: function () {
                 let searchBox = $('.datatable-search-section input');
                 let searchLabel = $('.datatable-search-section label');
                 let lengthSelect = $('.datatable-length-section select');
@@ -1201,24 +1196,190 @@
         });
         //<------------- END : server-side transaction datatable ------------->
 
-        $(document).ready(function() {
-            $("#kt_daterangepicker_order_list").on('apply.daterangepicker', function(ev, picker) {
+        //<------Start cancel modal close---------->
+
+        $(document).ready(function () {
+            $('.cancelRaise').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Hide the modal
+                        $('#kt_modal_raise_issue').modal('hide');
+
+                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
+                        $('#raiseIssueForm')[0].reset();
+
+                        // Also clear any validation error messages
+                        $('#raiseIssueForm').find('.invalid-feedback').text('');
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // Keep modal open
+                        $('#kt_modal_raise_issue').modal('show');
+                    }
+                });
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('.cancelAction').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#confirmedOrderForm').closest('.modal').modal('hide');
+                        resetConfirmedOrderForm();
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        $('#confirmedOrderForm').closest('.modal').modal('show');
+                    }
+                });
+            });
+        });
+
+        function resetConfirmedOrderForm() {
+            let $form = $('#confirmedOrderForm');
+
+            // Reset normal fields
+            $form[0].reset();
+
+            // Clear radio buttons explicitly
+            $form.find('input[type="radio"]').prop('checked', false);
+
+            // Clear Select2 dropdowns
+            $form.find('select').each(function () {
+                $(this).val(null).trigger('change');
+            });
+
+            // Hide all conditional sections
+            $('#pickupLocationContainer').hide();
+            $('#productWeightContainer').hide();
+            $('#courierServicesContainer').hide();
+            $('.rejectReasonSelectContainer').hide();
+            $('.rejectReasonInputContainer').hide();
+        }
+        //<--------------End cancel modal close----------->
+
+        //<------Start cancel modal close---------->
+
+        $(document).ready(function () {
+            $('.cancelRaise').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Hide the modal
+                        $('#kt_modal_raise_issue').modal('hide');
+
+                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
+                        $('#raiseIssueForm')[0].reset();
+
+                        // Also clear any validation error messages
+                        $('#raiseIssueForm').find('.invalid-feedback').text('');
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // Keep modal open
+                        $('#kt_modal_raise_issue').modal('show');
+                    }
+                });
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('.cancelAction').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#confirmedOrderForm').closest('.modal').modal('hide');
+                        resetConfirmedOrderForm();
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        $('#confirmedOrderForm').closest('.modal').modal('show');
+                    }
+                });
+            });
+        });
+
+        function resetConfirmedOrderForm() {
+            let $form = $('#confirmedOrderForm');
+
+            // Reset normal fields
+            $form[0].reset();
+
+            // Clear radio buttons explicitly
+            $form.find('input[type="radio"]').prop('checked', false);
+
+            // Clear Select2 dropdowns
+            $form.find('select').each(function () {
+                $(this).val(null).trigger('change');
+            });
+
+            // Hide all conditional sections
+            $('#pickupLocationContainer').hide();
+            $('#productWeightContainer').hide();
+            $('#courierServicesContainer').hide();
+            $('.rejectReasonSelectContainer').hide();
+            $('.rejectReasonInputContainer').hide();
+        }
+        //<--------------End cancel modal close----------->
+
+        $(document).ready(function () {
+            $("#kt_daterangepicker_order_list").on('apply.daterangepicker', function (ev, picker) {
                 dataTable.draw();
             });
 
-            $("#payment_method_filter").on('change', function() {
+            $("#payment_method_filter").on('change', function () {
                 dataTable.draw();
             });
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             // for search inside select option on modal show
-            $('#new-order-action-modal').on('shown.bs.modal', function() {
+            $('#new-order-action-modal').on('shown.bs.modal', function () {
                 $('.reject_reason_select_new').select2({
                     dropdownParent: $('#new-order-action-modal')
                 });
             });
-            $('#confirmed-order-action-modal').on('shown.bs.modal', function() {
+            $('#confirmed-order-action-modal').on('shown.bs.modal', function () {
                 $('#pickup_address_id, #rto_address_id, #courier_service, #product_weight, .reject_reason_select_confirmed')
                     .select2({
                         dropdownParent: $('#confirmed-order-action-modal')
@@ -1277,12 +1438,8 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: JSON.stringify(payload),
-                    success: function(response) {
-                        if (response.status && Array.isArray(response.data) && response.data.length >
-                            0) {
-                            console.log({
-                                response: response.data
-                            })
+                    success: function (response) {
+                        if (response.status && Array.isArray(response.data) && response.data.length > 0) {
                             populateMergedCourierRates(response.data);
                         } else {
                             $('#courierDetailsBody').html(
@@ -1302,7 +1459,7 @@
                     //             '<tr><td colspan="6">No courier services available</td></tr>');
                     //     }
                     // },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         console.error('Error fetching courier rates:', xhr.responseText);
                         let errorMessage = 'Error fetching courier rates';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -1432,7 +1589,7 @@
             }
 
             // Handle "Select Courier" button click
-            $(document).on('click', '#selectCourierBtn', function() {
+            $(document).on('click', '#selectCourierBtn', function () {
                 // Hide the previous modal to prevent overlap
                 $('#confirmed-order-action-modal').modal('hide');
 
@@ -1482,7 +1639,7 @@
             }
 
             // Handle courier selection from modal
-            $(document).on('click', '.select-courier', function() {
+            $(document).on('click', '.select-courier', function () {
                 const courierName = $(this).data('courier') || 'Unknown';
                 const courierId = $(this).data('courier-id') || '';
                 const carrierId = $(this).data('carrier-id') || '';
@@ -1513,12 +1670,12 @@
 
                 // Display all courier details below the Select Courier button
                 $('#selected-courier-display').html(`
-                    <strong>Selected Courier:</strong> ${courierName}<br>
-                    <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
-                    <strong>COD Charge:</strong> ₹${codCharge}<br>
-                    <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
-                    <strong>Service Mode:</strong> ${serviceMode}
-                `);
+                            <strong>Selected Courier:</strong> ${courierName}<br>
+                            <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
+                            <strong>COD Charge:</strong> ₹${codCharge}<br>
+                            <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
+                            <strong>Service Mode:</strong> ${serviceMode}
+                        `);
 
                 // Validate courier match
 
@@ -1540,7 +1697,7 @@
             });
 
             // Handle close button to restore previous modal and clear selection if no courier selected
-            $('#courierDetailsModal').on('hidden.bs.modal', function() {
+            $('#courierDetailsModal').on('hidden.bs.modal', function () {
                 // Show the previous modal when courier modal closes
                 $('#confirmed-order-action-modal').modal('show');
                 // Clear selected courier display if no courier is selected
@@ -1550,13 +1707,13 @@
             });
 
             // Handle changes to product weight and pickup address to toggle Select Courier button
-            $(document).on('change', '#product_weight, #pickup_address_id', function() {
+            $(document).on('change', '#product_weight, #pickup_address_id', function () {
                 toggleSelectCourierButton();
                 clearSelectedCurier();
             });
 
             //<-------------- START: New Order --------------->
-            $('.reject_reason_select_new').change(function() {
+            $('.reject_reason_select_new').change(function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -1565,7 +1722,7 @@
                 }
             });
 
-            $(document).on('change', '#new-order-action-modal input[name="status"]', function() {
+            $(document).on('change', '#new-order-action-modal input[name="status"]', function () {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -1577,7 +1734,7 @@
                 }
             });
 
-            $(document).on('click', '.newOrderAction', function() {
+            $(document).on('click', '.newOrderAction', function () {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -1597,7 +1754,7 @@
                 $('#new-order-action-modal').modal('show');
             });
 
-            $(document).on('submit', '#newOrderForm', function(e) {
+            $(document).on('submit', '#newOrderForm', function (e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -1677,7 +1834,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -1687,7 +1844,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(":type", response.type);
+                                                .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -1699,7 +1856,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -1716,7 +1873,7 @@
 
 
             //<-------------- START: Confirmed Order --------------->
-            $(document).on('change', '.reject_reason_select_confirmed', function() {
+            $(document).on('change', '.reject_reason_select_confirmed', function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -1725,7 +1882,7 @@
                 }
             });
 
-            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function() {
+            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function () {
                 const status = $(this).val();
 
                 $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer')
@@ -1754,7 +1911,7 @@
                 }
             });
 
-            $(document).on('click', '.confirmedOrderAction', function() {
+            $(document).on('click', '.confirmedOrderAction', function () {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -1780,7 +1937,7 @@
                 $('#confirmed-order-action-modal').modal('show');
             });
 
-            $('#courier_service').on('change', function() {
+            $('#courier_service').on('change', function () {
                 const selectedOption = $('#courier_service option:selected');
                 const courierName = selectedOption.val();
                 const courierId = selectedOption.data('id');
@@ -1788,7 +1945,7 @@
                 $('#courier_service_id').val(courierId);
             });
 
-            $(document).on('submit', '#confirmedOrderForm', function(e) {
+            $(document).on('submit', '#confirmedOrderForm', function (e) {
                 e.preventDefault();
 
                 let form = new FormData(this);
@@ -1911,7 +2068,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
                                 Swal.close();
                                 if (response.status) {
                                     Swal.fire({
@@ -1922,7 +2079,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(":type", response.type);
+                                                .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -1933,7 +2090,7 @@
                                     });
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 Swal.close();
                                 Swal.fire({
                                     title: "Error!",
@@ -1950,7 +2107,7 @@
 
             //<-------------- START: Pickup Order --------------->
             // pickup image fetch
-            $(document).on('click', '#uploadPickupImage', function() {
+            $(document).on('click', '#uploadPickupImage', function () {
                 $('.reject-reason-input-error').text('');
                 $('.reject-reason-input-error-section').hide();
 
@@ -1964,13 +2121,13 @@
                         _token: '{{ csrf_token() }}',
                         order_id: order_id
                     },
-                    success: function(response) {
+                    success: function (response) {
                         var defaultImage = "/assets/media/images/no_image.jpg";
 
                         if (response.status) {
                             $("#pickup_image_preview")
                                 .off("error")
-                                .on("error", function() {
+                                .on("error", function () {
                                     $(this).off("error");
                                     $(this).attr("src", defaultImage);
                                 })
@@ -1980,7 +2137,7 @@
                             $('#pickup_image_preview').attr('src', defaultImage);
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         $('#pickup_image_preview').attr('src', defaultImage);
                     }
                 });
@@ -1989,7 +2146,7 @@
             });
 
             // pickup image upload
-            $(document).on('submit', '#uploadPickupImageForm', function(e) {
+            $(document).on('submit', '#uploadPickupImageForm', function (e) {
                 e.preventDefault();
 
                 let form = $(this)[0];
@@ -2001,7 +2158,7 @@
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status) {
                             $('#uploadPickupImageForm')[0].reset();
                             $('#pickup_image_preview').attr('src', '');
@@ -2019,7 +2176,7 @@
                             $('.reject-reason-input-error-section').show();
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let error = xhr.responseJSON?.message || 'Something went wrong.';
                         $('.reject-reason-input-error').text(error);
                         $('.reject-reason-input-error-section').show();
@@ -2027,7 +2184,7 @@
                 });
             });
 
-            $(document).on('click', '.pickupOrderAction', function() {
+            $(document).on('click', '.pickupOrderAction', function () {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -2043,7 +2200,7 @@
                 $('#pickup-order-action-modal').modal('show');
             });
 
-            $(document).on('change', '#pickup-order-action-modal input[name="status"]', function() {
+            $(document).on('change', '#pickup-order-action-modal input[name="status"]', function () {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -2055,7 +2212,7 @@
                 }
             });
 
-            $('.reject_reason_select_pickup').change(function() {
+            $('.reject_reason_select_pickup').change(function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -2064,7 +2221,7 @@
                 }
             });
 
-            $(document).on('submit', '#pickupOrderForm', function(e) {
+            $(document).on('submit', '#pickupOrderForm', function (e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -2144,7 +2301,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -2154,7 +2311,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(":type", response.type);
+                                                .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2166,7 +2323,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -2182,7 +2339,7 @@
             //<-------------- END: Pickup Order --------------->
 
             //<-------------- START: In Transit Order --------------->
-            $(document).on('click', '.inTransitOrderAction', function() {
+            $(document).on('click', '.inTransitOrderAction', function () {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -2198,7 +2355,7 @@
                 $('#in-transit-order-action-modal').modal('show');
             });
 
-            $(document).on('change', '#in-transit-order-action-modal input[name="status"]', function() {
+            $(document).on('change', '#in-transit-order-action-modal input[name="status"]', function () {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -2210,7 +2367,7 @@
                 }
             });
 
-            $('.reject_reason_select_in_transit').change(function() {
+            $('.reject_reason_select_in_transit').change(function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -2219,7 +2376,7 @@
                 }
             });
 
-            $(document).on('submit', '#inTransitOrderForm', function(e) {
+            $(document).on('submit', '#inTransitOrderForm', function (e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -2300,7 +2457,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -2310,7 +2467,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(":type", response.type);
+                                                .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2322,7 +2479,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -2338,14 +2495,14 @@
             //<-------------- END: In Transit Order --------------->
 
             //<----------------- START : Cancel order while in shipping ---------------->
-            $(document).on('click', '.cancelOrder', function() {
+            $(document).on('click', '.cancelOrder', function () {
                 let order_id = $(this).attr('data-order-id');
                 $('.order_id').val(order_id);
 
                 $('#cancel-order-action-modal').modal('show');
             });
 
-            $('.reject_reason_select_cancel_order').change(function() {
+            $('.reject_reason_select_cancel_order').change(function () {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -2354,7 +2511,7 @@
                 }
             });
 
-            $(document).on('submit', '#cancelOrderForm', function(e) {
+            $(document).on('submit', '#cancelOrderForm', function (e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -2415,7 +2572,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -2425,7 +2582,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                            .replace(":type", response.type);
+                                                .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2437,7 +2594,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -2453,81 +2610,200 @@
             //<----------------- END : Cancel order while in shipping ---------------->
 
             //<----------------- START : raise issue ---------------->
-            $(document).on('click', '.raise-issue', function() {
+            $(document).on('click', '.raise-issue', function () {
                 let productId = $(this).data('id');
                 $('#raise_issue_product_id').val(productId);
                 $('#kt_modal_raise_issue').modal('show');
             });
 
-            $(document).on('submit', '#raiseIssueForm', function(e) {
+            $('#kt_modal_raise_issue').on('hidden.bs.modal', function () {
+                const form = $('#raiseIssueForm');
+                form[0].reset();
+
+                // Remove validation error messages
+                $('#subject_error').text('');
+                $('#description_error').text('');
+                $('#category_error').text('');
+                $('#screenshots_error').text('');
+
+                // Remove invalid class from fields
+                $('#ticket_subject').removeClass('is-invalid');
+                $('#ticket_description').removeClass('is-invalid');
+                $('#category').removeClass('is-invalid');
+                $('#screenshots').removeClass('is-invalid');
+
+                // Reset product ID or any other custom field
+                $('#raise_issue_product_id').val('');
+            });
+
+
+
+            $(document).on('submit', '#raiseIssueForm', function (e) {
                 e.preventDefault();
 
                 let formData = new FormData(this);
+                formData.append('_token', '{{ csrf_token() }}');
                 let submitButton = $(this).find("button[type='submit']");
 
                 // Clear previous validation states
                 $('#subject_error').text('');
                 $('#description_error').text('');
                 $('#screenshots_error').text('');
+                $('#category_error').text('');
                 $('#ticket_subject').removeClass('is-invalid');
                 $('#ticket_description').removeClass('is-invalid');
+                $('#category').removeClass('is-invalid');
                 $('#screenshots').removeClass('is-invalid');
 
-                submitButton.prop("disabled", true);
-                submitButton.find(".indicator-label").hide();
-                submitButton.find(".indicator-progress").show();
+                let files = $('#screenshots')[0].files;
+                let maxSize = 2 * 1024 * 1024;
 
-                $.ajax({
-                    url: "{{ route('retailer.generate.ticket') }}",
-                    type: "POST",
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Ticket Raised Successfully!',
-                            text: response.message,
-                        }).then(() => {
-                            $('#kt_modal_raise_issue').modal('hide');
-                            document.getElementById('raiseIssueForm').reset();
-                            $('#raise_issue_product_id').val('');
-                        });
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            let response = xhr.responseJSON;
+                // Check for required fields manually (client-side)
+                let subject = $('#ticket_subject').val().trim();
+                let description = $('#ticket_description').val().trim();
+                let category = $('#category').val();
 
-                            if (response.errors) {
-                                if (response.errors.subject) {
-                                    $('#subject_error').text(response.errors.subject[0]);
-                                    $('#ticket_subject').addClass('is-invalid');
-                                }
-                                if (response.errors.description) {
-                                    $('#description_error').text(response.errors.description[
-                                        0]);
-                                    $('#ticket_description').addClass('is-invalid');
-                                }
-                                if (response.errors.screenshots) {
-                                    $('#screenshots_error').text(response.errors.screenshots[
-                                        0]);
-                                    $('#screenshots').addClass('is-invalid');
-                                }
-                            }
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Server Error!',
-                                text: 'Something went wrong. Please try again.',
-                            });
-                        }
-                    },
-                    complete: function() {
-                        submitButton.prop("disabled", false);
-                        submitButton.find(".indicator-label").show();
-                        submitButton.find(".indicator-progress").hide();
+                let hasError = false;
+
+                if (subject === '') {
+                    $('#subject_error').text('Subject is required.');
+                    $('#ticket_subject').addClass('is-invalid');
+                    hasError = true;
+                }
+
+                if (category === '' || category === null) {
+                    $('#category_error').text('Category is required.');
+                    $('#category').addClass('is-invalid');
+                    hasError = true;
+                }
+
+                if (description === '') {
+                    $('#description_error').text('Description is required.');
+                    $('#ticket_description').addClass('is-invalid');
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    return;
+                }
+
+                // Image size check
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].size > maxSize) {
+                        $('#screenshots_error').text('Each image must be less than 2 MB.');
+                        $('#screenshots').addClass('is-invalid');
+                        return;
                     }
-                });
+                }
+
+                // Image corruption check
+                let corruptedFound = false;
+                let filesChecked = 0;
+
+                function proceedAfterValidation() {
+                    if (!corruptedFound) {
+                        submitForm();
+                    }
+                }
+
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        let file = files[i];
+                        let img = new Image();
+                        img.onload = function () {
+                            filesChecked++;
+                            if (filesChecked === files.length) proceedAfterValidation();
+                        };
+                        img.onerror = function () {
+                            corruptedFound = true;
+                            $('#screenshots_error').text('One or more images are corrupted or invalid.');
+                            $('#screenshots').addClass('is-invalid');
+                        };
+                        img.src = URL.createObjectURL(file);
+                    }
+                } else {
+                    submitForm(); // No image to validate
+                }
+
+                function submitForm() {
+                    submitButton.prop("disabled", true);
+                    submitButton.find(".indicator-label").hide();
+                    submitButton.find(".indicator-progress").show();
+
+                    $.ajax({
+                        url: "{{ route('retailer.generate.ticket') }}",
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Ticket Raised Successfully!',
+                                text: response.message,
+                            }).then(() => {
+                                $('#kt_modal_raise_issue').modal('hide');
+                                document.getElementById('raiseIssueForm').reset();
+                                $('#raise_issue_product_id').val('');
+                            });
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 422) {
+                                let response = xhr.responseJSON;
+
+                                if (response.errors) {
+                                    if (response.errors.subject) {
+                                        $('#subject_error').text(response.errors.subject[0]);
+                                        $('#ticket_subject').addClass('is-invalid');
+                                    }
+
+                                    if (response.errors.category) {
+                                        $('#category_error').text(response.errors.category[0]);
+                                        $('#ticket_category').addClass('is-invalid');
+                                    }
+
+                                    if (response.errors.ticket_description) {
+                                        $('#description_error').text(response.errors.ticket_description[0]);
+                                        $('#ticket_description').addClass('is-invalid');
+                                    }
+
+                                    let imageErrorShown = false;
+
+                                    if (response.errors['ticket_image_ref']) {
+                                        $('#screenshots_error').text(response.errors['ticket_image_ref'][0]);
+                                        $('#screenshots').addClass('is-invalid');
+                                        imageErrorShown = true;
+                                    }
+
+                                    // Loop for ticket_image_ref.* errors
+                                    if (!imageErrorShown) {
+                                        for (const key in response.errors) {
+                                            if (key.startsWith('ticket_image_ref.')) {
+                                                $('#screenshots_error').text(response.errors[key][0]);
+                                                $('#screenshots').addClass('is-invalid');
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                submitButton.prop("disabled", false);
+                                submitButton.find(".indicator-label").show();
+                                submitButton.find(".indicator-progress").hide();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Server Error!',
+                                    text: 'Something went wrong. Please try again.',
+                                });
+
+                                submitButton.prop("disabled", false);
+                                submitButton.find(".indicator-label").show();
+                                submitButton.find(".indicator-progress").hide();
+                            }
+                        },
+                    });
+                }
             });
             //<----------------- END : raise issue ---------------->
 
@@ -2624,9 +2900,9 @@
                         Swal.fire({
                             title: 'Reschedule Delivery',
                             html: `
-                                <label>Select Reschedule Date & Time</label>
-                                <input type="datetime-local" id="rescheduleDate" class="swal2-input">
-                            `,
+                                        <label>Select Reschedule Date & Time</label>
+                                        <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+                                    `,
                             confirmButtonText: 'Submit',
                             focusConfirm: false,
                             allowOutsideClick: false, // 🚫 Prevent closing by clicking outside

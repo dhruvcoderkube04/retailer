@@ -13,7 +13,7 @@
                             Category List</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Category</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -32,7 +32,7 @@
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center min-w-100px">Action</th>
-                                        <th class="text-center min-w-100px">Images</th>
+                                        <th class="text-center min-w-100px">Uploaded Images</th>
                                         <th class="text-center min-w-175px">Category</th>
                                         <th class="text-center min-w-250px">Sub Category</th>
                                         <th class="text-center min-w-150px">Created</th>

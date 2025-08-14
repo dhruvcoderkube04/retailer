@@ -11,7 +11,7 @@
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                             <h1
                                 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                                Subscribed Categories
+                                Subscribed Sub Categories
                             </h1>
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                                 <li class="breadcrumb-item text-muted">
@@ -88,7 +88,7 @@
                                                 </i>
                                                 <input type="text" id="search_input"
                                                     class="form-control form-control-solid ps-12 bg-secondary"
-                                                    placeholder="Search Product" />
+                                                    placeholder="Search" />
                                             </div>
                                         </div>
                                     </div>

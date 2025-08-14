@@ -321,6 +321,8 @@
         <script>
             // <--------------------- START : Available Product ---------------------->
             let availableDatatable = $('#kt_datatable_available_retailer_clone_products').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
                 ajax: {

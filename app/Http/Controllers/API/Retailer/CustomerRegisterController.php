@@ -5,9 +5,12 @@ namespace App\Http\Controllers\API\Retailer;
 use App\Http\Controllers\Controller;
 use App\Mail\WelcomeCustomerMail;
 use App\Models\Customer;
+use App\Models\CustomerCart;
 use App\Models\CustomerDetails;
 use App\Models\CustomerOrders;
 use App\Models\OrderProductDetails;
+use App\Models\Product;
+use App\Models\RetailerCloneProduct;
 use App\Models\RetailerWebManagement;
 use App\Models\StoreCustomers;
 use App\Models\StoreCustomersDetails;
@@ -21,6 +24,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Mail\WelcomeVerifyCustomerMail;
 use App\Services\OtpService;
+use Illuminate\Support\Facades\Cache;
+
 
 class CustomerRegisterController extends Controller
 {
@@ -166,7 +171,6 @@ class CustomerRegisterController extends Controller
 
     public function login(Request $request)
     {
-
         $request->validate([
             'user_token' => 'required|string',
             'email' => 'required|email',
@@ -191,21 +195,14 @@ class CustomerRegisterController extends Controller
             ->where('is_active', true)
             ->first();
 
-
         if (!$customer) {
             return response()->json([
                 'status' => false,
-                'message' => 'Please Verify your email.'
+                'message' => 'Please verify your email.'
             ], 404);
         }
 
-        // Validate credentials
-        if (!$customer || !Hash::check($request->password, $customer->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
+        // Check if email is verified
         if (is_null($customer->email_verified_at)) {
             return response()->json([
                 'status' => false,
@@ -213,13 +210,71 @@ class CustomerRegisterController extends Controller
             ], 403);
         }
 
+        // Check if account is active
         if (!$customer->is_active) {
             return response()->json([
                 'status' => false,
                 'message' => 'Your account is not active. Please contact support.'
             ], 403);
         }
-        // Create Sanctum token
+
+        // Validate password
+        if (!Hash::check($request->password, $customer->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Optional: Fetch full customer details if needed
+        $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+
+        $filteredCustomer = $customerDetails ? collect($customerDetails)->except([
+            'id',
+            'user_id',
+            'created_at',
+            'updated_at'
+        ]) : collect($customer)->except([
+                        'id',
+                        'user_id',
+                        'created_at',
+                        'updated_at'
+                    ]);
+
+
+        $customerCart = CustomerCart::where('customer_id', $customerDetails->id)->get();
+
+        $cartItems = [];
+        $wishlistItems = [];
+
+        foreach ($customerCart as $item) {
+            if ($item->type === 'wishlist') {
+                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                } else {
+                    $product = null;
+                }
+
+                if ($product) {
+                    $wishlistItems[] = $product;
+                }
+            } elseif ($item->type === 'cart') {
+                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                } else {
+                    $product = null;
+                }
+
+                if ($product) {
+                    $cartItems[] = $product;
+                }
+            }
+        }
+
+        // Generate token
         $token = $customer->createToken('customer-token')->plainTextToken;
 
         return response()->json([
@@ -227,54 +282,69 @@ class CustomerRegisterController extends Controller
             'message' => 'Login successful.',
             'token' => $token,
             'user_token' => $request->user_token,
-            'data' => [
-                'id' => $customer->id,
-                'name' => $customer->firstname,
-                'email' => $customer->email
-            ]
+            'customer' => $filteredCustomer,
+            'wishlist_items' => $wishlistItems,
+            'cart_items' => $cartItems
         ]);
+
     }
+
 
     public function loginOtp(Request $request)
     {
+
+        // $request->validate([
+        //     'phone_number' => 'required|digits:10',
+        // ]);
+
+        // $otpService = new OtpService();
+
+        // // Step 1: Send OTP if not present
+        // if (!$request->has('otp')) {
+        //     $otp = $otpService->send($request->phone_number);
+
+        //     if (!$otp) {
+        //         return response()->json([
+        //             'error' => true,
+        //             'message' => 'Failed to send OTP. Please try again.'
+        //         ], 500);
+        //     }
+
+        //     return response()->json([
+        //         'success' => true,
+        //         'message' => 'OTP sent successfully',
+        //         'otp_required' => true,
+        //         'otp' => $otp // ✅ returning OTP in response
+        //     ], 200);
+        // }
+
+
+        // // Step 2: Verify OTP
+        // $request->validate([
+        //     'otp' => 'required|digits:6',
+        // ]);
+
+        // if (!$otpService->verify($request->phone_number, $request->otp)) {
+        //     return response()->json([
+        //         'error' => true,
+        //         'message' => 'Invalid or expired OTP.'
+        //     ], 401);
+        // }
 
         $request->validate([
             'phone_number' => 'required|digits:10',
         ]);
 
-        $otpService = new OtpService();
-
-        // Step 1: Send OTP if not present
-        if (!$request->has('otp')) {
-            $otp = $otpService->send($request->phone_number);
-
-            if (!$otp) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Failed to send OTP. Please try again.'
-                ], 500);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'OTP sent successfully',
-                'otp_required' => true,
-                'otp' => $otp // ✅ returning OTP in response
-            ], 200);
-        }
-
-
-        // Step 2: Verify OTP
-        $request->validate([
-            'otp' => 'required|digits:6',
-        ]);
-
-        if (!$otpService->verify($request->phone_number, $request->otp)) {
+        // Check if this number has been verified
+        if (!Cache::get('otp_verified_' . $request->phone_number)) {
             return response()->json([
                 'error' => true,
-                'message' => 'Invalid or expired OTP.'
+                'message' => 'Phone number not verified. Please verify via OTP first.'
             ], 401);
         }
+
+        // Optionally clear verification after use
+        Cache::forget('otp_verified_' . $request->phone_number);
 
         // Check valid retailer
         $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
@@ -303,7 +373,56 @@ class CustomerRegisterController extends Controller
             ], 404);
         }
 
-        // Create Sanctum token
+        // Optional: Fetch full customer details if needed
+        $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+
+        $filteredCustomer = $customerDetails ? collect($customerDetails)->except([
+            'id',
+            'user_id',
+            'created_at',
+            'updated_at'
+        ]) : collect($customer)->except([
+                        'id',
+                        'user_id',
+                        'created_at',
+                        'updated_at'
+                    ]);
+
+
+        $customerCart = CustomerCart::where('customer_id', $customerDetails->id)->get();
+
+        $cartItems = [];
+        $wishlistItems = [];
+
+        foreach ($customerCart as $item) {
+            if ($item->type === 'wishlist') {
+                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                } else {
+                    $product = null;
+                }
+
+                if ($product) {
+                    $wishlistItems[] = $product;
+                }
+            } elseif ($item->type === 'cart') {
+                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                } else {
+                    $product = null;
+                }
+
+                if ($product) {
+                    $cartItems[] = $product;
+                }
+            }
+        }
+
+        // Generate token
         $token = $customer->createToken('customer-token')->plainTextToken;
 
         return response()->json([
@@ -311,11 +430,9 @@ class CustomerRegisterController extends Controller
             'message' => 'Login successful.',
             'token' => $token,
             'user_token' => $request->user_token,
-            'data' => [
-                'id' => $customer->id,
-                'name' => $customer->firstname . ' ' . $customer->lastname,
-                'email' => $customer->email
-            ]
+            'customer' => $filteredCustomer,
+            'wishlist_items' => $wishlistItems,
+            'cart_items' => $cartItems
         ]);
     }
 

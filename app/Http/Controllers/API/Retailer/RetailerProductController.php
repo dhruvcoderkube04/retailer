@@ -729,7 +729,6 @@ class RetailerProductController extends Controller
     public function checkoutNew(Request $request)
     {
         $user = Auth::guard('sanctum')->user();
-
         if (!$user) {
 
             // ========== GUEST USER FLOW ==========
@@ -824,36 +823,49 @@ class RetailerProductController extends Controller
                 $existCustomer->save();
 
                 $customerId = $existCustomer->id;
+                $customerDetails = $existCustomer; 
             } else {
                 // Step 4: Create new customer
                 $request->validate([
                     'firstname' => 'required|string|max:30',
                     'lastname' => 'nullable|string|max:30',
-                    'email' => 'nullable|email',
+                    'email' => 'required|email',
                     'address' => 'required|string|max:250',
                     'state' => 'required|string',
                     'city' => 'required|string',
                     'pincode' => 'required|digits:6',
                     'user_token' => 'required|string',
                 ]);
-
+                
+                // ✅ Check if email already exists in store_customers_details
+                $existingCustomer = StoreCustomersDetails::where('email', $request->email)->first();
+                
+                if ($existingCustomer) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Email already registered. Please log in or use a different email.',
+                    ], 409); 
+                }
+                
+                // ✅ Validate user token
                 $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
                     ->where('is_active', 1)
                     ->first();
-
+                
                 if (!$retailer) {
                     return response()->json([
                         'status' => false,
                         'message' => 'Invalid user token.'
                     ], 404);
                 }
-
+                
                 $randomPassword = Str::random(10) . '@' . rand(10, 99);
                 $hashedPassword = Hash::make($randomPassword);
-
+                
+                // ✅ Create customerDetails
                 $customerDetails = CustomerDetails::create([
                     'user_id' => $retailer->retailer_id,
-                    'firstname' => $request->firstname,
+                    'firstname' => $request->firstname, 
                     'lastname' => $request->lastname,
                     'email' => $request->email,
                     'phone_number' => $request->phone_number,
@@ -862,7 +874,8 @@ class RetailerProductController extends Controller
                     'city' => $request->city,
                     'pincode' => $request->pincode,
                 ]);
-
+                
+                // ✅ Create storeCustomerDetails
                 $storeCustomerDetails = StoreCustomersDetails::create([
                     'user_id' => $retailer->retailer_id,
                     'firstname' => $request->firstname,
@@ -876,19 +889,19 @@ class RetailerProductController extends Controller
                     'email_verification_token' => null,
                     'email_verified_at' => now(),
                 ]);
-
+                
+                // ✅ Send welcome email
                 if ($request->email) {
                     Mail::to($storeCustomerDetails->email)
                         ->send(new WelcomeCustomerMail($storeCustomerDetails, $randomPassword));
                 }
-
+                
                 $customerId = $customerDetails->id;
-            }
+            }                
         } else {
             // ========== LOGGED-IN USER FLOW ==========
-            $customerId = $user->customer_id;
+            $customerId = $user->id;
             $customerDetails = CustomerDetails::find($customerId);
-
             // Check if any required fields are missing in DB
             $missingFields = [];
 
@@ -942,28 +955,28 @@ class RetailerProductController extends Controller
 
         }
 
-        $validator = Validator::make($request->all(), [
-            'firstname' => $user ? 'nullable' : 'required|string|max:30',
-            'lastname' => $user ? 'nullable' : 'required|string|max:30',
-            'phone_number' => 'required|numeric|digits:10',
-            'email' => $user ? 'nullable|email' : 'required|email',
-            'address' => 'required|string|max:250',
-            'payment_method' => 'required|in:cod,upi',
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'nullable|integer',
-            'products.*.retailer_product_id' => 'nullable|integer',
-            'products.*.wholesaler_id' => 'nullable|integer',
-            'products.*.retailer_id' => 'nullable|integer',
-            'products.*.quantity' => 'required|integer|min:1',
-            'products.*.final_amount' => 'required|numeric|min:0',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'firstname' => $user ? 'nullable' : 'required|string|max:30',
+        //     'lastname' => $user ? 'nullable' : 'required|string|max:30',
+        //     'phone_number' => 'required|numeric|digits:10',
+        //     'email' => $user ? 'nullable|email' : 'required|email',
+        //     'address' => 'required|string|max:250',
+        //     'payment_method' => 'required|in:cod,upi',
+        //     'products' => 'required|array|min:1',
+        //     'products.*.product_id' => 'nullable|integer',
+        //     'products.*.retailer_product_id' => 'nullable|integer',
+        //     'products.*.wholesaler_id' => 'nullable|integer',
+        //     'products.*.retailer_id' => 'nullable|integer',
+        //     'products.*.quantity' => 'required|integer|min:1',
+        //     'products.*.final_amount' => 'required|numeric|min:0',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
@@ -1309,10 +1322,51 @@ class RetailerProductController extends Controller
                 Mail::to($retailer->retailer->email)->send(new RetailerOrderMail($orderItemsForMail, $retailer->retailer));
             }
 
+
+
+            if ($customerDetails) {
+                $token = $customerDetails->createToken('customer-token')->plainTextToken;
+                $filtercustomerDetails = collect($customerDetails)->except(['id', 'user_id', 'created_at', 'updated_at']);
+
+                // Get all cart/wishlist entries
+                $customerCartItems = CustomerCart::where('customer_id', $customerDetails->id)->get();
+
+                $wishlistItems = [];
+                $cartItems = [];
+
+                foreach ($customerCartItems as $item) {
+                    $product = null;
+
+                    if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                        $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                    } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                        $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                    }
+
+                    if ($product) {
+                        if ($item->type === 'wishlist') {
+                            $wishlistItems[] = $product;
+                        } elseif ($item->type === 'cart') {
+                            $cartItems[] = $product;
+                        }
+                    }
+                }
+            } else {
+                $token = null;
+                $filtercustomerDetails = [];
+                $wishlistItems = [];
+                $cartItems = [];
+            }
+            $token = $customerDetails->createToken('customer-token')->plainTextToken;
+
             return response()->json([
                 'success' => true,
+                'message' => 'Your order has been placed successfully!',
                 'order_id' => $orderIDs,
-                'message' => 'Your order has been placed successfully!'
+                'token' => $token,
+                'customer' => $filtercustomerDetails,
+                'wishlist_items' => $wishlistItems,
+                'cart_items' => $cartItems
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
