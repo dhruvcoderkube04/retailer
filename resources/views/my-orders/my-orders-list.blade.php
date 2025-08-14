@@ -88,8 +88,8 @@
                                     <span class="path2"></span>
                                 </i>
                                 <input type="text" data-kt-ecommerce-product-filter="search"
-                                    class="form-control form-control-solid w-250px ps-12 bg-secondary" placeholder="Search Product"
-                                    id="search_field" />
+                                    class="form-control form-control-solid w-250px ps-12 bg-secondary"
+                                    placeholder="Search Product" id="search_field" />
                             </div>
                         </div>
 
@@ -120,16 +120,42 @@
 
 @section('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
+            $.fn.dataTable.ext.errMode = 'none'; // Prevent default alerts
+
             const table = $('#kt_my_order_list_table').DataTable({
-            processing: true,
-            serverSide: true,
+                processing: true,
+                serverSide: true,
                 ajax: {
                     url: "{{ route('retailer.my-order.fetch-record') }}",
                     type: 'POST',
-                    data: function(d) {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    data: function (d) {
                         d._token = "{{ csrf_token() }}";
                         d.search = $('#search_field').val();
+                    },
+                    dataSrc: function (json) {
+                        if (json.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Search',
+                                text: json.error,
+                            }).then(() => {
+                                $('#search_field').val('');
+                                table.ajax.reload(); // Optional: refresh with empty input
+                            });
+                            return [];
+                        }
+                        return json.data;
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred while loading data.',
+                        });
                     }
                 },
                 columns: [
@@ -141,11 +167,11 @@
                 ]
             });
 
-            // for datatable load and table's data search
-            var table1 = $("#kt_my_order_list_table").DataTable();
-            $("#search_field").on("keyup", function() {
-                table1.search(this.value).draw();
+            $('#search_field').on('keyup', function () {
+                table.ajax.reload();
             });
         });
+
+
     </script>
 @endsection

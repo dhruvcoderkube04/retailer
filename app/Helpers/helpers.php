@@ -31,7 +31,7 @@ if (!function_exists('order_status')) {
          'pickup' => 'Pickup',
          'in_transit' => 'In Transit',
          'ofd' => 'OFD',
-         'ndr'=>'NDR',
+         'ndr' => 'NDR',
          'delivered' => 'Delivered',
          'rto' => 'RTO',
          'rtn_to_seller' => 'RTN To Seller',
@@ -70,12 +70,16 @@ if (!function_exists('uploadOrUpdateImageToSpaces')) {
       return $path;
    }
 }
-
 if (!function_exists('deleteImageToSpaces')) {
    function deleteImageToSpaces($oldImagePath)
    {
+      Log::info('Attempting to delete image from Spaces:', ['path' => $oldImagePath]);
+
       if ($oldImagePath && Storage::disk('spaces')->exists($oldImagePath)) {
-         Storage::disk('spaces')->delete($oldImagePath);
+         $deleted = Storage::disk('spaces')->delete($oldImagePath);
+         Log::info('Image deleted status: ' . ($deleted ? 'success' : 'failed'));
+      } else {
+         Log::warning('File does not exist in Spaces:', ['path' => $oldImagePath]);
       }
    }
 }
@@ -112,3 +116,42 @@ if (!function_exists('uploadOrUpdateVideoToSpaces')) {
    }
 }
 //<---------------------- END : For Video -------------------------->
+
+
+//<---------------------- START : For  Block known SQL keywords or suspicious patterns -------------------------->
+
+
+if (!function_exists('isMaliciousSearch')) {
+
+   function isMaliciousSearch($input)
+   {
+      $blacklist = [
+         'select',
+         'insert',
+         'update',
+         'delete',
+         'drop',
+         'truncate',
+         'exec',
+         'union',
+         ' or ',
+         ' and ',
+         '--',
+         ';',
+         '#',
+         '/*',
+         '*/'
+      ];
+
+      $input = strtolower($input);
+      foreach ($blacklist as $word) {
+         if (strpos($input, $word) !== false) {
+            return true;
+         }
+      }
+      return false;
+   }
+}
+
+//<---------------------- END : For  Block known SQL keywords or suspicious patterns -------------------------->
+

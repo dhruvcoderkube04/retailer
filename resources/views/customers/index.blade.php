@@ -88,19 +88,18 @@
                                     <label class="form-label fw-semibold">Withdrawal Amount <span
                                             class="text-danger">*</span></label>
                                     <input type="number" name="request_amount"
-                                        class="form-control form-control-solid border-secondary"
-                                        placeholder="Enter amount" min="1" step="0.01" autocomplete="off">
+                                        class="form-control form-control-solid border-secondary" placeholder="Enter amount"
+                                        min="1" step="0.01" autocomplete="off">
                                     <span class="error error_request_amount text-danger m-2 d-none"></span>
                                 </div>
                                 <div class="form-group mb-4">
                                     <label class="form-label fw-semibold">Remarks</label>
-                                    <textarea name="remarks" class="form-control form-control-solid border-secondary" placeholder="Enter remarks"
-                                        autocomplete="off"></textarea>
+                                    <textarea name="remarks" class="form-control form-control-solid border-secondary"
+                                        placeholder="Enter remarks" autocomplete="off"></textarea>
                                     <span class="error error_remarks text-danger m-2 d-none"></span>
                                 </div>
                                 <div class="d-flex justify-content-end">
-                                    <button type="button" class="btn btn-light me-3"
-                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary">
                                         <span class="indicator-label">Submit Request</span>
                                     </button>
@@ -134,47 +133,71 @@
             ajax: {
                 url: "{{ route('retailer.customers.fetch-record') }}",
                 type: "POST",
-                data: function(d) {
+                data: function (d) {
                     d._token = '{{ csrf_token() }}';
                     d.order = d.order; // Add order data
                     d.columns = d.columns; // Add columns data
                 },
-                dataSrc: function(json) {
+                dataSrc: function (json) {
                     return json.data;
+                },
+                error: function (xhr) {
+                    // Detect 400 Bad Request from Laravel
+                    if (xhr.status === 400) {
+                        let message = 'An error occurred.';
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            message = response.message || message;
+                        } catch (e) {
+                            message = xhr.responseText || message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Search',
+                            text: message,
+                        }).then(() => {
+                            // Clear only the search input field that caused it
+                            $('#search_input').val('');
+                            // You can choose to comment this out to prevent auto-refresh
+                            dataTable.search('').draw();
+
+                        });
+                    }
                 }
             },
             order: [],
             columns: [{
-                    data: 'sr_no',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'name',
-                    className: 'text-center',
-                },
-                {
-                    data: 'mobile_no',
-                    className: 'text-center',
-                },
-                {
-                    data: 'email',
-                    className: 'text-center',
-                },
-                {
-                    data: 'state',
-                    className: 'text-center'
-                },
-                {
-                    data: 'city',
-                    className: 'text-center'
-                },
-                {
-                    data: 'pincode',
-                    className: 'text-center'
-                },
+                data: 'sr_no',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'name',
+                className: 'text-center',
+            },
+            {
+                data: 'mobile_no',
+                className: 'text-center',
+            },
+            {
+                data: 'email',
+                className: 'text-center',
+            },
+            {
+                data: 'state',
+                className: 'text-center'
+            },
+            {
+                data: 'city',
+                className: 'text-center'
+            },
+            {
+                data: 'pincode',
+                className: 'text-center'
+            },
             ],
-            initComplete: function() {
+            initComplete: function () {
                 let searchBox = $('.datatable-search-section input');
                 let searchLabel = $('.datatable-search-section label');
                 let lengthSelect = $('.datatable-length-section select');

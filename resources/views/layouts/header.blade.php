@@ -1,9 +1,6 @@
-<div id="kt_app_header" class="app-header shadow"
-     data-kt-sticky="true"
-     data-kt-sticky-activate="{default: true, lg: true}"
-     data-kt-sticky-name="app-header-minimize"
-     data-kt-sticky-offset="{default: '200px', lg: '0'}"
-     data-kt-sticky-animation="false">
+<div id="kt_app_header" class="app-header shadow" data-kt-sticky="true"
+    data-kt-sticky-activate="{default: true, lg: true}" data-kt-sticky-name="app-header-minimize"
+    data-kt-sticky-offset="{default: '200px', lg: '0'}" data-kt-sticky-animation="false">
     <!--begin::Header container-->
     <div class="app-container container-fluid d-flex align-items-stretch justify-content-between"
         id="kt_app_header_container">
@@ -24,8 +21,8 @@
                     $userDetail = Auth::user()->userDetail;
                     $logoUrl =
                         $userDetail && $userDetail->company_logo
-                            ? Storage::disk('spaces')->url($userDetail->company_logo)
-                            : asset('assets/media/avatars/no-profile.png');
+                        ? Storage::disk('spaces')->url($userDetail->company_logo)
+                        : asset('assets/media/avatars/no-profile.png');
                 @endphp
                 <img src="{{ $logoUrl }}"
                     onerror="this.onerror=null;this.src='{{ asset('assets/media/avatars/no-profile.png') }}';"
@@ -56,8 +53,7 @@
             <!--begin::Navbar-->
             <div class="app-navbar flex-shrink-0">
                 <div class="app-navbar-item ms-1 ms-md-4">
-                    <a href="{{ route('retailer.track.order') }}" target="_blank"
-                        class="btn btn-dark btn-active-dark">
+                    <a href="{{ route('retailer.track.order') }}" target="_blank" class="btn btn-dark btn-active-dark">
                         <i class="ki-duotone ki-truck text-inverse-primary fs-1">
                             <span class="path1"></span>
                             <span class="path2"></span>
@@ -69,7 +65,7 @@
                     </a>
                 </div>
 
-                @if (isset($retailer) && $retailer->is_active ==1)
+                @if (isset($retailer) && $retailer->is_active == 1)
                     <div class="app-navbar-item ms-1 ms-md-4">
                         <a href="{{ $retailer->subdomain }}" target="_blank"
                             class="btn btn-light-success btn-active-light-light">
@@ -78,8 +74,7 @@
                     </div>
                 @else
                     <div class="app-navbar-item ms-1 ms-md-4">
-                        <a href="{{ url('retailer-web-setting')}}"
-                            class="btn btn-light-success btn-active-light-light">
+                        <a href="{{ url('retailer-web-setting')}}" class="btn btn-light-success btn-active-light-light">
                             <i class="fas fa-external-link-alt me-2 mb-1 fs-7"></i>Create Your Site
                         </a>
                     </div>
@@ -89,16 +84,13 @@
                 <div class="app-navbar-item ms-1 ms-md-4">
                     <!--begin::Menu wrapper-->
                     <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px position-relative"
-                        data-kt-menu-trigger="click"
-                        data-kt-menu-attach="parent"
-                        data-kt-menu-placement="bottom-end"
+                        data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end"
                         id="kt_menu_item_wow">
                         <i class="fa-solid fa-bell fs-3"></i>
 
 
                         <span id="notification-count"
-                                class="position-absolute badge bg-danger text-white fw-bold justify-content-center"
-                                style="
+                            class="position-absolute badge bg-danger text-white fw-bold justify-content-center" style="
                                     top: -6px;
                                     right: -3px;
                                     width: 20px;
@@ -107,14 +99,15 @@
                                     font-size: 9px;
                                     text-align: center;
                                     ">
-                                0
-                            </span>
+                            0
+                        </span>
                         <!--end::Bullet-->
                     </div>
                     <!--end::Menu wrapper-->
 
                     <!--begin::Menu-->
-                    <div class="menu menu-sub menu-sub-dropdown menu-column w-350px w-lg-375px" data-kt-menu="true" id="kt_menu_notifications">
+                    <div class="menu menu-sub menu-sub-dropdown menu-column w-350px w-lg-375px" data-kt-menu="true"
+                        id="kt_menu_notifications">
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="kt_topbar_notifications_3" role="tabpanel">
                                 <div class="scroll-y mh-325px my-5 px-8" id="notification-list">
@@ -192,8 +185,7 @@
                         <!--end::Menu item-->
                         <!--begin::Menu item-->
                         <div class="menu-item px-3 my-0">
-                            <a href="#" class="menu-link px-3 py-2" data-kt-element="mode"
-                                data-kt-value="system">
+                            <a href="#" class="menu-link px-3 py-2" data-kt-element="mode" data-kt-value="system">
                                 <span class="menu-icon" data-kt-element="icon">
                                     <i class="ki-duotone ki-screen fs-2">
                                         <span class="path1"></span>
@@ -211,7 +203,9 @@
                 </div>
                 <!--end::Theme mode-->
                 <!--begin::User menu-->
-                <div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+                <div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle"
+                    data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent"
+                    data-kt-menu-placement="bottom-end">
                     <!--begin::Menu wrapper-->
                     <div class="cursor-pointer symbol symbol-35px">
                         <img src="{{ $logoUrl }}" class="rounded-3" alt="user" />
@@ -236,11 +230,13 @@
                             <!--end::Avatar-->
                             <!--begin::Username-->
                             <div class="d-flex flex-column">
-                                <div class="fw-bold d-flex align-items-center fs-5"> {{ Auth::user()->userDetail->company_name }}
+                                <div class="fw-bold d-flex align-items-center fs-5">
+                                    {{ Auth::user()->userDetail->company_name }}
                                     <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2"></span>
                                 </div>
                                 <a href="#"
-                                    class="fw-semibold text-muted text-hover-primary fs-7">{{ Auth::user()->firstname }} {{ Auth::user()->lastname }}</a>
+                                    class="fw-semibold text-muted text-hover-primary fs-7">{{ Auth::user()->firstname }}
+                                    {{ Auth::user()->lastname }}</a>
                             </div>
                             <!--end::Username-->
                         </div>
@@ -256,11 +252,13 @@
                     <!--end::Menu item-->
                     <!--begin::Menu item-->
                     <div class="menu-item px-5">
-                        <form action="{{ route('retailer.logout') }}" method="post" class="d-inline">
+                        <form id="logout-form" action="{{ route('retailer.logout') }}" method="POST" class="d-inline">
                             @csrf
-                            <button type="submit" class="menu-link px-5 border-0  bg-transparent">Sign
-                                Out</button>
+                            <button type="button" id="logout-btn" class="menu-link px-5 border-0 bg-transparent">
+                                Sign Out
+                            </button>
                         </form>
+
                     </div>
                     <!--end::Menu item-->
                 </div>
@@ -275,3 +273,30 @@
     <!--end::Header container-->
 </div>
 
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#logout-btn').on('click', function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be signed out.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, sign me out',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#logout-form').submit();
+                }
+            });
+        });
+    });
+</script>

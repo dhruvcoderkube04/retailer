@@ -171,6 +171,27 @@
                 },
                 dataSrc: function (json) {
                     return json.data;
+                },
+                error: function (xhr) {
+                    // Detect 400 Bad Request from Laravel
+                    if (xhr.status === 400) {
+                        let message = 'An error occurred.';
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            message = response.message || message;
+                        } catch (e) {
+                            message = xhr.responseText || message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Search',
+                            text: message,
+                        }).then(() => {
+                            $('.dataTables_filter input').val('');
+                            dataTable.search('').draw();
+                        });
+                    }
                 }
             },
             order: [],
