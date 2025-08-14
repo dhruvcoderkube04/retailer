@@ -312,7 +312,7 @@
     <!-- END: New Order Modal -->
 
     <!-- START: Confirmed Order Modal -->
-    <div class="modal fade" id="confirmed-order-action-modal" tabindex="-1"
+    <div class="modal fade" data-bs-backdrop="static" id="confirmed-order-action-modal" tabindex="-1"
         aria-labelledby="confirmed-order-action-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -327,7 +327,7 @@
                         </span>
                         <span>Order Action</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close cancelAction" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <form id="confirmedOrderForm" method="POST">
@@ -564,8 +564,8 @@
                     </div>
 
                     <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle"></i> Close
+                        <button type="button" class="btn btn-secondary cancelAction" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle cancelAction"></i> Close
                         </button>
                         <button type="submit" class="btn btn-primary" id="submitButton">
                             <i class="bi bi-send"></i> Submit Action
@@ -577,14 +577,13 @@
     </div>
 
     {{-- Raise Issue Modal --}}
-    <div class="modal fade" id="kt_modal_raise_issue" tabindex="-1" style="display: none;" data-bs-backdrop="static"
-        data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal fade" id="kt_modal_raise_issue" data-bs-backdrop="static" tabindex="-1" style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="fw-bold">Raise Your Issue</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <i class="ki-duotone ki-cross fs-1 cancelRaise"><span class="path1"></span><span class="path2"></span></i>
                     </div>
                 </div>
                 <div class="modal-body scroll-y mx-5 mx-xl-7 my-3">
@@ -624,7 +623,7 @@
                             <span class="invalid-feedback d-block" id="screenshots_error"></span>
                         </div>
                         <div class="text-center">
-                            <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
+                            <button type="reset" class="btn btn-light me-3 cancelRaise" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary"
                                 style="background-color: #ff3d60; border-color: #ff3d60;">
                                 <span class="indicator-label">Raise Issue</span>
@@ -1195,6 +1194,172 @@
             }
         });
         //<------------- END : server-side transaction datatable ------------->
+
+        //<------Start cancel modal close---------->
+
+        $(document).ready(function () {
+            $('.cancelRaise').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Hide the modal
+                        $('#kt_modal_raise_issue').modal('hide');
+
+                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
+                        $('#raiseIssueForm')[0].reset();
+
+                        // Also clear any validation error messages
+                        $('#raiseIssueForm').find('.invalid-feedback').text('');
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // Keep modal open
+                        $('#kt_modal_raise_issue').modal('show');
+                    }
+                });
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('.cancelAction').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#confirmedOrderForm').closest('.modal').modal('hide');
+                        resetConfirmedOrderForm();
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        $('#confirmedOrderForm').closest('.modal').modal('show');
+                    }
+                });
+            });
+        });
+
+        function resetConfirmedOrderForm() {
+            let $form = $('#confirmedOrderForm');
+
+            // Reset normal fields
+            $form[0].reset();
+
+            // Clear radio buttons explicitly
+            $form.find('input[type="radio"]').prop('checked', false);
+
+            // Clear Select2 dropdowns
+            $form.find('select').each(function () {
+                $(this).val(null).trigger('change');
+            });
+
+            // Hide all conditional sections
+            $('#pickupLocationContainer').hide();
+            $('#productWeightContainer').hide();
+            $('#courierServicesContainer').hide();
+            $('.rejectReasonSelectContainer').hide();
+            $('.rejectReasonInputContainer').hide();
+        }
+        //<--------------End cancel modal close----------->
+
+        //<------Start cancel modal close---------->
+
+        $(document).ready(function () {
+            $('.cancelRaise').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Hide the modal
+                        $('#kt_modal_raise_issue').modal('hide');
+
+                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
+                        $('#raiseIssueForm')[0].reset();
+
+                        // Also clear any validation error messages
+                        $('#raiseIssueForm').find('.invalid-feedback').text('');
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // Keep modal open
+                        $('#kt_modal_raise_issue').modal('show');
+                    }
+                });
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('.cancelAction').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, close it',
+                    cancelButtonText: 'No, keep editing',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#confirmedOrderForm').closest('.modal').modal('hide');
+                        resetConfirmedOrderForm();
+                    }
+                    else if (result.dismiss === Swal.DismissReason.cancel) {
+                        $('#confirmedOrderForm').closest('.modal').modal('show');
+                    }
+                });
+            });
+        });
+
+        function resetConfirmedOrderForm() {
+            let $form = $('#confirmedOrderForm');
+
+            // Reset normal fields
+            $form[0].reset();
+
+            // Clear radio buttons explicitly
+            $form.find('input[type="radio"]').prop('checked', false);
+
+            // Clear Select2 dropdowns
+            $form.find('select').each(function () {
+                $(this).val(null).trigger('change');
+            });
+
+            // Hide all conditional sections
+            $('#pickupLocationContainer').hide();
+            $('#productWeightContainer').hide();
+            $('#courierServicesContainer').hide();
+            $('.rejectReasonSelectContainer').hide();
+            $('.rejectReasonInputContainer').hide();
+        }
+        //<--------------End cancel modal close----------->
 
         $(document).ready(function () {
             $("#kt_daterangepicker_order_list").on('apply.daterangepicker', function (ev, picker) {

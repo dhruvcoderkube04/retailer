@@ -20,6 +20,7 @@ use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
+use App\Models\WholesalerCategory;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Exception;
@@ -223,11 +224,13 @@ class RetilerController extends Controller
         $retailer_sub_category_count = RetailerCategory::where('retailer_id', $retailer->id)
             ->distinct()
             ->count('sub_category_id');
-        $retailerId = $retailer->id;
+
+        $allSubCategories = SubCategory::orderBy('sub_category_name')->get();
+
         return view('wholesaler.wholesaler-list', [
             'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
             'retailer_sub_category_count' => $retailer_sub_category_count,
-            'retaile_id'=> $retailerId,
+            'allSubCategories' => $allSubCategories,
         ]);
     }
 
@@ -237,6 +240,7 @@ class RetilerController extends Controller
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
         $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $subCategoryFilter = $request->input('sub_category_filter', '');
         $retailer = Auth::user();
 
         $query = User::with('userDetail')
@@ -250,7 +254,16 @@ class RetilerController extends Controller
                     ->orWhere('lastname', 'like', '%' . $search . '%')
                     ->orWhereHas('userDetail', function ($q) use ($search) {
                         $q->where('company_name', 'like', '%' . $search . '%');
-                    });
+                    })
+                    ->orWhereHas('wholesalerCategories.subCategory', function ($q) use ($search) {
+                    $q->where('sub_category_name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        if (!empty($subCategoryFilter) && $subCategoryFilter !== 'all') {
+            $query->whereHas('wholesalerCategories', function ($q) use ($subCategoryFilter) {
+                $q->where('sub_category_id', $subCategoryFilter);
             });
         }
 
@@ -290,6 +303,14 @@ class RetilerController extends Controller
             $product_count_fetch = Product::where('wholesaler_id', $item->id)
                 ->where('status', 'active')
                 ->count('id');
+
+            $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
+                ->pluck('sub_category_id');
+
+            $subCategories = SubCategory::whereIn('id', $subcategory_ids)
+            ->get()->pluck('sub_category_name')
+            ->implode(',');
+
             $details = '
                 <div>
                     <span>Total Sub Category : </span>
@@ -318,6 +339,7 @@ class RetilerController extends Controller
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
+                "subcategory_names" => $subCategories,
                 "details" => $details,
                 "action" => $action
             );
