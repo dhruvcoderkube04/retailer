@@ -540,6 +540,10 @@
 
         cb(start, end);
 
+        $('.ki-calendar-8').on('click', function () {
+            $('#kt_daterangepicker_4').trigger('click');
+        });
+
 
         $(document).on('change', '#kt_daterangepicker_4', function () {
             const fullDate = $(this).val();
