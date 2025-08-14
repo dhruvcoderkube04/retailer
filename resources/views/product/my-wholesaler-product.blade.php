@@ -70,8 +70,8 @@
 
                                     {{-- Sub Category Filter --}}
                                     <div class="col-12 col-md-3">
-                                        <label for="sub_category_filter"
-                                            class="form-label fw-semibold mb-1">Sub Category</label>
+                                        <label for="sub_category_filter" class="form-label fw-semibold mb-1">Sub
+                                            Category</label>
                                         <select id="sub_category_filter" class="form-select form-select-solid bg-secondary"
                                             data-control="select2" data-placeholder="Select Sub Category">
                                             <option value="all">All Sub Category</option>
@@ -136,7 +136,7 @@
                                         <th class="text-center align-middle min-w-200px">Product</th>
                                         <th class="text-center align-middle min-w-150px">Wholesaler</th>
                                         <th class="text-center align-middle min-w-100px">Sub Category</th>
-                                        <th class="text-center align-middle min-w-70px">Qty</th>
+                                        <!-- <th class="text-center align-middle min-w-70px">Qty</th> -->
                                         <th class="text-center align-middle min-w-70px">Stock</th>
                                         <th class="text-center align-middle min-w-100px">Price</th>
                                         <th class="text-center align-middle min-w-100px">Margin</th>
@@ -153,7 +153,7 @@
 
             @include('layouts.footer')
         </div>
-    @endsection
+@endsection
 
     @section('script')
         <script>
@@ -164,7 +164,7 @@
                 ajax: {
                     url: "{{ route('retailer.wholesalers-product.fetch-record') }}",
                     type: "POST",
-                    data: function(d) {
+                    data: function (d) {
                         d.search = $('#search_input').val();
                         d.wholesaler_filter = $('#wholesaler_filter').val();
                         d.sub_category_filter = $('#sub_category_filter').val();
@@ -174,90 +174,114 @@
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
                     },
-                    dataSrc: function(json) {
+                    dataSrc: function (json) {
                         return json.data;
+                    },
+                    error: function (xhr) {
+                        // Detect 400 Bad Request from Laravel
+                        if (xhr.status === 400) {
+                            let message = 'An error occurred.';
+                            try {
+                                let response = JSON.parse(xhr.responseText);
+                                message = response.message || message;
+                            } catch (e) {
+                                message = xhr.responseText || message;
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Search',
+                                text: message,
+                            }).then(() => {
+                                // Clear only the search input field that caused it
+                                $('#search_input').val('');
+                                // You can choose to comment this out to prevent auto-refresh
+                                dataTable.search('').draw();
+                            });
+                        }
                     }
+
                 },
                 order: [],
                 columns: [{
-                        data: 'action',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false,
-                    },
-                    {
-                        data: 'image',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'product',
-                        className: 'text-start',
-                        orderable: false,
-                    },
-                    {
-                        data: 'wholesaler',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'sub_category',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'quantity',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'stock',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'new_price',
-                        className: 'text-end',
-                        orderable: false,
-                    },
-                    {
-                        data: 'margin',
-                        className: 'text-end',
-                        orderable: true,
-                    },
-                    {
-                        data: 'status',
-                        className: 'text-center',
-                        orderable: false,
-                    },
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false,
+                },
+                {
+                    data: 'image',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'product',
+                    className: 'text-start',
+                    orderable: false,
+                },
+                {
+                    data: 'wholesaler',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'sub_category',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                // {
+                //     data: 'quantity',
+                //     className: 'text-center',
+                //     orderable: false,
+                // },
+                {
+                    data: 'stock',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'new_price',
+                    className: 'text-end',
+                    orderable: false,
+                },
+                {
+                    data: 'margin',
+                    className: 'text-end',
+                    orderable: true,
+                },
+                {
+                    data: 'status',
+                    className: 'text-center',
+                    orderable: false,
+                },
                 ]
             });
 
-            $('#search_input').on('keyup', function() {
+            $('#search_input').on('keyup', function () {
                 dataTable.ajax.reload();
             });
 
-            $('#wholesaler_filter').on('change', function() {
+            $('#wholesaler_filter').on('change', function () {
                 dataTable.ajax.reload();
             });
 
-            $('#sub_category_filter').on('change', function() {
+            $('#sub_category_filter').on('change', function () {
                 dataTable.ajax.reload();
             });
 
-            $('#stock_filter').on('change', function() {
+            $('#stock_filter').on('change', function () {
                 dataTable.ajax.reload();
             });
 
-            $('#status_filter').on('change', function() {
+            $('#status_filter').on('change', function () {
                 dataTable.ajax.reload();
             });
             //<------------- END : server-side datatable for margin added products ------------->
 
-            $(document).ready(function() {
+            $(document).ready(function () {
                 //<-------- START : change product status from product-list ----------->
-                $(document).on('change', '.changeStatusToggle', function() {
+                $(document).on('change', '.changeStatusToggle', function () {
                     let productId = $(this).data('product-id');
                     let wholesalerId = $(this).data('wholesaler-id');
                     let subCategoryId = $(this).data('sub-category-id');
@@ -277,7 +301,7 @@
                             payment_method: paymentMethod,
                             status: newStatus
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Status Updated',
@@ -290,7 +314,7 @@
                                 .DataTable().ajax
                                 .reload(null, false);
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             let errorMsg = 'Could not update status.';
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMsg = xhr.responseJSON.message;
@@ -303,7 +327,7 @@
                 //<-------- END : change product status from product-list ----------->
 
                 //<----------------- START : delete product ---------------->
-                $(document).on('click', '.remove-wholesaler-product', function() {
+                $(document).on('click', '.remove-wholesaler-product', function () {
                     let productId = $(this).data("id");
                     let wholesalerId = $(this).data("wholesaler-id");
                     let subCategoryId = $(this).data("sub-category-id");
@@ -328,7 +352,7 @@
                                     wholesaler_id: wholesalerId,
                                     sub_category_id: subCategoryId,
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     Swal.fire({
                                         icon: response.status ? 'success' : 'error',
                                         title: response.status ? 'Deleted!' :
@@ -343,7 +367,7 @@
                                             .reload(null, false);
                                     }
                                 },
-                                error: function(xhr) {
+                                error: function (xhr) {
                                     Swal.fire('Oops...', 'Something went wrong.', 'error');
                                 }
                             });

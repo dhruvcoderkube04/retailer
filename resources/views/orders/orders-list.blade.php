@@ -1085,6 +1085,30 @@
                 },
                 dataSrc: function (json) {
                     return json.data;
+                },
+                error: function (xhr) {
+                    // Detect 400 Bad Request from Laravel
+                    if (xhr.status === 400) {
+                        let message = 'An error occurred.';
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            message = response.message || message;
+                        } catch (e) {
+                            message = xhr.responseText || message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Search',
+                            text: message,
+                        }).then(() => {
+                            // Clear only the search input field that caused it
+                            $('#search_input').val('');
+                            // You can choose to comment this out to prevent auto-refresh
+                            dataTable.search('').draw();
+
+                        });
+                    }
                 }
             },
             order: [],
@@ -1315,29 +1339,29 @@
             //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
             //             .courier_name) || {};
             //         tableBody += `
-        //             <tr>
-        //                 <td>${courier.service_mode || 'N/A'}</td>
-        //                 <td>
-        //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
-        //                     ${courier.courier_name}
-        //                 </td>
-        //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
-        //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+            //             <tr>
+            //                 <td>${courier.service_mode || 'N/A'}</td>
+            //                 <td>
+            //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
+            //                     ${courier.courier_name}
+            //                 </td>
+            //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+            //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
 
-        //                 <td>
-        //                     <button class="btn btn-sm btn-primary select-courier"
-        //                             data-courier="${courier.courier_name}"
-        //                             data-courier-id="${matchingCourier.courierId || ''}"
-        //                             data-courier-logo="${matchingCourier.logoUrl || null}"
-        //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-        //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-        //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-        //                             data-service-mode="${courier.service_mode || 'N/A'}
-        //                             data-cpartner="fship">
-        //                         Select
-        //                     </button>
-        //                 </td>
-        //             </tr>`;
+            //                 <td>
+            //                     <button class="btn btn-sm btn-primary select-courier"
+            //                             data-courier="${courier.courier_name}"
+            //                             data-courier-id="${matchingCourier.courierId || ''}"
+            //                             data-courier-logo="${matchingCourier.logoUrl || null}"
+            //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+            //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+            //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+            //                             data-service-mode="${courier.service_mode || 'N/A'}
+            //                             data-cpartner="fship">
+            //                         Select
+            //                     </button>
+            //                 </td>
+            //             </tr>`;
             //     });
             //     $('#courierDetailsBody').html(tableBody);
             // }
@@ -1351,62 +1375,62 @@
             //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
             //             .courier_name) || {};
             //         tableBody += `
-        //             <tr>
-        //                 <td>${courier.type || 'N/A'}</td>
-        //                 <td>
-        //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
-        //                     ${courier.name}
-        //                 </td>
-        //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
-        //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
-        //                 <td>
-        //                     <button class="btn btn-sm btn-primary select-courier"
-        //                             data-courier="${courier.name}"
-        //                             data-courier-id="${courier.carrierID || ''}"
-        //                             data-courier-logo="${courier.name || null}"
-        //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
-        //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
-        //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
-        //                             data-service-mode="${courier.type || 'N/A'}"
-        //                             data-cpartner="lorrigo">
-        //                         Select
-        //                     </button>
-        //                 </td>
-        //             </tr>`;
+            //             <tr>
+            //                 <td>${courier.type || 'N/A'}</td>
+            //                 <td>
+            //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
+            //                     ${courier.name}
+            //                 </td>
+            //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
+            //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
+            //                 <td>
+            //                     <button class="btn btn-sm btn-primary select-courier"
+            //                             data-courier="${courier.name}"
+            //                             data-courier-id="${courier.carrierID || ''}"
+            //                             data-courier-logo="${courier.name || null}"
+            //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
+            //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
+            //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
+            //                             data-service-mode="${courier.type || 'N/A'}"
+            //                             data-cpartner="lorrigo">
+            //                         Select
+            //                     </button>
+            //                 </td>
+            //             </tr>`;
             //     });
             //     $('#courierDetailsBody').html(tableBody);
             // }
 
             function populateMergedCourierRates(rates) {
                 let tableBody = '';
-                rates.forEach(function(courier) {
+                rates.forEach(function (courier) {
                     const matchingCourier = courierServices.find(cs => cs.courierName === courier
                         .service_name) || {};
                     tableBody += `
-                        <tr>
-                            <td>${courier.service_mode || 'N/A'}</td>
-                            <td>
-                                ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
-                                ${courier.service_name}
-                            </td>
-                            <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
-                            <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary select-courier"
-                                        data-courier="${courier.service_name}"
-                                        data-courier-id="${matchingCourier.courierId || ''}"
-                                        data-carrier-id="${courier.carrierID || ''}"
-                                        data-courier-logo="${matchingCourier.logoUrl || null}"
-                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-                                        data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-                                        data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || 'N/A'}"
-                                        data-cpartner="${courier.service_mode}"
-                                        data-courier_code="${courier.courier_code}">
-                                    Select
-                                </button>
-                            </td>
-                        </tr>`;
+                            <tr>
+                                <td>${courier.service_mode || 'N/A'}</td>
+                                <td>
+                                    ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
+                                    ${courier.service_name}
+                                </td>
+                                <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+                                <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary select-courier"
+                                            data-courier="${courier.service_name}"
+                                            data-courier-id="${matchingCourier.courierId || ''}"
+                                            data-carrier-id="${courier.carrierID || ''}"
+                                            data-courier-logo="${matchingCourier.logoUrl || null}"
+                                            data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+                                            data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+                                            data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                                            data-service-mode="${courier.service_mode || 'N/A'}"
+                                            data-cpartner="${courier.service_mode}"
+                                            data-courier_code="${courier.courier_code}">
+                                        Select
+                                    </button>
+                                </td>
+                            </tr>`;
                 });
 
                 $('#courierDetailsBody').html(tableBody);
@@ -1485,12 +1509,12 @@
 
                 // Display all courier details below the Select Courier button
                 $('#selected-courier-display').html(`
-                            <strong>Selected Courier:</strong> ${courierName}<br>
-                            <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
-                            <strong>COD Charge:</strong> ₹${codCharge}<br>
-                            <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
-                            <strong>Service Mode:</strong> ${serviceMode}
-                        `);
+                                <strong>Selected Courier:</strong> ${courierName}<br>
+                                <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
+                                <strong>COD Charge:</strong> ₹${codCharge}<br>
+                                <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
+                                <strong>Service Mode:</strong> ${serviceMode}
+                            `);
 
                 // Validate courier match
 
@@ -2639,9 +2663,9 @@
             //             Swal.fire({
             //                 title: 'Reschedule Delivery',
             //                 html: `
-        //                     <label>Select Reschedule Date & Time</label>
-        //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
-        //                 `,
+            //                     <label>Select Reschedule Date & Time</label>
+            //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+            //                 `,
             //                 confirmButtonText: 'Submit',
             //                 focusConfirm: false,
             //                 preConfirm: () => {
@@ -2697,7 +2721,7 @@
             //<----------------- END : NDR ---------------->
 
             //<----------------- START : NDR ---------------->
-            $(document).on('click', '.ndr-reattempt', function() {
+            $(document).on('click', '.ndr-reattempt', function () {
                 let orderId = $(this).data('api-order_id');
 
                 Swal.fire({
@@ -2714,9 +2738,9 @@
                         Swal.fire({
                             title: 'Reschedule Delivery',
                             html: `
-                                        <label>Select Reschedule Date & Time</label>
-                                        <input type="datetime-local" id="rescheduleDate" class="swal2-input">
-                                    `,
+                                            <label>Select Reschedule Date & Time</label>
+                                            <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+                                        `,
                             confirmButtonText: 'Submit',
                             focusConfirm: false,
                             allowOutsideClick: false, // 🚫 Prevent closing by clicking outside
@@ -2756,7 +2780,7 @@
                             reschedule_date: rescheduleDate,
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.fire({
                                 title: "Success!",
                                 text: response.message,
@@ -2766,10 +2790,10 @@
                                 // 🔁 Redirect to updated order list
                                 window.location.href =
                                     `{{ route('retailer.order.list', ':type') }}`
-                                    .replace(":type", response.type);
+                                        .replace(":type", response.type);
                             });
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             Swal.fire('Error!', xhr.responseJSON?.message ||
                                 'Something went wrong.', 'error');
                         }

@@ -351,6 +351,13 @@ class RetailerOrderController extends Controller
 
         // search
         if (!empty($search)) {
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
+
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', '%' . $search . '%')
                     ->orWhere('product_variation', 'like', '%' . $search . '%')
@@ -1062,6 +1069,12 @@ class RetailerOrderController extends Controller
             // Search filter
             if ($request->has('search') && !empty($request->search) && $request->search !== '') {
                 $search = $request->search;
+                $search = trim($search);
+                $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+    
+                if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                    abort(400, 'Invalid search input detected.');
+                }
                 $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
                         ->orWhere('product_variation', 'like', '%' . $search . '%')
