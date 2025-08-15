@@ -302,33 +302,38 @@
                                                         <h4>Uploaded Images :</h4>
                                                     </div>
                                                     <div class="d-flex flex-wrap gap-3">
-                                                        @foreach ($images as $key => $image)
-                                                            @if ($image)
-                                                                <div class="card shadow-sm border border-dark-subtle"
-                                                                    style="width: 11rem;">
-                                                                    <div class="card-body p-2 text-center">
-                                                                        @php
-                                                                            $imageUrl = $image
-                                                                                ? Storage::disk('spaces')->url($image)
-                                                                                : asset(
-                                                                                    'assets/media/images/no_image.jpg',
-                                                                                );
-                                                                            $defaultImage = asset(
-                                                                                'assets/media/images/no_image.jpg',
-                                                                            );
-                                                                        @endphp
-                                                                        <img src="{{ $imageUrl }}"
-                                                                            class="img-fluid rounded" alt="Product Image"
-                                                                            style="height: 100px; object-fit: cover;"
-                                                                            onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
-                                                                        <div class="text-muted fs-8 mt-2">
-                                                                            Image {{ $key + 1 }}
-                                                                        </div>
+                                                    @foreach ($images as $key => $image)
+                                                        @if ($image)
+                                                            @php
+                                                                $imageUrl = $image
+                                                                    ? Storage::disk('spaces')->url($image)
+                                                                    : asset('assets/media/images/no_image.jpg');
+                                                                $defaultImage = asset('assets/media/images/no_image.jpg');
+                                                            @endphp
+                                                            <div class="position-relative card shadow-sm border border-dark-subtle" style="width: 11rem;">
+                                                                {{-- Remove (X) button --}}
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-0 d-flex justify-content-center align-items-center"
+                                                                    style="width: 24px; height: 24px; font-size: 16px; line-height: 1;"
+                                                                    onclick="removeImage('{{ $key }}')"
+                                                                    title="Remove image">
+                                                                    &times;
+                                                                </button>
+                                                                <div class="card-body p-2 text-center">
+                                                                    <img src="{{ $imageUrl }}"
+                                                                        class="img-fluid rounded"
+                                                                        alt="Product Image"
+                                                                        style="height: 100px; object-fit: cover;"
+                                                                        onerror="this.onerror=null;this.src='{{ $defaultImage }}';" />
+                                                                    <div class="text-muted fs-8 mt-2">
+                                                                        Image {{ $key + 1 }}
                                                                     </div>
                                                                 </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+
                                                 </div>
                                             </div>
 
@@ -977,5 +982,7 @@
                 });
             });
         });
+
+        
     </script>
 @endsection

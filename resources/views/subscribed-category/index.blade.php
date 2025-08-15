@@ -15,8 +15,7 @@
                             </h1>
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                                 <li class="breadcrumb-item text-muted">
-                                    <a href="{{ route('retailer.dashboard') }}"
-                                        class="text-muted text-hover-primary">Home</a>
+                                    <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                                 </li>
                                 <li class="breadcrumb-item">
                                     <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -49,9 +48,8 @@
                                         <div class="col-12 col-md-3">
                                             <label for="wholesaler_filter"
                                                 class="form-label fw-semibold mb-1">Wholesaler</label>
-                                            <select id="wholesaler_filter"
-                                                class="form-select form-select-solid bg-secondary" data-control="select2"
-                                                data-placeholder="Select Wholesaler">
+                                            <select id="wholesaler_filter" class="form-select form-select-solid bg-secondary"
+                                                data-control="select2" data-placeholder="Select Wholesaler">
                                                 <option value="all">All Wholesaler</option>
                                                 @foreach ($wholesalers as $wholesaler)
                                                     <option value="{{ $wholesaler->id }}">
@@ -65,9 +63,8 @@
                                         <div class="col-12 col-md-3">
                                             <label for="sub_category_filter" class="form-label fw-semibold mb-1">Sub
                                                 Category</label>
-                                            <select id="sub_category_filter"
-                                                class="form-select form-select-solid bg-secondary" data-control="select2"
-                                                data-placeholder="Select Sub Category">
+                                            <select id="sub_category_filter" class="form-select form-select-solid bg-secondary"
+                                                data-control="select2" data-placeholder="Select Sub Category">
                                                 <option value="all">All Sub Category</option>
                                                 @foreach ($sub_category_list as $sub_category)
                                                     <option value="{{ $sub_category->id }}">
@@ -169,8 +166,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Margin</label>
-                            <input type="number" min="1" class="form-control" id="edit_margin_value"
-                                name="margin">
+                            <input type="number" min="1" class="form-control" id="edit_margin_value" name="margin">
                         </div>
 
                         <div class="mb-3">
@@ -213,7 +209,7 @@
             ajax: {
                 url: "{{ route('retailer.subscribed-category.fetch-record') }}",
                 type: "POST",
-                data: function(d) {
+                data: function (d) {
                     d._token = '{{ csrf_token() }}';
                     d.search = $('#search_input').val();
                     d.wholesaler_filter = $('#wholesaler_filter').val();
@@ -221,62 +217,87 @@
                     d.order = d.order; // Add order data
                     d.columns = d.columns; // Add columns data
                 },
-                dataSrc: function(json) {
+                dataSrc: function (json) {
                     return json.data;
+                },
+                error: function (xhr) {
+                    if (xhr.status === 400) {
+                        let message = 'An error occurred.';
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            message = response.message || message;
+                        } catch (e) {
+                            message = xhr.responseText || message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Search',
+                            text: message,
+                        }).then(() => {
+                            // Clear only the search input field that caused it
+                            $('#search_input').val('');
+
+                            // You can choose to comment this out to prevent auto-refresh
+                            dataTable.search('').draw();
+
+                        });
+                    }
                 }
+
             },
             order: [],
             columns: [{
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'sub_category_image',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'sub_category_name',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'wholesaler_name',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'payment_method',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'margin',
-                    className: 'text-center',
-                    orderable: false,
-                },
+                data: 'action',
+                className: 'text-center',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'sub_category_image',
+                className: 'text-center',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'sub_category_name',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'wholesaler_name',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'payment_method',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'margin',
+                className: 'text-center',
+                orderable: false,
+            },
             ]
         });
         //<------------- END : server-side transaction datatable ------------->
 
-        $(document).ready(function() {
-            $('#search_input').on('keyup', function() {
+        $(document).ready(function () {
+            $('#search_input').on('keyup', function () {
                 dataTable.ajax.reload();
             });
 
-            $('#wholesaler_filter').on('change', function() {
+            $('#wholesaler_filter').on('change', function () {
                 dataTable.ajax.reload();
             });
 
-            $('#sub_category_filter').on('change', function() {
+            $('#sub_category_filter').on('change', function () {
                 dataTable.ajax.reload();
             });
 
             // DELETE margin with Swal confirmation
-            $(document).on('click', '.delete-margin-btn', function() {
+            $(document).on('click', '.delete-margin-btn', function () {
                 const url = $(this).data('url');
 
                 Swal.fire({
@@ -296,15 +317,15 @@
                                 _token: '{{ csrf_token() }}',
                                 _method: 'DELETE'
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 Swal.fire('Deleted!', 'Margin has been removed.',
                                     'success').then(
-                                    () => {
-                                        location
-                                            .reload(); // Reload page or use table.row(...).remove().draw() if dynamic
-                                    });
+                                        () => {
+                                            location
+                                                .reload(); // Reload page or use table.row(...).remove().draw() if dynamic
+                                        });
                             },
-                            error: function() {
+                            error: function () {
                                 Swal.fire('Error!', 'Something went wrong.', 'error');
                             }
                         });
@@ -312,7 +333,7 @@
                 });
             });
 
-            $(document).on('click', '.edit-margin-btn', function() {
+            $(document).on('click', '.edit-margin-btn', function () {
                 const wholesalerId = $(this).data('wholesaler-id');
                 const marginId = $(this).data('margin-id');
 
@@ -324,7 +345,7 @@
                         wholesaler_id: wholesalerId,
                         margin_id: marginId
                     },
-                    success: function(response) {
+                    success: function (response) {
 
                         if (response.success) {
                             const data = response.data;
@@ -362,7 +383,7 @@
                 });
             });
 
-            $('#marginupdateform').on('submit', function(e) {
+            $('#marginupdateform').on('submit', function (e) {
                 e.preventDefault();
                 let formData = new FormData(this);
                 $.ajax({
@@ -371,7 +392,7 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             Swal.fire({
                                 title: "Success!",
@@ -392,10 +413,10 @@
                             });
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let errors = xhr.responseJSON.errors;
                         let errorMsg = "";
-                        $.each(errors, function(key, value) {
+                        $.each(errors, function (key, value) {
                             errorMsg += value[0] + "\n";
                         });
 

@@ -72,24 +72,26 @@
                             <div class="card-toolbar">
                                 <!--begin::Toolbar-->
                                 <div class="d-flex justify-content-end" data-kt-subscription-table-toolbar="base">
-                                      <!--begin::Status Filter-->
-                                        <div class="ms-4 mx-3">
-                                            <select id="status_filter" class="form-select form-select-solid" data-control="select2" data-hide-search="false" data-placeholder="Filter by Status">
-                                                <option></option>
-                                                <option value="open">Open</option>
-                                                <option value="in progress">In Progress</option>
-                                                <option value="resolved">Resolved</option>
-                                                <option value="closed">Closed</option>
-                                            </select>
-                                        </div>
-                                        <!--end::Status Filter-->
+                                    <!--begin::Status Filter-->
+                                    <div class="ms-4 mx-3">
+                                        <select id="status_filter" class="form-select form-select-solid"
+                                            data-control="select2" data-hide-search="false"
+                                            data-placeholder="Filter by Status">
+                                            <option></option>
+                                            <option value="open">Open</option>
+                                            <option value="in progress">In Progress</option>
+                                            <option value="resolved">Resolved</option>
+                                            <option value="closed">Closed</option>
+                                        </select>
+                                    </div>
+                                    <!--end::Status Filter-->
                                     <!--begin::Add subscription-->
                                     {{-- <button class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#kt_modal_add_ticket">
                                         <i class="ki-duotone ki-plus fs-2"></i>
                                         Create Ticket
                                     </button> --}}
-                                    <a href="{{route('retailer.create.ticket')}}" class="btn btn-primary" >
+                                    <a href="{{route('retailer.create.ticket')}}" class="btn btn-primary">
                                         <i class="ki-duotone ki-plus fs-2"></i>
                                         Create Ticket
                                     </a>
@@ -167,8 +169,7 @@
                                     style="background-image: url('{{ asset('uploads/company_profile/') }}')">
                                 </div>
 
-                                <label
-                                    class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
                                     data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
                                     <i class="ki-duotone ki-pencil fs-7">
                                         <span class="path1"></span>
@@ -211,8 +212,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Ticket Description</label>
-                            <input type="text" class="form-control" id="ticket_description"
-                                name="ticket_description">
+                            <input type="text" class="form-control" id="ticket_description" name="ticket_description">
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Create Ticket</button>
@@ -227,7 +227,7 @@
 
 @section('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             console.log('Document ready, attaching event listeners to .ticket-status');
             // 📊 Initialize DataTable
             let table = $('#kt_subscriptions_table').DataTable({
@@ -238,12 +238,35 @@
                     type: "POST",
                     data: function (d) {
                         d.search = $('input[data-kt-subscription-table-filter="search"]').val();
-                        d.status = $('#status_filter').val(); // <-- Add this line
+                        d.status = $('#status_filter').val();
                         d._token = '{{ csrf_token() }}';
+                    },
+                    error: function (xhr) {
+                        // Detect 400 Bad Request from Laravel
+                        if (xhr.status === 400) {
+                            let message = 'An error occurred.';
+                            try {
+                                let response = JSON.parse(xhr.responseText);
+                                message = response.message || message;
+                            } catch (e) {
+                                message = xhr.responseText || message;
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Search',
+                                text: message,
+                            }).then(() => {
+
+                                // Clear only the search input field that caused it
+                                $('input[data-kt-subscription-table-filter="search"]').val('');
+                                // You can choose to comment this out to prevent auto-refresh
+                                dataTable.search('').draw();
+                            });
+                        }
                     }
                 },
                 columns: [
-                    // { data: 'checkbox', orderable: false, searchable: false },
                     { data: 'actions', orderable: false, searchable: false },
                     { data: 'ticket_id' },
                     { data: 'subject' },
@@ -260,6 +283,7 @@
                 table.ajax.reload();
             });
 
+            // 🔄 Status filter
             $('#status_filter').on('change', function () {
                 table.ajax.reload();
             });
@@ -270,8 +294,9 @@
                     KTIcon.update();
                 }
             });
+
             // Handle status change using jQuery
-            $(document).on('change', '.ticket-status', function() {
+            $(document).on('change', '.ticket-status', function () {
                 console.log('Ticket status change event triggered');
                 console.log('Selected value:', $(this).val());
                 console.log('Ticket ID:', $(this).data('ticket-id'));
@@ -298,7 +323,7 @@
                     },
                     data: JSON.stringify({ status: newStatus }),
                     contentType: 'application/json',
-                    success: function(data) {
+                    success: function (data) {
                         console.log('AJAX success, response:', data);
                         if (data.success) {
                             Swal.fire({
@@ -333,7 +358,7 @@
                             $(this).val(badge.attr('data-status'));
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('AJAX error:', xhr, status, error);
                         Swal.fire({
                             icon: 'error',
@@ -346,7 +371,7 @@
                 });
             });
 
-            $('#ticketaddform').on('submit', function(e) {
+            $('#ticketaddform').on('submit', function (e) {
                 e.preventDefault();
                 let formData = new FormData(this);
                 $.ajax({
@@ -355,7 +380,7 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             Swal.fire({
                                 title: "Success!",
@@ -376,10 +401,10 @@
                             });
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let errors = xhr.responseJSON.errors;
                         let errorMsg = "";
-                        $.each(errors, function(key, value) {
+                        $.each(errors, function (key, value) {
                             errorMsg += value[0] + "\n";
                         });
 
