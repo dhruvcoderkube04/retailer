@@ -143,7 +143,7 @@
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="fw-bold">Update Margin</h2>
+                    <h2 class="fw-bold">Update Sub Category</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
                         <i class="ki-duotone ki-cross fs-1"></i>
                     </div>
@@ -277,7 +277,7 @@
             {
                 data: 'margin',
                 className: 'text-center',
-                orderable: false,
+                orderable: true,
             },
             ]
         });
@@ -318,7 +318,7 @@
                                 _method: 'DELETE'
                             },
                             success: function (response) {
-                                Swal.fire('Deleted!', 'Margin has been removed.',
+                                Swal.fire('Deleted!', 'Sub Category deleted successfully!',
                                     'success').then(
                                         () => {
                                             location
@@ -396,7 +396,7 @@
                         if (response.success) {
                             Swal.fire({
                                 title: "Success!",
-                                text: "Margin Update successfully!",
+                                text: "Sub Category Update successfully!",
                                 icon: "success",
                                 confirmButtonText: "OK"
                             }).then(() => {

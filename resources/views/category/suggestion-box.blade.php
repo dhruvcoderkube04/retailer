@@ -229,7 +229,7 @@
                 request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
                 xhr.done(function(mydata) {
                     Swal.fire({
-                        title: 'Category Added Successfully!',
+                        title: 'Category and Sub Category Suggestion Added Successfully!',
                         icon: 'success',
                     });
 
@@ -269,7 +269,7 @@
 
                             Swal.fire({
                                 icon:'success',
-                                title: 'Category Remove Successuflly!',
+                                title: 'Category Removed Successuflly!',
                                 showCancelButton: true
                             })
 
@@ -285,6 +285,15 @@
                     }
                 });
 
+            });
+        });
+
+        $(document).ready(function () {
+            $('#kt_categroy_table').DataTable({
+                order: [[4, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: 0 }
+                ]
             });
         });
 

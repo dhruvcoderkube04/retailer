@@ -698,7 +698,7 @@ class RetilerController extends Controller
     {
         $request->validate([
             'margin_id' => 'required|exists:retailer_products,id',
-            'margin' => 'required|numeric|min:0',
+            'margin' => 'required|numeric|min:0|max:10000000',
             'wholesaler_id' => 'required|exists:retailer_products,wholesaler_id',
             'payment_method' => 'required'
         ]);
@@ -1172,7 +1172,7 @@ class RetilerController extends Controller
     {
         $request->validate([
             'product_name' => 'required|max:100',
-            'margin' => 'required',
+            'margin' => 'required|numeric|min:0|max:10000000',
             'payment_method' => 'required',
             'status' => 'required|string|in:active,inactive',
             'product_description' => 'nullable|string|max:1000',
