@@ -151,7 +151,7 @@ class CourierServiceManager
                         // } elseif (isset($rate['shipping_charge'])) {
                         //     $shippingCharge = $rate['shipping_charge'];
                         // }
-                        
+
                         $shippingCharge = $rate['fwCharge'] ?? ($rate['shipping_charge'] ?? null);
                         $codCharge = $rate['cod'] ?? ($rate['cod_charge'] ?? null);
                         $rtoCharge = $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null);
@@ -162,16 +162,15 @@ class CourierServiceManager
                         $gstRtoCharge = $rtoCharge ? round($rtoCharge * 0.18, 2) : null;
 
                         $totalPrice = $shippingCharge + $codCharge;
-
                         $results[] = [
                             'courier_code'         => $partner->code,
                             'courier_name'         => $partner->name,
                             'zone'                 => $rate['order_zone'] ?? ($rate['zone'] ?? null),
                             'estimated_delivery'   => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
                             'total_price'          => $totalPrice,
-                            'shipping_charge'      => $shippingCharge,
-                            'cod_charge'           => $codCharge,
-                            'rto_charge'           => $rtoCharge,
+                            'shipping_charge'      => round($shippingCharge + $gstShippingCharge, 2),
+                            'cod_charge'           => round($codCharge + $gstCodCharge, 2),
+                            'rto_charge'           => round($rtoCharge + $gstRtoCharge, 2),
                             'g_shipping_charge'    => $gstShippingCharge,
                             'g_cod_charge'         => $gstCodCharge,
                             'g_rto_charge'         => $gstRtoCharge,
@@ -188,7 +187,6 @@ class CourierServiceManager
                 } else {
                     \Log::warning("Empty or invalid response for: {$partner->code}", $response);
                 }
-
             } catch (\Throwable $e) {
                 \Log::error("Rate fetch failed for {$partner->code}: {$e->getMessage()}");
             }

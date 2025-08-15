@@ -22,9 +22,29 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\RetailerNdrNotification;
 use App\Models\GstConfiguration;
 use App\Models\PickAddress;
+use App\Services\Courier\FShipService;
+use App\Services\Courier\LorrigoService;
+use App\Services\Courier\LorrigoServiceLive;
 
 class OrderStatusService
 {
+    // public $partners;
+    public $services = [];
+
+    public function __construct()
+    {
+        $partners = CourierPartner::where('is_active', true)->get();
+
+        foreach ($partners as $partner) {
+            $service = match ($partner->code) {
+                'lorrigotest'  => new LorrigoService($partner->toArray()),
+                'fship'        => new FShipService($partner->toArray()),
+                'lorrigolive'  => new LorrigoServiceLive($partner->toArray()),
+                default        => null,
+            };
+            $this->services[$partner->code] = $service;
+        }
+    }
     // APPROVED BY RETAILER (New to Approved)
     public function handleApproveByRetailer($customerOrder)
     {
@@ -95,9 +115,7 @@ class OrderStatusService
                 $codChargeGstAmount      = round(($finalCod * $totalGstRate) / 100, 2);
                 $rtoChargeGstAmount      = round(($finalRto * $totalGstRate) / 100, 2);
             }
-        }
-        else
-        {
+        } else {
             $shippingChargeGstAmount = 0;
             $codChargeGstAmount      = 0;
             $rtoChargeGstAmount      = 0;
@@ -145,18 +163,18 @@ class OrderStatusService
         }
 
         $get_pickup = PickAddress::where('id', $request->pickup_address_id)
-        ->first();
+            ->first();
 
 
         if ($get_pickup) {
             $warehouseName = $get_pickup->warehouse_name;
 
             $get_pickup_address = PickAddress::where('warehouse_name', $warehouseName)
-                ->where('user_id',$user->id)
+                ->where('user_id', $user->id)
                 ->where('courier_code', $request->courier_code)
                 ->first();
 
-            $active_courier_partners = CourierPartner::where('is_active', 1)->where('code',$get_pickup_address->courier_code)->first();
+            $active_courier_partners = CourierPartner::where('is_active', 1)->where('code', $get_pickup_address->courier_code)->first();
 
             $updateData = [
                 'status' => $request->status,
@@ -173,7 +191,7 @@ class OrderStatusService
                 'shipping_charge_gst_amount' => $shippingChargeGstAmount,
                 'cod_charge_gst_amount' => $codChargeGstAmount,
                 'rto_charge_gst_amount' => $rtoChargeGstAmount,
-                'gst_config_id'=> $gst_config->id ?? null,
+                'gst_config_id' => $gst_config->id ?? null,
             ];
 
             if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
@@ -265,12 +283,12 @@ class OrderStatusService
             // $courierService = \App\Services\CourierServiceManager::getService();
             $courierService = \App\Services\CourierServiceManager::getServiceByCode($active_courier_partners->code);
             $apiOrderId = null;
-            if(empty($customerOrder->api_order_id) || !empty($active_courier_partners) && $active_courier_partners->code == 'fship'){
+            if (empty($customerOrder->api_order_id) || !empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
                 $response = $courierService->createOrder($payload);
-                if(!empty($response['order'])){
+                if (!empty($response['order'])) {
                     $apiOrderId = $response['order']['_id'];
                 }
-            }else{
+            } else {
                 $apiOrderId = $customerOrder->api_order_id;
             }
             if (!empty($active_courier_partners) && $active_courier_partners->code == 'fship') {
@@ -315,7 +333,7 @@ class OrderStatusService
             } elseif (!empty($active_courier_partners) &&  ($active_courier_partners->code == 'lorrigotest' || $active_courier_partners->code == 'lorrigolive')) {
 
                 if (!empty($apiOrderId)) {
-                    if(!empty($response['order']['_id'])){
+                    if (!empty($response['order']['_id'])) {
                         $updateData['api_order_id'] = $response['order']['_id'];
                         $customerOrder->update($updateData);
                     }
@@ -417,7 +435,7 @@ class OrderStatusService
             // ($customerOrder->rto_charge ?? 0) +
             ($customerOrder->shipping_charge_profit ?? 0) +
             ($customerOrder->cod_charge_profit ?? 0);
-            // ($customerOrder->rto_charge_profit ?? 0);
+        // ($customerOrder->rto_charge_profit ?? 0);
 
         $charges = [
             'Shipping Charge' => ($customerOrder->shipping_charge ?? 0) + ($customerOrder->shipping_charge_profit ?? 0),
@@ -611,8 +629,11 @@ class OrderStatusService
                     ]);
                     return [false, 'FSHIP Cancel Order Failed', 'cancel'];
                 }
-            } else if ($customerOrder->courier_partner_code == 'lorrigolive') {
-                // call lorrigo cancel order API
+            } else if ($customerOrder->courier_partner_code == 'lorrigolive'  || $customerOrder->courier_partner_code == 'lorrigotest') {
+                [$status, $message, $type] = $this->services[$customerOrder->courier_partner_code]->cancelShipment(['orderId' => $customerOrder->api_order_id]);
+                if (!$status) {
+                    return [$status, $message];
+                }
             }
         }
 
