@@ -588,7 +588,8 @@ class RetilerController extends Controller
         $request->validate([
             'sub_category_id' => 'required|exists:sub_categories,id',
             'margin' => 'required|integer|min:1',
-            'payment_method' => 'required'
+            'payment_method' => 'required',
+            'payment_method.*' => 'in:COD,Prepaid,Semi',
         ]);
 
         DB::beginTransaction();
@@ -618,7 +619,7 @@ class RetilerController extends Controller
 
             DB::commit();
             return redirect()->route('retailer.view-category-margin', encryptId($wholesaler_id))
-                ->with('success', 'Category margin added successfully');
+                ->with('success', 'Margin Added Successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');

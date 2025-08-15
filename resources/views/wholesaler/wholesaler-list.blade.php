@@ -155,8 +155,8 @@
             "<'table-responsive'tr>" +
             "<'row'" +
                 "<'col-12 col-md-1 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
-                "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                "<'col-12 col-md-0 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                "<'col-12 col-md-12 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
             processing: true,
             serverSide: true,
