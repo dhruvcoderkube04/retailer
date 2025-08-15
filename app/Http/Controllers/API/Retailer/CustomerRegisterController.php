@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\WelcomeVerifyCustomerMail;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Carbon;
 
 
 class CustomerRegisterController extends Controller
@@ -454,6 +456,97 @@ class CustomerRegisterController extends Controller
             'message' => 'User not authenticated'
         ], 401);
     }
+
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $customer = StoreCustomersDetails::where('email', $request->email)->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No account found with this email.'
+            ], 404);
+        }
+
+        // Prepare secure payload
+        $payload = [
+            'email' => $customer->email,
+            'expires_at' => Carbon::now()->addMinutes(30)->timestamp, // expires in 30 mins
+            'password_updated_at' => $customer->updated_at->timestamp, // for token invalidation
+        ];
+
+        $token = Crypt::encrypt($payload);
+
+        // Send reset email
+        Mail::to($customer->email)->send(new \App\Mail\CustomerPasswordResetMail($token));
+
+        return response()->json([
+            'status' => true,
+            'token' => $token, // 🔐 Token included in API response
+            'reset_link' => url("/reset-password?token={$token}"), // Optional
+            'message' => 'Password reset link sent to your email.'
+        ]);
+    }
+
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        try {
+            $payload = Crypt::decrypt($request->token);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid or tampered token.'
+            ], 400);
+        }
+
+        // Check token expiration
+        if (Carbon::now()->timestamp > $payload['expires_at']) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Token has expired.'
+            ], 400);
+        }
+
+        // Find the user
+        $customer = StoreCustomersDetails::where('email', $payload['email'])->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Customer not found.'
+            ], 404);
+        }
+
+        // Check if password was already updated after token was issued
+        if ($customer->updated_at->timestamp != $payload['password_updated_at']) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This reset link is no longer valid. Please request a new one.'
+            ], 400);
+        }
+
+        // Update password
+        $customer->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password has been reset successfully.'
+        ]);
+    }
+
 
     public function getCustomerDetails(Request $request)
     {

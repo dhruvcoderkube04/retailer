@@ -38,6 +38,12 @@ Route::prefix('customer')->group(function () {
     Route::post('reset-password', [CustomerRegisterController::class, 'resetPassword']);
 
     Route::get('verify-email/{token}', [CustomerRegisterController::class, 'verifyEmail']);
+    // Send password reset link
+    Route::post('/forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
+
+    Route::post('/token-password', [CustomerRegisterController::class, 'resetPassword']);
+
+
 
     // Account
     Route::middleware('auth:customer')->group(function () {
