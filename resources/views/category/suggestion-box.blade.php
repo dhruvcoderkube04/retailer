@@ -119,7 +119,7 @@
         </div>
         <!--end:::Main-->
 
-        <div class="modal fade" id="kt_modal_add_category" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal fade" data-bs-backdrop="static" id="kt_modal_add_category" tabindex="-1" style="display: none;" aria-hidden="true">
             <!--begin::Modal dialog-->
             <div class="modal-dialog mw-650px">
                 <!--begin::Modal content-->
