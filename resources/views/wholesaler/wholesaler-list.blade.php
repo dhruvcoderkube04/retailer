@@ -86,7 +86,7 @@
                                         this is a mistake, please submit an access request for approval.</p>
                                 </div>
                             </div>
-                            <input type="hidden" name="user_id" value="{{ $retaile_id }}">
+                            <input type="hidden" name="user_id" value="{{ $retailer_id }}">
                             <button id="requestAccessBtn" type="button" class="btn btn-outline-info btn-lg fw-semibold">
                                 Request Access
                             </button>
@@ -185,6 +185,11 @@
                 className: 'text-center fs-5 text-dark text-capitalize',
                 orderable: false,
             },
+            {
+                data: 'subcategory_names',
+                className: 'text-center fs-5 text-dark text-capitalize',
+                orderable: false,
+            },  
             {
                 data: 'details',
                 className: 'text-center fs-5 text-dark text-capitalize',
