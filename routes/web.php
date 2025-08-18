@@ -29,7 +29,7 @@ Route::get('/', function () {
 });
 
 Route::controller(RetailerAuthController::class)->group(function () {
-    Route::get('login', 'showLoginForm')->name('retailer.login');
+    Route::get('login', 'showLoginForm')->name('retailer.login')->middleware('user.active');
     Route::post('login', 'login')->name('retailer.post.login');
     Route::get('register', 'showRegistrationForm')->name('retailer.registerform');
     Route::post('register', 'register')->name('retailer.register');
@@ -53,7 +53,7 @@ Route::get('/email/verify', [VerificationController::class, 'show'])->name('veri
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed'])->name('verification.verify');
 Route::post('/email/resend', [VerificationController::class, 'resend'])->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
-Route::middleware(['retailer'])->group(function () {
+Route::middleware(['retailer', 'user.active'])->group(function () {
     Route::get('/dashboard', [RetilerController::class, 'retailerDashboard'])->name('retailer.dashboard');
     Route::post('/dashboard-reload', [RetilerController::class, 'dashboardReload'])->name('retailer.dashboard-reload');
 
