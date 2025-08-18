@@ -27,60 +27,73 @@ use App\Services\OtpService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Carbon;
+use App\Helpers\ApiResponse;
+
 
 
 class CustomerRegisterController extends Controller
 {
+
+    //Register API
     public function register(Request $request)
     {
-        // Step 1: Validate input
-        $request->validate([
-            'user_token' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) use ($request) {
-                    $existing = DB::table('store_customers_details')
-                        ->where('email', $request->email)
-                        ->where('user_token', $value)
-                        ->first();
+        // Step 1: Validate request
+        try {
+            $request->validate([
+                'user_token' => [
+                    'required',
+                    'string',
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $existing = DB::table('store_customers_details')
+                            ->where('email', $value)
+                            ->where('user_token', $request->user_token)
+                            ->first();
 
-                    if ($existing) {
-                        $fail('This email is already registered.');
-                    }
-                },
-            ],
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'phone_number' => [
-                'required',
-                'regex:/^[6-9]\d{9}$/',
-                function ($attribute, $value, $fail) {
-                    if (preg_match('/^(\d)\1{9}$/', $value)) {
-                        return $fail('The :attribute should not have all repeated digits.');
-                    }
+                        if ($existing) {
+                            $fail('This email is already registered.');
+                        }
+                    },
+                ],
+                'firstname' => 'required|string|max:255',
+                'lastname' => 'required|string|max:255',
+                'phone_number' => [
+                    'required',
+                    'regex:/^[6-9]\d{9}$/',
+                    function ($attribute, $value, $fail) {
+                        if (preg_match('/^(\d)\1{9}$/', $value)) {
+                            return $fail('The :attribute should not have all repeated digits.');
+                        }
 
-                    if (strpos('1234567890', $value) !== false || strpos('9876543210', $value) !== false) {
-                        return $fail('The :attribute should not be a sequential or reverse-sequential number.');
-                    }
-                },
-            ],
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+                        if (
+                            strpos('1234567890', $value) !== false ||
+                            strpos('9876543210', $value) !== false
+                        ) {
+                            return $fail('The :attribute should not be a sequential or reverse-sequential number.');
+                        }
+                    },
+                ],
+                'password' => 'required|string|min:6',
+            ]);
+        } catch (ValidationException $e) {
+            return ApiResponse::error('Validation failed', $e->errors());
+        }
 
-        // Step 2: Validate token (Retailer exists & active)
+        // Step 2: Validate retailer token
         $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
             ->where('is_active', 1)
             ->first();
 
         if (!$retailer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid user token.'
-            ], 404);
+            return ApiResponse::error('Invalid user token.');
         }
 
-        // Step 3: Register user, catch DB duplicate errors
+        // Step 3: Start DB transaction
+        DB::beginTransaction();
+
         try {
             $verificationToken = Str::random(64);
 
@@ -91,52 +104,58 @@ class CustomerRegisterController extends Controller
                 'phone_number' => $request->phone_number,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'user_token' => $request->user_token, // ✅ Save user-provided token
+                'user_token' => $request->user_token,
                 'is_active' => false,
                 'email_verification_token' => $verificationToken,
             ]);
 
+            // Send verification email
             Mail::to($customer->email)->send(new WelcomeVerifyCustomerMail($customer));
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Customer registered. Please verify your email.'
-            ], 201);
+            DB::commit();
+
+            return ApiResponse::success([], 'Customer registered. Please verify your email.');
+
         } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+
             if ($e->getCode() === '23000') {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'This email is already registered.'
-                ], 409);
+                return ApiResponse::error('This email is already registered.');
             }
 
-            throw $e; // or log the unexpected error
+            return ApiResponse::error('Database error.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ApiResponse::error(
+                config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.'
+            );
         }
     }
 
+    //Verify Email
     public function verifyEmail($token)
     {
         DB::beginTransaction();
-
+    
         try {
             $customer = StoreCustomersDetails::where('email_verification_token', $token)->first();
-
+    
             if (!$customer) {
-                return response()->json(['status' => false, 'message' => 'Invalid or expired token.'], 400);
+                return ApiResponse::error('Invalid or expired token.');
             }
-
-            // Step 1: Update email verification status
+    
+            // Update email verification status
             $customer->email_verified_at = now();
             $customer->email_verification_token = null;
             $customer->is_active = true;
             $customer->save();
-
-            // Step 2: Check if customer_details exists
+    
+            // Check or create customer details record
             $existing = CustomerDetails::where('user_id', $customer->user_id)
                 ->where('email', $customer->email)
                 ->first();
-
-            // Step 3: Create if not exists, and update store table with its ID
+    
             if (!$existing) {
                 $newCustomerDetail = CustomerDetails::create([
                     'user_id' => $customer->user_id,
@@ -145,153 +164,216 @@ class CustomerRegisterController extends Controller
                     'phone_number' => $customer->phone_number,
                     'email' => $customer->email,
                 ]);
-
-                // Step 4: Store FK in store_customers_details
+    
                 $customer->customer_id = $newCustomerDetail->id;
                 $customer->save();
-            } else {
-                // If already exists, still update FK if not set
-                if (!$customer->customer_id) {
-                    $customer->customer_id = $existing->id;
-                    $customer->save();
+            } elseif (!$customer->customer_id) {
+                $customer->customer_id = $existing->id;
+                $customer->save();
+            }
+    
+            DB::commit();
+    
+            return ApiResponse::success([], 'Email verified successfully!');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+    
+            return ApiResponse::error('Something went wrong during verification.', [
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    //login API
+    public function login(Request $request)
+    {
+        // Step 1: Validation
+        try {
+            $request->validate([
+                'user_token' => 'required|string',
+                'email' => 'required|email',
+                'password' => 'required|string'
+            ]);
+        } catch (ValidationException $e) {
+            return ApiResponse::error('Validation failed', $e->errors());
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Step 2: Check retailer
+            $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
+                ->where('is_active', 1)
+                ->first();
+
+            if (!$retailer) {
+                return ApiResponse::error('Invalid user token.');
+            }
+
+            // Step 3: Check customer
+            $customer = StoreCustomersDetails::where('user_id', $retailer->retailer_id)
+                ->where('email', $request->email)
+                ->first();
+
+            if (!$customer) {
+                return ApiResponse::error('No account found with this email under this retailer.');
+            }
+
+            if (is_null($customer->email_verified_at)) {
+                return ApiResponse::error('Please verify your email before logging in.');
+            }
+
+            if (!$customer->is_active) {
+                return ApiResponse::error('Your account is not active. Please contact support.');
+            }
+
+            if (!Hash::check($request->password, $customer->password)) {
+                return ApiResponse::error('Invalid credentials.');
+            }
+
+            // Step 4: Get customer details
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $filteredCustomer = $customerDetails
+                ? collect($customerDetails)->except(['id', 'user_id', 'created_at', 'updated_at'])
+                : collect($customer)->except(['id', 'user_id', 'created_at', 'updated_at']);
+
+            // Step 5: Cart & Wishlist
+            $cartItems = [];
+            $wishlistItems = [];
+
+            $customerCart = CustomerCart::where('customer_id', $customer->customer_id)->get();
+
+            foreach ($customerCart as $item) {
+                $product = null;
+
+                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
+                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
+                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
+                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
+                }
+
+                if ($product) {
+                    if ($item->type === 'wishlist') {
+                        $wishlistItems[] = $product;
+                    } elseif ($item->type === 'cart') {
+                        $cartItems[] = $product;
+                    }
                 }
             }
+
+            // Step 6: Token creation
+            $token = $customer->createToken('customer-token')->plainTextToken;
 
             DB::commit();
 
-            return response()->json(['status' => true, 'message' => 'Email verified successfully!']);
-        } catch (\Throwable $e) {
+            // Step 7: Return consistent success response
+            return ApiResponse::success([
+                'token' => $token,
+                'user_token' => $request->user_token,
+                'customer' => $filteredCustomer,
+                'wishlist_items' => $wishlistItems,
+                'cart_items' => $cartItems
+            ], 'Login successful.');
+
+        } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Something went wrong during verification.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error(
+                config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.'
+            );
         }
     }
 
-    public function login(Request $request)
+    //log-out API
+    public function logout(Request $request)
     {
-        $request->validate([
-            'user_token' => 'required|string',
-            'email' => 'required|email',
-            'password' => 'required|string'
-        ]);
+        $user = auth('sanctum')->user();
 
-        // Check valid retailer
-        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
-            ->where('is_active', 1)
-            ->first();
+        if ($user) {
+            $user->currentAccessToken()->delete();
 
-        if (!$retailer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid user token.'
-            ], 404);
+            return ApiResponse::success([], 'Logout successful');
         }
 
-        // Find customer
-        $customer = StoreCustomersDetails::where('user_id', $retailer->retailer_id)
-            ->where('email', $request->email)
-            ->where('is_active', true)
-            ->first();
+        return ApiResponse::error('User not authenticated');
+    }
+
+    //forgot password API via Email
+    public function forgotPassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+            ]);
+        } catch (ValidationException $e) {
+            return ApiResponse::error('Validation failed', $e->errors());
+        }
+
+        $customer = StoreCustomersDetails::where('email', $request->email)->first();
 
         if (!$customer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Please verify your email.'
-            ], 404);
+            return ApiResponse::error('No account found with this email.');
         }
 
-        // Check if email is verified
-        if (is_null($customer->email_verified_at)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Please verify your email before logging in.'
-            ], 403);
-        }
+        $payload = [
+            'email' => $customer->email,
+            'expires_at' => Carbon::now()->addMinutes(10)->timestamp,
+            'password_updated_at' => $customer->updated_at->timestamp,
+        ];
 
-        // Check if account is active
-        if (!$customer->is_active) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Your account is not active. Please contact support.'
-            ], 403);
-        }
+        $token = Crypt::encrypt($payload);
 
-        // Validate password
-        if (!Hash::check($request->password, $customer->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
+        Mail::to($customer->email)->send(new \App\Mail\CustomerPasswordResetMail($token));
 
-        // Optional: Fetch full customer details if needed
-        $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-
-        $filteredCustomer = $customerDetails ? collect($customerDetails)->except([
-            'id',
-            'user_id',
-            'created_at',
-            'updated_at'
-        ]) : collect($customer)->except([
-                        'id',
-                        'user_id',
-                        'created_at',
-                        'updated_at'
-                    ]);
-
-
-        $customerCart = CustomerCart::where('customer_id', $customerDetails->id)->get();
-
-        $cartItems = [];
-        $wishlistItems = [];
-
-        foreach ($customerCart as $item) {
-            if ($item->type === 'wishlist') {
-                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
-                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
-                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
-                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
-                } else {
-                    $product = null;
-                }
-
-                if ($product) {
-                    $wishlistItems[] = $product;
-                }
-            } elseif ($item->type === 'cart') {
-                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
-                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
-                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
-                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
-                } else {
-                    $product = null;
-                }
-
-                if ($product) {
-                    $cartItems[] = $product;
-                }
-            }
-        }
-
-        // Generate token
-        $token = $customer->createToken('customer-token')->plainTextToken;
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Login successful.',
+        return ApiResponse::success([
             'token' => $token,
-            'user_token' => $request->user_token,
-            'customer' => $filteredCustomer,
-            'wishlist_items' => $wishlistItems,
-            'cart_items' => $cartItems
-        ]);
-
+            'reset_link' => url("/reset-password?token={$token}"),
+        ], 'Password reset link sent to your email.');
     }
 
 
+    //reset password API via Email
+    public function resetPassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'token' => 'required|string',
+                'password' => 'required|string|min:6|confirmed',
+            ]);
+        } catch (ValidationException $e) {
+            return ApiResponse::error('Validation failed', $e->errors());
+        }
+
+        try {
+            $payload = Crypt::decrypt($request->token);
+        } catch (\Exception $e) {
+            return ApiResponse::error('Invalid or tampered token.');
+        }
+
+        if (Carbon::now()->timestamp > $payload['expires_at']) {
+            return ApiResponse::error('Token has expired.');
+        }
+
+        $customer = StoreCustomersDetails::where('email', $payload['email'])->first();
+
+        if (!$customer) {
+            return ApiResponse::error('Customer not found.');
+        }
+
+        if ($customer->updated_at->timestamp != $payload['password_updated_at']) {
+            return ApiResponse::error('This reset link is no longer valid. Please request a new one.');
+        }
+
+        $customer->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return ApiResponse::success([], 'Password has been reset successfully.');
+    }
+
+
+
+    //unused API
     public function loginOtp(Request $request)
     {
 
@@ -437,117 +519,6 @@ class CustomerRegisterController extends Controller
             'cart_items' => $cartItems
         ]);
     }
-
-    public function logout(Request $request)
-    {
-        $user = $request->user();
-
-        if ($user) {
-            $user->currentAccessToken()->delete();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Logout successful'
-            ]);
-        }
-
-        return response()->json([
-            'status' => false,
-            'message' => 'User not authenticated'
-        ], 401);
-    }
-
-
-    public function forgotPassword(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $customer = StoreCustomersDetails::where('email', $request->email)->first();
-
-        if (!$customer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No account found with this email.'
-            ], 404);
-        }
-
-        // Prepare secure payload
-        $payload = [
-            'email' => $customer->email,
-            'expires_at' => Carbon::now()->addMinutes(30)->timestamp, // expires in 30 mins
-            'password_updated_at' => $customer->updated_at->timestamp, // for token invalidation
-        ];
-
-        $token = Crypt::encrypt($payload);
-
-        // Send reset email
-        Mail::to($customer->email)->send(new \App\Mail\CustomerPasswordResetMail($token));
-
-        return response()->json([
-            'status' => true,
-            'token' => $token, // 🔐 Token included in API response
-            'reset_link' => url("/reset-password?token={$token}"), // Optional
-            'message' => 'Password reset link sent to your email.'
-        ]);
-    }
-
-
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'token' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        try {
-            $payload = Crypt::decrypt($request->token);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid or tampered token.'
-            ], 400);
-        }
-
-        // Check token expiration
-        if (Carbon::now()->timestamp > $payload['expires_at']) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Token has expired.'
-            ], 400);
-        }
-
-        // Find the user
-        $customer = StoreCustomersDetails::where('email', $payload['email'])->first();
-
-        if (!$customer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Customer not found.'
-            ], 404);
-        }
-
-        // Check if password was already updated after token was issued
-        if ($customer->updated_at->timestamp != $payload['password_updated_at']) {
-            return response()->json([
-                'status' => false,
-                'message' => 'This reset link is no longer valid. Please request a new one.'
-            ], 400);
-        }
-
-        // Update password
-        $customer->update([
-            'password' => Hash::make($request->password),
-        ]);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Password has been reset successfully.'
-        ]);
-    }
-
-
     public function getCustomerDetails(Request $request)
     {
         $customer = auth()->user();

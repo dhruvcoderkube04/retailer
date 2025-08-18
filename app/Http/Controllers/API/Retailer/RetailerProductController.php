@@ -40,6 +40,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Cache;
+use App\Helpers\ApiResponse;
+
 
 
 class RetailerProductController extends Controller
@@ -155,7 +157,7 @@ class RetailerProductController extends Controller
             $apiKey = $request->header('API-KEY');
 
             if (!$apiKey) {
-                return response()->json(['error' => 'API Key is required.'], 401);
+                return ApiResponse::error('API Key is required');
             }
 
             $retailer = RetailerWebManagement::with([
@@ -163,19 +165,19 @@ class RetailerProductController extends Controller
                     $query->where('is_delete', 0)->where('status', 1);
                 }
             ])
-                ->whereHas('retailer', function ($query) {
+                ->whereHas('retailer', function ($query): void {
                     $query->where('is_delete', 0)->where('status', 1);
                 })
                 ->where('product_listing_key', $apiKey)
                 ->first();
             if (!$retailer) {
-                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+                return ApiResponse::error('Unauthorized: Invalid API Key');
             }
 
             $retailerId = $retailer->retailer_id;
             $retailerUser = User::where('id', $retailerId)->where('status', 1)->where('is_delete', 0)->first();
             if (!$retailerUser) {
-                return response()->json(['error' => 'Retailer user not found.'], 404);
+                return ApiResponse::error('Retailer user not found');
             }
 
             // <---------------- get product data ---------------------->
@@ -326,14 +328,11 @@ class RetailerProductController extends Controller
             if ($request->has('product_id')) {
                 $single = $products->where('id', $request->product_id)->first();
                 if (!$single) {
-                    return response()->json(['error' => 'Product not found.'], 404);
+                    return ApiResponse::error('Product not found');
                 }
-
-                return response()->json([
-                    'success' => true,
-                    'product' => $single,
-                ]);
+                return ApiResponse::success(['product' => $single], 'Product fetched successfully');
             }
+
 
             // <---------------- pagination ---------------------->
             $perPage = 12;
@@ -361,11 +360,10 @@ class RetailerProductController extends Controller
             $paginatedProducts->setCollection(collect($items));
 
             // <---------------- return data ---------------------->
-            return response()->json([
-                'success' => true,
+            return ApiResponse::success([
                 'products' => $paginatedProducts,
                 'sub_categories' => $subCategories,
-            ]);
+            ], 'Products fetched successfully');
         } catch (Exception $e) {
             Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
                 'line' => $e->getLine(),
@@ -374,7 +372,7 @@ class RetailerProductController extends Controller
             ]);
 
             // return response()->json(['error' => $e->getMessage(), $e->getLine()], 500);
-            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+            return ApiResponse::error('An unexpected error occurred');
         }
     }
 
@@ -384,7 +382,7 @@ class RetailerProductController extends Controller
             // validate API key
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
-                return response()->json(['error' => 'API Key is required.'], 401);
+                return ApiResponse::error('API Key is required');
             }
 
             // validate retailer
@@ -400,7 +398,7 @@ class RetailerProductController extends Controller
                 })->where('product_listing_key', $apiKey)
                 ->first();
             if (!$retailer) {
-                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+                return ApiResponse::error('Unauthorized: Invalid API Key');
             }
 
             $retailerId = $retailer->retailer_id;
@@ -537,13 +535,10 @@ class RetailerProductController extends Controller
             if ($request->has('product_id')) {
                 $single = $products->where('id', $request->product_id)->first();
                 if (!$single) {
-                    return response()->json(['error' => 'Product not found.'], 404);
+                    return ApiResponse::error('Product not found');
                 }
 
-                return response()->json([
-                    'success' => true,
-                    'product' => $single,
-                ]);
+                return ApiResponse::success(['product' => $single], 'Product fetched successfully');
             }
 
             // <---------------- pagination ---------------------->
@@ -572,11 +567,10 @@ class RetailerProductController extends Controller
             $paginatedProducts->setCollection(collect($items));
 
             // <---------------- return data ---------------------->
-            return response()->json([
-                'success' => true,
+            return ApiResponse::success([
                 'products' => $paginatedProducts,
                 'sub_categories' => $subCategories,
-            ]);
+            ], 'Products fetched successfully');
         } catch (\Exception $e) {
             \Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
                 'line' => $e->getLine(),
@@ -584,7 +578,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+            return ApiResponse::error('An unexpected error occurred');
         }
     }
 
@@ -595,7 +589,7 @@ class RetailerProductController extends Controller
             //<------------- validate user ---------------->
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
-                return response()->json(['error' => 'API Key is required.'], 401);
+                return ApiResponse::error('API Key is required.');
             }
 
             $retailer = RetailerWebManagement::with([
@@ -610,17 +604,17 @@ class RetailerProductController extends Controller
                 })->where('product_listing_key', $apiKey)
                 ->first();
             if (!$retailer) {
-                return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+                return ApiResponse::error('Unauthorized: Invalid API Key.');
             }
 
             if (!$slug) {
-                return response()->json(['error' => 'Product slug is required.'], 422);
+                return ApiResponse::error('Product slug is required.');
             }
 
             $retailerId = $retailer->retailer_id;
             $retailerUser = User::where('id', $retailerId)->where('status', 1)->where('is_delete', 0)->first();
             if (!$retailerUser) {
-                return response()->json(['error' => 'Retailer user not found.'], 404);
+                return ApiResponse::error('Retailer user not found.');
             }
 
             // <---------------- get product data ---------------------->
@@ -670,7 +664,7 @@ class RetailerProductController extends Controller
             }
 
             if (!$product) {
-                return response()->json(['error' => 'Product not found.'], 404);
+                return ApiResponse::error('Product not found.');
             }
 
             $margin = 0;
@@ -712,17 +706,16 @@ class RetailerProductController extends Controller
             $formatted_product = $this->formatProductFromClone($product, $product->final_price ?? 0, $retailerEditedProducts);
 
             // <---------------- return data ---------------------->
-            return response()->json([
-                'success' => true,
-                'product' => $formatted_product
-            ], 200);
+
+            return ApiResponse::success(['product' => $formatted_product], 'Products fetched successfully');
+
         } catch (\Exception $e) {
             \Log::error('Get product detail error: ' . $e->getMessage(), [
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return response()->json(['error' => 'Something went wrong.'], 500);
+            return ApiResponse::error('An unexpected error occurred');
         }
     }
 
@@ -740,10 +733,8 @@ class RetailerProductController extends Controller
 
                 // Check if this number has been verified
                 if (!Cache::get('otp_verified_' . $request->phone_number)) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Phone number not verified. Please verify via OTP first.'
-                    ], 401);
+
+                    return ApiResponse::error('Phone number not verified. Please verify via OTP first.');
                 }
 
                 // Optionally clear verification after use
@@ -809,10 +800,7 @@ class RetailerProductController extends Controller
                 }
 
                 if (!empty($missingFields)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Please fill these fields: ' . implode(', ', $missingFields),
-                    ], 422);
+                    return ApiResponse::error("Please fill these fields: " . implode(', ', $missingFields));
                 }
 
                 $existCustomer->address = $request->input('address', $existCustomer->address);
@@ -828,7 +816,7 @@ class RetailerProductController extends Controller
                 // Step 4: Create new customer
                 $request->validate([
                     'firstname' => 'required|string|max:30',
-                    'lastname' => 'nullable|string|max:30',
+                    'lastname' => 'required|string|max:30',
                     'email' => 'required|email',
                     'address' => 'required|string|max:250',
                     'state' => 'required|string',
@@ -841,10 +829,7 @@ class RetailerProductController extends Controller
                 $existingCustomer = StoreCustomersDetails::where('email', $request->email)->first();
 
                 if ($existingCustomer) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Email already registered. Please log in or use a different email.',
-                    ], 409);
+                    return ApiResponse::error('Email already registered. Please log in or use a different email.');
                 }
 
                 // ✅ Validate user token
@@ -853,10 +838,7 @@ class RetailerProductController extends Controller
                     ->first();
 
                 if (!$retailer) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Invalid user token.'
-                    ], 404);
+                    return ApiResponse::error('Invalid user token.');
                 }
 
                 $randomPassword = Str::random(10) . '@' . rand(10, 99);
@@ -937,11 +919,10 @@ class RetailerProductController extends Controller
                 $validator = Validator::make($request->all(), $validationRules, $customMessages);
 
                 if ($validator->fails()) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Order not placed. Required address details missing.',
-                        'errors' => $validator->errors()
-                    ], 422);
+                    return ApiResponse::error(
+                        'Order not placed. Required address details missing.',
+                        $validator->errors()
+                    );
                 }
 
                 // Update only the missing fields from request
@@ -980,7 +961,7 @@ class RetailerProductController extends Controller
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
-            return response()->json(['error' => 'API Key is required.'], 401);
+            return ApiResponse::error('API Key is required.');
         }
 
         $retailer = RetailerWebManagement::with([
@@ -992,7 +973,7 @@ class RetailerProductController extends Controller
         })->where('product_listing_key', $apiKey)->first();
 
         if (!$retailer) {
-            return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+            return ApiResponse::error('Unauthorized: Invalid API Key.');
         }
 
         DB::beginTransaction();
@@ -1034,18 +1015,11 @@ class RetailerProductController extends Controller
                 $couponid = @$product['coupon_id'];
 
                 if (!$productId && !$cloneId) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Either product_id or retailer_product_id must be provided.'
-                    ], 404);
+                    return ApiResponse::error('Either product_id or retailer_product_id must be provided.');
                 }
                 if ($productId && !$wholesalerId) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'wholesaler_id is required for Product ID ' . $productId
-                    ], 404);
+                    return ApiResponse::error('wholesaler_id is required for Product ID ' . $productId);
                 }
-
                 $variation = null;
                 $variationOldPrice = null;
                 $variationNewPrice = null;
@@ -1057,10 +1031,8 @@ class RetailerProductController extends Controller
                         ->where('status', 'active')
                         ->first();
                     if (!$productModel) {
-                        return response()->json([
-                            'error' => true,
-                            'message' => 'Product ID ' . $productId . ' not found.'
-                        ], 404);
+
+                        return ApiResponse::error('Product ID ' . $productId . ' not found.');
                     }
 
                     // START : get retailer's margin of this product
@@ -1069,10 +1041,7 @@ class RetailerProductController extends Controller
                         ->first();
                     if ($retailerMargin) {
                         if ($retailerMargin->product_status == 'inactive' || $retailerMargin->is_deleted_product == 1) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Product ID ' . $productId . ' is unavailable for sell.'
-                            ], 404);
+                            return ApiResponse::success('Product ID ' . $productId . ' is unavailable for sell.');
                         }
 
                         $retailer_margin_amount = $retailerMargin->margin;
@@ -1091,24 +1060,15 @@ class RetailerProductController extends Controller
 
                     if ($productModel->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Product variation is required for Product ID ' . $productId
-                            ], 422);
+                            return ApiResponse::error( 'Product variation is required for Product ID ' . $productId);
                         }
 
                         $productVariation = ProductVariation::where('product_id', $productId)->where('product_variation', $product['product_variation'])->first();
                         if (!$productVariation) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'There is no any variation as ' . $product['product_variation'] . ' for Product ID ' . $productId
-                            ], 404);
+                            return ApiResponse::error('There is no any variation as ' . $product['product_variation'] . ' for Product ID ' . $productId);
                         }
                         if ($productVariation->stock < $quantity) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Insufficient variation stock for Product ID ' . $productId
-                            ], 404);
+                            return ApiResponse::error('Insufficient variation stock for Product ID ' . $productId);
                         }
 
                         $productVariation->stock -= $quantity;
@@ -1120,10 +1080,7 @@ class RetailerProductController extends Controller
                         $variationStock = $productVariation->stock;
                     } else {
                         if ($productModel->quantity < $quantity) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Insufficient stock for Product ID ' . $productId
-                            ], 404);
+                            return ApiResponse::error('Insufficient stock for Product ID ' . $productId);
                         }
                         $productModel->quantity -= $quantity;
                         $productModel->save();
@@ -1168,32 +1125,20 @@ class RetailerProductController extends Controller
                         ->where('status', 'active')
                         ->first();
                     if (!$retailerProduct) {
-                        return response()->json([
-                            'error' => true,
-                            'message' => 'Retailer Product ID ' . $cloneId . ' not found.'
-                        ], 404);
+                        return ApiResponse::error('Retailer Product ID ' . $cloneId . ' not found.');
                     }
 
                     if ($retailerProduct->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Product variation is required for Retailer Product ID ' . $cloneId
-                            ], 422);
+                            return ApiResponse::error('Product variation is required for Retailer Product ID ' . $cloneId);
                         }
 
                         $productVariation = ProductVariation::where('product_id', $cloneId)->where('product_variation', $product['product_variation'])->first();
                         if (!$productVariation) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'There is no any variation as ' . $product['product_variation'] . ' for Retailer Product ID ' . $cloneId
-                            ], 404);
+                            return ApiResponse::error('There is no any variation as ' . $product['product_variation'] . ' for Retailer Product ID ' . $cloneId);
                         }
                         if ($productVariation->stock < $quantity) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Insufficient variation stock for Retailer Product ID ' . $cloneId
-                            ], 404);
+                            return ApiResponse::error('Insufficient variation stock for Retailer Product ID ' . $cloneId);
                         }
 
                         $productVariation->stock -= $quantity;
@@ -1205,10 +1150,7 @@ class RetailerProductController extends Controller
                         $variationStock = $productVariation->stock;
                     } else {
                         if ($retailerProduct->quantity < $quantity) {
-                            return response()->json([
-                                'error' => true,
-                                'message' => 'Insufficient stock for Retailer Product ID ' . $cloneId
-                            ], 404);
+                            return ApiResponse::error('Insufficient stock for Retailer Product ID ' . $cloneId);
                         }
                         $retailerProduct->quantity -= $quantity;
                         $retailerProduct->save();
@@ -1322,8 +1264,6 @@ class RetailerProductController extends Controller
                 Mail::to($retailer->retailer->email)->send(new RetailerOrderMail($orderItemsForMail, $retailer->retailer));
             }
 
-
-
             if ($customerDetails) {
                 $token = $customerDetails->createToken('customer-token')->plainTextToken;
                 $filtercustomerDetails = collect($customerDetails)->except(['id', 'user_id', 'created_at', 'updated_at']);
@@ -1359,22 +1299,18 @@ class RetailerProductController extends Controller
             }
             $token = $customerDetails->createToken('customer-token')->plainTextToken;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Your order has been placed successfully!',
-                'order_id' => $orderIDs,
-                'token' => $token,
-                'customer' => $filtercustomerDetails,
+            return ApiResponse::success([
+                'order_id'       => $orderIDs,
+                'token'          => $token,
+                'customer'       => $filtercustomerDetails,
                 'wishlist_items' => $wishlistItems,
-                'cart_items' => $cartItems
-            ], 200);
+                'cart_items'     => $cartItems,
+            ], 'Your order has been placed successfully!');
+            
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error:', ['error' => $e->getMessage()]);
-            return response()->json([
-                // 'error' => 'Something went wrong!'
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong!');
         }
     }
 
@@ -1759,15 +1695,12 @@ class RetailerProductController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
+            return ApiResponse::error('Validation failed', $validator->errors());
         }
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
-            return response()->json(['error' => 'API Key is required.'], 401);
+            return ApiResponse::error('API Key is required.');
         }
 
         // Get retailer by API key
@@ -1780,7 +1713,7 @@ class RetailerProductController extends Controller
         })->where('product_listing_key', $apiKey)->first();
 
         if (!$retailer) {
-            return response()->json(['error' => 'Unauthorized: Invalid API Key.'], 403);
+            return ApiResponse::error('Unauthorized: Invalid API Key.');
         }
 
         // Get coupon by code and retailer
@@ -1789,36 +1722,35 @@ class RetailerProductController extends Controller
             ->first();
 
         if (!$coupon) {
-            return response()->json(['error' => 'Invlaid Coupon code.'], 404);
+            return ApiResponse::error('Invlaid Coupon code.');
         }
 
         // Check status
         if ($coupon->status != 1) {
-            return response()->json(['error' => 'This coupon is Invalid.'], 403);
+            return ApiResponse::error('This coupon is Invalid.');
         }
 
         // Check if coupon is expired
         if ($coupon->valid_until && Carbon::now()->gt($coupon->valid_until)) {
-            return response()->json(['error' => 'This coupon has expired.'], 410);
+            return ApiResponse::error('This coupon has expired.');
         }
 
         // Check usage limit
         if ($coupon->used_count >= $coupon->usage_limit) {
-            return response()->json(['error' => 'This coupon has been fully used.'], 429);
+            return ApiResponse::error('This coupon has been fully used.');
         }
 
         // All good — "apply" the coupon
-        return response()->json([
-            'success' => true,
-            'message' => 'Coupon applied successfully.',
+        return ApiResponse::success([
             'coupon' => [
                 'id' => $coupon->id,
                 'code' => $coupon->coupon_code,
-                'discount' => $coupon->discount
+                'discount' => $coupon->discount,
                 // 'valid_from' => $coupon->valid_from,
                 // 'valid_until' => $coupon->valid_until,
             ]
-        ]);
+        ], 'Coupon applied successfully.');
+        
     }
 
     private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts)
@@ -1995,11 +1927,7 @@ class RetailerProductController extends Controller
             $orders = CustomerOrders::where('customer_id', $customer->id)->get();
 
             if ($orders->isEmpty()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'You have not placed any orders yet.',
-                    'orders' => []
-                ]);
+                return ApiResponse::error('You have not placed any orders yet.');
             }
 
             $orderList = [];
@@ -2035,10 +1963,7 @@ class RetailerProductController extends Controller
                 ];
             }
 
-            return response()->json([
-                'success' => true,
-                'orders' => $orderList,
-            ]);
+            return ApiResponse::success(['orders' => $orderList], 'Order Fetched Successfully');
 
         } catch (\Throwable $e) {
             Log::error('Error in customerOrders(): ' . $e->getMessage(), [
@@ -2047,11 +1972,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while fetching orders.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while fetching orders.');
         }
     }
 
@@ -2070,10 +1991,8 @@ class RetailerProductController extends Controller
             $customerDetails = CustomerDetails::find($customer->customer_id);
 
             if (!$customerDetails) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Customer record not found.',
-                ], 404);
+
+                return ApiResponse::error('Customer record not found.');
             }
 
             // ✅ Update address in customer_details
@@ -2084,18 +2003,14 @@ class RetailerProductController extends Controller
                 'pincode' => $request->pincode,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Shipping address updated successfully.',
-                'data' => [
-                    'firstname' => $customerDetails->firstname,
-                    'lastname' => $customerDetails->lastname,
-                    'address' => $customerDetails->address,
-                    'state' => $customerDetails->state,
-                    'city' => $customerDetails->city,
-                    'pincode' => $customerDetails->pincode,
-                ]
-            ]);
+            return ApiResponse::success([
+                'firstname' => $customerDetails->firstname,
+                'lastname' => $customerDetails->lastname,
+                'address' => $customerDetails->address,
+                'state' => $customerDetails->state,
+                'city' => $customerDetails->city,
+                'pincode' => $customerDetails->pincode,
+            ], 'Shipping address updated successfully.');
         } catch (\Throwable $e) {
             Log::error('Error in shippingAddress(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2103,11 +2018,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while processing the address.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while processing the address.');
         }
     }
 
@@ -2176,19 +2087,14 @@ class RetailerProductController extends Controller
             $customer = auth()->user();
 
             if (!Hash::check($request->old_password, $customer->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Your current password is incorrect.'
-                ], 400);
+
+                return ApiResponse::error('Your current password is incorrect.');
             }
 
             $customer->password = Hash::make($request->new_password);
             $customer->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Password has been successfully updated.'
-            ]);
+            return ApiResponse::error('Password has been successfully updated.');
 
         } catch (\Throwable $e) {
             Log::error('Error in resetPassword(): ' . $e->getMessage(), [
@@ -2197,11 +2103,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while resetting the password.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while resetting the password.');
         }
     }
 
@@ -2223,10 +2125,7 @@ class RetailerProductController extends Controller
 
             // Ensure only one source is provided
             if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
-                ], 422);
+                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.');
             }
 
             // Validate product source
@@ -2236,10 +2135,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid wholesaler product.',
-                    ], 404);
+                    return ApiResponse::error('Invalid wholesaler product.');
                 }
             }
 
@@ -2249,10 +2145,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid retailer product.',
-                    ], 404);
+                    return ApiResponse::error('Invalid retailer product.');
                 }
             }
 
@@ -2270,10 +2163,7 @@ class RetailerProductController extends Controller
                 ->exists();
 
             if ($alreadyExists) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Product is already in your wishlist.',
-                ]);
+                return ApiResponse::success('Product is already in your wishlist.');
             }
 
             // Create record with correct field
@@ -2291,18 +2181,17 @@ class RetailerProductController extends Controller
 
             $wishlist = CustomerCart::create($wishlistData);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Product added to wishlist successfully.',
-                'wishlist_id' => $wishlist->id,
-            ]);
+            return ApiResponse::success(['wishlist_id' => $wishlist->id], 'Product added to wishlist successfully.');
 
         } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong.',
-                'error' => $e->getMessage(),
-            ], 500);
+
+            Log::error('Error in addToWishlist(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return ApiResponse::error('Something went wrong.');
         }
     }
 
@@ -2318,11 +2207,7 @@ class RetailerProductController extends Controller
                 ->get();
 
             if ($wishlistItems->isEmpty()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Your wishlist is empty.',
-                    'wishlist' => []
-                ]);
+                return ApiResponse::success('Your wishlist is empty.');
             }
 
             $wishList = [];
@@ -2364,10 +2249,7 @@ class RetailerProductController extends Controller
                 ];
             }
 
-            return response()->json([
-                'success' => true,
-                'wishlist' => $wishList,
-            ]);
+            return ApiResponse::success(['wishlist' => $wishList], 'WishList Fetched Succesfully');
 
         } catch (\Throwable $e) {
             Log::error('Error in wishlist(): ' . $e->getMessage(), [
@@ -2376,11 +2258,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while fetching your wishlist.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while fetching your wishlist.');
         }
     }
 
@@ -2501,11 +2379,7 @@ class RetailerProductController extends Controller
                 ->get();
 
             if ($cartItems->isEmpty()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Your cart is empty.',
-                    'wishlist' => []
-                ]);
+                return ApiResponse::success('Your cart is empty.');
             }
 
             $cart = [];
@@ -2548,10 +2422,7 @@ class RetailerProductController extends Controller
                 ];
             }
 
-            return response()->json([
-                'success' => true,
-                'cart' => $cart,
-            ]);
+            return ApiResponse::success(['cart' => $cart], 'Cart Fetched Successfully');
 
         } catch (\Throwable $e) {
             Log::error('Error in cart(): ' . $e->getMessage(), [
@@ -2560,11 +2431,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while fetching your cart.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while fetching your cart.');
         }
     }
 
@@ -2587,10 +2454,8 @@ class RetailerProductController extends Controller
 
             // Ensure only one source is provided
             if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
-                ], 422);
+
+                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.');
             }
 
             // Build base query
@@ -2605,10 +2470,8 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid wholesaler product.',
-                    ], 404);
+
+                    return ApiResponse::error('Invalid wholesaler product.');
                 }
 
                 $wishlistQuery->where('product_id', $productId);
@@ -2618,10 +2481,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid retailer product.',
-                    ], 404);
+                    return ApiResponse::error('Invalid retailer product.');
                 }
 
                 $wishlistQuery->where('retailer_product_id', $productId);
@@ -2631,30 +2491,21 @@ class RetailerProductController extends Controller
             $wishlistItem = $wishlistQuery->first();
 
             if (!$wishlistItem) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Wishlist item not found.',
-                ], 404);
+                return ApiResponse::error('Wishlist item not found.');
             }
 
             // Soft delete (set status to inactive)
             $wishlistItem->update(['status' => 'inactive']);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Wishlist item removed successfully.',
-            ]);
+            return ApiResponse::success('Wishlist item removed successfully.');
         } catch (\Throwable $e) {
             Log::error('Error in removeToWishlist(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while removing the wishlist item.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while removing the wishlist item.');
+
         }
     }
 
@@ -2677,10 +2528,7 @@ class RetailerProductController extends Controller
 
             // Ensure only one product source is selected
             if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
-                ], 422);
+                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.');
             }
 
             // Validate product existence
@@ -2690,10 +2538,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid wholesaler product.',
-                    ], 404);
+                    return ApiResponse::error('Invalid wholesaler product.');
                 }
             } elseif ($retailerId) {
                 $exists = RetailerCloneProduct::where('id', $productId)
@@ -2701,10 +2546,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid retailer product.',
-                    ], 404);
+                    return ApiResponse::error('Invalid retailer product.');
                 }
             }
 
@@ -2722,33 +2564,22 @@ class RetailerProductController extends Controller
             $cartItem = $cartQuery->first();
 
             if (!$cartItem) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cart item not found.',
-                ], 404);
+                return ApiResponse::error('Cart item not found.');
             }
 
             // Soft delete the cart item
             $cartItem->update(['status' => 'inactive']);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Cart item removed successfully.',
-            ]);
+            return ApiResponse::success('Cart item removed successfully.');
         } catch (\Throwable $e) {
             Log::error('Error in removeToCart(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while removing the cart item.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while removing the cart item.');
         }
     }
-
 
     public function addToCart(Request $request)
     {
@@ -2795,10 +2626,7 @@ class RetailerProductController extends Controller
                 $results[] = $result;
             }
 
-            return response()->json([
-                'success' => true,
-                'results' => $results,
-            ]);
+            return ApiResponse::success(['results' => $results], 'Add To Cart Successfully');
         } catch (\Throwable $e) {
             Log::error('Error in addToCart(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2806,14 +2634,9 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while adding to cart.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return ApiResponse::error('Something went wrong while adding to cart.');
         }
     }
-
 
     private function processCartItem(array $item, $customerDetails)
     {

@@ -27,13 +27,15 @@ Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
 // for customer register api
 Route::prefix('customer')->group(function () {
     // Auth routes
     Route::post('register', [CustomerRegisterController::class, 'register']);
     Route::post('login', [CustomerRegisterController::class, 'login']);
     Route::post('login/otp', [CustomerRegisterController::class, 'loginOtp']);
-    Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:customer');
+    Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:sanctum');
     Route::post('forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
     Route::post('reset-password', [CustomerRegisterController::class, 'resetPassword']);
 
@@ -42,8 +44,6 @@ Route::prefix('customer')->group(function () {
     Route::post('/forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
 
     Route::post('/token-password', [CustomerRegisterController::class, 'resetPassword']);
-
-
 
     // Account
     Route::middleware('auth:customer')->group(function () {

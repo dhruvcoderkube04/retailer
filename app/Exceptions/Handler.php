@@ -2,20 +2,18 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use App\Helpers\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * A list of the exception types that are not reported.
-     */
     protected $dontReport = [];
 
-    /**
-     * A list of the inputs that are never flashed for validation exceptions.
-     */
     protected $dontFlash = [
         'password',
         'password_confirmation',
@@ -24,14 +22,51 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            // Log if needed
         });
     }
 
+    /**
+     * Handle unauthenticated exceptions (custom for API).
+     */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return $request->expectsJson()
-            ? response()->json(['message' => 'Unauthenticated.'], 401)
-            : redirect()->guest(route('login'));
+        if ($request->expectsJson()) {
+            return ApiResponse::error('Unauthenticated');
+        }
+
+        return redirect()->guest(route('login'));
+    }
+
+    /**
+     * Global API exception rendering.
+     */
+    public function render($request, Throwable $exception)
+    {
+        if ($request->expectsJson()) {
+
+            if ($exception instanceof ValidationException) {
+                return ApiResponse::error('Validation failed', $exception->errors());
+            }
+
+            if ($exception instanceof NotFoundHttpException) {
+                return ApiResponse::error('Route not found');
+            }
+
+            if ($exception instanceof MethodNotAllowedHttpException) {
+                return ApiResponse::error('HTTP method not allowed');
+            }
+
+            if ($exception instanceof AuthenticationException) {
+                return ApiResponse::error('Unauthenticated');
+            }
+
+            // Fallback for other exceptions
+            $message = config('app.debug') ? $exception->getMessage() : 'Something went wrong';
+
+            return ApiResponse::error($message);
+        }
+
+        return parent::render($request, $exception);
     }
 }
