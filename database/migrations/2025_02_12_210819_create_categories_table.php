@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('category_name');
             $table->string('sub_category_name');
+            $table->string('category_variation')->default('');
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

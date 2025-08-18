@@ -1,0 +1,28 @@
+SetEnv PHPRC /home/customer/www/retailer.techtrendmart.in/public_html/php.ini
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^www.retailer.techtrendmart.in/ [NC]
+    RewriteRule ^(.*)$ https://retailer.techtrendmart.in/$1 [L,R=301]
+    RewriteRule ^(.*)$ public/$1 [L]
+    
+</IfModule>
+<IfModule mod_rewrite.c>
+
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+
+  # Disable Directory listing
+Options -Indexes
+
+
+# block files which needs to be hidden, specify .example extension of the file
+<Files ~ "\.(env|json|config.js|md|gitignore|gitattributes|lock)$">
+    Order allow,deny
+    Deny from all
+</Files>
+</IfModule>
+
+<IfModule mod_headers.c>
+Header set Cache-Control "private"
+</IfModule>

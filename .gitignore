@@ -22,3 +22,8 @@ yarn-error.log
 /.vscode
 /.zed
 storage/debugbar
+/public/uploads/
+/public/uploads/products/
+/public/uploads/products/
+/vendor/
+bootstrap/cache/routes-v7.php

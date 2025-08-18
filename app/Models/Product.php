@@ -10,10 +10,29 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'wholesaler_id', 'name', 'slug', 'description',
-        'brand_name', 'tags', 'quantity', 'new_price','old_price', 'discount_price',
-        'sku', 'images', 'videos', 'url', 'status', 'color', 'size',
-        'specifications', 'meta_title', 'meta_description', 'meta_keywords'
+        'sku',
+        'wholesaler_id',
+        'name',
+        'slug',
+        'description',
+        'brand_name',
+        'tags',
+        'quantity',
+        'old_price',
+        'new_price',
+        'discount_price',
+        'images',
+        'videos',
+        'url',
+        'status',
+        'color',
+        'size',
+        'specifications',
+        'category_id',
+        'sub_category_id',
+        'meta_title',
+        'meta_description',
+        'meta_keywords'
     ];
 
     protected $casts = [
@@ -26,5 +45,20 @@ class Product extends Model
     public function wholesaler()
     {
         return $this->belongsTo(User::class, 'wholesaler_id')->where('user_type', 2);
+    }
+
+    public function productVariations()
+    {
+        return $this->hasMany(ProductVariation::class, 'product_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function sub_category()
+    {
+        return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 }

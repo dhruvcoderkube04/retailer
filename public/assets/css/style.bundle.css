@@ -48241,7 +48241,7 @@ body {
   padding: 0px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 400;
   font-family: Inter, Helvetica, "sans-serif";
 }
@@ -48278,7 +48278,7 @@ router-outlet {
 
 body,
 .app-default {
-  background-color: var(--bs-app-bg-color);
+  background-color: var(--bs-app-bg-color) !important;
 }
 
 .app-blank {
