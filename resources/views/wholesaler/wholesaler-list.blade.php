@@ -67,7 +67,8 @@
                                             <th class="text-center align-middle min-w-50px"></th>
                                             <th class="text-center align-middle min-w-100px">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px">Name</th>
-                                            <th class="text-center align-middle min-w-100px">Subcategories</th>
+                                            {{-- add new column Subcategories  --}}
+                                            <th class="text-center align-middle min-w-300px">Subcategories</th>
                                             <th class="text-center align-middle min-w-80px">Details</th>
                                         </tr>
                                     </thead>
@@ -218,7 +219,7 @@
                     orderable: false,
                 },
                 {
-                    data: 'subcategory_names',
+                    data: 'subcategory_names',// add subcategory_names
                     className: 'text-center',
                     orderable: false,
                     searchable: true
