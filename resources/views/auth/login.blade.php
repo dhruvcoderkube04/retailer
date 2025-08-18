@@ -92,19 +92,22 @@
                                 </div>
                                 <!--end::Input group=-->
                                 <!--begin::Wrapper-->
-                                <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-                                    <div></div>
-                                    <!--begin::Link-->
-                                    <a href="{{ route('retailer.forget.password') }}" class="link-primary">Forgot
-                                        Password</a>
-                                    <!--end::Link-->
-                                </div>
-                                <!--end::Wrapper-->
-                                <!--begin::Input group for Remember Me-->
-                                <div class="fv-row mb-8 d-flex align-items-center">
-                                    <input class="form-check-input me-2 cursor-pointer" type="checkbox" name="remember"
-                                        id="remember" />
-                                    <label class="form-check-label" for="remember">Remember Me</label>
+                                <div class="d-flex justify-content-between my-8">
+                                    <!--end::Wrapper-->
+                                    <!--begin::Input group for Remember Me-->
+                                    <div class="fv-row d-flex align-items-center">
+                                        <input class="form-check-input me-2 cursor-pointer" type="checkbox" name="remember"
+                                            id="remember" />
+                                        <label class="form-check-label" for="remember">Remember Me</label>
+                                    </div>
+                                    <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold">
+                                        <div></div>
+                                        <!--begin::Link-->
+                                        <a href="{{ route('retailer.forget.password') }}" class="link-primary">Forgot
+                                            Password</a>
+                                        <!--end::Link-->
+                                    </div>
+
                                 </div>
                                 <!--end::Input group-->
                                 <!--begin::Submit button-->

@@ -38,11 +38,11 @@
                     <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             My Orders</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
@@ -94,17 +94,17 @@
                         </div>
 
                         <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-7" id="kt_my_order_list_table">
+                            <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_my_order_list_table">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center min-w-50px">NO.</th>
-                                        <th class="text-center min-w-150px">ORDER DATE</th>
-                                        <th class="min-w-300px">ORDER DETAIL</th>
-                                        <th class="min-w-150px">MEDIA</th>
-                                        <th class="min-w-300px">WHOLESALER DETAIL</th>
+                                        <th class="text-center py-5 border-0 min-w-50px" style="background: #0d0e12;color:#fff !important;">NO.</th>
+                                        <th class="text-center py-5 border-0 min-w-150px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
+                                        <th class="min-w-300px py-5 border-0" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
+                                        <th class="min-w-150px py-5 border-0" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
+                                        <th class="min-w-300px py-5 border-0" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
                                     </tr>
                                 </thead>
-                                <tbody class="fw-semibold text-gray-600">
+                                <tbody class="fw-semibold text-gray-700 fs-6">
 
                                 </tbody>
                             </table>
@@ -126,6 +126,10 @@
             const table = $('#kt_my_order_list_table').DataTable({
                 processing: true,
                 serverSide: true,
+                fixedHeader: {
+                    header: true,
+                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                },
                 ajax: {
                     url: "{{ route('retailer.my-order.fetch-record') }}",
                     type: 'POST',

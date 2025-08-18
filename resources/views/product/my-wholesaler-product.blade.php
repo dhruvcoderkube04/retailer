@@ -13,10 +13,10 @@
 
                     {{-- Page Title --}}
                     <div class="page-title">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             Wholesaler Products List
                         </h1>
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
@@ -50,8 +50,8 @@
                     @endif
                     <div class="card card-flush">
                         <div class="card-body pt-3">
-                            <div class="pb-4">
-                                <div class="row g-3 justify-content-md-end">
+                            <div class="pb-5">
+                                <div class="row g-5 justify-content-md-end">
 
                                     {{-- Wholesaler Dropdown --}}
                                     <div class="col-12 col-md-3">
@@ -107,7 +107,7 @@
 
                                 </div>
                             </div>
-                            <div class="pb-4">
+                            <div class="pb-5">
                                 <div class="row g-3 justify-content-md-end">
                                     {{-- Search Input --}}
                                     <div class="col-12 col-md-3">
@@ -128,22 +128,22 @@
                             </div>
 
                             {{-- Margin Added Products Table --}}
-                            <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_margin_added_products">
+                            <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_margin_added_products">
                                 <thead>
                                     <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center align-middle min-w-70px">Actions</th>
-                                        <th class="text-center align-middle min-w-70px">Image</th>
-                                        <th class="text-center align-middle min-w-200px">Product</th>
-                                        <th class="text-center align-middle min-w-150px">Wholesaler</th>
-                                        <th class="text-center align-middle min-w-100px">Sub Category</th>
-                                        <!-- <th class="text-center align-middle min-w-70px">Qty</th> -->
-                                        <th class="text-center align-middle min-w-70px">Stock</th>
-                                        <th class="text-center align-middle min-w-100px">Price</th>
-                                        <th class="text-center align-middle min-w-100px">Margin</th>
-                                        <th class="text-center align-middle min-w-100px">Status</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Actions</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                        <!-- <th class="text-center border-0 py-5 align-middle min-w-70px">Qty</th> -->
+                                        <th class="text-center border-0 py-5 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Stock</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Margin</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody class="fw-semibold text-gray-600">
+                                <tbody class="fw-semibold text-gray-700 fs-6">
                                 </tbody>
                             </table>
                         </div>
@@ -163,6 +163,10 @@
                 lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
+                fixedHeader: {
+                    header: true,
+                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                },
                 ajax: {
                     url: "{{ route('retailer.wholesalers-product.fetch-record') }}",
                     type: "POST",

@@ -13,10 +13,10 @@
 
                     {{-- Page Title --}}
                     <div class="page-title">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             My Products List
                         </h1>
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
@@ -131,24 +131,24 @@
                                         </div>
                                     </div>
 
-                                    <table class="table align-middle table-row-dashed fs-7"
+                                    <table class="table align-middle table-row-dashed fs-7 table-striped"
                                         id="kt_datatable_available_retailer_clone_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center align-middle min-w-100px">Actions</th>
-                                                <th class="text-center align-middle min-w-70px">Image</th>
-                                                <th class="text-center align-middle min-w-200px">Product</th>
-                                                <th class="text-center align-middle min-w-100px">Sub Category</th>
-                                                <th class="text-center align-middle min-w-100px">Price</th>
-                                                <th class="text-center align-middle min-w-50px">Qty</th>
-                                                <th class="text-center align-middle min-w-70px"
-                                                    style="white-space: normal;">Stock</th>
-                                                <th class="text-center align-middle min-w-70px"
-                                                    style="white-space: normal;">Status</th>
-                                                <th class="text-center align-middle min-w-150px">Added / Updated</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Qty</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px"
+                                                    style="white-space: normal; background: #0d0e12;color:#fff !important;">Stock</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px"
+                                                    style="white-space: normal; background: #0d0e12;color:#fff !important;">Status</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Added / Updated</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="fw-semibold text-gray-600">
+                                        <tbody class="fw-semibold text-gray-700 fs-6">
 
                                         </tbody>
                                     </table>
@@ -211,24 +211,24 @@
                                         </div>
                                     </div>
 
-                                    <table class="table align-middle table-row-dashed fs-7"
+                                    <table class="table align-middle table-row-dashed fs-7 table-striped"
                                         id="kt_datatable_unavailable_retailer_clone_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center align-middle min-w-100px">Actions</th>
-                                                <th class="text-center align-middle min-w-70px">Image</th>
-                                                <th class="text-center align-middle min-w-200px">Product</th>
-                                                <th class="text-center align-middle min-w-100px">Sub Category</th>
-                                                <th class="text-center align-middle min-w-100px">Price</th>
-                                                <th class="text-center align-middle min-w-50px">Qty</th>
-                                                <th class="text-center align-middle min-w-70px"
-                                                    style="white-space: normal;">Stock</th>
-                                                <th class="text-center align-middle min-w-70px"
-                                                    style="white-space: normal;">Status</th>
-                                                <th class="text-center align-middle min-w-150px">Added / Updated</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Qty</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px"
+                                                    style="white-space: normal;background: #0d0e12;color:#fff !important;">Stock</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px"
+                                                    style="white-space: normal;background: #0d0e12;color:#fff !important;">Status</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Added / Updated</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="fw-semibold text-gray-600">
+                                        <tbody class="fw-semibold text-gray-700 fs-6">
 
                                         </tbody>
                                     </table>
@@ -325,6 +325,10 @@
                 lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
+                fixedHeader: {
+                    header: true,
+                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                },
                 ajax: {
                     url: "{{ route('retailer.retailer-clone-available-product.fetch-record') }}",
                     type: "POST",
@@ -381,6 +385,7 @@
                 },
                 {
                     data: 'name',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {
@@ -390,7 +395,7 @@
                 },
                 {
                     data: 'new_price',
-                    className: 'text-end',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {

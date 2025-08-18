@@ -11,7 +11,7 @@
 
                     {{-- Page Title --}}
                     <div class="page-title">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             Products List
                         </h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">

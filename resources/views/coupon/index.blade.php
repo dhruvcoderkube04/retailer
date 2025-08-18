@@ -13,7 +13,7 @@
             <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
                 <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Coupon List</h1>
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Coupon List</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
@@ -38,7 +38,7 @@
                 <div id="kt_app_content_container" class="app-container ">
                     <!--begin::Card-->
                     <div class="card">
-                        <div class="card-header border-0 pt-6">
+                        <div class="card-header border-0 pt-6 pb-5">
                             <div class="card-title">
                                 <div class="d-flex align-items-center position-relative my-1">
                                     <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
@@ -64,22 +64,22 @@
                             </div>
                         </div>
                         <div class="card-body pt-0">
-                            <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
+                            <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px">Actions</th>
-                                        <th class="min-w-125px">Name</th>
-                                        <th class="min-w-125px">Status</th>
-                                        <th class="min-w-125px">Coupon Code</th>
-                                        <th class="min-w-125px">Used Count</th>
-                                        <th class="min-w-125px">Valid From</th>
-                                        <th class="min-w-125px">Valid Until</th>
-                                        <th class="min-w-125px">Quantity</th>
-                                        <th class="min-w-125px">Discount Price</th>
-                                        <th class="min-w-125px">Created Date</th>
+                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Name</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Status</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Coupon Code</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Used Count</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Valid From</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Valid Until</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Quantity</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Discount Price</th>
+                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Created Date</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-gray-600 fw-semibold"></tbody>
+                                <tbody class="text-gray-700 fw-semibold"></tbody>
                             </table>
                         </div>
                     </div>
@@ -259,6 +259,10 @@ $(document).ready(function () {
     let table = $('#kt_subscriptions_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader: {
+        header: true,
+            headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+        },
         ajax: {
             url: "{{ route('coupons.fetch') }}",
             type: "POST",
@@ -268,7 +272,7 @@ $(document).ready(function () {
             }
         },
         columns: [
-            { data: 'actions', orderable: false, searchable: false },
+            { data: 'actions', orderable: false, searchable: false, className: 'ps-3' },
             { data: 'coupon_name' },
             { data: 'status' },
             { data: 'coupon_code' },

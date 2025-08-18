@@ -15,7 +15,7 @@
                         <!--begin::Page title-->
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                             <!--begin::Title-->
-                            <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Suggestion Category List</h1>
+                            <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Suggestion Category List</h1>
                             <!--end::Title-->
                             <!--begin::Breadcrumb-->
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -47,7 +47,7 @@
                         <!--begin::API keys-->
                         <div class="card">
                             <!--begin::Header-->
-                            <div class="card-header">
+                            <div class="card-header border-0">
                                 <!--begin::Title-->
                                 <div class="card-title">
                                     <h3>My Category</h3>
@@ -63,24 +63,24 @@
                             </div>
                             <!--end::Header-->
                             <!--begin::Body-->
-                            <div class="card-body p-0">
+                            <div class="card-body">
                                 <!--begin::Table wrapper-->
                                 <div class="table-responsive">
                                     <!--begin::Table-->
-                                    <table class="table align-middle table-row-bordered table-row-solid fs-7" id="kt_categroy_table">
+                                    <table class="table align-middle table-row-bordered table-row-solid fs-7 table-striped" id="kt_categroy_table">
                                         <!--begin::Thead-->
-                                        <thead class="border-gray-200 fs-5 fw-semibold bg-lighten">
+                                        <thead class="border-gray-200 fs-5 fw-semibold bg-lighten ">
                                             <tr>
-                                                <th class="min-w-250px px-10">Action</th>
-                                                <th class="min-w-175px ps-9">Category</th>
-                                                <th class="min-w-250px px-0">Sub Category</th>
-                                                <th class="min-w-250px px-0">Status</th>
-                                                <th class="min-w-100px">Created</th>
+                                                <th class="min-w-250px px-10 py-5" style="background: #0d0e12;color:#fff !important;">Action</th>
+                                                <th class="min-w-175px ps-9 py-5" style="background: #0d0e12;color:#fff !important;">Category</th>
+                                                <th class="min-w-250px px-0 py-5" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                                <th class="min-w-250px px-0 py-5" style="background: #0d0e12;color:#fff !important;">Status</th>
+                                                <th class="min-w-100px py-5" style="background: #0d0e12;color:#fff !important;">Created</th>
                                             </tr>
                                         </thead>
                                         <!--end::Thead-->
                                         <!--begin::Tbody-->
-                                        <tbody class="fs-6 fw-semibold text-gray-600">
+                                        <tbody class="fs-6 fw-semibold text-gray-700 fs-6">
                                             @if (count($category_suggestion) > 0)
                                                 @foreach ($category_suggestion as $category)
                                                     <tr class="data-load" data-id="{{$category->id}}">
@@ -92,7 +92,7 @@
                                                         </td>
                                                         <td  class="ps-9">{{ strtoupper($category->category_name)}}</td>
                                                         <td data-bs-target="license" class="ps-0">{{ strtoupper($category->sub_category_name)}}</td>
-                                                        <td>{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
+                                                        <td class="ps-0">{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
                                                         <td>{{$category->created_at}}</td>
                                                     </tr>
                                                 @endforeach
@@ -293,7 +293,11 @@
                 order: [[4, 'desc']],
                 columnDefs: [
                     { orderable: false, targets: 0 }
-                ]
+                ],
+                fixedHeader: {
+                header: true,
+                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                },
             });
         });
 

@@ -9,7 +9,7 @@
             <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
                 <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">My
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">My
                             Category List</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
@@ -28,18 +28,18 @@
                 <div id="kt_app_content_container" class="app-container ">
                     <div class="card">
                         <div class="card-body p-5">
-                            <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_my_categroy_list">
+                            <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_my_categroy_list">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center min-w-100px">Action</th>
-                                        <th class="text-center min-w-100px">Uploaded Images</th>
-                                        <th class="text-center min-w-175px">Category</th>
-                                        <th class="text-center min-w-250px">Sub Category</th>
-                                        <th class="text-center min-w-150px">Created</th>
+                                        <th class="text-center py-5 border-0 min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
+                                        <th class="text-center py-5 border-0 min-w-100px" style="background: #0d0e12;color:#fff !important;">Uploaded Images</th>
+                                        <th class="text-center py-5 border-0 min-w-175px" style="background: #0d0e12;color:#fff !important;">Category</th>
+                                        <th class="text-center py-5 border-0 min-w-250px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                        <th class="text-center py-5 border-0 min-w-150px" style="background: #0d0e12;color:#fff !important;">Created</th>
                                     </tr>
                                 </thead>
 
-                                <tbody class="fw-semibold text-gray-600">
+                                <tbody class="fw-semibold text-gray-700 fs-6">
 
                                 </tbody>
                             </table>
@@ -107,6 +107,10 @@
                 ">",
             processing: true,
             serverSide: true,
+            fixedHeader: {
+            header: true,
+                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+            },
             ajax: {
                 url: "{{ route('retailer.my-category-list.fetch-record') }}",
                 type: "POST",

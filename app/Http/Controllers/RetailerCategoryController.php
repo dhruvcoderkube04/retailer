@@ -224,7 +224,7 @@ class RetailerCategoryController extends Controller
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </button>
-                <button class="btn btn-icon btn-light-secondary w-30px h-30px"
+                <button class="btn btn-icon btn-light-primary w-30px h-30px"
                     id="image-upload"
                     data-id="' . $item->id . '"
                     data-image="' . ($item->category_image

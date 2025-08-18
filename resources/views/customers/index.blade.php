@@ -8,7 +8,7 @@
             <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
                 <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             Customer List</h1>
 
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -30,19 +30,19 @@
                     <div class="card card-flush">
                         <div class="card-body mt-1">
                             <div class="tab-content">
-                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_customer_list">
+                                <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_customer_list">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle">Sr No</th>
-                                            <th class="text-center align-middle">Name</th>
-                                            <th class="text-center align-middle">Mobile No</th>
-                                            <th class="text-center align-middle">Email</th>
-                                            <th class="text-center align-middle">State</th>
-                                            <th class="text-center align-middle">City</th>
-                                            <th class="text-center align-middle">Pincode</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Sr No</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Name</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Mobile No</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Email</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">State</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">City</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Pincode</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="fw-semibold text-gray-600">
+                                    <tbody class="fw-semibold text-gray-700 fs-6">
 
                                     </tbody>
                                 </table>
@@ -130,6 +130,10 @@
                 ">",
             processing: true,
             serverSide: true,
+            fixedHeader: {
+            header: true,
+                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+            },
             ajax: {
                 url: "{{ route('retailer.customers.fetch-record') }}",
                 type: "POST",

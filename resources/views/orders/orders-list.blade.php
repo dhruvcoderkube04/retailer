@@ -27,10 +27,10 @@
 
                     {{-- Page Title --}}
                     <div class="page-title">
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-2 flex-column justify-content-center my-0">
                             Your Orders
                         </h1>
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-normal fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
@@ -177,16 +177,16 @@
                         </div>
 
                         <div class="card-body pt-0">
-                            <table class="table align-middle fs-7" id="kt_datatable_order_list">
+                            <table class="table align-middle fs-7 table-striped" id="kt_datatable_order_list">
                                 <thead>
-                                    <tr class="text-start text-gray-500 fw-bolder fs-6 text-uppercase gs-0">
-                                        <th class="text-center min-w-50px">SR NO</th>
-                                        <th class="text-center min-w-70px">ACTION</th>
-                                        <th class="text-center min-w-100px">ORDER DATE</th>
-                                        <th class="text-center min-w-300px">ORDER DETAIL</th>
-                                        <th class="text-center min-w-150px">MEDIA</th>
-                                        <th class="text-center min-w-300px">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-300px">WHOLESALER DETAIL</th>
+                                    <tr class="text-start text-gray-700 fw-bolder fs-6 text-uppercase gs-0">
+                                        <th class="text-center min-w-50px" style="background: #0d0e12;color:#fff !important;">SR NO</th>
+                                        <th class="text-center min-w-70px" style="background: #0d0e12;color:#fff !important;">ACTION</th>
+                                        <th class="text-center min-w-100px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
+                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
+                                        <th class="text-center min-w-150px" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
+                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
@@ -1076,6 +1076,10 @@
                 ">",
             processing: true,
             serverSide: true,
+            fixedHeader: {
+            header: true,
+                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+            },  
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
                 type: "POST",

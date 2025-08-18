@@ -10,7 +10,7 @@
                     <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                             <h1
-                                class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                                class="page-heading text-gray-900 fw-bold fs-2 my-0">
                                 Subscribed Sub Categories
                             </h1>
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -41,8 +41,8 @@
 
                         <div class="card">
                             <div class="card-body pt-4">
-                                <div class="pb-4">
-                                    <div class="row g-3 justify-content-md-end">
+                                <div class="pb-5">
+                                    <div class="row g-5 justify-content-md-end">
 
                                         {{-- Wholesaler Dropdown --}}
                                         <div class="col-12 col-md-3">
@@ -91,20 +91,20 @@
                                     </div>
                                 </div>
 
-                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
+                                <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle min-w-50px">Action</th>
-                                            <th class="text-center align-middle min-w-50px">Media</th>
-                                            <th class="text-center align-middle min-w-100px">Sub Category</th>
-                                            <th class="text-center align-middle min-w-100px">Wholesaler</th>
-                                            <th class="text-center align-middle min-w-200px">Payment Method</th>
-                                            <th class="text-center min-w-70px">Margin
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Action</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Media</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Payment Method</th>
+                                            <th class="text-center py-5 border-0 min-w-70px" style="background: #0d0e12;color:#fff !important;">Margin
                                                 <br> <span class="text-capitalize fs-9">(In Rs.)</span>
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="fw-semibold text-gray-600">
+                                    <tbody class="fw-semibold text-gray-700 fs-6">
 
                                     </tbody>
                                 </table>
@@ -206,6 +206,10 @@
         dataTable = $('#kt_datatable_wholesaler_list').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader: {
+            header: true,
+                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+            },
             ajax: {
                 url: "{{ route('retailer.subscribed-category.fetch-record') }}",
                 type: "POST",
