@@ -13834,8 +13834,8 @@ $.extend( true, DataTable.defaults, {
 	dom: 
 		"<'table-responsive'tr>" +
 		"<'row'" + 
-		"<'col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start dt-toolbar'li>" + 
-		"<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+		"<'col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start dt-toolbar ps-3'li>" + 
+		"<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end pe-3'p>" +
 		">",	
 	renderer: 'bootstrap'
 } );

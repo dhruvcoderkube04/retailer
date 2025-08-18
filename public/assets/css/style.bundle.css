@@ -48278,7 +48278,7 @@ router-outlet {
 
 body,
 .app-default {
-  background-color: var(--bs-app-bg-color);
+  background-color: var(--bs-app-bg-color) !important;
 }
 
 .app-blank {

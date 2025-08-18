@@ -10,8 +10,8 @@
                 <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
                     <div id="kt_app_toolbar_container" class="app-container d-flex flex-stack">
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                            <h1 class="page-heading text-gray-900 fw-bold fs-3 my-0">Wholesalers</h1>
-                            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                            <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Wholesalers</h1>
+                            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                                 <li class="breadcrumb-item text-muted">
                                     <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                                 </li>
@@ -44,31 +44,15 @@
                         @endif
 
                         <div class="card">
-                                {{-- Sub Category Filter --}}
-                                    <div class="row g-3 justify-content-md-start pb-4 mt-2">
-                                        <div class="col-12 col-md-3 offset-md-1">
-                                            <label for="filter_subcategory" class="form-label fw-semibold mb-1">Sub Category</label>
-                                            <select id="filter_subcategory"
-                                                    class="form-select form-select-solid bg-secondary"
-                                                    data-control="select2"
-                                                    data-placeholder="Select Sub Category">
-                                                <option value="all">All Sub Category</option>
-                                                @foreach($allSubCategories as $subCat)
-                                                    <option value="{{ $subCat->id }}">{{ $subCat->sub_category_name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                <table class="table align-middle table-row-dashed fs-7" id="kt_datatable_wholesaler_list">
+                            <div class="card-body pt-4">
+                                <table class="table align-middle table-row-dashed fs-6 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
-                                        <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle min-w-100px">Action</th>
-                                            <th class="text-center align-middle min-w-50px"></th>
-                                            <th class="text-center align-middle min-w-100px">Wholesaler</th>
-                                            <th class="text-center align-middle min-w-200px">Name</th>
-                                            <th class="text-center align-middle min-w-100px">Subcategories</th>
-                                            <th class="text-center align-middle min-w-80px">Details</th>
+                                        <tr class="text-start fw-bold fs-6 text-uppercase gs-0 border-0">
+                                            <th class="text-center align-middle py-5 min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
+                                            <th class="text-center align-middle py-5 min-w-50px" style="background: #0d0e12;color:#fff !important;"></th>
+                                            <th class="text-center align-middle py-5 min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
+                                            <th class="text-center align-middle py-5 min-w-200px" style="background: #0d0e12;color:#fff !important;">Name</th>
+                                            <th class="text-center align-middle py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
@@ -149,14 +133,14 @@
     <script>
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_wholesaler_list').DataTable({
-            dom: "<'row mb-2'" +
-            "<'col-8 col-sm-6 col-md-11 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-            ">" +
-            "<'table-responsive'tr>" +
-            "<'row'" +
-                "<'col-12 col-md-1 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-12 col-md-0 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
-                "<'col-12 col-md-12 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+            dom: "<'row mb-5'" +
+                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                ">" +
+                "<'table-responsive'tr>" +
+                "<'row'" +
+                "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
+                "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
             processing: true,
             serverSide: true,
@@ -167,67 +151,39 @@
                     d._token = '{{ csrf_token() }}';
                     d.order = d.order; // Add order data
                     d.columns = d.columns; // Add columns data
-                    d.sub_category_filter = $('#filter_subcategory').val();
                 },
                 dataSrc: function (json) {
                     return json.data;
-                },
-                error: function (xhr) {
-                    // Detect 400 Bad Request from Laravel
-                    if (xhr.status === 400) {
-                        let message = 'An error occurred.';
-                        try {
-                            let response = JSON.parse(xhr.responseText);
-                            message = response.message || message;
-                        } catch (e) {
-                            message = xhr.responseText || message;
-                        }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid Search',
-                            text: message,
-                        }).then(() => {
-                            $('.dataTables_filter input').val('');
-                            dataTable.search('').draw();
-                        });
-                    }
                 }
             },
             order: [],
             columns: [{
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'company_logo',
-                    className: 'text-end',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'company_name',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'wholesaler_name',
-                    className: 'text-center',
-                    orderable: false,
-                },
-                {
-                    data: 'subcategory_names',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: true
-                },
-                {
-                    data: 'details',
-                    className: 'text-center',
-                    orderable: false,
-                },
+                data: 'action',
+                className: 'text-center fs-5 text-dark text-capitalize',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'company_logo',
+                className: 'text-end fs-5 text-dark text-capitalize',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'company_name',
+                className: 'text-center fs-5 text-dark text-capitalize',
+                orderable: false,
+            },
+            {
+                data: 'wholesaler_name',
+                className: 'text-center fs-5 text-dark text-capitalize',
+                orderable: false,
+            },
+            {
+                data: 'details',
+                className: 'text-center fs-5 text-dark text-capitalize',
+                orderable: false,
+            },
             ],
             initComplete: function () {
                 let searchBox = $('.datatable-search-section input');
@@ -258,14 +214,10 @@
                 })
             }
         });
-
-        $('#filter_subcategory').on('change', function() {
-            dataTable.ajax.reload();
-        });
         //<------------- END : server-side transaction datatable ------------->
 
 
-        // submit form for request
+        // submit form for request 
         $('#requestAccessBtn').on('click', function (e) {
             e.preventDefault();
 

@@ -49,7 +49,7 @@ Forgot Password | TechtrendMart
                         <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" action="{{ route('retailer.password.email') }}" method="POST">
                             @csrf
 
-                            <div class="text-center mb-11">
+                            <div class="text-center mb-8">
                                 <h1 class="text-gray-900 fw-bolder mb-3">Forgot Password?</h1>
                                 <p class="text-gray-500 fw-semibold fs-6">Enter your email to receive a password reset link</p>
                             </div>
@@ -61,7 +61,7 @@ Forgot Password | TechtrendMart
                                 @enderror
                             </div>
 
-                            <div class="d-grid mb-10">
+                            <div class="d-grid mb-8">
                                 <button type="submit" class="btn btn-primary" id="submit_button" disabled>
                                     <span class="indicator-label">Send Reset Link</span>
                                     <span class="indicator-progress">Please wait...
