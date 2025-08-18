@@ -240,7 +240,7 @@ class RetilerController extends Controller
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
         $search = ($request->has('search') ? $request->input('search')['value'] : '');
-        $subCategoryFilter = $request->input('sub_category_filter', '');
+        $subCategoryFilter = $request->input('sub_category_filter', ''); //add subCategories
         $retailer = Auth::user();
 
         $query = User::with('userDetail')
@@ -263,11 +263,12 @@ class RetilerController extends Controller
                         $q->where('company_name', 'like', '%' . $search . '%');
                     })
                     ->orWhereHas('wholesalerCategories.subCategory', function ($q) use ($search) {
-                    $q->where('sub_category_name', 'like', '%' . $search . '%');
+                    $q->where('sub_category_name', 'like', '%' . $search . '%'); //add subCategories
                 });
             });
         }
 
+        //add subCategories
         if (!empty($subCategoryFilter) && $subCategoryFilter !== 'all') {
             $query->whereHas('wholesalerCategories', function ($q) use ($subCategoryFilter) {
                 $q->where('sub_category_id', $subCategoryFilter);
@@ -311,9 +312,11 @@ class RetilerController extends Controller
                 ->where('status', 'active')
                 ->count('id');
 
+            //add subCategories
             $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
                 ->pluck('sub_category_id');
 
+                //add subCategories
             $subCategories = SubCategory::whereIn('id', $subcategory_ids)
             ->get()->pluck('sub_category_name')
             ->implode(',');
@@ -346,7 +349,7 @@ class RetilerController extends Controller
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
-                "subcategory_names" => $subCategories,
+                "subcategory_names" => $subCategories, //add subCategories
                 "details" => $details,
                 "action" => $action
             );

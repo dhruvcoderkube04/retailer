@@ -73,6 +73,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function wholesalerCategories()
     {
-        return $this->hasMany(WholesalerCategory::class, 'wholesaler_id', 'id');
+        return $this->hasMany(WholesalerCategory::class, 'wholesaler_id', 'id'); //add subCategories
     }
 }
