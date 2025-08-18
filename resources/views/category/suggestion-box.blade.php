@@ -251,12 +251,10 @@
 
             });
 
-
-
             $(document).on('click', '#remove-btn', function() {
                 Swal.fire({
                     icon:'warning',
-					title: 'Are You sure to Delete it !',
+					title: 'Are you sure, you want to remove it?',
                     showCancelButton: true,
                     confirmButtonColor: '#000',
                     confirmButtonText: 'Yes, remove it!'
