@@ -226,11 +226,14 @@ class RetilerController extends Controller
             ->count('sub_category_id');
 
         $allSubCategories = SubCategory::orderBy('sub_category_name')->get();
+        $retailerId = $retailer->id;
+
 
         return view('wholesaler.wholesaler-list', [
             'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
             'retailer_sub_category_count' => $retailer_sub_category_count,
             'allSubCategories'  => $allSubCategories,
+            'retailer_id' => $retailerId
         ]);
     }
 
@@ -251,7 +254,7 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
 
@@ -316,10 +319,12 @@ class RetilerController extends Controller
             $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
                 ->pluck('sub_category_id');
 
+
                 //add subCategories
             $subCategories = SubCategory::whereIn('id', $subcategory_ids)
             ->get()->pluck('sub_category_name')
             ->implode(',');
+
 
             $details = '
                 <div>
@@ -349,7 +354,7 @@ class RetilerController extends Controller
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
-                "subcategory_names" => $subCategories, //add subCategories
+                "subcategory_names" => $subCategories ?  $subCategories : "-" , //add subCategories
                 "details" => $details,
                 "action" => $action
             );
@@ -425,7 +430,7 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
             $query->where(function ($q) use ($search) {
@@ -851,7 +856,7 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
             $singleProductFetchQuery->where(function ($q) use ($search) {
@@ -1387,9 +1392,10 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
+            
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
                     ->orWhere('new_price', 'like', "%$search%")
@@ -1580,7 +1586,7 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
             $query->where(function ($q) use ($search) {
@@ -2983,7 +2989,7 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
             $baseQuery->whereHas('customer', function ($q) use ($search) {
