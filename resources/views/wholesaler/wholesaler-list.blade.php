@@ -47,12 +47,14 @@
                             <div class="card-body pt-4">
                                 <table class="table align-middle table-row-dashed fs-6 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
-                                        <tr class="text-start fw-bold fs-6 text-uppercase gs-0 border-0">
-                                            <th class="text-center align-middle py-5 min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
-                                            <th class="text-center align-middle py-5 min-w-50px" style="background: #0d0e12;color:#fff !important;"></th>
-                                            <th class="text-center align-middle py-5 min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
-                                            <th class="text-center align-middle py-5 min-w-200px" style="background: #0d0e12;color:#fff !important;">Name</th>
-                                            <th class="text-center align-middle py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">Details</th>
+                                        <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle min-w-100px">Action</th>
+                                            <th class="text-center align-middle min-w-50px"></th>
+                                            <th class="text-center align-middle min-w-100px">Wholesaler</th>
+                                            <th class="text-center align-middle min-w-200px">Name</th>
+                                            {{-- add new column Subcategories  --}}
+                                            <th class="text-center align-middle min-w-300px">Subcategories</th>
+                                            <th class="text-center align-middle min-w-80px">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
@@ -217,7 +219,7 @@
         //<------------- END : server-side transaction datatable ------------->
 
 
-        // submit form for request 
+        // submit form for request
         $('#requestAccessBtn').on('click', function (e) {
             e.preventDefault();
 
