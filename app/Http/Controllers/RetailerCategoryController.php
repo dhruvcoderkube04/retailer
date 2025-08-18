@@ -22,9 +22,11 @@ class RetailerCategoryController extends Controller
     public function categoryList()
     {
         $user = Auth::user();
-        $categories = Category::with(['subCategory' => function ($q) {
-            $q->where('status', 1);
-        }])
+        $categories = Category::with([
+            'subCategory' => function ($q) {
+                $q->where('status', 1);
+            }
+        ])
             ->whereHas('subCategory', function ($q) {
                 $q->where('status', 1);
             })
@@ -89,9 +91,11 @@ class RetailerCategoryController extends Controller
                     ->delete();
             }
 
-            $categories = Category::with(['subCategory' => function ($q) {
-                $q->where('status', 1);
-            }])
+            $categories = Category::with([
+                'subCategory' => function ($q) {
+                    $q->where('status', 1);
+                }
+            ])
                 ->whereHas('subCategory', function ($q) {
                     $q->where('status', 1);
                 })
@@ -154,6 +158,12 @@ class RetailerCategoryController extends Controller
             ->where('retailer_id', $retailer->id);
 
         if (!empty($search)) {
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
             $query->where(function ($q) use ($search) {
                 $q->orWhere('created_at', 'like', '%' . $search . '%')
                     ->orWhereHas('category', function ($q) use ($search) {
@@ -194,8 +204,8 @@ class RetailerCategoryController extends Controller
 
             $sub_category_image = '
                 <img src="' . ($item->category_image
-                ? Storage::disk('spaces')->url($item->category_image)
-                : asset('assets/media/images/no_image.jpg')) . '" 
+                    ? Storage::disk('spaces')->url($item->category_image)
+                    : asset('assets/media/images/no_image.jpg')) . '" 
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
                     class="w-40px me-3" 
                     alt="sub-category-image" />
@@ -218,9 +228,9 @@ class RetailerCategoryController extends Controller
                     id="image-upload"
                     data-id="' . $item->id . '"
                     data-image="' . ($item->category_image
-                ? Storage::disk('spaces')->url($item->category_image)
-                : asset('assets/media/images/no_image.jpg')
-            ) . '"
+                    ? Storage::disk('spaces')->url($item->category_image)
+                    : asset('assets/media/images/no_image.jpg')
+                ) . '"
                     data-bs-toggle="tooltip"
                     aria-label="Image Upload">
                     <i class="ki-duotone ki-setting-3 fs-3">

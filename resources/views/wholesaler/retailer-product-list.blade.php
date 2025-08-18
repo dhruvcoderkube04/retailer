@@ -136,7 +136,7 @@
                                                 </div>
 
                                                 @error('payment_method')
-                                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                                    <div class="invalid-feedback d-block fs-7">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -303,9 +303,15 @@
             const table = $('#kt_retailer_margin_details').DataTable();
 
             // Search functionality
-            $('#retailer_margin_details_search').on('input', function() {
-                table.search(this.value).draw();
+            $('#retailer_margin_details_search').on('input', function () {
+                let sanitized = this.value.replace(/[^a-zA-Z0-9\s\-\.]/g, '');
+
+                sanitized = sanitized.trim().substring(0, 100);
+
+                $(this).val(sanitized); // Set back to field to give instant feedback
+                table.search(sanitized).draw(); // Send to DataTable
             });
+
 
             // DELETE margin with Swal confirmation
             $('.delete-margin-btn').on('click', function() {

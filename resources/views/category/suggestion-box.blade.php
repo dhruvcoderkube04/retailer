@@ -21,7 +21,7 @@
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                                 <!--begin::Item-->
                                 <li class="breadcrumb-item text-muted">
-                                    <a href="#" class="text-muted text-hover-primary">Category</a>
+                                    <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                                 </li>
                                 <!--end::Item-->
                                 <!--begin::Item-->
@@ -119,7 +119,7 @@
         </div>
         <!--end:::Main-->
 
-        <div class="modal fade" id="kt_modal_add_category" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal fade" data-bs-backdrop="static" id="kt_modal_add_category" tabindex="-1" style="display: none;" aria-hidden="true">
             <!--begin::Modal dialog-->
             <div class="modal-dialog mw-650px">
                 <!--begin::Modal content-->
@@ -127,7 +127,7 @@
                     <!--begin::Modal header-->
                     <div class="modal-header">
                         <!--begin::Modal title-->
-                        <h2 class="fw-bold">Add New Categroy Request </h2>
+                        <h2 class="fw-bold">Add New Category and Sub Category Suggestion Request</h2>
                         <!--end::Modal title-->
 
                         <!--begin::Close-->
@@ -152,7 +152,7 @@
                                     <span class="required">Category Name</span>
 
                                     <span class="ms-2" data-bs-toggle="tooltip" aria-label="The invoice number must be unique." data-bs-original-title="The invoice number must be unique." data-kt-initialized="1">
-                                        <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>                            </span>
+                                        {{-- <i class="ki-duotone ki-information fs-7"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>                            </span> --}}
                                 </label>
                                 <!--end::Label-->
 
@@ -229,7 +229,7 @@
                 request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
                 xhr.done(function(mydata) {
                     Swal.fire({
-                        title: 'Subcategory Added Successfully!',
+                        title: 'Category and Sub Category Suggestion Added Successfully!',
                         icon: 'success',
                     });
 
@@ -244,7 +244,7 @@
                 xhr.fail(function(mydata) {
                     Swal.fire({
                         icon:'error',
-                        title: 'Subcategory Add Failed!',
+                        title: 'Category Add Failed!',
                         showCancelButton: true
                     })
                 });
@@ -269,7 +269,7 @@
 
                             Swal.fire({
                                 icon:'success',
-                                title: 'Subcategory Remove Successuflly!',
+                                title: 'Category Removed Successuflly!',
                                 showCancelButton: true
                             })
 
@@ -278,13 +278,22 @@
                         xhr.fail(function(mydata) {
                             Swal.fire({
                                 icon:'error',
-                                title: 'Subcategory Remove Failed!',
+                                title: 'Category Remove Failed!',
                                 showCancelButton: true
                             })
                         });
                     }
                 });
 
+            });
+        });
+
+        $(document).ready(function () {
+            $('#kt_categroy_table').DataTable({
+                order: [[4, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: 0 }
+                ]
             });
         });
 

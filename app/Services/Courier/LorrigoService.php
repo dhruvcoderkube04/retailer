@@ -50,7 +50,7 @@ class LorrigoService implements CourierInterface
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
+                'Authorization' => 'Bearer ' . $this->token,
             ])->post($this->apiUrl . '/api/order/b2c', $data);
 
             if ($response->failed() || $response->json() === null) {
@@ -91,7 +91,8 @@ class LorrigoService implements CourierInterface
     public function trackPackage(string $waybill): array
     {
         // Step 1: Validate waybill
-        $validator = Validator::make(['waybill' => $waybill],
+        $validator = Validator::make(
+            ['waybill' => $waybill],
             [
                 'waybill' => 'required|string',
             ]
@@ -210,7 +211,7 @@ class LorrigoService implements CourierInterface
             Log::info('Sending warehouse to Lorrigo Test', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
+                'Authorization' => 'Bearer ' . $this->token,
             ])->post($this->apiUrl . '/api/hub', $payload);
 
             if ($response->successful()) {
@@ -259,7 +260,7 @@ class LorrigoService implements CourierInterface
             Log::info('Sending warehouse to Lorrigo Test', ['payload' => $payload]);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
+                'Authorization' => 'Bearer ' . $this->token,
             ])->post($this->apiUrl . '/api/hub', $payload);
 
             if ($response->successful()) {
@@ -333,40 +334,48 @@ class LorrigoService implements CourierInterface
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->token,
             ])->post($this->apiUrl . '/api/ratecalculator', $payload);
-                
+
             if ($response->successful()) {
                 // return $response->json();
-                    Log::info('calculateRate In Lorrgido Test (Retailer side)', [
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                        'request' => $response->json(),
-                    ]);
+                Log::info('calculateRate In Lorrgido Test (Retailer side)', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'request' => $response->json(),
+                ]);
 
-                    $responseData = $response->json();
-                    // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
-                    $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name :null;
+                $responseData = $response->json();
+                $rates = collect($responseData['rates'])->where('nickName', 'BDS')->where('minWeight', (float) $data['shipment_Weight']);
+                // dd($rates,(float) $data['shipment_Weight']);
+                // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+                $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name : null;
+                if (!empty($marginTagName)) {
                     $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-                    if (!empty($responseData['rates']) && is_array($responseData['rates']) && $getMargin) {
-                        $marginType = $getMargin->type; // 'percentage' or 'flat'
-                        $flatAmount = (float)($getMargin->flat_percentage ?? 0);
+                } else {
+                    $getMargin = MarginManagement::where('default', 1)->first();
+                }
+                // dd($getMargin,Auth::user()->userDetail->margin_tag_name,$rates);
+                if (!empty($rates) && $getMargin) {
+                    $marginType = $getMargin->type; // 'percentage' or 'flat'
+                    $flatAmount = (float)($getMargin->flat_percentage ?? 0);
 
-                        foreach ($responseData['rates'] as &$rate) {
-                            foreach ($rate as $key => $value) {
-                                if ($key !== 'name' && is_numeric($value)) {
-                                    if ($marginType === 'percentage') {
-                                        $rate[$key] = round($value + ($value *  $flatAmount / 100), 2);
-                                    } elseif ($marginType === 'flat') {
-                                        $rate[$key] = round($value + $flatAmount, 2);
-                                    }
+                    foreach ($rates as $index => $rate) {
+                        foreach ($rate as $key => $value) {
+                            if ($key !== 'name' && is_numeric($value)) {
+                                if ($marginType === 'percentage') {
+                                    $rate[$key] = round($value + ($value *  $flatAmount / 100), 2);
+                                } elseif ($marginType === 'flat') {
+                                    $rate[$key] = round($value + $flatAmount, 2);
                                 }
                             }
                         }
-                        unset($rate); // good practice
+                        $rates[$index] = $rate;
                     }
-                    return [
-                        'status' => true,
-                        'rates' => $responseData['rates'],
-                    ];
+                    // unset($rate); // good practice
+                }
+                return [
+                    'status' => true,
+                    'rates' => $rates->toArray(),
+                ];
             } else {
                 Log::error('Lorrigo Rate Calculation failed', ['response' => $response->body()]);
                 return ['status' => false, 'message' => 'Failed to calculate rate.'];
@@ -379,7 +388,42 @@ class LorrigoService implements CourierInterface
 
     public function cancelShipment(array $data): array
     {
-       return [];
+        $validator = Validator::make($data, [
+            'orderId' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            throw new \InvalidArgumentException($validator->errors()->first());
+        }
+
+        $payload = [
+            'orderIds' =>  [
+                $data['orderId']
+            ],
+            'type' => 'shipment'
+        ];
+
+        Log::info("CANCEL POYLOAD");
+        Log::info(json_encode($payload));
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->post($this->apiUrl . '/api/shipment/cancel', $payload);
+
+        if ($response->successful()) {
+            Log::info('Lorrigo test Cancel Order Successfull', [
+                'status' => $response->status(),
+                'response' => $response->json(),
+            ]);
+            return [true, "Lorrigo test cancle order success", 'cancle'];
+        } else {
+            Log::info('Lorrigo test Cancel Order fail', [
+                'status' => $response->status(),
+                'response' => $response->json(),
+            ]);
+            return [false, "Lorrigo test cancle order fail", 'cancle'];
+        }
     }
 
     // public function reattemptShipment(array $data): array
@@ -431,9 +475,9 @@ class LorrigoService implements CourierInterface
     {
         Log::info('Payload being sent Lorrigo Test', $payload);
         try {
-             $response = Http::withHeaders([
+            $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
+                'Authorization' => 'Bearer ' . $this->token,
             ])->post($this->apiUrl . '/api/shipment/v2', $payload);
                 dd($response->json());
             if ($response->successful()) {

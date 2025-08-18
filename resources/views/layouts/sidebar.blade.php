@@ -67,6 +67,124 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action', 'my-orders/*', 'my-orders', 'track-order']) ? 'show' : '' }}"
+                        title="Category" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-basket fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Orders</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
+                                    href="{{ route('retailer.order.list') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Customer Orders</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is(['my-orders/*', 'my-orders']) ? 'active' : '' }}"
+                                    href="{{ route('retailer.my-order.list') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Punch Orders</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+
+
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('track-order') ? 'active' : '' }}"
+                                    href="{{ route('retailer.track.order') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Track Order </span>
+                                </a>
+                            </div>
+                            <!--end:Menu item-->
+
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product', 'retailer-edit-product/*', 'retailer-details-product/*', 'retailer-add-product', 'clone-product/*']) ? 'show' : '' }}"
+                        title="Product" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-cube-2 fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Product</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is(['my-product', 'retailer-add-product', 'retailer-edit-product/*', 'retailer-details-product/*']) ? 'active' : '' }}"
+                                    href="{{ route('retailer.my.product') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">My Product</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is(['my-wholesaler-product', 'clone-product/*']) ? 'active' : '' }}"
+                                    href="{{ route('retailer.my.wholesaler.product') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Wholesaler Product</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item" title="Wholesaler" data-bs-toggle="tooltip"
                         data-bs-placement="right">
                         <!--begin:Menu link-->
@@ -78,27 +196,11 @@
                                     <span class="path2"></span>
                                 </i>
                             </span>
-                            <span class="menu-title">Wholesaler</span>
+                            <span class="menu-title">Wholesalers</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-
-                    {{-- <div data-kt-menu-trigger="click" class="menu-item" title="Subscribed Category" data-bs-toggle="tooltip" data-bs-placement="right">
-                        <a class="menu-link {{ request()->is(['subscribed-category', 'subscribed-category/*', 'subscribed-category/*']) ? 'active' : '' }}"
-                            href="{{ route('retailer.subscribed-category.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-shop fs-2 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                    <span class="path5"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Subscribed Category</span>
-                        </a>
-                    </div> --}}
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
@@ -154,7 +256,7 @@
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
-                                    <span class="menu-title">Subscribed Category</span>
+                                    <span class="menu-title">Subscribed Sub Categories</span>
                                 </a>
                                 <!--end:Menu link-->
                             </div>
@@ -175,90 +277,6 @@
                     </div>
                     <!--end:Menu item-->
 
-                    <!--begin:Menu item-->
-                    {{-- <div data-kt-menu-trigger="click" class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{ request()->is(['retailer-product', 'add-product/*', 'remove-product/*', 'retailer-add-product', 'retailer-store-product', 'retailer-edit-product/*', 'retailer-update-product/*']) ? 'active' : '' }}"
-                            href="{{ route('retailer.product') }}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-cube-2 fs-1">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Products</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div> --}}
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product', 'retailer-edit-product/*', 'retailer-details-product/*', 'retailer-add-product', 'clone-product/*']) ? 'show' : '' }}"
-                        title="Product" data-bs-toggle="tooltip" data-bs-placement="right">
-                        <!--begin:Menu link-->
-                        <span class="menu-link">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-cube-2 fs-1 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Product</span>
-                            <span class="menu-arrow"></span>
-                        </span>
-                        <!--end:Menu link-->
-                        <!--begin:Menu sub-->
-                        <div class="menu-sub menu-sub-accordion">
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is(['my-wholesaler-product', 'clone-product/*']) ? 'active' : '' }}"
-                                    href="{{ route('retailer.my.wholesaler.product') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Wholesaler Product</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is(['my-product', 'retailer-add-product', 'retailer-edit-product/*', 'retailer-details-product/*']) ? 'active' : '' }}"
-                                    href="{{ route('retailer.my.product') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">My Product</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                        </div>
-                        <!--end:Menu sub-->
-                    </div>
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
-                    {{-- <div data-kt-menu-trigger="click" class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is('place-order') ? 'active':''}}" href="{{route('retailer.place-order-view')}}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-handcart fs-1">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Place Order</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div> --}}
-                    <!--end:Menu item-->
-
                     <div data-kt-menu-trigger="click" class="menu-item" title="Customer List"
                         data-bs-toggle="tooltip" data-bs-placement="right">
                         <a class="menu-link {{ request()->is(['customers/*', 'customers']) ? 'active' : '' }}"
@@ -272,48 +290,6 @@
                             <span class="menu-title">Customer List</span>
                         </a>
                     </div>
-
-                    <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Customer Orders"
-                        data-bs-toggle="tooltip" data-bs-placement="right">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
-                            href="{{ route('retailer.order.list') }}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-basket fs-1 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Customer Orders</span>
-
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
-                    <div data-kt-menu-trigger="click" class="menu-item" title="Punch Orders"
-                        data-bs-toggle="tooltip" data-bs-placement="right">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{ request()->is(['my-orders/*', 'my-orders']) ? 'active' : '' }}"
-                            href="{{ route('retailer.my-order.list') }}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-notepad fs-1 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Punch Orders</span>
-
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
@@ -337,55 +313,6 @@
                         <!--begin:Menu sub-->
                         <div class="menu-sub menu-sub-accordion">
                             <!--begin:Menu item-->
-                            {{-- <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{request()->is('direct-shipping') ? 'active':''}}" href="{{route('retailer.direct.shipping')}}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Direct Shipping</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div> --}}
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            {{-- <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{request()->is('create-own-order') ? 'active':''}}" href="{{route('retailer.ownorder')}}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Create Your Own Order</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div> --}}
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            {{-- <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{request()->is('ndr') ? 'active':''}}" href="{{route('retailer.ndr')}}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">NDR</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div> --}}
-                            <!--end:Menu item-->
-
-                            <!--begin:Menu item-->
-                            {{-- <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{request()->is('label-setting') ? 'active':''}}" href="{{route('retailer.labelsetting')}}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Label Setting</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div> --}}
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is('pick-address-list') ? 'active' : '' }}"
@@ -400,20 +327,6 @@
                             <!--end:Menu item-->
 
                             <!--begin:Menu item-->
-                            {{-- <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is('rto-address') ? 'active' : '' }}"
-                                    href="{{ route('retailer.rto.address') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Add RTO Address</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div> --}}
-                            <!--end:Menu item-->
-
-                            <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is('pincode-serviceable') ? 'active' : '' }}"
@@ -422,19 +335,6 @@
                                         <span class="bullet bullet-dot"></span>
                                     </span>
                                     <span class="menu-title">Check Service Available</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{ request()->is('track-order') ? 'active' : '' }}"
-                                    href="{{ route('retailer.track.order') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Track Order </span>
                                 </a>
                                 <!--end:Menu link-->
                             </div>
@@ -480,53 +380,7 @@
                     </div>
                     <!--end:Menu item-->
 
-                    <!--begin:Menu item-->
-                    {{-- <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->is(['automation','automation-campaign']) ? 'show' : '' }}">
-                        <!--begin:Menu link-->
-                        <span class="menu-link">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-shop fs-2">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                    <span class="path5"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Automation</span>
-                            <span class="menu-arrow"></span>
-                        </span>
-                        <!--end:Menu link-->
-                        <!--begin:Menu sub-->
-                        <div class="menu-sub menu-sub-accordion">
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link {{request()->is('automation') ? 'active':''}}" href="{{route('retailer.automation.index')}}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Broadcast</span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <!--begin:Menu link-->
-                                <a class="menu-link  {{request()->is('automation-campaign') ? 'active':''}}" href="{{route('retailer.automation.campaign')}}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Campaign </span>
-                                </a>
-                                <!--end:Menu link-->
-                            </div>
-                            <!--end:Menu item-->
-                        </div>
-                        <!--end:Menu sub-->
-                    </div> --}}
-                    <!--end:Menu item-->
+
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click" class="menu-item" title="Coupon" data-bs-toggle="tooltip"
@@ -545,39 +399,6 @@
                         </a>
                         <!--end:Menu link-->
                     </div>
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
-                    {{-- <div data-kt-menu-trigger="click" class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['abondard-page']) ? 'active':''}}" href="{{route('retailer.abandonard.index')}}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-purchase fs-1">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title"> Abandoned Card </span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div> --}}
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
-                    {{-- <div data-kt-menu-trigger="click" class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link {{request()->is(['cms-page']) ? 'active':''}}" href="{{route('retailer.cms.index')}}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-underlining fs-1">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title"> CMS </span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div> --}}
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->

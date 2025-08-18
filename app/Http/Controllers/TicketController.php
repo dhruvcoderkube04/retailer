@@ -37,6 +37,13 @@ class TicketController extends Controller
             $query->where('status', $request->status);
         }
         if (!empty($search)) {
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
+
             $query->where(function ($q) use ($search) {
                 $q->where('ticket_id', 'like', "%{$search}%")
                     ->orWhere('subject', 'like', "%{$search}%")

@@ -597,6 +597,7 @@
         $("#kt_daterangepicker_4").daterangepicker({
             startDate: start,
             endDate: end,
+            maxDate: moment(), // Prevent future dates
             locale: {
                 format: "DD/MM/YYYY" // Set the desired format for the input field
             },
@@ -612,6 +613,10 @@
         }, cb);
 
         cb(start, end);
+
+        $('.ki-calendar-8').on('click', function () {
+            $('#kt_daterangepicker_4').trigger('click');
+        });
 
 
         $(document).on('change', '#kt_daterangepicker_4', function () {
@@ -663,7 +668,9 @@
             });
         });
 
-
+        $(document).on('click', '.ki-calendar-8', function () {
+            $('#kt_daterangepicker_4').trigger('click');
+        });
 
         // graph for product
         document.addEventListener('DOMContentLoaded', function () {

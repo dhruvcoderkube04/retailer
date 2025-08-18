@@ -270,7 +270,8 @@
                                             <option></option>
                                             @foreach ($sub_category_list as $sub_category)
                                                 <option value="{{ $sub_category->id }}">
-                                                    {{ Str::upper($sub_category->sub_category_name) }}</option>
+                                                    {{ Str::upper($sub_category->sub_category_name) }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         <span class="invalid-feedback d-block" id="sub_category_error"></span>
@@ -299,8 +300,7 @@
                                     class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback">
                                 </div>
                                 <div class="text-center">
-                                    <button type="reset" class="btn btn-light me-3"
-                                        data-bs-dismiss="modal">Discard</button>
+                                    <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Discard</button>
                                     <button type="submit" class="btn btn-primary">
                                         <span class="indicator-label">Upload</span>
                                         <span class="indicator-progress">Please wait... <span
@@ -315,18 +315,20 @@
 
             @include('layouts.footer')
         </div>
-    @endsection
+@endsection
 
     @section('script')
         <script>
             // <--------------------- START : Available Product ---------------------->
             let availableDatatable = $('#kt_datatable_available_retailer_clone_products').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: "{{ route('retailer.retailer-clone-available-product.fetch-record') }}",
                     type: "POST",
-                    data: function(d) {
+                    data: function (d) {
                         d.search = $('#available_search_product').val();
                         d.sub_category_filter = $('#available_sub_category_filter').val();
                         d.status = $('#available_status_filter').val();
@@ -334,75 +336,100 @@
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
                     },
-                    dataSrc: function(json) {
+                    dataSrc: function (json) {
                         $('#available_products_count').text(json.recordsTotal);
                         return json.data;
+                    },
+                    error: function (xhr) {
+                        // Detect 400 Bad Request from Laravel
+                        if (xhr.status === 400) {
+                            let message = 'An error occurred.';
+                            try {
+                                let response = JSON.parse(xhr.responseText);
+                                message = response.message || message;
+                            } catch (e) {
+                                message = xhr.responseText || message;
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Search',
+                                text: message,
+                            }).then(() => {
+                                // Clear only the search input field that caused it
+                                $('#available_search_product').val('');
+                                $('#unavailable_search_product').val('');
+                                // You can choose to comment this out to prevent auto-refresh
+                                dataTable.search('').draw();
+
+                            });
+                        }
                     }
                 },
                 order: [],
                 columns: [{
-                        data: 'action',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'image',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'name',
-                        orderable: false,
-                    },
-                    {
-                        data: 'sub_category',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'new_price',
-                        className: 'text-end',
-                        orderable: false,
-                    },
-                    {
-                        data: 'quantity',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'stock',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'status',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'created_updated_at',
-                        className: 'text-center',
-                        orderable: false,
-                    },
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'image',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'name',
+                    orderable: false,
+                },
+                {
+                    data: 'sub_category',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'new_price',
+                    className: 'text-end',
+                    orderable: false,
+                },
+                {
+                    data: 'quantity',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'stock',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'status',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'created_updated_at',
+                    className: 'text-center',
+                    orderable: false,
+                },
                 ]
             });
 
-            $('#available_search_product').on('keyup', function() {
+            $('#available_search_product').on('keyup', function () {
                 availableDatatable.ajax.reload();
             });
 
-            $('#available_sub_category_filter').on('change', function() {
+            $('#available_sub_category_filter').on('change', function () {
                 availableDatatable.ajax.reload();
             });
 
-            $('#available_status_filter').on('change', function() {
+            $('#available_status_filter').on('change', function () {
                 availableDatatable.ajax.reload();
             });
 
             // Re-render icons after availableDatatable draw
-            availableDatatable.on('draw', function() {
+            availableDatatable.on('draw', function () {
                 if (typeof KTIcon !== 'undefined') {
                     KTIcon.update();
                 }
@@ -416,7 +443,7 @@
                 ajax: {
                     url: "{{ route('retailer.retailer-clone-unavailable-product.fetch-record') }}",
                     type: "POST",
-                    data: function(d) {
+                    data: function (d) {
                         d.search = $('#unavailable_search_product').val();
                         d.sub_category_filter = $('#unavailable_sub_category_filter').val();
                         d.status = $('#unavailable_status_filter').val();
@@ -424,84 +451,108 @@
                         d.order = d.order; // Add order data
                         d.columns = d.columns; // Add columns data
                     },
-                    dataSrc: function(json) {
+                    dataSrc: function (json) {
                         $('#unavailable_products_count').text(json.recordsTotal);
                         return json.data;
+                    },
+                    error: function (xhr) {
+                        // Detect 400 Bad Request from Laravel
+                        if (xhr.status === 400) {
+                            let message = 'An error occurred.';
+                            try {
+                                let response = JSON.parse(xhr.responseText);
+                                message = response.message || message;
+                            } catch (e) {
+                                message = xhr.responseText || message;
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Search',
+                                text: message,
+                            }).then(() => {
+                                // Clear only the search input field that caused it
+                                $('#unavailable_search_product').val('');
+                                // You can choose to comment this out to prevent auto-refresh
+                                dataTable.search('').draw();
+
+                            });
+                        }
                     }
                 },
                 order: [],
                 columns: [{
-                        data: 'action',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'image',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'name',
-                        orderable: false,
-                    },
-                    {
-                        data: 'sub_category',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'new_price',
-                        className: 'text-end',
-                        orderable: false,
-                    },
-                    {
-                        data: 'quantity',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'stock',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'status',
-                        className: 'text-center',
-                        orderable: false,
-                    },
-                    {
-                        data: 'created_updated_at',
-                        className: 'text-center',
-                        orderable: false,
-                    },
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'image',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'name',
+                    orderable: false,
+                },
+                {
+                    data: 'sub_category',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'new_price',
+                    className: 'text-end',
+                    orderable: false,
+                },
+                {
+                    data: 'quantity',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'stock',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'status',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'created_updated_at',
+                    className: 'text-center',
+                    orderable: false,
+                },
                 ]
             });
 
-            $('#unavailable_search_product').on('keyup', function() {
+            $('#unavailable_search_product').on('keyup', function () {
                 unavailableDatatable.ajax.reload();
             });
 
-            $('#unavailable_sub_category_filter').on('change', function() {
+            $('#unavailable_sub_category_filter').on('change', function () {
                 unavailableDatatable.ajax.reload();
             });
 
-            $('#unavailable_status_filter').on('change', function() {
+            $('#unavailable_status_filter').on('change', function () {
                 unavailableDatatable.ajax.reload();
             });
 
             // Re-render icons after unavailableDatatable draw
-            unavailableDatatable.on('draw', function() {
+            unavailableDatatable.on('draw', function () {
                 if (typeof KTIcon !== 'undefined') {
                     KTIcon.update();
                 }
             });
             // <--------------------- END : Unavailable Product ---------------------->
 
-            $(document).ready(function() {
+            $(document).ready(function () {
                 //<----------------- START : product upload form submit ---------------->
-                $('#kt_modal_add_product').on('shown.bs.modal', function() {
+                $('#kt_modal_add_product').on('shown.bs.modal', function () {
                     $('[data-control="select2"]').select2({
                         dropdownParent: $('#kt_modal_add_product'),
                         placeholder: 'Select an option',
@@ -509,7 +560,7 @@
                     });
                 });
 
-                $(document).on('submit', '#productUploadForm', function(e) {
+                $(document).on('submit', '#productUploadForm', function (e) {
                     e.preventDefault();
 
                     var formData = new FormData(this);
@@ -537,7 +588,7 @@
                         data: formData,
                         contentType: false,
                         processData: false,
-                        success: function(response) {
+                        success: function (response) {
                             if (response.status) {
                                 Swal.fire({
                                     icon: 'success',
@@ -548,7 +599,7 @@
                                 });
                             }
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             if (xhr.status === 422) {
                                 let response = xhr.responseJSON;
 
@@ -593,7 +644,7 @@
                                 });
                             }
                         },
-                        complete: function() {
+                        complete: function () {
                             submitButton.prop("disabled", false);
                             submitButton.find(".indicator-label").show();
                             submitButton.find(".indicator-progress").hide();
@@ -603,7 +654,7 @@
                 //<----------------- END : product upload form submit ---------------->
 
                 //<-------- START : change product status from product-list ----------->
-                $(document).on('change', '.changeStatusToggle', function() {
+                $(document).on('change', '.changeStatusToggle', function () {
                     let productId = $(this).data('id');
                     let newStatus = $(this).is(':checked') ? 'active' : 'inactive';
 
@@ -615,7 +666,7 @@
                             product_id: productId,
                             status: newStatus
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Status Updated',
@@ -631,7 +682,7 @@
                                 .DataTable().ajax
                                 .reload(null, false);
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             let errorMsg = 'Could not update status.';
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMsg = xhr.responseJSON.message;
@@ -644,7 +695,7 @@
                 //<-------- END : change product status from product-list ----------->
 
                 //<----------------- START : delete product ---------------->
-                $(document).on('click', '.delete-product', function() {
+                $(document).on('click', '.delete-product', function () {
                     let productId = $(this).data("id");
 
                     Swal.fire({
@@ -665,7 +716,7 @@
                                     _token: "{{ csrf_token() }}",
                                     _method: "DELETE"
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     Swal.fire({
                                         icon: response.status ? 'success' : 'error',
                                         title: response.status ? 'Deleted!' :
@@ -687,7 +738,7 @@
                                             ); // reload table without resetting pagination
                                     }
                                 },
-                                error: function(xhr) {
+                                error: function (xhr) {
                                     Swal.fire('Oops...', 'Something went wrong.', 'error');
                                 }
                             });

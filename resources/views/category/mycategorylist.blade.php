@@ -13,7 +13,7 @@
                             Category List</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="index.html" class="text-muted text-hover-primary">Category</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -32,7 +32,7 @@
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                         <th class="text-center min-w-100px">Action</th>
-                                        <th class="text-center min-w-100px">Images</th>
+                                        <th class="text-center min-w-100px">Uploaded Images</th>
                                         <th class="text-center min-w-175px">Category</th>
                                         <th class="text-center min-w-250px">Sub Category</th>
                                         <th class="text-center min-w-150px">Created</th>
@@ -117,7 +117,28 @@
                 },
                 dataSrc: function(json) {
                     return json.data;
-                }
+                },
+                error: function (xhr) {
+                    // Detect 400 Bad Request from Laravel
+                    if (xhr.status === 400) {
+                        let message = 'An error occurred.';
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            message = response.message || message;
+                        } catch (e) {
+                            message = xhr.responseText || message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Search',
+                            text: message,
+                        }).then(() => {
+                            $('.dataTables_filter input').val('');
+                            dataTable.search('').draw();
+                        });
+                    }
+                },
             },
             order: [],
             columns: [{
@@ -197,39 +218,55 @@
                 });
             };
 
-            $(document).on('click', '#remove-btn', function() {
+            $(document).on('click', '#remove-btn', function () {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Are You sure to Delete it !',
+                    title: 'Are you sure to delete it?',
                     showCancelButton: true,
                     confirmButtonColor: '#000',
                     confirmButtonText: 'Yes, remove it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const subCategoryId = $(this).attr('data-sub_category');
-                        const categoryId = $(this).attr('data-category_id');
-                        const id = $(this).attr('data-id');
+                        const subCategoryId = $(this).data('sub_category');
+                        const categoryId = $(this).data('category_id');
+                        const id = $(this).data('id');
 
-                        request_call("{{ url('remove-category') }}", "category_id=" + categoryId +
-                            "&sub_category=" + subCategoryId + "&id=" + id);
-                        xhr.done(function(mydata) {
-                            if (mydata.status) {
-                                location.reload();
-                            } else {
+                        $.ajax({
+                            url: "{{ url('remove-category') }}",
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                category_id: categoryId,
+                                sub_category: subCategoryId,
+                                id: id
+                            },
+                            success: function (mydata) {
+                                if (mydata.status) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        text: 'Record deleted successfully!',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: mydata.msg,
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            },
+                            error: function () {
                                 Swal.fire({
-                                    title: 'Error!',
-                                    text: mydata.msg,
                                     icon: 'error',
+                                    title: 'Subcategory Remove Failed!',
                                     confirmButtonText: 'OK'
                                 });
                             }
-                        });
-                        xhr.fail(function(mydata) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Subcategory Remove Failed!',
-                                showCancelButton: true
-                            })
                         });
                     }
                 });

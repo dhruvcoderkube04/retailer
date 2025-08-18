@@ -20,6 +20,7 @@ use App\Models\RetailerCategory;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
+use App\Models\WholesalerCategory;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Exception;
@@ -146,7 +147,7 @@ class RetilerController extends Controller
             ->take(5)
             ->get();
 
-            // dd($data);
+        // dd($data);
         return view('dashboard', compact('data', 'user', 'retailerOrders'));
     }
 
@@ -223,11 +224,13 @@ class RetilerController extends Controller
         $retailer_sub_category_count = RetailerCategory::where('retailer_id', $retailer->id)
             ->distinct()
             ->count('sub_category_id');
-        $retailerId = $retailer->id;
+
+        $allSubCategories = SubCategory::orderBy('sub_category_name')->get();
+
         return view('wholesaler.wholesaler-list', [
             'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
             'retailer_sub_category_count' => $retailer_sub_category_count,
-            'retaile_id'=> $retailerId,
+            'allSubCategories'  => $allSubCategories,
         ]);
     }
 
@@ -237,6 +240,7 @@ class RetilerController extends Controller
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
         $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $subCategoryFilter = $request->input('sub_category_filter', '');
         $retailer = Auth::user();
 
         $query = User::with('userDetail')
@@ -244,13 +248,29 @@ class RetilerController extends Controller
             ->where('status', 1);
 
         if (!empty($search)) {
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
+
             $query->where(function ($q) use ($search) {
                 $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
                     ->orWhere('firstname', 'like', '%' . $search . '%')
                     ->orWhere('lastname', 'like', '%' . $search . '%')
                     ->orWhereHas('userDetail', function ($q) use ($search) {
                         $q->where('company_name', 'like', '%' . $search . '%');
-                    });
+                    })
+                    ->orWhereHas('wholesalerCategories.subCategory', function ($q) use ($search) {
+                    $q->where('sub_category_name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        if (!empty($subCategoryFilter) && $subCategoryFilter !== 'all') {
+            $query->whereHas('wholesalerCategories', function ($q) use ($subCategoryFilter) {
+                $q->where('sub_category_id', $subCategoryFilter);
             });
         }
 
@@ -290,6 +310,14 @@ class RetilerController extends Controller
             $product_count_fetch = Product::where('wholesaler_id', $item->id)
                 ->where('status', 'active')
                 ->count('id');
+
+            $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
+                ->pluck('sub_category_id');
+
+            $subCategories = SubCategory::whereIn('id', $subcategory_ids)
+            ->get()->pluck('sub_category_name')
+            ->implode(',');
+
             $details = '
                 <div>
                     <span>Total Sub Category : </span>
@@ -318,6 +346,7 @@ class RetilerController extends Controller
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
+                "subcategory_names" => $subCategories,
                 "details" => $details,
                 "action" => $action
             );
@@ -325,21 +354,21 @@ class RetilerController extends Controller
         return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
     }
 
-   //for wholesaler request accesss
+    //for wholesaler request accesss
     public function requestAccess(Request $request)
-{
-    $user = User::find($request->user_id);
+    {
+        $user = User::find($request->user_id);
 
-    if (!$user) {
-        return response()->json(['message' => 'User not found.'], 404);
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        // You can update a status, flag, or log a request
+        $user->is_all_wholesaler_visible = 2; // 2 = for request
+        $user->save();
+
+        return response()->json(['message' => 'Access request submitted successfully.']);
     }
-
-    // You can update a status, flag, or log a request
-    $user->is_all_wholesaler_visible = 2; // 2 = for request
-    $user->save();
-
-    return response()->json(['message' => 'Access request submitted successfully.']);
-}
 
     //<------------------------- END : wholesaler list --------------------------->
 
@@ -390,6 +419,12 @@ class RetilerController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
             $query->where(function ($q) use ($search) {
                 $q->orWhere('payment_method', 'like', '%' . $search . '%')
                     ->orWhere('margin', 'like', '%' . $search . '%')
@@ -457,9 +492,9 @@ class RetilerController extends Controller
                     type="button"
                     class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-margin-btn"
                     data-url="' . route('retailer.remove-category-margin', [
-                'wholesaler_id' => $item->wholesaler_id,
-                'margin_id' => $item->id
-            ]) . '"
+                    'wholesaler_id' => $item->wholesaler_id,
+                    'margin_id' => $item->id
+                ]) . '"
                     title="Delete"
                 >
                     <i class="ki-duotone ki-trash">
@@ -486,7 +521,7 @@ class RetilerController extends Controller
                         </div>';
 
             $data[] = array(
-                "action" =>  $action,
+                "action" => $action,
                 "sub_category_image" => $sub_category_image,
                 "sub_category_name" => $item->sub_category?->sub_category_name ?? 'N/A',
                 "wholesaler_name" => $item->wholesaler->userDetail->company_name,
@@ -503,7 +538,13 @@ class RetilerController extends Controller
     // add category margin view page
     public function viewCategoryMargin(string $wholesaler_id)
     {
-        $wholesaler_id = decryptId($wholesaler_id);
+        // Attempt decryption, will throw if tampered
+        $decryptedId = decryptId($wholesaler_id);
+
+        // Optional: validate format after decryption
+        if (!is_numeric($decryptedId)) {
+            abort(404, 'Invalid ID format after decryption.');
+        }
         $retailer = Auth::user();
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
@@ -542,11 +583,13 @@ class RetilerController extends Controller
     // add category margin store
     public function storeCategoryMargin(Request $request, $wholesaler_id)
     {
+
         $wholesaler_id = decryptId($wholesaler_id);
         $request->validate([
             'sub_category_id' => 'required|exists:sub_categories,id',
             'margin' => 'required|integer|min:1',
-            'payment_method' => 'required'
+            'payment_method' => 'required',
+            'payment_method.*' => 'in:COD,Prepaid,Semi',
         ]);
 
         DB::beginTransaction();
@@ -576,7 +619,7 @@ class RetilerController extends Controller
 
             DB::commit();
             return redirect()->route('retailer.view-category-margin', encryptId($wholesaler_id))
-                ->with('success', 'Category margin added successfully');
+                ->with('success', 'Margin Added Successfully');
         } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong');
@@ -656,7 +699,7 @@ class RetilerController extends Controller
     {
         $request->validate([
             'margin_id' => 'required|exists:retailer_products,id',
-            'margin' => 'required|numeric|min:0',
+            'margin' => 'required|numeric|min:0|max:10000000',
             'wholesaler_id' => 'required|exists:retailer_products,wholesaler_id',
             'payment_method' => 'required'
         ]);
@@ -802,6 +845,12 @@ class RetilerController extends Controller
         // Filters
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
             $singleProductFetchQuery->where(function ($q) use ($search) {
                 $q->where('retailer_products.product_name', 'like', "%{$search}%")
                     ->orWhere('products.sku', 'like', "%{$search}%")
@@ -1070,7 +1119,7 @@ class RetilerController extends Controller
                 'product' => $product_name,
                 'wholesaler' => $wholesaler_detail,
                 'sub_category' => $product->sub_category_name ?? 'N/A',
-                'quantity' => $totalStock ?: ($product->quantity ?? 0),
+                // 'quantity' => $totalStock ?: ($product->quantity ?? 0),
                 'stock' => $stock,
                 'new_price' => $new_price,
                 'margin' => $margin,
@@ -1124,7 +1173,7 @@ class RetilerController extends Controller
     {
         $request->validate([
             'product_name' => 'required|max:100',
-            'margin' => 'required',
+            'margin' => 'required|numeric|min:0|max:10000000',
             'payment_method' => 'required',
             'status' => 'required|string|in:active,inactive',
             'product_description' => 'nullable|string|max:1000',
@@ -1332,6 +1381,12 @@ class RetilerController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
                     ->orWhere('new_price', 'like', "%$search%")
@@ -1389,7 +1444,7 @@ class RetilerController extends Controller
             $totalStock = 0;
             $productVariation = [];
             if ($product->productVariations->isNotEmpty()) {
-                $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float)$v);
+                $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float) $v);
                 $newPrice = $newPrices->isNotEmpty()
                     ? number_format($newPrices->min(), 2)
                     : null;
@@ -1519,6 +1574,12 @@ class RetilerController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
                     ->orWhere('new_price', 'like', "%$search%")
@@ -1579,7 +1640,7 @@ class RetilerController extends Controller
             $totalStock = 0;
             $productVariation = [];
             if ($product->productVariations->isNotEmpty()) {
-                $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float)$v);
+                $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float) $v);
                 $newPrice = $newPrices->isNotEmpty()
                     ? number_format($newPrices->min(), 2)
                     : null;
@@ -1777,7 +1838,7 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-                'quantity'  => 'required|integer|min:0|max:999999',
+                'quantity' => 'required|integer|min:0|max:999999',
             ]);
         } else {
             // Validate all variation fields
@@ -1804,7 +1865,8 @@ class RetilerController extends Controller
             $imagePaths = [];
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $file) {
-                    if ($index >= 3) break;
+                    if ($index >= 3)
+                        break;
                     $imagePaths[] = uploadOrUpdateImageToSpaces($file, 'products/images');
                 }
                 $product->images = implode(',', $imagePaths);
@@ -1945,6 +2007,7 @@ class RetilerController extends Controller
     // update retailer product
     public function retailerUpdateProduct(Request $request, $product_id)
     {
+        // dd($request->all());
         $product_id = decryptId($product_id);
         $request->validate([
             'product_name' => 'required|max:100',
@@ -1989,7 +2052,7 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-                'quantity'  => 'required|integer|min:0|max:999999',
+                'quantity' => 'required|integer|min:0|max:999999',
             ]);
         } else {
             // Validate variations fields
@@ -2389,18 +2452,19 @@ class RetilerController extends Controller
 
     public function profileUpdate(Request $request)
     {
+        // dd($request->all());
         $id = Auth::user()->id;
         $request->validate([
-            'firstname'     => 'nullable|string|max:255',
-            'lastname'      => 'nullable|string|max:255',
-            'company'  => 'nullable|string|max:255',
-            'phone'  => 'nullable|string|min:6|max:20|regex:/^[0-9\-+()\s]*$/',
-            'address'       => 'nullable|string|max:500',
-            'country'       => 'nullable|string|max:255',
-            'state'         => 'nullable|string|max:255',
-            'city'          => 'nullable|string|max:255',
-            'pincode'   => 'nullable|string|max:10|regex:/^[0-9]{4,10}$/',
-            'profile'       => 'mimes:jpeg,png,jpg|max:1048',
+            'firstname' => 'nullable|string|max:255',
+            'lastname' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|min:6|max:20|regex:/^[0-9\-+()\s]*$/',
+            'address' => 'nullable|string|max:500',
+            'country' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'pincode' => 'nullable|string|max:10|regex:/^[0-9]{4,10}$/',
+            'profile' => 'mimes:jpeg,png,jpg|max:1048',
         ]);
         // Find the user
         $user = User::with('userDetail')->findOrFail($id);
@@ -2435,18 +2499,39 @@ class RetilerController extends Controller
         // }
 
         // Handle profile image upload
-        if ($request->hasFile('profile')) {
+        // if ($request->hasFile('profile')) {
+        //     try {
+        //         $file = $request->file('profile');  // Get file
+        //         $filename = uploadOrUpdateImageToSpaces($file, 'company_profile',  $user->userDetail->company_logo);
+        //     } catch (\Exception $e) {
+        //         // Handle upload errors
+        //         Log::error('Profile Upload to Spaces Failed: ' . $e->getMessage());
+        //         return back()->with('error', 'Profile upload to DigitalOcean Spaces failed.');
+        //     }
+        // } else {
+        //     $profilePath = null; // No file uploaded
+        // }
+
+        if ($request->has('avatar_remove') && $request->avatar_remove == 1) {
+            // Delete existing image if it exists
+            if (!empty($user->userDetail->company_logo)) {
+                deleteImageToSpaces($user->userDetail->company_logo); // custom function to delete from Spaces
+            }
+            $user->userDetail->company_logo = null;
+            $user->userDetail->save();
+            $filename = null; // Clear filename to remove image
+        } elseif ($request->hasFile('profile')) {
             try {
-                $file = $request->file('profile');  // Get file
-                $filename = uploadOrUpdateImageToSpaces($file, 'company_profile',  $user->userDetail->company_logo);
+                $file = $request->file('profile');
+                $filename = uploadOrUpdateImageToSpaces($file, 'company_profile', $user->userDetail->company_logo);
             } catch (\Exception $e) {
-                // Handle upload errors
                 Log::error('Profile Upload to Spaces Failed: ' . $e->getMessage());
                 return back()->with('error', 'Profile upload to DigitalOcean Spaces failed.');
             }
         } else {
-            $profilePath = null; // No file uploaded
+            $filename = $user->userDetail->company_logo; // keep existing if no action
         }
+
 
         // Update userDetail fields only if they are filled
 
@@ -2701,7 +2786,7 @@ class RetilerController extends Controller
 
     public function ticketList()
     {
-        $user_id =  Auth::user()->id;
+        $user_id = Auth::user()->id;
         $tickets = Ticket::where('user_id', $user_id)->get();
         return view('support.ticketlist', compact('tickets'));
     }
@@ -2710,7 +2795,7 @@ class RetilerController extends Controller
         $request->validate([
             'subject' => 'required|string|max:255',
             'ticket_description' => 'required|string',
-            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
+            'ticket_image_ref' => 'nullable|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         // Genrate random tikcet id 10 digit  with  TM add tm in prefix
@@ -2766,7 +2851,7 @@ class RetilerController extends Controller
             'ticket_id' => 'required|exists:tickets,ticket_id',
             'subject' => 'nullable|string|max:255',
             'ticket_description' => 'nullable|string',
-            'ticket_image_ref'   => 'nullable|mimes:jpeg,png,jpg|max:2048'
+            'ticket_image_ref' => 'nullable|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         $user_id = Auth::user()->id;
@@ -2892,6 +2977,12 @@ class RetilerController extends Controller
             ->groupBy('customer_id');
 
         if (!empty($search)) {
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\.]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
             $baseQuery->whereHas('customer', function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'like', "%$search%")
                     ->orWhere('phone_number', 'like', "%$search%")
@@ -2931,7 +3022,7 @@ class RetilerController extends Controller
                 $sr_no++;
                 $data[] = [
                     "sr_no" => $sr_no,
-                    "name" => $customer->firstname ? ($customer->firstname  . ' ' . $customer->lastname) : 'N/A',
+                    "name" => $customer->firstname ? ($customer->firstname . ' ' . $customer->lastname) : 'N/A',
                     "mobile_no" => $customer->phone_number ?? 'N/A',
                     "email" => $customer->email ?? 'N/A',
                     "state" => $customer->state ?? 'N/A',
