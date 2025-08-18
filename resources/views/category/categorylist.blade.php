@@ -15,11 +15,11 @@
                     <!--begin::Page title-->
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <!--begin::Title-->
-                        <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             Category List</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
@@ -125,7 +125,7 @@
                                 </div>
 
                                 <div class="flex-lg-row-auto w-100 w-lg-375px w-xxl-450px">
-                                    <div class="card bg-light shadow-sm border-3">
+                                    <div class="card bg-light shadow-none border-1">
                                         <div class="card-body p-4" id="reload-selected-categorylist">
                                             <div class="mb-10 mt-2 text-center">
                                                 <h2 class="fs-3 text-dark fw-bold">Selected Category List</h2>

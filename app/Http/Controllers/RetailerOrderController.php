@@ -438,7 +438,7 @@ class RetailerOrderController extends Controller
 
             $stageDateField = $stageDateMap[$type];
             $order_date = '<div class="row">
-                    <div class="col-12 mb-2">
+                    <div class="col-12 mb-2 fs-6">
                         <strong>Order Date:</strong><br>
                         <span>' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
                     </div>';
@@ -453,7 +453,7 @@ class RetailerOrderController extends Controller
             $order_date .= '</div>';
 
             $order_detail = '<div class="p-3">
-                    <table class="table table-sm mb-0">
+                    <table class="table table-sm mb-0 fs-6">
                         <tr>
                             <td style="width: 30%; padding: 0 !important;"><strong>Order Id:</strong></td>
                             <td style="padding: 0 !important;" class="text-start">' . $item->order_id . '</td>
@@ -592,7 +592,7 @@ class RetailerOrderController extends Controller
                         class="img-fluid rounded" style="max-width: 100px;">
                 </div>';
 
-            $customer_detail = '<div class="p-3"><table class="table table-sm mb-0">';
+            $customer_detail = '<div class="p-3"><table class="table table-sm mb-0 fs-6">';
             $customer_detail .= '
                     <tr><td style="padding: 0 !important;"><strong>Name:</strong></td><td style="padding: 0 !important;">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</td></tr>
                     <tr><td style="padding: 0 !important;"><strong>Email Id:</strong></td><td style="padding: 0 !important;">' . $item->customer->email . '</td></tr>
@@ -605,7 +605,7 @@ class RetailerOrderController extends Controller
             $wholesaler_detail = '';
             if ($item->wholesaler) {
                 $wholesaler = $item->wholesaler;
-                $wholesaler_detail = '<div class="p-3"><table class="table table-sm mb-0">';
+                $wholesaler_detail = '<div class="p-3"><table class="table table-sm mb-0 fs-6">';
                 $wholesaler_detail .= '
                         <tr><td style="padding: 0 !important;"><strong>Wholesaler Name:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</td></tr>
                         <tr><td style="padding: 0 !important;"><strong>Email Id:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->email ?? '') . '</td></tr>

@@ -478,16 +478,16 @@
 
                                         <div class="tab-pane fade show active" id="kt_stats_widget_2_tab_1" role="tabpanel">
                                             <div class="table-responsive">
-                                                <table class="table table-row-dashed align-middle fs-7 my-0">
+                                                <table class="table table-row-dashed align-middle fs-7 my-0 table-striped">
                                                     <thead>
                                                         <tr
                                                             class="text-start text-gray-700 fw-bold fs-7 text-uppercase gs-0">
-                                                            <th class="text-center min-w-50px"></th>
-                                                            <th class="text-start min-w-150px">ITEM</th>
-                                                            <th class="text-center min-w-150px">ORDER RECEIVED AT</th>
-                                                            <th class="text-center min-w-80px">QUANTITY</th>
-                                                            <th class="text-center min-w-80px">AMOUNT</th>
-                                                            <th class="text-center min-w-300px">OTHER DETAILS</th>
+                                                            <th class="text-center py-5 min-w-50px" style="background: #0d0e12;color:#fff !important;"></th>
+                                                            <th class="text-center py-5 min-w-150px" style="background: #0d0e12;color:#fff !important;">ITEM</th>
+                                                            <th class="text-center py-5 min-w-150px" style="background: #0d0e12;color:#fff !important;">ORDER RECEIVED AT</th>
+                                                            <th class="text-center py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">QUANTITY</th>
+                                                            <th class="text-center py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">AMOUNT</th>
+                                                            <th class="text-center py-5 min-w-300px" style="background: #0d0e12;color:#fff !important;">OTHER DETAILS</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="fw-semibold text-gray-600">
@@ -531,27 +531,27 @@
                                                                 </td>
 
                                                                 {{-- product name --}}
-                                                                <td class="text-center">
+                                                                <td class="text-center text-gray-700">
                                                                     <strong>{{ $detail?->order_product_detail?->name ?? 'N/A' }}</strong>
                                                                 </td>
 
                                                                 {{-- order date --}}
-                                                                <td class="text-center">
+                                                                <td class="text-center text-gray-700">
                                                                     {{ date('F d, Y, h:i a', strtotime($detail->created_at)) }}
                                                                 </td>
 
                                                                 {{-- quantity --}}
-                                                                <td class="text-center">
+                                                                <td class="text-center text-gray-700">
                                                                     {{ $detail->quantity }}
                                                                 </td>
 
                                                                 {{-- amount --}}
-                                                                <td class="text-center">
+                                                                <td class="text-center text-gray-700">
                                                                     ₹{{ $detail?->final_amount }}
                                                                 </td>
 
                                                                 {{-- other details --}}
-                                                                <td class="text-center">
+                                                                <td class="text-center text-gray-700">
                                                                     <div>
                                                                         <div class="my-2">
                                                                             <strong>Order Id:</strong>
