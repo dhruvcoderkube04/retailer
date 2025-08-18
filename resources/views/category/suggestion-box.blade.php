@@ -220,94 +220,36 @@
             };
 
             // Handle form submission for adding category & subcategory
-            // $("#kt_modal_add_categry_form").submit(function(e) {
-            //     e.preventDefault(); // Prevent default form submission
+            $("#kt_modal_add_categry_form").submit(function(e) {
+                e.preventDefault(); // Prevent default form submission
 
-            //     let categoryName = $("input[name='category']").val();
-            //     let subCategoryName = $("input[name='sub_category']").val();
+                let categoryName = $("input[name='category']").val();
+                let subCategoryName = $("input[name='sub_category']").val();
 
-            //     request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
-            //     xhr.done(function(mydata) {
-            //         Swal.fire({
-            //             title: 'Category and Sub Category Suggestion Added Successfully!',
-            //             icon: 'success',
-            //         });
+                request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
+                xhr.done(function(mydata) {
+                    Swal.fire({
+                        title: 'Category and Sub Category Suggestion Added Successfully!',
+                        icon: 'success',
+                    });
 
-            //         $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
-            //         // Reset form
+                    $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
+                    // Reset form
 
-            //         $("input[name='category']").val('');
-            //         $("input[name='sub_category']").val('');
-            //         // display modal none
-            //         $("#kt_modal_add_category").modal('hide');
-            //     });
-            //     xhr.fail(function(mydata) {
-            //         Swal.fire({
-            //             icon:'error',
-            //             title: 'Category Add Failed!',
-            //             showCancelButton: true
-            //         })
-            //     });
+                    $("input[name='category']").val('');
+                    $("input[name='sub_category']").val('');
+                    // display modal none
+                    $("#kt_modal_add_category").modal('hide');
+                });
+                xhr.fail(function(mydata) {
+                    Swal.fire({
+                        icon:'error',
+                        title: 'Category Add Failed!',
+                        showCancelButton: true
+                    })
+                });
 
-            // });
-
-            $("#kt_modal_add_categry_form").submit(function (e) {
-            e.preventDefault();
-
-            // Clear previous errors
-            $(".invalid-feedback").text('');
-            $("input").removeClass('is-invalid');
-
-            let categoryName = $("input[name='category']").val();
-            let subCategoryName = $("input[name='sub_category']").val();
-
-            $.ajax({
-                url: "{{ url('category-suggestion-create') }}",
-                method: 'POST',
-                data: {
-                    categoryName: categoryName,
-                    subCategoryName: subCategoryName,
-                    _token: '{{ csrf_token() }}' // Add CSRF token
-                },
-                success: function (response) {
-                    if (response.status) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Subcategory Added Successfully!',
-                            showCancelButton: false
-                        });
-                        // Reload part of page if needed
-
-                        $("#kt_modal_add_categry_form")[0].reset();
-                        $("#kt_modal_add_category").modal('hide');
-                        $('#kt_categroy_table').DataTable().ajax.reload(null, false);
-                    }
-                },
-                error: function (xhr) {
-                    if (xhr.status === 422) {
-                        // Validation errors
-                        let errors = xhr.responseJSON.messages;
-
-                        if (errors.categoryName) {
-                            $("input[name='category']").addClass('is-invalid');
-                            $("input[name='category']").siblings('.invalid-feedback').text(errors.categoryName[0]);
-                        }
-                        if (errors.subCategoryName) {
-                            $("input[name='sub_category']").addClass('is-invalid');
-                            $("input[name='sub_category']").siblings('.invalid-feedback').text(errors.subCategoryName[0]);
-                        }
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Subcategory Add Failed!',
-                            text: xhr.responseJSON.message || 'Something went wrong',
-                            showCancelButton: false
-                        });
-                    }
-                }
             });
-        });
-
 
             $(document).on('click', '#remove-btn', function() {
                 Swal.fire({
