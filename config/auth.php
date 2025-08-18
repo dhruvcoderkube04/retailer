@@ -42,11 +42,11 @@ return [
         ],
         'api' => [
             'driver' => 'sanctum',
-            'provider' => ' customer_details ',
+            'provider' => 'customers',
         ],
         'customer' => [
             'driver' => 'sanctum',
-            'provider' => 'customer_details',
+            'provider' => 'customers',
         ],
     ],
 
