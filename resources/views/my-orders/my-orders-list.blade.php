@@ -81,7 +81,7 @@
 
                     <div class="card card-flush">
                         <!-- Search -->
-                        <div class="card-title mx-10 my-5">
+                        <div class="card-title mx-10 my-5 ms-auto">
                             <div class="d-flex align-items-center position-relative my-1">
                                 <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
                                     <span class="path1"></span>
@@ -124,6 +124,8 @@
             $.fn.dataTable.ext.errMode = 'none'; // Prevent default alerts
 
             const table = $('#kt_my_order_list_table').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
                 fixedHeader: {

@@ -94,7 +94,6 @@
                                 <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Action</th>
                                             <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Media</th>
                                             <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
                                             <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
@@ -102,6 +101,7 @@
                                             <th class="text-center py-5 border-0 min-w-70px" style="background: #0d0e12;color:#fff !important;">Margin
                                                 <br> <span class="text-capitalize fs-9">(In Rs.)</span>
                                             </th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-700 fs-6">
@@ -204,6 +204,8 @@
     <script>
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_wholesaler_list').DataTable({
+            pageLength: 20,
+            lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
             fixedHeader: {
@@ -251,12 +253,7 @@
 
             },
             order: [],
-            columns: [{
-                data: 'action',
-                className: 'text-center',
-                orderable: false,
-                searchable: false
-            },
+            columns: [
             {
                 data: 'sub_category_image',
                 className: 'text-center',
@@ -282,6 +279,12 @@
                 data: 'margin',
                 className: 'text-center',
                 orderable: true,
+            },
+            {
+                data: 'action',
+                className: 'text-center',
+                orderable: false,
+                searchable: false
             },
             ]
         });

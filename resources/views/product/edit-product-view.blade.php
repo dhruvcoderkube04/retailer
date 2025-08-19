@@ -14,7 +14,7 @@
                             Edit Product</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}"
+                                <a href="{{ route('retailer.my.product') }}"
                                     class="text-muted text-hover-primary">Product</a>
                             </li>
                             <li class="breadcrumb-item">
@@ -494,7 +494,7 @@
            if (selectedFiles.length + files.length > 3) {
                 alert('You can upload a maximum of 3 images.');
                 updateFileInput();
-                return; 
+                return;
             }
 
             files.forEach(file => {
@@ -983,6 +983,6 @@
             });
         });
 
-        
+
     </script>
 @endsection

@@ -67,7 +67,6 @@
                             <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Name</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Status</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Coupon Code</th>
@@ -77,6 +76,7 @@
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Quantity</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Discount Price</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Created Date</th>
+                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-700 fw-semibold"></tbody>
@@ -257,6 +257,8 @@ $(document).ready(function () {
 
     // Initialize DataTable
     let table = $('#kt_subscriptions_table').DataTable({
+        pageLength: 20,
+        lengthMenu: [10, 20, 50, 100],
         processing: true,
         serverSide: true,
         fixedHeader: {
@@ -272,16 +274,16 @@ $(document).ready(function () {
             }
         },
         columns: [
-            { data: 'actions', orderable: false, searchable: false, className: 'ps-3' },
-            { data: 'coupon_name' },
-            { data: 'status' },
-            { data: 'coupon_code' },
-            { data: 'used_count' },
-            { data: 'valid_from' },
-            { data: 'valid_until' },
-            { data: 'quantity' },
-            { data: 'discount' },
-            { data: 'created_at' },
+            { data: 'coupon_name', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'status', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'coupon_code', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'used_count', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'valid_from', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'valid_until', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'quantity', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'discount', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'created_at', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'actions', orderable: false, searchable: false, className: 'text-center' },
         ]
     });
 

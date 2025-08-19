@@ -135,17 +135,17 @@
                                         id="kt_datatable_available_retailer_clone_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Qty</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
-                                                    style="white-space: normal; background: #0d0e12;color:#fff !important;">Stock</th>
+                                                style="white-space: normal; background: #0d0e12;color:#fff !important;">Stock</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
-                                                    style="white-space: normal; background: #0d0e12;color:#fff !important;">Status</th>
+                                                style="white-space: normal; background: #0d0e12;color:#fff !important;">Status</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Added / Updated</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-700 fs-6">
@@ -215,7 +215,6 @@
                                         id="kt_datatable_unavailable_retailer_clone_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
@@ -226,6 +225,7 @@
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
                                                     style="white-space: normal;background: #0d0e12;color:#fff !important;">Status</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Added / Updated</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-700 fs-6">
@@ -371,12 +371,7 @@
                     }
                 },
                 order: [],
-                columns: [{
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
+                columns: [
                 {
                     data: 'image',
                     className: 'text-center',
@@ -418,6 +413,12 @@
                     className: 'text-center',
                     orderable: false,
                 },
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
                 ]
             });
 
@@ -443,6 +444,8 @@
 
             // <--------------------- START : Unavailable Product ---------------------->
             let unavailableDatatable = $('#kt_datatable_unavailable_retailer_clone_products').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -486,12 +489,7 @@
                     }
                 },
                 order: [],
-                columns: [{
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
+                columns: [
                 {
                     data: 'image',
                     className: 'text-center',
@@ -500,6 +498,7 @@
                 },
                 {
                     data: 'name',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {
@@ -509,7 +508,7 @@
                 },
                 {
                     data: 'new_price',
-                    className: 'text-end',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {
@@ -531,6 +530,12 @@
                     data: 'created_updated_at',
                     className: 'text-center',
                     orderable: false,
+                },
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
                 },
                 ]
             });
