@@ -33,13 +33,13 @@
                                 <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_customer_list">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Sr No</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Name</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Mobile No</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Email</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">State</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">City</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Pincode</th>
+                                            <th class="text-center py-5 border-0 align-middle">Sr No</th>
+                                            <th class="text-center py-5 border-0 align-middle">Name</th>
+                                            <th class="text-center py-5 border-0 align-middle">Mobile No</th>
+                                            <th class="text-center py-5 border-0 align-middle">Email</th>
+                                            <th class="text-center py-5 border-0 align-middle">State</th>
+                                            <th class="text-center py-5 border-0 align-middle">City</th>
+                                            <th class="text-center py-5 border-0 align-middle">Pincode</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-700 fs-6">

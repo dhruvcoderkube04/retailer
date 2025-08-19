@@ -48,13 +48,13 @@
                                 <table class="table align-middle table-row-dashed fs-6 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;"></th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Name</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px">Action</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px"></th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px">Wholesaler</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-200px">Name</th>
                                             {{-- add new column Subcategories  --}}
-                                            <th class="text-center py-5 border-0 align-middle min-w-300px" style="background: #0d0e12;color:#fff !important;">Subcategories</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-80px" style="background: #0d0e12;color:#fff !important;">Details</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-300px">Subcategories</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-80px">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-700 fs-6">

@@ -67,16 +67,16 @@
                             <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Name</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Status</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Coupon Code</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Used Count</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Valid From</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Valid Until</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Quantity</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Discount Price</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Created Date</th>
+                                        <th class="min-w-125px py-5 border-0 ps-3">Actions</th>
+                                        <th class="min-w-125px py-5 border-0">Name</th>
+                                        <th class="min-w-125px py-5 border-0">Status</th>
+                                        <th class="min-w-125px py-5 border-0">Coupon Code</th>
+                                        <th class="min-w-125px py-5 border-0">Used Count</th>
+                                        <th class="min-w-125px py-5 border-0">Valid From</th>
+                                        <th class="min-w-125px py-5 border-0">Valid Until</th>
+                                        <th class="min-w-125px py-5 border-0">Quantity</th>
+                                        <th class="min-w-125px py-5 border-0">Discount Price</th>
+                                        <th class="min-w-125px py-5 border-0">Created Date</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-700 fw-semibold fs-6"></tbody>

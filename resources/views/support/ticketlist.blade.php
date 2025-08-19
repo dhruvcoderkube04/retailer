@@ -119,14 +119,14 @@
                             <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Ticket ID</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Message</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Description</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Category</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Image Ref</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Status</th>
-                                        <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Created Date</th>
+                                        <th class="min-w-125px py-5 border-0 ps-3">Actions</th>
+                                        <th class="min-w-125px py-5 border-0">Ticket ID</th>
+                                        <th class="min-w-125px py-5 border-0">Message</th>
+                                        <th class="min-w-125px py-5 border-0">Description</th>
+                                        <th class="min-w-125px py-5 border-0">Category</th>
+                                        <th class="min-w-125px py-5 border-0">Image Ref</th>
+                                        <th class="min-w-125px py-5 border-0">Status</th>
+                                        <th class="min-w-125px py-5 border-0">Created Date</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-700 fw-semibold fs-6">

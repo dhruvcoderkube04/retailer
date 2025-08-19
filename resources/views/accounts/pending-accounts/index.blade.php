@@ -170,14 +170,14 @@
                                     id="kt_datatable_account_transactions">
                                     <thead>
                                         <tr class="text-gray-700 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle w-80px" style="background: #0d0e12;color:#fff !important;">Info</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;"></th>
-                                            <th class="text-center py-5 border-0 align-middle w-250px" style="background: #0d0e12;color:#fff !important;">Description</th>
-                                            <th class="text-center py-5 border-0 align-middle w-150px" style="background: #0d0e12;color:#fff !important;">Date & Time</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Order ID</th>
-                                            <th class="text-center py-5 border-0 align-middle w-100px" style="background: #0d0e12;color:#fff !important;">Transaction Amount</th>
-                                            <th class="text-center py-5 border-0 align-middle w-100px" style="background: #0d0e12;color:#fff !important;">Current Balance</th>
-                                            <th class="text-center py-5 border-0 align-middle w-100px" style="background: #0d0e12;color:#fff !important;">Status</th>
+                                            <th class="text-center py-5 border-0 align-middle w-80px">Info</th>
+                                            <th class="text-center py-5 border-0 align-middle"></th>
+                                            <th class="text-center py-5 border-0 align-middle w-250px">Description</th>
+                                            <th class="text-center py-5 border-0 align-middle w-150px">Date & Time</th>
+                                            <th class="text-center py-5 border-0 align-middle">Order ID</th>
+                                            <th class="text-center py-5 border-0 align-middle w-100px">Transaction Amount</th>
+                                            <th class="text-center py-5 border-0 align-middle w-100px">Current Balance</th>
+                                            <th class="text-center py-5 border-0 align-middle w-100px">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600 fs-6">

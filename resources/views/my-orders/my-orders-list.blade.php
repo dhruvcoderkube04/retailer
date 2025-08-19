@@ -97,11 +97,11 @@
                             <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_my_order_list_table">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center py-5 border-0 min-w-50px" style="background: #0d0e12;color:#fff !important;">NO.</th>
-                                        <th class="text-center py-5 border-0 min-w-150px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
-                                        <th class="min-w-300px py-5 border-0" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
-                                        <th class="min-w-150px py-5 border-0" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
-                                        <th class="min-w-300px py-5 border-0" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
+                                        <th class="text-center py-5 border-0 min-w-50px">NO.</th>
+                                        <th class="text-center py-5 border-0 min-w-150px">ORDER DATE</th>
+                                        <th class="min-w-300px py-5 border-0">ORDER DETAIL</th>
+                                        <th class="min-w-150px py-5 border-0">MEDIA</th>
+                                        <th class="min-w-300px py-5 border-0">WHOLESALER DETAIL</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-700 fs-6">

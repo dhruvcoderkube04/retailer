@@ -29,7 +29,7 @@
 
                     <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
                         <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                            <button type="button" class="btn btn-flex btn-light-primary" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-flex btn-light-primary me-5" data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_add_product">
                                 <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
                                         class="path2"></span><span class="path3"></span></i>
@@ -135,17 +135,17 @@
                                         id="kt_datatable_available_retailer_clone_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Qty</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px">Actions</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px">Image</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-200px">Product</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px">Sub Category</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px">Price</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-50px">Qty</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
-                                                    style="white-space: normal; background: #0d0e12;color:#fff !important;">Stock</th>
+                                                    style="white-space: normal; background: #363843;color:#fff !important;">Stock</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
-                                                    style="white-space: normal; background: #0d0e12;color:#fff !important;">Status</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Added / Updated</th>
+                                                    style="white-space: normal; background: #363843;color:#fff !important;">Status</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-150px">Added / Updated</th>
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-700 fs-6">
@@ -215,17 +215,17 @@
                                         id="kt_datatable_unavailable_retailer_clone_products">
                                         <thead>
                                             <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Actions</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Qty</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px">Actions</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-70px">Image</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-200px">Product</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px">Sub Category</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-100px">Price</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-50px">Qty</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
-                                                    style="white-space: normal;background: #0d0e12;color:#fff !important;">Stock</th>
+                                                    style="white-space: normal;background: #363843;color:#fff !important;">Stock</th>
                                                 <th class="text-center py-5 border-0 align-middle min-w-70px"
-                                                    style="white-space: normal;background: #0d0e12;color:#fff !important;">Status</th>
-                                                <th class="text-center py-5 border-0 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Added / Updated</th>
+                                                    style="white-space: normal;background: #363843;color:#fff !important;">Status</th>
+                                                <th class="text-center py-5 border-0 align-middle min-w-150px">Added / Updated</th>
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-700 fs-6">

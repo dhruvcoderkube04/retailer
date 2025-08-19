@@ -313,7 +313,7 @@ class RetailerOrderController extends Controller
 
         // Filter by status to color
         $statusColorMap = [
-            'pending' => 'primary',
+            'pending' => 'light-primary',
             'approved_by_retailer' => 'info',
             'transfered_retailer_to_wholesaler' => 'primary',
             'approved_by_wholesaler' => 'info',
@@ -440,123 +440,129 @@ class RetailerOrderController extends Controller
             $order_date = '<div class="row">
                     <div class="col-12 mb-2 fs-6">
                         <strong>Order Date:</strong><br>
-                        <span>' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
+                        <span class="text-dark fw-bold">' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
                     </div>';
 
             if ($type !== 'new') {
                 $order_date .= '
                     <div class="col-12">
                         <strong>' . $typeNameMap[$type] . ' At:</strong><br>
-                        <span>' . date('F d, Y, h:i a', strtotime($item->$stageDateField)) . '</span>
+                        <span class="text-dark fw-bold">' . date('F d, Y, h:i a', strtotime($item->$stageDateField)) . '</span>
                     </div>';
             }
             $order_date .= '</div>';
 
             $order_detail = '<div class="p-3">
                     <table class="table table-sm mb-0 fs-6">
-                        <tr>
-                            <td style="width: 30%; padding: 0 !important;"><strong>Order Id:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">' . $item->order_id . '</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 30%; padding: 0 !important;"><strong>Name:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">' . ($item?->order_product_detail?->name ?? '') . '</td>
-                        </tr>';
+                        <div class="d-flex mb-2 gap-2">
+                            <span"><strong>Order Id:</strong></span>
+                            <span class="text-start text-dark fw-bold">' . $item->order_id . '</span>
+                        </div>
+                        <div class="d-flex mb-2 gap-2">
+                            <span"><strong>Name:</strong></span>
+                            <span class="text-start text-dark fw-bold">' . ($item?->order_product_detail?->name ?? '') . '</span>
+                        </div>';
             if ($item->product_variation) {
                 $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Variation:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">
+                        <div class="d-flex mb-2 gap-2">
+                            <span><strong>Variation:</strong></span>
+                            <span class="text-start">
                                 <span class="badge badge-light-success">' . $item->product_variation . '</span>
-                            </td>
-                        </tr>';
+                            </span>
+                        </div>';
             }
 
-            $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Quantity:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">
-                                <span class="badge badge-light-secondary">' . $item->quantity . '</span>';
+            // $order_detail .= '
+            //             <div class="d-flex mb-2 gap-2">
+            //                 <span><strong>Quantity:</strong></span>
+            //                 <span class="text-start">
+            //                     <span class="badge badge-light-secondary">' . $item->quantity . '</span>';
             if ($item->size) {
                 $order_detail .= ' | Size: ' . $item->size;
             }
-            $order_detail .= '</td></tr>';
+            $order_detail .= '</span></div>';
             if (!empty($item->appliedCoupon)) {
                 $order_detail .= '
-                        <tr>
-                            <td style="width: 30%; padding: 0 !important;"><strong>Coupon Code:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">
+                        <div class="d-flex mb-2 gap-2">
+                            <span"><strong>Coupon Code:</strong></span>
+                            <span class="text-start">
                                 <span class="badge badge-light-danger">' . $item->appliedCoupon->coupon_code . '</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 30%; padding: 0 !important;"><strong>Discount Amount:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">
+                            </span>
+                        </div>
+                        <div class="d-flex mb-2 gap-2">
+                            <span"><strong>Discount Amount:</strong></span>
+                            <span class="text-start">
                                 <span class="badge badge-light-success">₹' . $item->appliedCoupon->discount . '</span>
-                            </td>
-                        </tr>';
+                            </span>
+                        </div>';
             }
 
             $order_detail .= '
-                        <tr>
-                            <td style="width: 30%; padding: 0 !important;"><strong>Amount:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">
+                        <div class="d-flex mb-2 gap-2">
+                            <span"><strong>Amount:</strong></span>
+                            <span class="text-start">
                                 <span class="badge badge-light-primary">₹' . $item->final_amount . '</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 30%; padding: 0 !important;"><strong>Payment:</strong></td>
-                            <td style="padding: 0 !important;" class="text-start">' . strtoupper($item->payment_method) . '</td>
-                        </tr>';
+                            </span>
+                        </div>';
 
             if ($type == 'transferred-to-wholesaler') {
                 $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Order Status:</strong></td>
-                            <td style="padding: 0 !important;">
+                        <div class="d-flex mb-2 gap-2">
+                            <span><strong>Order Status:</strong></span>
+                            <span>
                                 <span class="badge badge-' . $typeColorMap[$type] . '">Transferred to Wholesaler</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Current Status:</strong></td>
-                            <td style="padding: 0 !important;">
+                            </span>
+                        </div>
+                        <div class="d-flex mb-2 gap-2">
+                            <span><strong>Current Status:</strong></span>
+                            <span>
                                 <span class="badge badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
-                            </td>
-                        </tr>';
+                            </span>
+                        </div>';
                 if ($item->status == 'cancel') {
                     $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Cancel Reason:</strong></td>
-                            <td style="padding: 0 !important;" class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</td>
-                        </tr>';
+                        <div class="d-flex mb-2 gap-2">
+                            <span><strong>Cancel Reason:</strong></span>
+                            <span class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</span>
+                        </div>';
                 }
             } else {
-                $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Order Status:</strong></td>
-                            <td style="padding: 0 !important;">
-                                <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span>
-                            </td>
-                        </tr>';
+                // $order_detail .= '
+                //         <div class="d-flex mb-2 gap-2">
+                //             <span><strong>Order Status:</strong></span>
+                //             <span>
+                //                 <span class="badge badge-' . $typeColorMap[$type] . '">' . order_status($item->status) . '</span>
+                //             </span>
+                //         </div>';
                 if ($item->status == 'cancel') {
                     $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Cancel Reason:</strong></td>
-                            <td style="padding: 0 !important;" class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</td>
-                        </tr>';
+                        <div class="d-flex mb-2 gap-2">
+                            <span><strong>Cancel Reason:</strong></span>
+                            <span class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</span>
+                        </div>';
                 }
             }
 
             $order_detail .= '
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Tracking Id:</strong></td>
-                            <td style="padding: 0 !important;">' . ($item->tracking_number ?? 'N/A') . '</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>API Order Id:</strong></td>
-                            <td style="padding: 0 !important;">' . ($item->api_order_id ?? 'N/A') . '</td>
-                        </tr>
-                    </table>';
+                        <div class="d-flex mb-2 gap-2">
+                            <span><strong>Tracking Id:</strong></span>
+                            <span class="text-dark fw-bold">' . ($item->tracking_number ?? 'N/A') . '</span>
+                        </div>
+                        <div class="d-flex mb-2 gap-3">' . '<span class="badge badge-light-warning text-wrap fs-6">Qty:' . ($item->quantity ?? 'N/A') . '</span> 
+                                  <span class="badge badge-light-success text-wrap fs-6">' . (strtoupper($item->payment_method) ?? 'N/A') . '</span>
+                                  <span class="badge fs-6 badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
+                        </div>';
+                        if ($item->wholesaler) {
+                            $order_detail .= '
+                            <div class="d-flex mb-2">
+                                <span ><strong>Wholesaler Name:</strong></span>
+                                <span class="badge badge-light-info text-wrap fs-6">' . ($item->wholesaler->firstname ?? '') . ' ' . ($item->wholesaler->lastname ?? '') . '</span>
+                            </div>
+                            <div class="d-flex mb-2">
+                                <span><strong>Phone:</strong></span>
+                                <span class="badge badge-light-success text-wrap fs-6">' . ($item->wholesaler->phone_number ?? '') . '</span>
+                            </div>';
+                        }
 
             if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd'||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
                 $order_detail .= '
@@ -575,10 +581,10 @@ class RetailerOrderController extends Controller
             }
             if ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
                 $order_detail .= '<div class="mt-1">
-                        <tr>
-                            <td style="padding: 0 !important;"><strong>Reason:</strong></td>
-                            <td style="padding: 0 !important;">' . ($item->shipment_activity ?? '') . '</td>
-                        </tr>
+                        <div class="d-flex align-items-center">
+                            <span><strong>Reason:</strong></span>
+                            <span>' . ($item->shipment_activity ?? '') . '</span>
+                        </div>
                     </div>';
             }
 
@@ -589,34 +595,34 @@ class RetailerOrderController extends Controller
                     <img src="' . ($imagePath ? Storage::disk('spaces')->url($imagePath) : asset('assets/media/images/no_image.jpg')) . '"
                         onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
                         alt="Product Image"
-                        class="img-fluid rounded" style="max-width: 100px;">
+                        class="img-fluid rounded" style="max-width: 80px;">
                 </div>';
 
-            $customer_detail = '<div class="p-3"><table class="table table-sm mb-0 fs-6">';
+            $customer_detail = '<div class="p-3">';
             $customer_detail .= '
-                    <tr><td style="padding: 0 !important;"><strong>Name:</strong></td><td style="padding: 0 !important;">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</td></tr>
-                    <tr><td style="padding: 0 !important;"><strong>Email Id:</strong></td><td style="padding: 0 !important;">' . $item->customer->email . '</td></tr>
-                    <tr><td style="padding: 0 !important;"><strong>Address:</strong></td><td style="padding: 0 !important;">' . $item->customer->address . '</td></tr>
-                    <tr><td style="padding: 0 !important;"><strong>Pin Code:</strong></td><td style="padding: 0 !important;">' . $item->customer->pincode . '</td></tr>
-                    <tr><td style="padding: 0 !important;"><strong>City:</strong></td><td style="padding: 0 !important;">' . $item->customer->city . '</td></tr>
-                    <tr><td style="padding: 0 !important;"><strong>Mobile no:</strong></td><td style="padding: 0 !important;">' . $item->customer->phone_number . '</td></tr>';
-            $customer_detail .= '</table></div>';
+                    <div class="d-flex mb-2 gap-2"><span><strong>Name:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong>Email Id:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->email . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong>Address:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->address . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong>Pin Code:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->pincode . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong>City:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->city . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong>Mobile no:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->phone_number . '</span></div>';
+            $customer_detail .= '</div>';
 
             $wholesaler_detail = '';
             if ($item->wholesaler) {
                 $wholesaler = $item->wholesaler;
-                $wholesaler_detail = '<div class="p-3"><table class="table table-sm mb-0 fs-6">';
+                $wholesaler_detail = '<div class="p-3">';
                 $wholesaler_detail .= '
-                        <tr><td style="padding: 0 !important;"><strong>Wholesaler Name:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</td></tr>
-                        <tr><td style="padding: 0 !important;"><strong>Email Id:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->email ?? '') . '</td></tr>
-                        <tr><td style="padding: 0 !important;"><strong>Address:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->userDetail->address ?? '') . '</td></tr>
-                        <tr><td style="padding: 0 !important;"><strong>Pin Code:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->userDetail->postal_code ?? '') . '</td></tr>
-                        <tr><td style="padding: 0 !important;"><strong>City:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->userDetail->city ?? '') . '</td></tr>
-                        <tr><td style="padding: 0 !important;"><strong>Mobile no:</strong></td><td style="padding: 0 !important;">' . ($wholesaler->phone_number ?? '') . '</td></tr>';
-                $wholesaler_detail .= '</table></div>';
+                        <div><span><strong>Wholesaler Name:</strong></span><span>' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</span></div>
+                        <div><span><strong>Email Id:</strong></span><span>' . ($wholesaler->email ?? '') . '</span></div>
+                        <div><span><strong>Address:</strong></span><span>' . ($wholesaler->userDetail->address ?? '') . '</span></div>
+                        <div><span><strong>Pin Code:</strong></span><span>' . ($wholesaler->userDetail->postal_code ?? '') . '</span></div>
+                        <div><span><strong>City:</strong></span><span>' . ($wholesaler->userDetail->city ?? '') . '</span></div>
+                        <div><span><strong>Mobile no:</strong></span><span>' . ($wholesaler->phone_number ?? '') . '</span></div>';
+                $wholesaler_detail .= '</div>';
             }
 
-            $action = '<div class="d-flex justify-content-center gap-2">';
+            $action = '<div class="d-flex justify-content-center gap-2 flex-wrap flex-column align-items-center">';
             $common_attrs = '
                     data-order-product-id="' . $item->order_product_id . '"
                     data-product-id="' . $item->product_id . '"

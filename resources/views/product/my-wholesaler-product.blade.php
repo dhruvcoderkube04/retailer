@@ -131,16 +131,16 @@
                             <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_margin_added_products">
                                 <thead>
                                     <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center border-0 py-5 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Actions</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Image</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Product</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-150px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-70px">Actions</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-70px">Image</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-200px">Product</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-150px">Wholesaler</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px">Sub Category</th>
                                         <!-- <th class="text-center border-0 py-5 align-middle min-w-70px">Qty</th> -->
-                                        <th class="text-center border-0 py-5 align-middle min-w-70px" style="background: #0d0e12;color:#fff !important;">Stock</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Price</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Margin</th>
-                                        <th class="text-center border-0 py-5 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Status</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-70px">Stock</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px">Price</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px">Margin</th>
+                                        <th class="text-center border-0 py-5 align-middle min-w-100px">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-700 fs-6">
