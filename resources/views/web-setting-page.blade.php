@@ -4,7 +4,7 @@
 @endsection
 @section('content')
     	<!--begin::Content-->
-        <div id="kt_app_content" class="app-content flex-column-fluid">
+        <div id="kt_app_content" class="app-content flex-column-fluid pt-6">
             <!--begin::Content container-->
             <div id="kt_app_content_container" class="app-container ">
                 @if (session('success'))

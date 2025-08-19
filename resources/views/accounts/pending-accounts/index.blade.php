@@ -11,7 +11,7 @@
                         <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
                             Pending Wallet Transactions</h1>
 
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-normal fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
@@ -59,7 +59,7 @@
                                         </div>
 
                                         <div
-                                            class="d-flex flex-wrap justify-content-center justify-content-md-start text-gray-500 fw-semibold fs-6">
+                                            class="d-flex flex-wrap justify-content-center justify-content-md-start text-gray-700 fw-semibold fs-6">
                                             <div class="me-4 mb-2 d-flex align-items-center">
                                                 <i class="ki-duotone ki-geolocation fs-4 me-1">
                                                     <span class="path1"></span>
@@ -92,7 +92,7 @@
                                                     <span class="fs-7">₹ </span>0
                                                 </div>
                                             </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Credit</div>
+                                            <div class="fw-semibold fs-6 text-gray-700">Wallet Credit</div>
                                         </div>
 
                                         <!-- Debit -->
@@ -107,7 +107,7 @@
                                                     <span class="fs-7">₹ </span>0
                                                 </div>
                                             </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Debit</div>
+                                            <div class="fw-semibold fs-6 text-gray-700">Wallet Debit</div>
                                         </div>
 
                                         <!-- Income -->
@@ -119,7 +119,7 @@
                                                     <span class="fs-7">₹ </span>0
                                                 </div>
                                             </div>
-                                            <div class="fw-semibold fs-6 text-gray-500">Wallet Income</div>
+                                            <div class="fw-semibold fs-6 text-gray-700">Wallet Income</div>
                                         </div>
                                     </div>
                                 </div>
@@ -132,7 +132,7 @@
                                         </div>
                                         <div class="d-flex justify-content-center align-items-center mt-2">
                                             <i class="fa-solid fa-circle fs-9 me-2 text-danger"></i>
-                                            <div class="fw-semibold fs-5 text-gray-500">Pending Wallet</div>
+                                            <div class="fw-semibold fs-5 text-gray-700">Pending Wallet</div>
                                         </div>
                                     </div>
                                 </div>
@@ -169,18 +169,18 @@
                                 <table class="table align-middle table-row-dashed fs-7"
                                     id="kt_datatable_account_transactions">
                                     <thead>
-                                        <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle w-80px">Info</th>
-                                            <th class="text-center align-middle"></th>
-                                            <th class="text-center align-middle w-250px">Description</th>
-                                            <th class="text-center align-middle w-150px">Date & Time</th>
-                                            <th class="text-center align-middle">Order ID</th>
-                                            <th class="text-center align-middle w-100px">Transaction Amount</th>
-                                            <th class="text-center align-middle w-100px">Current Balance</th>
-                                            <th class="text-center align-middle w-100px">Status</th>
+                                        <tr class="text-gray-700 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center py-5 border-0 align-middle w-80px" style="background: #0d0e12;color:#fff !important;">Info</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;"></th>
+                                            <th class="text-center py-5 border-0 align-middle w-250px" style="background: #0d0e12;color:#fff !important;">Description</th>
+                                            <th class="text-center py-5 border-0 align-middle w-150px" style="background: #0d0e12;color:#fff !important;">Date & Time</th>
+                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Order ID</th>
+                                            <th class="text-center py-5 border-0 align-middle w-100px" style="background: #0d0e12;color:#fff !important;">Transaction Amount</th>
+                                            <th class="text-center py-5 border-0 align-middle w-100px" style="background: #0d0e12;color:#fff !important;">Current Balance</th>
+                                            <th class="text-center py-5 border-0 align-middle w-100px" style="background: #0d0e12;color:#fff !important;">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="fw-semibold text-gray-600">
+                                    <tbody class="fw-semibold text-gray-600 fs-6">
 
                                     </tbody>
                                 </table>
@@ -295,7 +295,7 @@
 
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_account_transactions').DataTable({
-            dom: "<'row mb-2'" +
+            dom: "<'row mb-4'" +
                 "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
                 ">" +
@@ -306,6 +306,10 @@
                 ">",
             processing: true,
             serverSide: true,
+            fixedHeader: {
+            header: true,
+                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+            },
             ajax: {
                 url: "{{ route('retailer.accounts.fetch-record.pending-wallet') }}",
                 type: "POST",

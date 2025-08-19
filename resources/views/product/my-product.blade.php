@@ -81,7 +81,7 @@
                                 <div class="tab-pane fade show active" id="available_products_tab" role="tabpanel">
 
                                     <div class="pb-6">
-                                        <div class="row g-3 justify-content-md-end">
+                                        <div class="row g-5 justify-content-md-end mb-3">
 
                                             {{-- Status Filter --}}
                                             <div class="col-12 col-md-3">
@@ -161,7 +161,7 @@
                                 <div class="tab-pane fade" id="unavailable_products_tab" role="tabpanel">
 
                                     <div class="pb-6">
-                                        <div class="row g-3 justify-content-md-end">
+                                        <div class="row g-5 justify-content-md-end mb-3">
 
                                             {{-- Status Filter --}}
                                             <div class="col-12 col-md-3">

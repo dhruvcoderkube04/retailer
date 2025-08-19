@@ -42,7 +42,7 @@
                         <div class="card">
                             <div class="card-body pt-4">
                                 <div class="pb-5">
-                                    <div class="row g-5 justify-content-md-end">
+                                    <div class="row g-5 justify-content-md-end mb-4">
 
                                         {{-- Wholesaler Dropdown --}}
                                         <div class="col-12 col-md-3">

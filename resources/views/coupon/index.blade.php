@@ -14,7 +14,7 @@
                 <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Coupon List</h1>
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
@@ -79,7 +79,7 @@
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Created Date</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-gray-700 fw-semibold"></tbody>
+                                <tbody class="text-gray-700 fw-semibold fs-6"></tbody>
                             </table>
                         </div>
                     </div>
