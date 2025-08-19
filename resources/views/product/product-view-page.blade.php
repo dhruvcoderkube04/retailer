@@ -15,7 +15,7 @@
                             Product Details</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}"
+                                <a href="{{ route('retailer.my.product') }}"
                                     class="text-muted text-hover-primary">Product</a>
                             </li>
                             <li class="breadcrumb-item">
@@ -27,7 +27,7 @@
 
                     <div class="d-flex align-items-center gap-2 gap-lg-3">
                         <a href="{{ route('retailer.my.product') }}" class="btn btn-primary">
-                            Back to Product List
+                            View Product List
                         </a>
                     </div>
                 </div>
