@@ -185,6 +185,7 @@
                                         <th class="text-center min-w-110px">MEDIA</th>
                                         <th class="text-center min-w-280px">ORDER DETAIL</th>
                                         <th class="text-center min-w-280px">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-280px">TRACKING ID</th>
                                         <th class="text-center min-w-70px">ACTION</th>
                                     </tr>
                                 </thead>
@@ -1141,6 +1142,11 @@
             },
             {
                 data: 'customer_detail',
+                className: 'text-start',
+                orderable: false,
+            },
+            {
+                data: 'tracking_id',
                 className: 'text-start',
                 orderable: false,
             },

@@ -622,6 +622,14 @@ class RetailerOrderController extends Controller
                 $wholesaler_detail .= '</div>';
             }
 
+            $tracking_info = '';
+            if ($item->tracking_number) {
+                $tracking_info = '<div class="p-3">
+                    <div class="d-flex mb-2 gap-2">
+                        <span><strong>Tracking ID:</strong></span>
+                        <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
+                    </div></div>';
+            }
             $action = '<div class="d-flex justify-content-center gap-2 flex-wrap flex-column align-items-center">';
             $common_attrs = '
                     data-order-product-id="' . $item->order_product_id . '"
@@ -692,6 +700,7 @@ class RetailerOrderController extends Controller
                 'media' => $media,
                 'customer_detail' => $customer_detail,
                 'wholesaler_detail' => $wholesaler_detail,
+                'tracking_id' => $tracking_info,
                 'action' => $action,
             );
         }
