@@ -2013,7 +2013,6 @@ class RetilerController extends Controller
                 ->whereIn('id', $sub_category_ids)
                 ->get();
 
-
             return view('product.edit-product-view', compact('product_detail', 'sub_category_list'));
         } catch (Exception $e) {
             DB::rollBack();
@@ -3033,7 +3032,6 @@ class RetilerController extends Controller
     }
 
     // AJAX : server side data-table fetch-record
-
     public function fetchRecordsCustomers(Request $request)
     {
         $limit = $request->input('length', 10);
@@ -3057,7 +3055,6 @@ class RetilerController extends Controller
             if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
-
             $baseQuery->whereHas('customer', function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'like', "%$search%")
                     ->orWhere('phone_number', 'like', "%$search%")
@@ -3139,6 +3136,5 @@ class RetilerController extends Controller
             "data" => $data
         ]);
     }
-
     //<----------------------- END : Customer ---------------------->
 }

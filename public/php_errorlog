@@ -1,0 +1,562 @@
+[26-Apr-2025 23:49:17 Asia/Kolkata] PHP Fatal error:  Uncaught UnexpectedValueException: There is no existing directory at "/home/u708063731/domains/lghosts.com/public_html/retail/storage/logs" and it could not be created: Permission denied in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php(141): Monolog\Handler\StreamHandler->createDir('/home/u70806373...')
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/AbstractProcessingHandler.php(44): Monolog\Handler\StreamHandler->write(Object(Monolog\LogRecord))
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Logger.php(391): Monolog\Handler\AbstractProcessingHandler->handle(Object(Monolog\LogRecord))
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Logger.php(646): Monolog\Logger->addRecord(Object(Monolog\Level), 'file_put_conten...', Array)
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/Logger.php(184): Monolog\Logger->error('file_put_conten...', Array)
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/Logger.php(97): Illuminate\Log\Logger->writeLog('error', 'file_put_conten...', Array)
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(701): Illuminate\Log\Logger->error('file_put_conten...', Array)
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(380): Illuminate\Log\LogManager->error('file_put_conten...', Array)
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(343): Illuminate\Foundation\Exceptions\Handler->reportThrowable(Object(ErrorException))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(901): Illuminate\Foundation\Exceptions\Handler->report(Object(ErrorException))
+#10 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#11 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#12 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(UnexpectedValueException))
+#13 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(UnexpectedValueException))
+#14 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse(Object(UnexpectedValueException))
+#15 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException(Object(UnexpectedValueException))
+#16 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(UnexpectedValueException))
+#17 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php on line 241
+[26-Apr-2025 23:49:21 Asia/Kolkata] PHP Fatal error:  Uncaught UnexpectedValueException: There is no existing directory at "/home/u708063731/domains/lghosts.com/public_html/retail/storage/logs" and it could not be created: Permission denied in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php(141): Monolog\Handler\StreamHandler->createDir('/home/u70806373...')
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/AbstractProcessingHandler.php(44): Monolog\Handler\StreamHandler->write(Object(Monolog\LogRecord))
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Logger.php(391): Monolog\Handler\AbstractProcessingHandler->handle(Object(Monolog\LogRecord))
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Logger.php(646): Monolog\Logger->addRecord(Object(Monolog\Level), 'file_put_conten...', Array)
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/Logger.php(184): Monolog\Logger->error('file_put_conten...', Array)
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/Logger.php(97): Illuminate\Log\Logger->writeLog('error', 'file_put_conten...', Array)
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(701): Illuminate\Log\Logger->error('file_put_conten...', Array)
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(380): Illuminate\Log\LogManager->error('file_put_conten...', Array)
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(343): Illuminate\Foundation\Exceptions\Handler->reportThrowable(Object(ErrorException))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(901): Illuminate\Foundation\Exceptions\Handler->report(Object(ErrorException))
+#10 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#11 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#12 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(UnexpectedValueException))
+#13 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(UnexpectedValueException))
+#14 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse(Object(UnexpectedValueException))
+#15 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException(Object(UnexpectedValueException))
+#16 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(UnexpectedValueException))
+#17 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php on line 241
+[03-May-2025 22:00:46 Asia/Kolkata] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php:959
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(959): ReflectionClass->__construct('view')
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(832): Illuminate\Container\Container->build('view')
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve('view', Array, true)
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(763): Illuminate\Foundation\Application->resolve('view', Array)
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make('view', Array)
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(124): Illuminate\Foundation\Application->make('view', Array)
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(1056): app('Illuminate\\Cont...')
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(928): view()
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(892): Illuminate\Foundation\Exceptions\Handler->getHttpExceptionView(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#10 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#11 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Illuminate\Contracts\Container\BindingResolutionException))
+#12 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Illuminate\Contracts\Container\BindingResolutionException))
+#13 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse(Object(Illuminate\Contracts\Container\BindingResolutionException))
+#14 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException(Object(Illuminate\Contracts\Container\BindingResolutionException))
+#15 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(Illuminate\Contracts\Container\BindingResolutionException))
+#16 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php:961
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(832): Illuminate\Container\Container->build('view')
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve('view', Array, true)
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(763): Illuminate\Foundation\Application->resolve('view', Array)
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make('view', Array)
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(124): Illuminate\Foundation\Application->make('view', Array)
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(1056): app('Illuminate\\Cont...')
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(928): view()
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(892): Illuminate\Foundation\Exceptions\Handler->getHttpExceptionView(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#10 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Illuminate\Contracts\Container\BindingResolutionException))
+#11 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Illuminate\Contracts\Container\BindingResolutionException))
+#12 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse(Object(Illuminate\Contracts\Container\BindingResolutionException))
+#13 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException(Object(Illuminate\Contracts\Container\BindingResolutionException))
+#14 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(Illuminate\Contracts\Container\BindingResolutionException))
+#15 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 961
+[03-May-2025 16:30:50 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:30:50 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:30:58 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:30:58 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:31:05 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:31:05 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:32:34 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:32:34 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:32:36 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:32:36 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:32:55 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:32:55 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:33:05 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:33:05 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:33:11 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:33:11 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:33:53 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:33:53 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:34:16 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:34:16 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:34:19 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:34:19 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:34:22 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:34:22 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:36:44 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:36:44 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:37:32 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:37:32 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:37:38 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:37:38 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:37:38 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:37:38 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:37:40 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:37:40 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:37:42 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:37:42 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:37:56 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:37:56 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:39:40 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:39:40 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:42:53 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:42:53 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:42:55 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:42:55 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:42:57 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:42:57 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:42:58 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:42:58 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:43:00 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:43:00 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:43:03 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:43:03 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:55:35 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:55:35 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:55:37 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:55:37 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:56:50 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:56:50 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:56:52 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:56:52 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[03-May-2025 16:56:55 UTC] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php on line 637
+[03-May-2025 16:56:55 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic('replaceNamespac...', Array)
+#1 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException(Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#4 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(Symfony\Component\HttpKernel\Exception\HttpException))
+#5 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(Error))
+#6 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(Error))
+#7 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException(Object(Illuminate\Http\Request), Object(Error))
+#8 /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[18-Aug-2025 11:30:54 Asia/Kolkata] PHP Fatal error:  Uncaught ErrorException: include(/home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/../symfony/http-foundation/Response.php): Failed to open stream: No such file or directory in /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'include(/home/c...', '/home/customer/...', 576)
+#1 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(2, 'include(/home/c...', '/home/customer/...', 576)
+#2 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php(576): include('/home/customer/...')
+#3 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}('/home/customer/...')
+#4 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(827): Composer\Autoload\ClassLoader->loadClass('Symfony\\Compone...')
+#5 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(807): Illuminate\Foundation\Exceptions\Handler->convertExceptionToResponse(Object(ErrorException))
+#6 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(ErrorException))
+#7 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(ErrorException))
+#8 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(ErrorException))
+#9 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse(Object(ErrorException))
+#10 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException(Object(ErrorException))
+#11 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(ErrorException))
+#12 {main}
+  thrown in /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php on line 576

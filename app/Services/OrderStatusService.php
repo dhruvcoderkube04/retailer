@@ -365,7 +365,6 @@ class OrderStatusService
                             'customerOrder' => $customerOrder,
                             'date' => Carbon::now(),
                         ]);
-
                         $pdf->setOptions([
                             'isRemoteEnabled' => true,
                             'isHtml5ParserEnabled' => true

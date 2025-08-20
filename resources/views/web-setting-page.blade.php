@@ -22,7 +22,7 @@
                 <!--begin::API Overview-->
                 <form action="{{route('retailer.web.setting.setup')}}" method="post">
                     @csrf
-                    <div class="card mb-5 mb-xxl-10">
+                    <div class="card mb-5 mb-xxl-10 mw-50">
                         <!--begin::Header-->
                         <div class="card-header">
                             <!--begin::Title-->

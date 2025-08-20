@@ -7,9 +7,11 @@
     <!--begin::Content-->
 <div id="kt_app_content" class="app-content flex-column-fluid my-5">
     <div id="kt_app_content_container" class="app-container mx-auto">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
-                    <div class="card-title">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+                        <div class="card-title">
                         <h3 class="m-0">Track Your Order Status</h3>
                     </div>
                 </div>
@@ -19,7 +21,7 @@
                 <div class="card-body">
                     <form id="orderTrackForm">
                         <div class="row gy-5 gx-5">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label">Tracking No. <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="track_no" id="track_no" required />
                             </div>
