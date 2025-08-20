@@ -184,7 +184,7 @@
                                         <th class="text-center min-w-100px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
                                         <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
                                         <th class="text-center min-w-150px" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
-                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-300px" style="background: hsl(228, 16%, 6%);color:#fff !important;">CUSTOMER DETAIL</th>
                                         <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
                                         <th class="text-center min-w-70px" style="background: #0d0e12;color:#fff !important;">ACTION</th>
                                     </tr>
@@ -1132,27 +1132,27 @@
                 orderable: false,
             },
             {
-                data: 'media',
+                data: 'order_date',
                 className: 'text-center',
                 orderable: false,
             },
             {
                 data: 'order_detail',
-                className: 'text-start',
+                className: 'text-center',
+                orderable: false,
+            },
+            {
+                data: 'media',
+                className: 'text-center',
                 orderable: false,
             },
             {
                 data: 'customer_detail',
-                className: 'text-start',
+                className: 'text-center',
                 orderable: false,
             },
             {
-                data: 'tracking_id',
-                className: 'text-start',
-                orderable: false,
-            },
-            {
-                data: 'action',
+                data: 'wholesaler_detail',
                 className: 'text-center',
                 orderable: false,
             },

@@ -630,7 +630,7 @@ class RetailerOrderController extends Controller
                         <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
                     </div></div>';
             }
-            $action = '<div class="d-flex justify-content-center gap-2 flex-wrap flex-column align-items-center">';
+            $action = '<div class="d-flex justify-content-center gap-2 flex-wrap align-items-center">';
             $common_attrs = '
                     data-order-product-id="' . $item->order_product_id . '"
                     data-product-id="' . $item->product_id . '"
