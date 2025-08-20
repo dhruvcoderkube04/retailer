@@ -1457,7 +1457,7 @@
                     return;
                 }
                  $('#courierDetailsBody').html(
-                                '<tr><td colspan="6">Loading curier partners...</td></tr>')
+                                '<tr><td colspan="6">Loading Courier partners...</td></tr>')
                 $.ajax({
                     url: "{{ route('retailer.rate.calculation.post') }}",
                     type: 'POST',
