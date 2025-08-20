@@ -204,7 +204,7 @@
         <script>
             //<------------- START : server-side transaction datatable ------------->
             dataTable1 = $('#kt_datatable_margin_added_products').DataTable({
-                dom: "<'row mb-2'" +
+                dom: "<'row mb-5'" +
                     "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                     "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
                     ">" +
@@ -294,7 +294,7 @@
             });
 
             dataTable2 = $('#kt_datatable_retailer_clone_products').DataTable({
-                dom: "<'row mb-2'" +
+                dom: "<'row mb-5'" +
                     "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                     "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
                     ">" +

@@ -119,7 +119,7 @@
     <script>
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_customer_list').DataTable({
-            dom: "<'row mb-2'" +
+            dom: "<'row mb-5'" +
             "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
             ">" +
             "<'table-responsive'tr>" +
