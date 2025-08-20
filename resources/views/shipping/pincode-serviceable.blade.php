@@ -8,7 +8,7 @@
 <div id="kt_app_content" class="app-content flex-column-fluid my-5">
     <div id="kt_app_content_container" class="app-container mx-auto">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
                             <div class="card-title">

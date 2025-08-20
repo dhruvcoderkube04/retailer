@@ -30,23 +30,21 @@
                                        required pattern="^[A-Za-z0-9 ]+$"
                                        title="Only letters, numbers, and spaces allowed." />
                             </div>
-                            <div class="col-md-12 mb-5">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label d-flex justify-content-between align-items-center fs-6">
-                                            Price (₹)
-                                            <span class="fw-bold text-primary">Price per piece</span>
-                                        </label>
-                                        <input type="number" class="form-control" name="price" id="price"
-                                            required pattern="^[1-9][0-9]*$" max="5000" min="1"
-                                            title="Only positive whole numbers allowed." />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fs-6">Quantity</label>
-                                        <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
-                                            required pattern="^[1-5]$"
-                                            title="Only numbers 1 to 5 allowed." />
-                                    </div>
+                            <div class="row g-3 mb-5">
+                                <div class="col-md-6">
+                                    <label class="form-label d-flex justify-content-between align-items-center fs-6">
+                                        Price (₹)
+                                        <span class="fw-bold text-primary">Price per piece</span>
+                                    </label>
+                                    <input type="number" class="form-control" name="price" id="price"
+                                           required pattern="^[1-9][0-9]*$" max="5000" min="1"
+                                           title="Only positive whole numbers allowed." />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fs-6">Quantity</label>
+                                    <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
+                                           required pattern="^[1-5]$"
+                                           title="Only numbers 1 to 5 allowed." />
                                 </div>
                             </div>
         
@@ -80,7 +78,7 @@
         
                             <!-- Customer Section -->
                             <div class="col-md-12 mb-5">
-                                <div class="bg-light border rounded p-3 ">
+                                <div class="mb-5 p-3 bg-light border rounded">
                                     <h5 class="mb-2"><i class="bi bi-person-fill"></i> Customer Details</h5>
                                     <a href="javascript:void(0)" class="text-primary" onclick="showCustomerModal()">+ Click To Add Customer Details</a>
                                     <div id="selectedCustomer" class="mt-3 text-muted"></div>

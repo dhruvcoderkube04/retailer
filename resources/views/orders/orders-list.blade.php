@@ -89,84 +89,84 @@
 
                     <div class="card card-flush">
                         {{-- Stages --}}
-                        <div class="card-header d-flex flex-wrap align-items-center justify-content-center pt-1">
-                            <div class="card-toolbar">
+                        <div class="card-header d-flex flex-wrap align-items-center justify-content-start pt-1">
+                            <div class="card-toolbar w-100">
                                 <ul
-                                    class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 justify-content-center flex-wrap">
+                                    class="nav nav-tabs nav-line-tabs nav-stretch fs-5 justify-content-start flex-wrap w-100 gap-4 border-bottom pb-3">
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             <i class="fas fa-sync-alt pe-2 text-primary"></i> New
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'approved-by-retailer' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'approved-by-retailer' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'approved-by-retailer']) }}">
                                             <i class="fas fa-thumbs-up pe-2 text-info"></i> Approved
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'pickup' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'pickup' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'pickup']) }}">
                                             <i class="fas fa-box-open pe-2 text-success"></i> Pickup
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'in-transit' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'in-transit' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'in-transit']) }}">
                                             <i class="fas fa-route pe-2 text-warning"></i> In Transit
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'ofd' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'ofd' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'ofd']) }}">
                                             <i class="fas fa-truck-arrow-right pe-2 text-warning"></i> OFD
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'ndr' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'ndr' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'ndr']) }}">
                                             <i class="fas fa-truck pe-2 text-danger"></i> NDR
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'delivered' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'delivered']) }}">
                                             <i class="fas fa-check-circle pe-2 text-success"></i> Delivered
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'rto' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'rto' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'rto']) }}">
                                             <i class="fas fa-undo-alt pe-2 text-danger"></i> RTO
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'rtn-to-seller' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'rtn-to-seller' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'rtn-to-seller']) }}">
                                             <i class="fas fa-warehouse pe-2 text-success"></i> RTN to Seller
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'close' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'close' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'close']) }}">
                                             <i class="fa-regular fa-circle-xmark pe-2 text-danger"></i> Close
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'cancel' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'cancel' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'cancel']) }}">
                                             <i class="fas fa-ban pe-2 text-danger"></i> Cancel
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'lost' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'lost' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'lost']) }}">
                                             <i class="fas fa-question-circle pe-2 text-muted"></i> Lost
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-2 py-2 rounded {{ request()->routeIs('retailer.order.list') && request('type') == 'transferred-to-wholesaler' ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && request('type') == 'transferred-to-wholesaler' ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'transferred-to-wholesaler']) }}">
                                             <i class="fa-solid fa-right-from-bracket pe-2 text-primary"></i> Transferred To
                                             Wholesaler
@@ -1171,7 +1171,7 @@
                     $(this).attr(
                         'style',
                         existingStyle +
-                        ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
+                        // ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
                         ' text-transform: uppercase !important;'
                     );
                 });
@@ -1181,8 +1181,8 @@
                 $('#kt_datatable_order_list').attr(
                     'style',
                     existingTableStyle +
-                    ' border: 1px solid rgb(222, 226, 230) !important;' +
-                    ' border-collapse: collapse !important;' +
+                    // ' border: 1px solid rgb(222, 226, 230) !important;' +
+                    // ' border-collapse: collapse !important;' +
                     ' width: 100% !important;'
                 );
 
@@ -1191,7 +1191,7 @@
                     var existingStyle = $(this).attr('style') || '';
                     $(this).attr(
                         'style',
-                        existingStyle + ' border: 1px solid rgb(222, 226, 230) !important;'
+                        // existingStyle + ' border: 1px solid rgb(222, 226, 230) !important;'
                     );
                 });
             },
