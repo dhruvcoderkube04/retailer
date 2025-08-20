@@ -459,7 +459,7 @@ class RetailerOrderController extends Controller
                             <span class="text-start text-dark fw-bold">' . $item->order_id . '</span>
                         </div>
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Name:</strong></span>
+                            <span"><strong>Product:</strong></span>
                             <span class="text-start text-dark fw-bold">' . ($item?->order_product_detail?->name ?? '') . '</span>
                         </div>';
             if ($item->product_variation) {
@@ -544,49 +544,21 @@ class RetailerOrderController extends Controller
             }
 
             $order_detail .= '
-                        <div class="d-flex mb-2 gap-2">
-                            <span><strong>Tracking Id:</strong></span>
-                            <span class="text-dark fw-bold">' . ($item->tracking_number ?? 'N/A') . '</span>
-                        </div>
-                        <div class="d-flex mb-2 gap-3">' . '<span class="badge badge-light-warning text-wrap fs-6">Qty:' . ($item->quantity ?? 'N/A') . '</span>
+                        <div class="d-flex mb-2 gap-3 my-3">' . '<span class="badge badge-light-warning text-wrap fs-6">Qty:' . ($item->quantity ?? 'N/A') . '</span>
                                   <span class="badge badge-light-success text-wrap fs-6">' . (strtoupper($item->payment_method) ?? 'N/A') . '</span>
                                   <span class="badge fs-6 badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
                         </div>';
                         if ($item->wholesaler) {
                             $order_detail .= '
-                            <div class="d-flex mb-2">
-                                <span ><strong>Wholesaler Name:</strong></span>
+                            <div class="d-flex mb-2 gap-2">
+                                <span ><strong>Wholesaler:</strong></span>
                                 <span class="badge badge-light-info text-wrap fs-6">' . ($item->wholesaler->firstname ?? '') . ' ' . ($item->wholesaler->lastname ?? '') . '</span>
                             </div>
-                            <div class="d-flex mb-2">
-                                <span><strong>Wholesaler Phone No.:</strong></span>
+                            <div class="d-flex mb-2 gap-2">
+                                <span><strong>Wholesaler Phone:</strong></span>
                                 <span class="badge badge-light-success text-wrap fs-6">' . ($item->wholesaler->phone_number ?? '') . '</span>
                             </div>';
                         }
-
-            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd'||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
-                $order_detail .= '
-                    <div class="mt-2">
-                        <a href="' . $item->shipping_label_url . '" target="_blank">
-                            <i class="fa-solid fa-download me-1"></i> Shipping Label
-                        </a>
-                    </div>';
-            }
-            if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
-                $order_detail .= '<div class="mt-1">
-                        <a href="javascript:void(0)" id="uploadPickupImage" data-order-id="' . $item->id . '">
-                            <i class="fa-solid fa-upload me-1"></i> Upload Pickup Image
-                        </a>
-                    </div>';
-            }
-            if ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
-                $order_detail .= '<div class="mt-1">
-                        <div class="d-flex align-items-center">
-                            <span><strong>Reason:</strong></span>
-                            <span>' . ($item->shipment_activity ?? '') . '</span>
-                        </div>
-                    </div>';
-            }
 
             $order_detail .= '</div>';
 
@@ -601,7 +573,7 @@ class RetailerOrderController extends Controller
             $customer_detail = '<div class="p-3">';
             $customer_detail .= '
                     <div class="d-flex mb-2 gap-2"><span><strong>Name:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</span></div>
-                    <div class="d-flex mb-2 gap-2"><span><strong>Email Id:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->email . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong>Email:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->email . '</span></div>
                     <div class="d-flex mb-2 gap-2"><span><strong>Address:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->address . '</span></div>
                     <div class="d-flex mb-2 gap-2"><span><strong>Pin Code:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->pincode . '</span></div>
                     <div class="d-flex mb-2 gap-2"><span><strong>City:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->city . '</span></div>
@@ -614,7 +586,7 @@ class RetailerOrderController extends Controller
                 $wholesaler_detail = '<div class="p-3">';
                 $wholesaler_detail .= '
                         <div><span><strong>Wholesaler Name:</strong></span><span>' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</span></div>
-                        <div><span><strong>Email Id:</strong></span><span>' . ($wholesaler->email ?? '') . '</span></div>
+                        <div><span><strong>Email:</strong></span><span>' . ($wholesaler->email ?? '') . '</span></div>
                         <div><span><strong>Address:</strong></span><span>' . ($wholesaler->userDetail->address ?? '') . '</span></div>
                         <div><span><strong>Pin Code:</strong></span><span>' . ($wholesaler->userDetail->postal_code ?? '') . '</span></div>
                         <div><span><strong>City:</strong></span><span>' . ($wholesaler->userDetail->city ?? '') . '</span></div>
@@ -624,10 +596,33 @@ class RetailerOrderController extends Controller
 
             $tracking_info = '';
             if ($item->tracking_number) {
-                $tracking_info = '<div class="p-3">
-                    <div class="d-flex mb-2 gap-2">
+                $tracking_info = '<div class="p-0">
+                    <div class="d-flex mb-0 gap-2">
                         <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
                     </div></div>';
+            }
+            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd'||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+                $tracking_info .= '
+                    <div class="mt-2">
+                        <a href="' . $item->shipping_label_url . '" target="_blank">
+                            <i class="fa-solid fa-download me-1"></i> Shipping Label
+                        </a>
+                    </div>';
+            }
+            if ($item->status == 'pickup' && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+                $tracking_info .= '<div class="mt-2">
+                        <a href="javascript:void(0)" id="uploadPickupImage" data-order-id="' . $item->id . '">
+                            <i class="fa-solid fa-upload me-1"></i> Upload Pickup Image
+                        </a>
+                    </div>';
+            }
+            if ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
+                $tracking_info .= '<div class="mt-1">
+                        <div class="d-flex align-items-center">
+                            <span><strong>Reason:</strong></span>
+                            <span>' . ($item->shipment_activity ?? '') . '</span>
+                        </div>
+                    </div>';
             }
             $action = '<div class="d-flex justify-content-center gap-2 flex-wrap align-items-center">';
             $common_attrs = '
@@ -642,19 +637,19 @@ class RetailerOrderController extends Controller
                     data-api-order_id="' . $item->api_order_id . '"';
 
             if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm newOrderAction"' . $common_attrs . '>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary btn-sm w-100 mw-100 me-2 newOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
+                $action .= '<button type="button" class="btn btn-primary w-100 mw-100 me-2 btn-sm confirmedOrderAction"' . $common_attrs . '>Action</button>';
             } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
-                $action .= '<button type="button" class="btn btn-primary btn-sm pickupOrderAction"' . $common_attrs . ' >Action</button>';
+                $action .= '<button type="button" class="btn btn-primary w-100 mw-100 me-2 btn-sm pickupOrderAction"' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
-                $action .= '<button type="button" class="btn btn-primary btn-sm inTransitOrderAction"' . $common_attrs . ' >Action</button>';
+                $action .= '<button type="button" class="btn btn-primary w-100 mw-100 me-2 btn-sm inTransitOrderAction"' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'ofd' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' >Action</button>';
+                $action .= '<button type="button" class="btn btn-primary w-100 mw-100 me-2 btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
              }elseif ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
@@ -663,12 +658,12 @@ class RetailerOrderController extends Controller
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
 
             } elseif ($item->status == 'delivered' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' >Action</button>';
+                $action .= '<button type="button" class="btn btn-primary w-100 mw-100 me-2 btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button>';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
 
             } else {
-                $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button>';
+                $action .= '<button type="button" class="btn btn-primary w-100 mw-100 me-2 btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button>';
             }
 
             if ($type !== 'transferred-to-wholesaler') {
