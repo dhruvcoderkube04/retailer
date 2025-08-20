@@ -559,7 +559,7 @@ class RetailerOrderController extends Controller
                                 <span class="badge badge-light-info text-wrap fs-6">' . ($item->wholesaler->firstname ?? '') . ' ' . ($item->wholesaler->lastname ?? '') . '</span>
                             </div>
                             <div class="d-flex mb-2">
-                                <span><strong>Phone:</strong></span>
+                                <span><strong>Wholesaler Phone No.:</strong></span>
                                 <span class="badge badge-light-success text-wrap fs-6">' . ($item->wholesaler->phone_number ?? '') . '</span>
                             </div>';
                         }
