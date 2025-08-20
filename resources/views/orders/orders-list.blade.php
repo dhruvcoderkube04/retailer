@@ -185,7 +185,7 @@
                                         <th class="text-center min-w-110px">MEDIA</th>
                                         <th class="text-center min-w-280px">ORDER DETAIL</th>
                                         <th class="text-center min-w-280px">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-280px">TRACKING ID</th>
+                                        <th class="text-center min-w-280px">TRACKING</th>
                                         <th class="text-center min-w-70px">ACTION</th>
                                     </tr>
                                 </thead>

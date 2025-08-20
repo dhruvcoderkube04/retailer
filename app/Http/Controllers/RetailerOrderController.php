@@ -544,10 +544,6 @@ class RetailerOrderController extends Controller
             }
 
             $order_detail .= '
-                        <div class="d-flex mb-2 gap-2">
-                            <span><strong>Tracking Id:</strong></span>
-                            <span class="text-dark fw-bold">' . ($item->tracking_number ?? 'N/A') . '</span>
-                        </div>
                         <div class="d-flex mb-2 gap-3">' . '<span class="badge badge-light-warning text-wrap fs-6">Qty:' . ($item->quantity ?? 'N/A') . '</span> 
                                   <span class="badge badge-light-success text-wrap fs-6">' . (strtoupper($item->payment_method) ?? 'N/A') . '</span>
                                   <span class="badge fs-6 badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
@@ -626,7 +622,6 @@ class RetailerOrderController extends Controller
             if ($item->tracking_number) {
                 $tracking_info = '<div class="p-3">
                     <div class="d-flex mb-2 gap-2">
-                        <span><strong>Tracking ID:</strong></span>
                         <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
                     </div></div>';
             }
