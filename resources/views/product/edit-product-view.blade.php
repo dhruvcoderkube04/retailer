@@ -91,7 +91,7 @@
                                                     <input type="text" name="slug"
                                                         class="form-control mb-2 @error('slug') is-invalid @enderror"
                                                         placeholder="Auto generated as per product name"
-                                                        value="{{ old('slug', $product_detail->slug) }}" disabled />
+                                                        value="{{ old('slug', $product_detail->slug) }}" readonly />
                                                     @error('slug')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -312,13 +312,13 @@
                                                             @endphp
                                                             <div class="position-relative card shadow-sm border border-dark-subtle" style="width: 11rem;">
                                                                 {{-- Remove (X) button --}}
-                                                                <button type="button"
+                                                                <!-- <button type="button"
                                                                     class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-0 d-flex justify-content-center align-items-center"
                                                                     style="width: 24px; height: 24px; font-size: 16px; line-height: 1;"
                                                                     onclick="removeImage('{{ $key }}')"
                                                                     title="Remove image">
                                                                     &times;
-                                                                </button>
+                                                                </button> -->
                                                                 <div class="card-body p-2 text-center">
                                                                     <img src="{{ $imageUrl }}"
                                                                         class="img-fluid rounded"

@@ -375,11 +375,11 @@
                 },
                 {
                     data: 'final_transaction_amount',
-                    className: 'text-end',
+                    className: 'text-center',
                 },
                 {
                     data: 'current_balance',
-                    className: 'text-end',
+                    className: 'text-center',
                 },
                 {
                     data: 'status',

@@ -548,7 +548,7 @@ class RetailerOrderController extends Controller
                             <span><strong>Tracking Id:</strong></span>
                             <span class="text-dark fw-bold">' . ($item->tracking_number ?? 'N/A') . '</span>
                         </div>
-                        <div class="d-flex mb-2 gap-3">' . '<span class="badge badge-light-warning text-wrap fs-6">Qty:' . ($item->quantity ?? 'N/A') . '</span> 
+                        <div class="d-flex mb-2 gap-3">' . '<span class="badge badge-light-warning text-wrap fs-6">Qty:' . ($item->quantity ?? 'N/A') . '</span>
                                   <span class="badge badge-light-success text-wrap fs-6">' . (strtoupper($item->payment_method) ?? 'N/A') . '</span>
                                   <span class="badge fs-6 badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
                         </div>';
@@ -1086,7 +1086,7 @@ class RetailerOrderController extends Controller
                 $search = $request->search;
                 $search = trim($search);
                 $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-    
+
                 if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                     abort(400, 'Invalid search input detected.');
                 }

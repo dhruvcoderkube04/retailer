@@ -144,45 +144,47 @@ class TicketController extends Controller
     public function generateTicket(Request $request)
     {
         try {
-            $request->validate(
-                [
-                    'subject' => ['required', 'string', 'max:255', new NoCodeInjection],
-                    'category' => ['nullable'],
-                    'ticket_description' => ['required', 'string', 'max:255', new NoCodeInjection],
-                    'ticket_image_ref' => ['nullable', 'array', 'max:3'],
-                    'ticket_image_ref.*' => ['bail', 'nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-                ],
-                [
-                    'ticket_image_ref.max' => 'You can upload up to 3 images only.',
-                    'ticket_image_ref.*.image' => 'Each file must be an image.',
-                    'ticket_image_ref.*.mimes' => 'Only JPEG and PNG images are allowed.',
-                    'ticket_image_ref.*.max' => 'Each image must be less than 2MB.',
-                ]
-            );
-            
-            // Check if subject and description are the same
-            if ($request->input('subject') === $request->input('ticket_description')) {
-                return back()
-                    ->withErrors(['ticket_description' => 'Subject and Description must not be the same.'])
-                    ->withInput();
+            // Validate inputs, if fails Laravel automatically returns 422 JSON for AJAX
+            $validator = \Validator::make($request->all(), [
+                'subject' => ['required', 'string', 'max:255', new NoCodeInjection],
+                'category' => ['nullable'],
+                'ticket_description' => ['required', 'string', 'max:255', new NoCodeInjection],
+                'ticket_image_ref' => ['nullable', 'array', 'max:3'],
+                'ticket_image_ref.*' => ['bail', 'nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            ], [
+                'ticket_image_ref.max' => 'You can upload up to 3 images only.',
+                'ticket_image_ref.*.image' => 'Each file must be an image.',
+                'ticket_image_ref.*.mimes' => 'Only JPEG and PNG images are allowed.',
+                'ticket_image_ref.*.max' => 'Each image must be less than 2MB.',
+            ]);
+
+            if ($validator->fails()) {
+                // Return JSON errors for AJAX
+                return response()->json(['errors' => $validator->errors()], 422);
             }
 
-            // Check if a ticket with same subject and description already exists
+            // Manually check your custom validations
+            if ($request->input('subject') === $request->input('ticket_description')) {
+                return response()->json([
+                    'errors' => ['ticket_description' => ['Subject and Description must not be the same.']]
+                ], 422);
+            }
+
             $duplicateTicket = Ticket::where('subject', $request->input('subject'))
                 ->where('description', $request->input('ticket_description'))
                 ->first();
 
             if ($duplicateTicket) {
-                return back()
-                    ->withErrors(['subject' => 'A ticket with the same subject and description already exists.'])
-                    ->withInput();
+                return response()->json([
+                    'errors' => ['subject' => ['A ticket with the same subject and description already exists.']]
+                ], 422);
             }
 
             $ticket_id = 'TM' . mt_rand(100000, 999999);
 
             $ticket = new Ticket();
-            $ticket->subject = $request->subject;
-            $ticket->description = $request->ticket_description;
+            $ticket->subject = sanitize_input($request->subject);
+            $ticket->description = sanitize_input($request->ticket_description);
             $ticket->category = ($request->category ?? '') . '-' . ($request->product_id ?? '');
             $ticket->status = 'Open';
             $ticket->ticket_id = $ticket_id;

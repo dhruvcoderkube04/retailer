@@ -122,13 +122,12 @@ if (!function_exists('uploadOrUpdateVideoToSpaces')) {
 
 
 if (!function_exists('isMaliciousSearch')) {
-
    function isMaliciousSearch($input)
    {
-       // Normalize input
        $input = strtolower(trim($input));
-   
-       // Common dangerous patterns (SQLi, XSS, etc.)
+
+       // Allow common special characters like @ . - _
+       // Still block SQLi or XSS attempts
        $blacklistPatterns = [
            '/\bselect\b/',
            '/\binsert\b/',
@@ -138,24 +137,46 @@ if (!function_exists('isMaliciousSearch')) {
            '/\btruncate\b/',
            '/\bexec\b/',
            '/\bunion\b/',
-           '/\b(or|and)\b.+?=/', // pattern like: or 1=1
+           '/\b(or|and)\b\s+\d+=\d+/', // typical SQL injection pattern like 'OR 1=1'
            '/--/',               // SQL comment
            '/;/',                // command chaining
-           '/#/',                // comment
-           '/\/\*/',             // comment start
-           '/\*\//',             // comment end
-           '/<script\b[^>]*>(.*?)<\/script>/is', // basic XSS
+           '/#(?![a-zA-Z0-9])/', // hash not part of normal word
+           '/\/\*/',             // start comment
+           '/\*\//',             // end comment
+           '/<script\b[^>]*>(.*?)<\/script>/is', // XSS
        ];
-   
+
        foreach ($blacklistPatterns as $pattern) {
            if (preg_match($pattern, $input)) {
                return true;
            }
        }
-   
+
        return false;
    }
-}   
+}
+
 
 //<---------------------- END : For  Block known SQL keywords or suspicious patterns -------------------------->
+
+
+
+   if (!function_exists('sanitize_input')) {
+      function sanitize_input($input)
+      {
+         // Remove <script> tags
+         $input = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $input);
+
+         // Remove on-event handlers (e.g., onclick="...", onerror=...)
+         $input = preg_replace('/on\w+="[^"]*"/i', '', $input);
+         $input = preg_replace("/on\w+='[^']*'/i", '', $input);
+
+         $input = preg_replace('/<\?(php)?(.*?)\?>/is', '', $input);
+
+         // Remove all HTML tags (for plain text only — optional)
+         $input = strip_tags($input);
+
+         return trim($input);
+      }
+   }
 
