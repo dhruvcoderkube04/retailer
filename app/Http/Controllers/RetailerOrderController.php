@@ -459,7 +459,7 @@ class RetailerOrderController extends Controller
                             <span class="text-start text-dark fw-bold">' . $item->order_id . '</span>
                         </div>
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Name:</strong></span>
+                            <span"><strong>Product:</strong></span>
                             <span class="text-start text-dark fw-bold">' . ($item?->order_product_detail?->name ?? '') . '</span>
                         </div>';
             if ($item->product_variation) {
