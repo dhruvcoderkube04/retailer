@@ -978,7 +978,6 @@ class RetailerProductController extends Controller
             $query->where('is_delete', 0)->where('status', 1);
         })->where('product_listing_key', $apiKey)->first();
 
-
         if (!$retailer) {
             return ApiResponse::error('Unauthorized: Invalid API Key.');
         }
@@ -1757,7 +1756,6 @@ class RetailerProductController extends Controller
                 // 'valid_until' => $coupon->valid_until,
             ]
         ], 'Coupon applied successfully.');
-
     }
 
     private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts)

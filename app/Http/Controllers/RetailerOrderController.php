@@ -1085,7 +1085,6 @@ class RetailerOrderController extends Controller
                 $search = $request->search;
                 $search = trim($search);
                 $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-
                 if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                     abort(400, 'Invalid search input detected.');
                 }
