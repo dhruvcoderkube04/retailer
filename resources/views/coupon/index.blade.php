@@ -274,15 +274,15 @@ $(document).ready(function () {
             }
         },
         columns: [
-            { data: 'coupon_name', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'status', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'coupon_code', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'used_count', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'valid_from', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'valid_until', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'quantity', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'discount', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'created_at', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'coupon_name', orderable: false, className: 'text-center' },
+            { data: 'status', orderable: false, className: 'text-center' },
+            { data: 'coupon_code', orderable: false, className: 'text-center' },
+            { data: 'used_count', orderable: false, className: 'text-center' },
+            { data: 'valid_from', orderable: false, className: 'text-center' },
+            { data: 'valid_until', orderable: false, className: 'text-center' },
+            { data: 'quantity', orderable: false, className: 'text-center' },
+            { data: 'discount', orderable: false, className: 'text-center' },
+            { data: 'created_at', orderable: false, className: 'text-center' },
             { data: 'actions', orderable: false, searchable: false, className: 'text-center' },
         ]
     });
