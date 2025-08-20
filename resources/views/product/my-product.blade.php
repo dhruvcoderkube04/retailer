@@ -509,7 +509,7 @@
                 },
                 {
                     data: 'new_price',
-                    className: 'text-end',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {

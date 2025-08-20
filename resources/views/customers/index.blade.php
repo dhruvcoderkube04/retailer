@@ -174,7 +174,7 @@
             columns: [{
                 data: 'sr_no',
                 className: 'text-center',
-                orderable: false,
+                orderable: true,
             },
             {
                 data: 'name',

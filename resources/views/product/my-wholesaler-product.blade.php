@@ -223,7 +223,7 @@
                 },
                 {
                     data: 'product',
-                    className: 'text-start',
+                    className: 'text-center',
                     orderable: false,
                 },
                 {

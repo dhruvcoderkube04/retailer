@@ -14,7 +14,7 @@
                             Edit Product</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}"
+                                <a href="{{ route('retailer.my.product') }}"
                                     class="text-muted text-hover-primary">Product</a>
                             </li>
                             <li class="breadcrumb-item">
@@ -91,7 +91,7 @@
                                                     <input type="text" name="slug"
                                                         class="form-control mb-2 @error('slug') is-invalid @enderror"
                                                         placeholder="Auto generated as per product name"
-                                                        value="{{ old('slug', $product_detail->slug) }}" disabled />
+                                                        value="{{ old('slug', $product_detail->slug) }}" readonly />
                                                     @error('slug')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror
@@ -312,13 +312,13 @@
                                                             @endphp
                                                             <div class="position-relative card shadow-sm border border-dark-subtle" style="width: 11rem;">
                                                                 {{-- Remove (X) button --}}
-                                                                <button type="button"
+                                                                <!-- <button type="button"
                                                                     class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-0 d-flex justify-content-center align-items-center"
                                                                     style="width: 24px; height: 24px; font-size: 16px; line-height: 1;"
                                                                     onclick="removeImage('{{ $key }}')"
                                                                     title="Remove image">
                                                                     &times;
-                                                                </button>
+                                                                </button> -->
                                                                 <div class="card-body p-2 text-center">
                                                                     <img src="{{ $imageUrl }}"
                                                                         class="img-fluid rounded"
@@ -982,6 +982,44 @@
                 });
             });
         });
+
+
+         // <---------------- START : Auto generate unique slug --------------->
+         $('input[name="product_name"]').on('change', function() {
+                let productName = $(this).val().trim();
+
+                if (productName !== '') {
+                    let baseSlug = productName
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-') // replace non-alphanumeric with -
+                        .replace(/^-+|-+$/g, ''); // trim - from start/end
+
+                    checkUniqueSlug(baseSlug, baseSlug);
+                }
+            });
+
+            function checkUniqueSlug(baseSlug, attemptSlug) {
+                $.ajax({
+                    url: '{{ route('retailer.products.unique-slug-check') }}',
+                    type: 'GET',
+                    data: {
+                        slug: attemptSlug
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            // Try again with a new number
+                            let randomNum = Math.floor(10000 + Math.random() *
+                                89999); // 5-digit random number
+                            let newSlug = `${baseSlug}-${randomNum}`;
+                            checkUniqueSlug(baseSlug, newSlug);
+                        } else {
+                            // Found unique slug
+                            $('input[name="slug"]').val(attemptSlug);
+                        }
+                    }
+                });
+            }
+            // <---------------- END : Auto generate unique slug --------------->
 
         
     </script>

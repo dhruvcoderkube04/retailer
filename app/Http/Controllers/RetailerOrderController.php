@@ -553,8 +553,6 @@ class RetailerOrderController extends Controller
                             <td style="padding: 0 !important;">' . ($item->tracking_number ?? 'N/A') . '</td>
                         </tr>
                         <tr>
-                            <td style="padding: 0 !important;"><strong>API Order Id:</strong></td>
-                            <td style="padding: 0 !important;">' . ($item->api_order_id ?? 'N/A') . '</td>
                         </tr>
                     </table>';
 

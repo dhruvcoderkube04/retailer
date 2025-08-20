@@ -21,6 +21,7 @@ use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\UserDetail;
 use App\Models\WholesalerCategory;
+use App\Rules\NoCodeInjection;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Exception;
@@ -232,7 +233,7 @@ class RetilerController extends Controller
         return view('wholesaler.wholesaler-list', [
             'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
             'retailer_sub_category_count' => $retailer_sub_category_count,
-            'allSubCategories'  => $allSubCategories,
+            'allSubCategories' => $allSubCategories,
             'retailer_id' => $retailerId
         ]);
     }
@@ -266,8 +267,8 @@ class RetilerController extends Controller
                         $q->where('company_name', 'like', '%' . $search . '%');
                     })
                     ->orWhereHas('wholesalerCategories.subCategory', function ($q) use ($search) {
-                    $q->where('sub_category_name', 'like', '%' . $search . '%'); //add subCategories
-                });
+                        $q->where('sub_category_name', 'like', '%' . $search . '%'); //add subCategories
+                    });
             });
         }
 
@@ -320,10 +321,10 @@ class RetilerController extends Controller
                 ->pluck('sub_category_id');
 
 
-                //add subCategories
+            //add subCategories
             $subCategories = SubCategory::whereIn('id', $subcategory_ids)
-            ->get()->pluck('sub_category_name')
-            ->implode(',');
+                ->get()->pluck('sub_category_name')
+                ->implode(',');
 
 
             $details = '
@@ -354,7 +355,7 @@ class RetilerController extends Controller
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
-                "subcategory_names" => $subCategories ?  $subCategories : "-" , //add subCategories
+                "subcategory_names" => $subCategories ? $subCategories : "-", //add subCategories
                 "details" => $details,
                 "action" => $action
             );
@@ -1179,25 +1180,53 @@ class RetilerController extends Controller
     // update wholesaler edited product to retailer_products
     public function updateMyWholesalerProduct(Request $request, $product_id)
     {
+        // dd($request->all());
         $request->validate([
-            'product_name' => 'required|max:100',
-            'margin' => 'required|numeric|min:0|max:10000000',
-            'payment_method' => 'required',
-            'status' => 'required|string|in:active,inactive',
-            'product_description' => 'nullable|string|max:1000',
-            'images' => 'nullable|array|max:3',
-            'images.*' => 'mimes:jpeg,png,jpg|max:4096',
-            'video' => 'nullable|mimes:mp4|max:10240',
-            'sub_category_id' => 'required|numeric|exists:sub_categories,id',
-            'wholesaler_id' => 'required|numeric|exists:users,id'
+            'product_name' => [
+                'required',
+                'string',
+                'max:100',
+                new NoCodeInjection,
+                'regex:/^[a-zA-Z0-9\s]+$/'
+            ],
+            'margin' => ['required', 'numeric', 'min:0', 'max:10000000'],
+            'payment_method' => ['required'],
+            'status' => ['required', 'string', 'in:active,inactive'],
+            'product_description' => ['nullable', 'string', 'max:1000', new NoCodeInjection],
+            'images' => ['nullable', 'array', 'max:3'],
+            'images.*' => ['mimes:jpeg,png,jpg', 'max:4096'],
+            'video' => ['nullable', 'mimes:mp4', 'max:10240'],
+            'sub_category_id' => ['required', 'numeric', 'exists:sub_categories,id'],
+            'wholesaler_id' => ['required', 'numeric', 'exists:users,id'],
+
         ], [
-            'sub_category_id.required' => 'Something went wrong!, please try again later',
-            'sub_category_id.numeric' => 'Something went wrong!, please try again later',
-            'sub_category_id.exists' => 'Something went wrong!, please try again later',
-            'wholesaler_id.required' => 'Something went wrong!, please try again later',
-            'wholesaler_id.numeric' => 'Something went wrong!, please try again later',
-            'wholesaler_id.exists' => 'Something went wrong!, please try again later',
+            'product_name.required' => 'Product name is required.',
+            'product_name.max' => 'Product name cannot exceed 100 characters.',
+            'product_name.regex' => 'The product name may only contain letters, numbers, and spaces.',
+            'margin.required' => 'Margin is required.',
+            'margin.numeric' => 'Margin must be a numeric value.',
+            'margin.min' => 'Margin must be at least 0.',
+            'margin.max' => 'Margin cannot exceed 10,000,000.',
+            'payment_method.required' => 'Payment method is required.',
+            'status.required' => 'Status is required.',
+            'status.string' => 'Status must be a valid string.',
+            'status.in' => 'Status must be either "active" or "inactive".',
+            // 'product_description.string' => 'Product description must be a string.',
+            'product_description.max' => 'Product description cannot exceed 1000 characters.',
+            'images.array' => 'Images must be provided as an array.',
+            'images.max' => 'You can upload up to 3 images only.',
+            'images.*.mimes' => 'Each image must be a JPG, JPEG, or PNG file.',
+            'images.*.max' => 'Each image must not exceed 4MB in size.',
+            'video.mimes' => 'Video must be in MP4 format.',
+            'video.max' => 'Video must not exceed 10MB in size.',
+            'sub_category_id.required' => 'Something went wrong! Please select a valid category.',
+            'sub_category_id.numeric' => 'Something went wrong! Category must be numeric.',
+            'sub_category_id.exists' => 'Invalid category selected.',
+            'wholesaler_id.required' => 'Something went wrong! Please try again.',
+            'wholesaler_id.numeric' => 'Invalid wholesaler ID.',
+            'wholesaler_id.exists' => 'Wholesaler not found.',
         ]);
+
         DB::beginTransaction();
         try {
             $product_id = decryptId($product_id);
@@ -1248,9 +1277,9 @@ class RetilerController extends Controller
                 'wholesaler_id' => $request->wholesaler_id,
                 'sub_category_id' => $request->sub_category_id,
             ], [
-                'product_name' => $request->product_name,
+                'product_name' => sanitize_input($request->product_name),
                 'product_slug' => $product_slug,
-                'product_description' => $request->product_description,
+                'product_description' => sanitize_input($request->product_description),
                 'product_images' => $imagePathsString,
                 'product_videos' => $videoPath,
                 'product_status' => $request->status,
@@ -1375,51 +1404,56 @@ class RetilerController extends Controller
     {
         $retailer = Auth::user();
 
-        $query = RetailerCloneProduct::with('sub_category', 'productVariations')
+        $query = RetailerCloneProduct::with(['sub_category', 'productVariations'])
             ->where('retailer_id', $retailer->id)
             ->where(function ($q) {
                 $q->whereHas('productVariations', function ($q) {
                     $q->where('stock', '>', 0);
-                })
-                    ->orWhere(function ($q) {
-                        $q->doesntHave('productVariations')
-                            ->where('quantity', '>', 0);
-                    });
+                })->orWhere(function ($q) {
+                    $q->doesntHave('productVariations')
+                        ->where('quantity', '>', 0);
+                });
             });
 
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $search = trim($search);
+        // Clean and validate search input
+        if ($request->filled('search')) {
+            $search = trim($request->search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\_\.\@\#\:\,\!\$\%\^\&\*\(\)\+]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
             
+
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
                     ->orWhere('new_price', 'like', "%$search%")
-                    ->orWhere('status', 'like', "%$search%")
                     ->orWhere('created_at', 'like', "%$search%")
                     ->orWhere('updated_at', 'like', "%$search%")
                     ->orWhereHas('sub_category', function ($q) use ($search) {
-                        $q->where('sub_category_name', 'like', '%' . $search . '%');
+                        $q->where('sub_category_name', 'like', "%$search%");
                     })
                     ->orWhereHas('productVariations', function ($q) use ($search) {
-                        $q->where('product_variation', 'like', '%' . $search . '%')
+                        $q->where('product_variation', 'like', "%$search%")
                             ->orWhere('old_price', 'like', "%$search%")
                             ->orWhere('price', 'like', "%$search%")
                             ->orWhere('stock', 'like', "%$search%");
                     });
+
+                // Optional: only include status in search if NOT filtering by it separately
+                if (!request()->has('status') || request()->status === 'all') {
+                    $q->orWhere('status', 'like', "%$search%");
+                }
             });
         }
 
-        if ($request->has('sub_category_filter') && $request->sub_category_filter !== 'all') {
+        // Apply filters
+        if ($request->filled('sub_category_filter') && $request->sub_category_filter !== 'all') {
             $query->where('sub_category_id', $request->sub_category_filter);
         }
 
-        if ($request->has('status') && $request->status != 'all') {
-            $query->where('status', $request->status);
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->whereRaw('LOWER(status) = ?', [strtolower($request->status)]);
         }
 
         // Use DataTables pagination parameters: start and length
@@ -1792,10 +1826,11 @@ class RetilerController extends Controller
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
-            'product_name' => 'required|max:100',
+            'product_name' => ['required', 'max:100', new NoCodeInjection],
             'slug' => [
                 'required',
                 'string',
+                new NoCodeInjection,
                 function ($attribute, $value, $fail) {
                     $existsInRetailerCloneProduct = DB::table('retailer_clone_products')
                         ->where('slug', $value)
@@ -1810,13 +1845,13 @@ class RetilerController extends Controller
                     }
                 },
             ],
-            'sub_category_id' => 'required|numeric|exists:sub_categories,id',
-            'product_tags' => 'nullable|string|max:255',
-            'status' => 'required|string|in:active,inactive',
-            'product_description' => 'nullable|string|max:1000',
-            'images' => 'required|array|max:3',
-            'images.*' => 'mimes:jpeg,png,jpg,webp|max:4096',
-            'video' => 'nullable|mimes:mp4|max:10240',
+            'sub_category_id' => ['required', 'numeric', 'exists:sub_categories,id'],
+            'product_tags' => ['nullable', 'string', 'max:255'],
+            'status' => ['required', 'string', 'in:active,inactive'],
+            'product_description' => ['nullable', 'string', 'max:1000', new NoCodeInjection],
+            'images' => ['required', 'array', 'max:3'],
+            'images.*' => ['mimes:jpeg,png,jpg,webp', 'max:4096'],
+            'video' => ['nullable', 'mimes:mp4', 'max:10240'],
             'sku' => [
                 'nullable',
                 'string',
@@ -1834,9 +1869,9 @@ class RetilerController extends Controller
                     }
                 },
             ],
-            'meta_title' => 'nullable|string|max:255',
-            'product_meta_keywords' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:2000',
+            'meta_title' => ['nullable', 'string', 'max:255', new NoCodeInjection],
+            'product_meta_keywords' => ['nullable', 'string', 'max:255', new NoCodeInjection],
+            'meta_description' => ['nullable', 'string', 'max:2000', new NoCodeInjection],
         ]);
 
         // Get variation values
@@ -1847,7 +1882,10 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-                'quantity' => 'required|integer|min:0|max:999999',
+                'quantity' => [
+                    'required',
+                    'regex:/^[0-9]{1,6}$/'
+                ]
             ]);
         } else {
             // Validate all variation fields
@@ -1975,6 +2013,7 @@ class RetilerController extends Controller
                 ->whereIn('id', $sub_category_ids)
                 ->get();
 
+
             return view('product.edit-product-view', compact('product_detail', 'sub_category_list'));
         } catch (Exception $e) {
             DB::rollBack();
@@ -2061,7 +2100,10 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-                'quantity' => 'required|integer|min:0|max:999999',
+               'quantity' => [
+                    'required',
+                    'regex:/^[0-9]{1,6}$/'
+                ]
             ]);
         } else {
             // Validate variations fields
@@ -2141,8 +2183,11 @@ class RetilerController extends Controller
                 );
             }
 
+
+            $slug = Str::slug($request->slug) . '-' . now()->timestamp . '-' . uniqid();
             // Update product details
             $product->name = $request->product_name;
+            $product->slug = $slug;
             $product->sku = $sku;
             $product->category_id = $subCategory->category_id ?? null;
             $product->sub_category_id = $request->sub_category_id;
@@ -2738,13 +2783,33 @@ class RetilerController extends Controller
             $excelData = Excel::toArray($import, $file);
             $headings = array_keys($excelData[0][0] ?? []);
 
+            $hasSubCategoryVariation = !empty($sub_category->sub_category_variation);
+            $hasVariationsColumn = in_array('variations', $headings);
+
+            // Case 1: Sub-category expects variations, but column is missing
+            if ($hasSubCategoryVariation && !$hasVariationsColumn) {
+                return response()->json([
+                    'message' => 'Error',
+                    'error_type' => 'column_mismatch',
+                    'error' => 'The selected sub-category expects product variations, but the uploaded file does not contain a "variations" column.',
+                ], 422);
+            }
+
+            // Case 2: Sub-category does NOT expect variations, but column is present
+            if (!$hasSubCategoryVariation && $hasVariationsColumn) {
+                return response()->json([
+                    'message' => 'Error',
+                    'error_type' => 'column_mismatch',
+                    'error' => 'The selected sub-category does not expect product variations, but the uploaded file contains a "variations" column.',
+                ], 422);
+            }
+
             $missingColumns = $import->checkColumns($headings);
             if ($missingColumns !== true) {
                 return response()->json([
                     'error' => 'The uploaded file is missing the following required columns: <br>' . implode(', ', $missingColumns),
                 ], 422);
             }
-
             // Process collection
             $collection = collect($excelData[0]);
             $result = $import->collection($collection);
@@ -2968,12 +3033,12 @@ class RetilerController extends Controller
     }
 
     // AJAX : server side data-table fetch-record
+
     public function fetchRecordsCustomers(Request $request)
     {
         $limit = $request->input('length', 10);
         $start = $request->input('start', 0);
         $search = $request->input('search.value', '');
-
         $retailer = Auth::user();
 
         $baseQuery = CustomerOrders::select('customer_id')
@@ -2992,6 +3057,7 @@ class RetilerController extends Controller
             if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
+
             $baseQuery->whereHas('customer', function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'like', "%$search%")
                     ->orWhere('phone_number', 'like', "%$search%")
@@ -3002,16 +3068,41 @@ class RetilerController extends Controller
             });
         }
 
-        // Count after filtering
+        // 🧠 Sorting logic
+        if ($request->has('order')) {
+            $orderColumnIndex = $request->order[0]['column']; // Index of the column
+            $orderDir = $request->order[0]['dir']; // asc or desc
+            $orderColumnName = $request->columns[$orderColumnIndex]['data']; // Column name from DataTables
+
+            // Map DataTables field name to actual DB column (if needed)
+            $sortableFields = [
+                'name' => DB::raw("CONCAT(firstname, ' ', lastname)"),
+                'mobile_no' => 'phone_number',
+                'email' => 'email',
+                'state' => 'state',
+                'city' => 'city',
+                'pincode' => 'pincode',
+            ];
+
+            if (array_key_exists($orderColumnName, $sortableFields)) {
+                $column = $sortableFields[$orderColumnName];
+
+                $baseQuery->whereHas('customer', function ($q) use ($column, $orderDir) {
+                    $q->orderBy($column, $orderDir);
+                });
+            }
+        }
+
+        // Filtered Count
         $filteredCount = $baseQuery->get()->count();
 
-        // Apply pagination
+        // Paginate and get results
         $customers = (clone $baseQuery)
             ->skip($start)
             ->take($limit)
             ->get();
 
-        // Count total distinct customers before any search
+        // Total customers count
         $totalCount = CustomerOrders::select('customer_id')
             ->where('retailer_id', $retailer->id)
             ->where(function ($q) {
@@ -3020,7 +3111,7 @@ class RetilerController extends Controller
             })
             ->groupBy('customer_id')
             ->get()
-            ->count('id');
+            ->count();
 
         $data = [];
         $sr_no = $start;
@@ -3048,5 +3139,6 @@ class RetilerController extends Controller
             "data" => $data
         ]);
     }
+
     //<----------------------- END : Customer ---------------------->
 }

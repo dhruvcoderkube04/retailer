@@ -738,8 +738,14 @@ class RetailerProductController extends Controller
                 }
 
                 // Optionally clear verification after use
-                Cache::forget('otp_verified_' . $request->phone_number);
+                // Cache::forget('otp_verified_' . $request->phone_number);
             }
+
+            // Log::info('OTP verified cache check', [
+            //     'phone' => $request->phone_number,
+            //     'cached' => Cache::get('otp_verified_' . $request->phone_number)
+            // ]);
+
 
             // $request->validate([
             //     'phone_number' => 'required|digits:10',
@@ -972,6 +978,7 @@ class RetailerProductController extends Controller
             $query->where('is_delete', 0)->where('status', 1);
         })->where('product_listing_key', $apiKey)->first();
 
+
         if (!$retailer) {
             return ApiResponse::error('Unauthorized: Invalid API Key.');
         }
@@ -1060,7 +1067,7 @@ class RetailerProductController extends Controller
 
                     if ($productModel->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
-                            return ApiResponse::error( 'Product variation is required for Product ID ' . $productId);
+                            return ApiResponse::error('Product variation is required for Product ID ' . $productId);
                         }
 
                         $productVariation = ProductVariation::where('product_id', $productId)->where('product_variation', $product['product_variation'])->first();
@@ -1300,13 +1307,13 @@ class RetailerProductController extends Controller
             $token = $customerDetails->createToken('customer-token')->plainTextToken;
 
             return ApiResponse::success([
-                'order_id'       => $orderIDs,
-                'token'          => $token,
-                'customer'       => $filtercustomerDetails,
+                'order_id' => $orderIDs,
+                'token' => $token,
+                'customer' => $filtercustomerDetails,
                 'wishlist_items' => $wishlistItems,
-                'cart_items'     => $cartItems,
+                'cart_items' => $cartItems,
             ], 'Your order has been placed successfully!');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error:', ['error' => $e->getMessage()]);
@@ -1750,7 +1757,7 @@ class RetailerProductController extends Controller
                 // 'valid_until' => $coupon->valid_until,
             ]
         ], 'Coupon applied successfully.');
-        
+
     }
 
     private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts)
@@ -1922,9 +1929,10 @@ class RetailerProductController extends Controller
     public function customerOrders()
     {
         try {
-            $customer = auth()->user();
+            $user = auth()->user();
 
-            $orders = CustomerOrders::where('customer_id', $customer->id)->get();
+            $customerId = CustomerDetails::where('id', $user->customer_id)->first();
+            $orders = CustomerOrders::where('customer_id', $customerId->id)->get();
 
             if ($orders->isEmpty()) {
                 return ApiResponse::error('You have not placed any orders yet.');
@@ -2046,7 +2054,6 @@ class RetailerProductController extends Controller
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
             ];
-
 
             $customerDetails->update($updateData);
 

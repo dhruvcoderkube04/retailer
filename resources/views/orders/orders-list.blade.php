@@ -180,13 +180,20 @@
                             <table class="table align-middle fs-7 table-striped" id="kt_datatable_order_list">
                                 <thead>
                                     <tr class="text-start text-gray-700 fw-bolder fs-6 text-uppercase gs-0">
-                                        <th class="text-center min-w-50px" style="background: #0d0e12;color:#fff !important;">SR NO</th>
-                                        <th class="text-center min-w-70px" style="background: #0d0e12;color:#fff !important;">ACTION</th>
-                                        <th class="text-center min-w-100px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
-                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
-                                        <th class="text-center min-w-150px" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
-                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
+                                        <th class="text-center min-w-50px"
+                                            style="background: #0d0e12;color:#fff !important;">SR NO</th>
+                                        <th class="text-center min-w-70px"
+                                            style="background: #0d0e12;color:#fff !important;">ACTION</th>
+                                        <th class="text-center min-w-100px"
+                                            style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
+                                        <th class="text-center min-w-300px"
+                                            style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
+                                        <th class="text-center min-w-150px"
+                                            style="background: #0d0e12;color:#fff !important;">MEDIA</th>
+                                        <th class="text-center min-w-300px"
+                                            style="background: #0d0e12;color:#fff !important;">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-300px"
+                                            style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-600">
@@ -327,7 +334,8 @@
                         </span>
                         <span>Order Action</span>
                     </h5>
-                    <button type="button" class="btn-close cancelAction" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close cancelAction" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
 
                 <form id="confirmedOrderForm" method="POST">
@@ -578,13 +586,15 @@
     </div>
 
     {{-- Raise Issue Modal --}}
-    <div class="modal fade" id="kt_modal_raise_issue" data-bs-backdrop="static" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal fade" id="kt_modal_raise_issue" data-bs-backdrop="static" tabindex="-1" style="display: none;"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="fw-bold">Raise Your Issue</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1 cancelRaise"><span class="path1"></span><span class="path2"></span></i>
+                        <i class="ki-duotone ki-cross fs-1 cancelRaise"><span class="path1"></span><span
+                                class="path2"></span></i>
                     </div>
                 </div>
                 <div class="modal-body scroll-y mx-5 mx-xl-7 my-3">
@@ -624,7 +634,8 @@
                             <span class="invalid-feedback d-block" id="screenshots_error"></span>
                         </div>
                         <div class="text-center">
-                            <button type="reset" class="btn btn-light me-3 cancelRaise" data-bs-dismiss="modal">Cancel</button>
+                            <button type="reset" class="btn btn-light me-3 cancelRaise"
+                                data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary"
                                 style="background-color: #ff3d60; border-color: #ff3d60;">
                                 <span class="indicator-label">Raise Issue</span>
@@ -1077,9 +1088,9 @@
             processing: true,
             serverSide: true,
             fixedHeader: {
-            header: true,
+                header: true,
                 headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-            },  
+            },
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
                 type: "POST",
@@ -1456,8 +1467,8 @@
                     $('#courierDetailsBody').html('<tr><td colspan="6">Invalid payload data</td></tr>');
                     return;
                 }
-                 $('#courierDetailsBody').html(
-                                '<tr><td colspan="6">Loading curier partners...</td></tr>')
+                $('#courierDetailsBody').html(
+                    '<tr><td colspan="6">Loading curier partners...</td></tr>')
                 $.ajax({
                     url: "{{ route('retailer.rate.calculation.post') }}",
                     type: 'POST',
@@ -1574,31 +1585,31 @@
                     const matchingCourier = courierServices.find(cs => cs.courierName === courier
                         .service_name) || {};
                     tableBody += `
-                        <tr>
-                            <td>${courier.service_mode || 'N/A'}</td>
-                            <td>
-                                ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
-                                ${courier.service_name}
-                            </td>
-                            <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
-                            <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary select-courier"
-                                        data-courier="${courier.service_name}"
-                                        data-courier-id="${matchingCourier.courierId || ''}"
-                                        data-carrier-id="${courier.carrierID || ''}"
-                                        data-courier-logo="${matchingCourier.logoUrl || null}"
-                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-                                        data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-                                        data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || 'N/A'}"
-                                        data-cpartner="${courier.service_mode}"
-                                        data-nickname="${courier.nickName}"
-                                        data-courier_code="${courier.courier_code}">
-                                    Select
-                                </button>
-                            </td>
-                        </tr>`;
+                            <tr>
+                                <td>${courier.service_mode || 'N/A'}</td>
+                                <td>
+                                    ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
+                                    ${courier.service_name}
+                                </td>
+                                <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+                                <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary select-courier"
+                                            data-courier="${courier.service_name}"
+                                            data-courier-id="${matchingCourier.courierId || ''}"
+                                            data-carrier-id="${courier.carrierID || ''}"
+                                            data-courier-logo="${matchingCourier.logoUrl || null}"
+                                            data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+                                            data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+                                            data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                                            data-service-mode="${courier.service_mode || 'N/A'}"
+                                            data-cpartner="${courier.service_mode}"
+                                            data-nickname="${courier.nickName}"
+                                            data-courier_code="${courier.courier_code}">
+                                        Select
+                                    </button>
+                                </td>
+                            </tr>`;
                 });
 
                 $('#courierDetailsBody').html(tableBody);
@@ -1698,12 +1709,12 @@
 
                 // Display all courier details below the Select Courier button
                 $('#selected-courier-display').html(`
-                                <strong>Selected Courier:</strong> ${courierName}<br>
-                                <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
-                                <strong>COD Charge:</strong> ₹${codCharge}<br>
-                                <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
-                                <strong>Service Mode:</strong> ${serviceMode}
-                            `);
+                                    <strong>Selected Courier:</strong> ${courierName}<br>
+                                    <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
+                                    <strong>COD Charge:</strong> ₹${codCharge}<br>
+                                    <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
+                                    <strong>Service Mode:</strong> ${serviceMode}
+                                `);
 
                 // Validate courier match
 
@@ -2670,7 +2681,7 @@
                 e.preventDefault();
 
                 let formData = new FormData(this);
-                formData.append('_token', '{{ csrf_token() }}');
+                // formData.append('_token', '{{ csrf_token() }}');
                 let submitButton = $(this).find("button[type='submit']");
 
                 // Clear previous validation states
@@ -2773,6 +2784,9 @@
                                 $('#kt_modal_raise_issue').modal('hide');
                                 document.getElementById('raiseIssueForm').reset();
                                 $('#raise_issue_product_id').val('');
+                                submitButton.prop("disabled", false);
+                                submitButton.find(".indicator-label").show();
+                                submitButton.find(".indicator-progress").hide();
                             });
                         },
                         error: function (xhr) {
@@ -2928,9 +2942,9 @@
                         Swal.fire({
                             title: 'Reschedule Delivery',
                             html: `
-                                            <label>Select Reschedule Date & Time</label>
-                                            <input type="datetime-local" id="rescheduleDate" class="swal2-input">
-                                        `,
+                                                <label>Select Reschedule Date & Time</label>
+                                                <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+                                            `,
                             confirmButtonText: 'Submit',
                             focusConfirm: false,
                             allowOutsideClick: false, // 🚫 Prevent closing by clicking outside
