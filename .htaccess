@@ -1,0 +1,35 @@
+SetEnv PHPRC /home/customer/www/stage.retailer.techtrendmart.in/public_html/php.ini
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^www.stage.retailer.techtrendmart.in/ [NC]
+    RewriteRule ^(.*)$ https://stage.retailer.techtrendmart.in/$1 [L,R=301]
+    RewriteRule ^(.*)$ public/$1 [L]
+    
+    # Skip SG bot protection for /api routes
+    RewriteCond %{REQUEST_URI} ^/api/ [NC]
+    RewriteRule ^ - [L]
+</IfModule>
+<IfModule mod_rewrite.c>
+
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+
+  # Disable Directory listing
+Options -Indexes
+
+
+# block files which needs to be hidden, specify .example extension of the file
+<Files ~ "\.(env|json|config.js|md|gitignore|gitattributes|lock)$">
+    Order allow,deny
+    Deny from all
+</Files>
+</IfModule>
+
+
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin: *
+</IfModule>
+
+

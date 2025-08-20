@@ -12,12 +12,30 @@ class UserDetail extends Model
     protected $fillable = [
         'user_id',
         'address',
+        'company_logo',
         'state',
         'city',
         'country',
-        'company_logo',
         'company_name',
-        'postal_code'
+        'postal_code',
+        'margin_percentage_tag',
+        'margin_tag_name',
+        'success_wallet',
+        'pending_wallet',
+        'wallet_status',
+        'verification_code',
+        'wallet_verification_attempt',
+        'wallet_verification_reject_reason',
+        'account_number',
+        'ifsc_code',
+        'account_holder_name',
+        'pancard_number',
+        'pan_image',
+        'aadhar_1_image',
+        'aadhar_2_image',
+        'cancel_cheque',
+        'bank_details_submitted_at',
+        'bank_details_verified_at'
     ];
 
     // Inverse One-to-One Relationship
@@ -25,5 +43,4 @@ class UserDetail extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }
