@@ -122,13 +122,12 @@ if (!function_exists('uploadOrUpdateVideoToSpaces')) {
 
 
 if (!function_exists('isMaliciousSearch')) {
-
    function isMaliciousSearch($input)
    {
-       // Normalize input
        $input = strtolower(trim($input));
-   
-       // Common dangerous patterns (SQLi, XSS, etc.)
+
+       // Allow common special characters like @ . - _
+       // Still block SQLi or XSS attempts
        $blacklistPatterns = [
            '/\bselect\b/',
            '/\binsert\b/',
