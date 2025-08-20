@@ -137,25 +137,25 @@ class CustomerRegisterController extends Controller
     public function verifyEmail($token)
     {
         DB::beginTransaction();
-    
+
         try {
             $customer = StoreCustomersDetails::where('email_verification_token', $token)->first();
-    
+
             if (!$customer) {
-                return ApiResponse::error('Invalid or expired token.');
+                return redirect('customer/login?status=invalid-token');
             }
-    
-            // Update email verification status
+
+            // Mark as verified
             $customer->email_verified_at = now();
             $customer->email_verification_token = null;
             $customer->is_active = true;
             $customer->save();
-    
+
             // Check or create customer details record
             $existing = CustomerDetails::where('user_id', $customer->user_id)
                 ->where('email', $customer->email)
                 ->first();
-    
+
             if (!$existing) {
                 $newCustomerDetail = CustomerDetails::create([
                     'user_id' => $customer->user_id,
@@ -164,25 +164,24 @@ class CustomerRegisterController extends Controller
                     'phone_number' => $customer->phone_number,
                     'email' => $customer->email,
                 ]);
-    
+
                 $customer->customer_id = $newCustomerDetail->id;
                 $customer->save();
             } elseif (!$customer->customer_id) {
                 $customer->customer_id = $existing->id;
                 $customer->save();
             }
-    
+
             DB::commit();
-    
-            return ApiResponse::success([], 'Email verified successfully!');
+
+            return redirect('customer/login?status=verified');
         } catch (\Throwable $e) {
             DB::rollBack();
-    
-            return ApiResponse::error('Something went wrong during verification.', [
-                'error' => $e->getMessage()
-            ]);
+
+            return redirect('customer/login?status=error');
         }
     }
+
 
     //login API
     public function login(Request $request)
@@ -192,11 +191,19 @@ class CustomerRegisterController extends Controller
             $request->validate([
                 'user_token' => 'required|string',
                 'email' => 'required|email',
-                'password' => 'required|string'
+                'password' => 'required|string',
+            ], [
+                'user_token.required' => 'User token is required.',
+                'user_token.string' => 'User token must be a valid string.',
+                'email.required' => 'Email is required.',
+                'email.email' => 'Please enter a valid email address.',
+                'password.required' => 'Password is required.',
+                'password.string' => 'Password must be a valid string.',
             ]);
         } catch (ValidationException $e) {
             return ApiResponse::error('Validation failed', $e->errors());
         }
+
 
         DB::beginTransaction();
 

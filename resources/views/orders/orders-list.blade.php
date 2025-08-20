@@ -181,11 +181,11 @@
                                 <thead>
                                     <tr class="text-start text-gray-700 fw-bolder fs-6 text-uppercase gs-0">
                                         <th class="text-center min-w-50px">SR NO</th>
-                                        <th class="text-center min-w-40px">ORDER DATE</th>
+                                        <th class="text-center min-w-50px">ORDER DATE</th>
                                         <th class="text-center min-w-110px">MEDIA</th>
                                         <th class="text-center min-w-280px">ORDER DETAIL</th>
                                         <th class="text-center min-w-280px">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-280px">TRACKING</th>
+                                        <th class="text-center min-w-290px">TRACKING</th>
                                         <th class="text-center min-w-70px">ACTION</th>
                                     </tr>
                                 </thead>

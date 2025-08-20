@@ -50996,3 +50996,11 @@ body {
   font-size: 1rem;
   color: var(--bs-text-muted);
 }
+
+table thead th {
+    background: #363843 !important;
+    color: #fff !important;
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+    border: 0 !important;
+}

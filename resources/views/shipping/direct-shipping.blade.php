@@ -16,7 +16,7 @@
                     </div>
         
                     <div class="card-body">
-                        <form id="directShippingForm" enctype="multipart/form-data">
+                        <form id="directShippingForm" class="row" enctype="multipart/form-data">
                             <!-- Product Image -->
                             <div class="col-md-12 mb-5">
                                 <label for="product_image" class="d-block mb-2 fs-6">Choose Product Image</label>
