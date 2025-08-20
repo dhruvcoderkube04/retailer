@@ -180,13 +180,13 @@
                             <table class="table align-middle fs-7 table-striped" id="kt_datatable_order_list">
                                 <thead>
                                     <tr class="text-start text-gray-700 fw-bolder fs-6 text-uppercase gs-0">
-                                        <th class="text-center min-w-50px" style="background: #0d0e12;color:#fff !important;">SR NO</th>
-                                        <th class="text-center min-w-100px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
-                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
-                                        <th class="text-center min-w-150px" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
-                                        <th class="text-center min-w-300px" style="background: hsl(228, 16%, 6%);color:#fff !important;">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
-                                        <th class="text-center min-w-70px" style="background: #0d0e12;color:#fff !important;">ACTION</th>
+                                        <th class="text-center min-w-50px">SR NO</th>
+                                        <th class="text-center min-w-40px">ORDER DATE</th>
+                                        <th class="text-center min-w-110px">MEDIA</th>
+                                        <th class="text-center min-w-280px">ORDER DETAIL</th>
+                                        <th class="text-center min-w-280px">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-280px">TRACKING</th>
+                                        <th class="text-center min-w-70px">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-700 fs-6">

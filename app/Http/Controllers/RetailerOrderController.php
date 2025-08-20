@@ -626,7 +626,6 @@ class RetailerOrderController extends Controller
             if ($item->tracking_number) {
                 $tracking_info = '<div class="p-3">
                     <div class="d-flex mb-2 gap-2">
-                        <span><strong>Tracking ID:</strong></span>
                         <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
                     </div></div>';
             }
