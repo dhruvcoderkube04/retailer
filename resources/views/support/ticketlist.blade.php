@@ -269,13 +269,13 @@
                     }
                 },
                 columns: [
-                    { data: 'ticket_id', orderable: false, searchable: false, className: 'text-center', },
-                    { data: 'subject', orderable: false, searchable: false, className: 'text-center', },
-                    { data: 'description', orderable: false, searchable: false, className: 'text-center', },
-                    { data: 'category', orderable: false, searchable: false, className: 'text-center', },
+                    { data: 'ticket_id', orderable: false, className: 'text-center', },
+                    { data: 'subject', orderable: false, className: 'text-center', },
+                    { data: 'description', orderable: false, className: 'text-center', },
+                    { data: 'category', orderable: false, className: 'text-center', },
                     { data: 'ref_image', orderable: false, searchable: false, className: 'text-center', },
-                    { data: 'status', orderable: false, searchable: false, className: 'text-center', },
-                    { data: 'created_at', orderable: false, searchable: false, className: 'text-center', },
+                    { data: 'status', orderable: false, className: 'text-center', },
+                    { data: 'created_at', orderable: false, className: 'text-center', },
                     { data: 'actions', orderable: false, searchable: false, className: 'text-center', },
                 ]
             });
