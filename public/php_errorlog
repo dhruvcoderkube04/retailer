@@ -544,3 +544,19 @@ Stack trace:
 #9 /home/customer/www/retailer.techtrendmart.in/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
 #10 {main}
   thrown in /home/customer/www/retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[18-Aug-2025 11:30:54 Asia/Kolkata] PHP Fatal error:  Uncaught ErrorException: include(/home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/../symfony/http-foundation/Response.php): Failed to open stream: No such file or directory in /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'include(/home/c...', '/home/customer/...', 576)
+#1 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(2, 'include(/home/c...', '/home/customer/...', 576)
+#2 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php(576): include('/home/customer/...')
+#3 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}('/home/customer/...')
+#4 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(827): Composer\Autoload\ClassLoader->loadClass('Symfony\\Compone...')
+#5 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(807): Illuminate\Foundation\Exceptions\Handler->convertExceptionToResponse(Object(ErrorException))
+#6 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse(Object(Illuminate\Http\Request), Object(ErrorException))
+#7 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse(Object(Illuminate\Http\Request), Object(ErrorException))
+#8 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render(Object(Illuminate\Http\Request), Object(ErrorException))
+#9 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse(Object(ErrorException))
+#10 /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException(Object(ErrorException))
+#11 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(ErrorException))
+#12 {main}
+  thrown in /home/customer/www/stage.retailer.techtrendmart.in/public_html/vendor/composer/ClassLoader.php on line 576

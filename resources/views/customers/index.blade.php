@@ -33,13 +33,13 @@
                                 <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_customer_list">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Sr No</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Name</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Mobile No</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Email</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">State</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">City</th>
-                                            <th class="text-center py-5 border-0 align-middle" style="background: #0d0e12;color:#fff !important;">Pincode</th>
+                                            <th class="text-center py-5 border-0 align-middle">Sr No</th>
+                                            <th class="text-center py-5 border-0 align-middle">Name</th>
+                                            <th class="text-center py-5 border-0 align-middle">Mobile No</th>
+                                            <th class="text-center py-5 border-0 align-middle">Email</th>
+                                            <th class="text-center py-5 border-0 align-middle">State</th>
+                                            <th class="text-center py-5 border-0 align-middle">City</th>
+                                            <th class="text-center py-5 border-0 align-middle">Pincode</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-700 fs-6">
@@ -120,14 +120,16 @@
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_customer_list').DataTable({
             dom: "<'row mb-2'" +
-                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                ">" +
-                "<'table-responsive'tr>" +
-                "<'row'" +
+            "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+            ">" +
+            "<'table-responsive'tr>" +
+            "<'row'" +
+                "<'col-12 col-sm-0 col-md-0 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
                 "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
+            pageLength: 20,
+            lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
             fixedHeader: {
@@ -174,7 +176,7 @@
             columns: [{
                 data: 'sr_no',
                 className: 'text-center',
-                orderable: false,
+                orderable: true,
             },
             {
                 data: 'name',

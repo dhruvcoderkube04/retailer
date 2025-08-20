@@ -1,10 +1,13 @@
-SetEnv PHPRC /home/customer/www/retailer.techtrendmart.in/public_html/php.ini
+SetEnv PHPRC /home/customer/www/stage.retailer.techtrendmart.in/public_html/php.ini
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteCond %{HTTP_HOST} ^www.retailer.techtrendmart.in/ [NC]
-    RewriteRule ^(.*)$ https://retailer.techtrendmart.in/$1 [L,R=301]
+    RewriteCond %{HTTP_HOST} ^www.stage.retailer.techtrendmart.in/ [NC]
+    RewriteRule ^(.*)$ https://stage.retailer.techtrendmart.in/$1 [L,R=301]
     RewriteRule ^(.*)$ public/$1 [L]
     
+    # Skip SG bot protection for /api routes
+    RewriteCond %{REQUEST_URI} ^/api/ [NC]
+    RewriteRule ^ - [L]
 </IfModule>
 <IfModule mod_rewrite.c>
 
@@ -23,6 +26,10 @@ Options -Indexes
 </Files>
 </IfModule>
 
+
+
 <IfModule mod_headers.c>
-Header set Cache-Control "private"
+    Header set Access-Control-Allow-Origin: *
 </IfModule>
+
+

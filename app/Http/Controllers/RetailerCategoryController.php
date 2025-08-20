@@ -8,6 +8,7 @@ use App\Models\CategorySuggestion;
 use App\Models\RetailerCategory;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
+use App\Rules\NoCodeInjection;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -161,7 +162,7 @@ class RetailerCategoryController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
+            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.@#,:]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
             $query->where(function ($q) use ($search) {
@@ -339,8 +340,22 @@ class RetailerCategoryController extends Controller
         try {
             // Validate Request
             $request->validate([
-                'categoryName' => 'required|string|min:3|max:255',
-                'subCategoryName' => 'required|string|min:2|max:500',
+                'categoryName' => [
+                    'required',
+                    'string',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z\s_-]+$/',
+                    new NoCodeInjection
+                ],
+                'subCategoryName' => [
+                    'required',
+                    'string',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z\s_-]+$/',
+                    new NoCodeInjection
+                ],
             ]);
 
             $user = Auth::user();
@@ -427,4 +442,17 @@ class RetailerCategoryController extends Controller
             ], 500);
         }
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (!empty($ids)) {
+            CategorySuggestion::whereIn('id', $ids)->delete();
+            return response()->json(['message' => 'Selected categories deleted successfully.']);
+        }
+
+        return response()->json(['message' => 'No categories selected.'], 400);
+    }
+
 }

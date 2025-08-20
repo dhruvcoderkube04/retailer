@@ -45,8 +45,6 @@ Route::prefix('customer')->group(function () {
 
     Route::post('/token-password', [CustomerRegisterController::class, 'resetPassword']);
 
-
-
     // Account
     Route::middleware('auth:customer')->group(function () {
         Route::get('account', [CustomerRegisterController::class, 'details']);

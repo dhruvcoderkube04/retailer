@@ -482,15 +482,15 @@
                                                     <thead>
                                                         <tr
                                                             class="text-start text-gray-700 fw-bold fs-7 text-uppercase gs-0">
-                                                            <th class="text-center py-5 min-w-50px" style="background: #0d0e12;color:#fff !important;"></th>
-                                                            <th class="text-center py-5 min-w-150px" style="background: #0d0e12;color:#fff !important;">ITEM</th>
-                                                            <th class="text-center py-5 min-w-150px" style="background: #0d0e12;color:#fff !important;">ORDER RECEIVED AT</th>
-                                                            <th class="text-center py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">QUANTITY</th>
-                                                            <th class="text-center py-5 min-w-80px" style="background: #0d0e12;color:#fff !important;">AMOUNT</th>
-                                                            <th class="text-center py-5 min-w-300px" style="background: #0d0e12;color:#fff !important;">OTHER DETAILS</th>
+                                                            <th class="text-center py-5 border-0 min-w-50px"></th>
+                                                            <th class="text-center py-5 border-0 min-w-150px">ITEM</th>
+                                                            <th class="text-center py-5 border-0 min-w-150px">ORDER RECEIVED AT</th>
+                                                            <th class="text-center py-5 border-0 min-w-80px">QUANTITY</th>
+                                                            <th class="text-center py-5 border-0 min-w-80px">AMOUNT</th>
+                                                            <th class="text-center py-5 border-0 min-w-300px">OTHER DETAILS</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody class="fw-semibold text-gray-600">
+                                                    <tbody class="fw-semibold text-gray-700 fs-6">
                                                         @foreach ($retailerOrders as $key => $detail)
                                                             <tr>
                                                                 {{-- media --}}

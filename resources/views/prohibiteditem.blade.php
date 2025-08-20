@@ -22,7 +22,7 @@
 
                                 <div class="row mb-12">
                                     <div class="col-md-12 pe-md-10 mb-10 mb-md-0">
-                                        <div class="container">
+                                        <div class="container-fluid">
                                             @php
                                                 $prohibitedItems = [
                                                     [
@@ -87,19 +87,22 @@
                                             @endphp
 
                                             @foreach ($prohibitedItems as $item)
-                                                <div class="row mb-4 align-items-center">
-                                                    <div class="col-md-4">
-                                                        <img src="{{ asset('assets/media/prohibiteimage/' . $item['image']) }}"
-                                                            class="img-fluid rounded" height="100" width="100">
+                                                <div class="row mb-4 align-items-center py-3">
+                                                    <div class="col-md-2">
+                                                        <span class="bg-light rounded border-light border border-dashed d-inline-block p-5">
+                                                            <img src="{{ asset('assets/media/prohibiteimage/' . $item['image']) }}"
+                                                                class="img-fluid rounded" height="100" width="100">
+                                                        </span>
                                                     </div>
-                                                    <div class="col-md-8">
-                                                        <ul>
+                                                    <div class="col-md-10">
+                                                        <ul class="fs-5">
                                                             @foreach ($item['items'] as $subItem)
                                                                 <li>{{ $subItem }}</li>
                                                             @endforeach
                                                         </ul>
                                                     </div>
                                                 </div>
+                                                <hr class="opacity-10">
                                             @endforeach
 
                                         </div>

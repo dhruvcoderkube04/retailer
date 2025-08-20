@@ -20,7 +20,7 @@
                             Ticket List</h1>
                         <!--end::Title-->
                         <!--begin::Breadcrumb-->
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
@@ -53,7 +53,7 @@
                     <!--begin::Card-->
                     <div class="card">
                         <!--begin::Card header-->
-                        <div class="card-header border-0 pt-6">
+                        <div class="card-header border-0 pt-6 pb-4">
                             <!--begin::Card title-->
                             <div class="card-title">
                                 <!--begin::Search-->
@@ -119,7 +119,6 @@
                             <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px">Actions</th>
                                         <th class="min-w-125px">Ticket ID</th>
                                         <th class="min-w-125px">Message</th>
                                         <th class="min-w-125px">Description</th>
@@ -127,9 +126,10 @@
                                         <th class="min-w-125px">Image Ref</th>
                                         <th class="min-w-125px">Status</th>
                                         <th class="min-w-125px">Created Date</th>
+                                        <th class="min-w-125px">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-gray-600 fw-semibold">
+                                <tbody class="text-gray-700 fw-semibold fs-6">
 
                                 </tbody>
                             </table>
@@ -231,8 +231,14 @@
             console.log('Document ready, attaching event listeners to .ticket-status');
             // 📊 Initialize DataTable
             let table = $('#kt_subscriptions_table').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
+                fixedHeader: {
+                header: true,
+                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                },
                 ajax: {
                     url: "{{ route('fetch.retailer.ticket.list') }}",
                     type: "POST",
@@ -267,14 +273,14 @@
                     }
                 },
                 columns: [
-                    { data: 'actions', orderable: false, searchable: false },
-                    { data: 'ticket_id' },
-                    { data: 'subject' },
-                    { data: 'description' },
-                    { data: 'category' },
-                    { data: 'ref_image', orderable: false, searchable: false },
-                    { data: 'status' },
-                    { data: 'created_at' },
+                    { data: 'ticket_id', orderable: false, className: 'text-center', },
+                    { data: 'subject', orderable: false, className: 'text-center', },
+                    { data: 'description', orderable: false, className: 'text-center', },
+                    { data: 'category', orderable: false, className: 'text-center', },
+                    { data: 'ref_image', orderable: false, searchable: false, className: 'text-center', },
+                    { data: 'status', orderable: false, className: 'text-center', },
+                    { data: 'created_at', orderable: false, className: 'text-center', },
+                    { data: 'actions', orderable: false, searchable: false, className: 'text-center', },
                 ]
             });
 
