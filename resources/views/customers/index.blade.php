@@ -119,15 +119,17 @@
     <script>
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_customer_list').DataTable({
-            dom: "<'row mb-4'" +
-                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                ">" +
-                "<'table-responsive'tr>" +
-                "<'row'" +
+            dom: "<'row mb-2'" +
+            "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+            ">" +
+            "<'table-responsive'tr>" +
+            "<'row'" +
+                "<'col-12 col-sm-0 col-md-0 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
                 "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
+            pageLength: 20,
+            lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
             fixedHeader: {

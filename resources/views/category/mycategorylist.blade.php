@@ -31,11 +31,11 @@
                             <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_my_categroy_list">
                                 <thead>
                                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="text-center py-5 border-0 min-w-100px">Action</th>
-                                        <th class="text-center py-5 border-0 min-w-100px">Uploaded Images</th>
-                                        <th class="text-center py-5 border-0 min-w-175px">Category</th>
-                                        <th class="text-center py-5 border-0 min-w-250px">Sub Category</th>
-                                        <th class="text-center py-5 border-0 min-w-150px">Created</th>
+                                        <th class="text-center py-5 border-0 min-w-100px" style="background: #0d0e12;color:#fff !important;">Uploaded Images</th>
+                                        <th class="text-center py-5 border-0 min-w-175px" style="background: #0d0e12;color:#fff !important;">Category</th>
+                                        <th class="text-center py-5 border-0 min-w-250px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
+                                        <th class="text-center py-5 border-0 min-w-150px" style="background: #0d0e12;color:#fff !important;">Created</th>
+                                        <th class="text-center py-5 border-0 min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
                                     </tr>
                                 </thead>
 
@@ -96,15 +96,17 @@
     <script>
         //<------------- START : server-side transaction datatable ------------->
         dataTable = $('#kt_datatable_my_categroy_list').DataTable({
-            dom: "<'row mb-5'" +
-                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                ">" +
-                "<'table-responsive'tr>" +
-                "<'row'" +
+            dom: "<'row mb-2'" +
+            "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+            ">" +
+            "<'table-responsive'tr>" +
+            "<'row'" +
+                "<'col-12 col-sm-0 col-md-0 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
                 "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
+            pageLength: 20,
+            lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
             fixedHeader: {
@@ -145,12 +147,7 @@
                 },
             },
             order: [],
-            columns: [{
-                    data: 'action',
-                    className: 'text-center',
-                    orderable: false,
-                    searchable: false
-                },
+            columns: [
                 {
                     data: 'sub_category_image',
                     className: 'text-center',
@@ -170,7 +167,13 @@
                     data: 'created_at',
                     className: 'text-center',
                     orderable: true,
-                }
+                },
+                {
+                    data: 'action',
+                    className: 'text-center',
+                    orderable: false,
+                    searchable: false
+                },
             ],
             initComplete: function() {
                 let searchBox = $('.datatable-search-section input');

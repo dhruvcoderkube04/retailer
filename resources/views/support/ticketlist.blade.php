@@ -119,14 +119,14 @@
                             <table class="table align-middle table-row-dashed fs-7" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px py-5 border-0 ps-3">Actions</th>
-                                        <th class="min-w-125px py-5 border-0">Ticket ID</th>
-                                        <th class="min-w-125px py-5 border-0">Message</th>
-                                        <th class="min-w-125px py-5 border-0">Description</th>
-                                        <th class="min-w-125px py-5 border-0">Category</th>
-                                        <th class="min-w-125px py-5 border-0">Image Ref</th>
-                                        <th class="min-w-125px py-5 border-0">Status</th>
-                                        <th class="min-w-125px py-5 border-0">Created Date</th>
+                                        <th class="min-w-125px">Ticket ID</th>
+                                        <th class="min-w-125px">Message</th>
+                                        <th class="min-w-125px">Description</th>
+                                        <th class="min-w-125px">Category</th>
+                                        <th class="min-w-125px">Image Ref</th>
+                                        <th class="min-w-125px">Status</th>
+                                        <th class="min-w-125px">Created Date</th>
+                                        <th class="min-w-125px">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-700 fw-semibold fs-6">
@@ -231,6 +231,8 @@
             console.log('Document ready, attaching event listeners to .ticket-status');
             // 📊 Initialize DataTable
             let table = $('#kt_subscriptions_table').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
                 fixedHeader: {
@@ -271,14 +273,14 @@
                     }
                 },
                 columns: [
-                    { data: 'actions', orderable: false, searchable: false, className: 'ps-2' },
-                    { data: 'ticket_id' },
-                    { data: 'subject' },
-                    { data: 'description' },
-                    { data: 'category' },
-                    { data: 'ref_image', orderable: false, searchable: false },
-                    { data: 'status' },
-                    { data: 'created_at' },
+                    { data: 'ticket_id', orderable: false, className: 'text-center', },
+                    { data: 'subject', orderable: false, className: 'text-center', },
+                    { data: 'description', orderable: false, className: 'text-center', },
+                    { data: 'category', orderable: false, className: 'text-center', },
+                    { data: 'ref_image', orderable: false, searchable: false, className: 'text-center', },
+                    { data: 'status', orderable: false, className: 'text-center', },
+                    { data: 'created_at', orderable: false, className: 'text-center', },
+                    { data: 'actions', orderable: false, searchable: false, className: 'text-center', },
                 ]
             });
 

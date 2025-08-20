@@ -15,7 +15,7 @@
                         <!--begin::Page title-->
                         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                             <!--begin::Title-->
-                            <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Suggestion Category List</h1>
+                            <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Suggestion Category List</h1>
                             <!--end::Title-->
                             <!--begin::Breadcrumb-->
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -47,7 +47,7 @@
                         <!--begin::API keys-->
                         <div class="card">
                             <!--begin::Header-->
-                            <div class="card-header border-0">
+                            <div class="card-header">
                                 <!--begin::Title-->
                                 <div class="card-title">
                                     <h3>My Category</h3>
@@ -63,37 +63,51 @@
                             </div>
                             <!--end::Header-->
                             <!--begin::Body-->
-                            <div class="card-body">
+                            <div class="card-body p-0">
                                 <!--begin::Table wrapper-->
                                 <div class="table-responsive">
                                     <!--begin::Table-->
-                                    <table class="table align-middle table-row-bordered table-row-solid fs-7 table-striped" id="kt_categroy_table">
+                                    <table class="table align-middle table-row-bordered table-row-solid fs-7" id="kt_categroy_table">
                                         <!--begin::Thead-->
-                                        <thead class="border-gray-200 fs-5 fw-semibold bg-lighten ">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <button type="button" id="delete-selected" class="btn btn-danger btn-sm me-2" disabled>
+                                                    <i class="fas fa-trash"></i>Delete Selected
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <thead class="border-gray-200 fs-5 fw-semibold bg-lighten">
                                             <tr>
-                                                <th class="min-w-250px px-10 py-5">Action</th>
-                                                <th class="min-w-175px ps-9 py-5">Category</th>
-                                                <th class="min-w-250px px-0 py-5">Sub Category</th>
-                                                <th class="min-w-250px px-0 py-5">Status</th>
-                                                <th class="min-w-100px py-5">Created</th>
+                                                <th class="text-center">
+                                                    <input type="checkbox" id="select-all"> Select All
+                                                </th>
+                                                <th class="min-w-175px ps-9">Category</th>
+                                                <th class="min-w-250px px-0">Sub Category</th>
+                                                <th class="min-w-250px px-0">Status</th>
+                                                <th class="min-w-100px">Created</th>
+                                                <th class="min-w-250px px-10">Action</th>
                                             </tr>
                                         </thead>
                                         <!--end::Thead-->
                                         <!--begin::Tbody-->
-                                        <tbody class="fs-6 fw-semibold text-gray-700 fs-6">
+                                        <tbody class="fs-6 fw-semibold text-gray-600">
                                             @if (count($category_suggestion) > 0)
                                                 @foreach ($category_suggestion as $category)
                                                     <tr class="data-load" data-id="{{$category->id}}">
+                                                         <td class="text-center">
+                                                            <input type="checkbox" class="row-checkbox" value="{{$category->id}}">
+                                                        </td>
+                                                        <td  class="ps-9">{{ strtoupper($category->category_name)}}</td>
+                                                        <td data-bs-target="license" class="ps-0">{{ strtoupper($category->sub_category_name)}}</td>
+                                                        <td>{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
+                                                        <td>{{$category->created_at}}</td>
                                                         <td class="ps-9">
                                                             <button class="btn btn-icon btn-light-danger w-30px h-30px me-3" id="remove-btn" data-id="{{$category->id}}"   data-bs-toggle="tooltip"  aria-label="Delete">
                                                                 <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span>
                                                                 <span class="path4"></span><span class="path5"></span></i>
                                                             </button>
                                                         </td>
-                                                        <td  class="ps-9">{{ strtoupper($category->category_name)}}</td>
-                                                        <td data-bs-target="license" class="ps-0">{{ strtoupper($category->sub_category_name)}}</td>
-                                                        <td class="ps-0">{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
-                                                        <td>{{$category->created_at}}</td>
                                                     </tr>
                                                 @endforeach
                                             @else
@@ -157,7 +171,7 @@
                                 <!--end::Label-->
 
                                 <!--begin::Input-->
-                                <input type="text" class="form-control form-control-solid" name="category">
+                                <input type="text" class="form-control form-control-solid" name="category" id="category">
                                 <!--end::Input-->
                             <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div></div>
                             <!--end::Input group-->
@@ -170,7 +184,7 @@
                                 <!--end::Label-->
 
                                 <!--begin::Input-->
-                                <input type="text" class="form-control form-control-solid" name="sub_category">
+                                <input type="text" class="form-control form-control-solid" name="sub_category" id="sub_category">
                                 <!--end::Input-->
                             <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div></div>
                             <!--end::Input group-->
@@ -220,36 +234,91 @@
             };
 
             // Handle form submission for adding category & subcategory
+            // $("#kt_modal_add_categry_form").submit(function(e) {
+            //     e.preventDefault(); // Prevent default form submission
+
+            //     let categoryName = $("input[name='category']").val();
+            //     let subCategoryName = $("input[name='sub_category']").val();
+
+            //     request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
+            //     xhr.done(function(mydata) {
+            //         Swal.fire({
+            //             title: 'Category and Sub Category Suggestion Added Successfully!',
+            //             icon: 'success',
+            //         });
+
+            //         $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
+            //         // Reset form
+
+            //         $("input[name='category']").val('');
+            //         $("input[name='sub_category']").val('');
+            //         // display modal none
+            //         $("#kt_modal_add_category").modal('hide');
+            //     });
+            //     xhr.fail(function(mydata) {
+            //         Swal.fire({
+            //             icon:'error',
+            //             title: 'Category Add Failed!',
+            //             showCancelButton: true
+            //         })
+            //     });
+
+            // });
+
             $("#kt_modal_add_categry_form").submit(function(e) {
-                e.preventDefault(); // Prevent default form submission
+                e.preventDefault();
 
-                let categoryName = $("input[name='category']").val();
-                let subCategoryName = $("input[name='sub_category']").val();
+                let categoryName = $("#category").val();
+                let subCategoryName = $("#sub_category").val();
 
-                request_call("{{ url('category-suggestion-create')}}", "categoryName=" + categoryName  + "&subCategoryName=" + subCategoryName);
+                request_call("{{ url('category-suggestion-create')}}", {
+                    categoryName: categoryName,
+                    subCategoryName: subCategoryName
+                });
+
                 xhr.done(function(mydata) {
-                    Swal.fire({
-                        title: 'Category and Sub Category Suggestion Added Successfully!',
-                        icon: 'success',
-                    });
+                    // ✅ Clear old error messages
+                    $(".invalid-feedback").text('');
+                    $(".form-control").removeClass("is-invalid");
 
+                    // Success message (optional inline)
                     $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
-                    // Reset form
 
-                    $("input[name='category']").val('');
-                    $("input[name='sub_category']").val('');
-                    // display modal none
+                    // Reset form
+                    $("#category").val('');
+                    $("#sub_category").val('');
+
                     $("#kt_modal_add_category").modal('hide');
                 });
-                xhr.fail(function(mydata) {
-                    Swal.fire({
-                        icon:'error',
-                        title: 'Category Add Failed!',
-                        showCancelButton: true
-                    })
-                });
 
+                xhr.fail(function(xhr) {
+                    if (xhr.status === 422) {
+                        // Validation error
+                        let errors = xhr.responseJSON.messages;
+
+                        // Clear old errors
+                        $(".invalid-feedback").text('');
+                        $(".form-control").removeClass("is-invalid");
+
+                        // Show new errors
+                        if (errors.categoryName) {
+                            $("#category").addClass("is-invalid");
+                            $("#category").siblings(".invalid-feedback").text(errors.categoryName[0]);
+                        }
+                        if (errors.subCategoryName) {
+                            $("#sub_category").addClass("is-invalid");
+                            $("#sub_category").siblings(".invalid-feedback").text(errors.subCategoryName[0]);
+                        }
+                    }
+                });
             });
+
+             $('#kt_modal_add_category').on('hidden.bs.modal shown.bs.modal', function () {
+                $("#kt_modal_add_categry_form")[0].reset();
+                $(".invalid-feedback").text('');
+                $(".form-control").removeClass("is-invalid");
+            });
+
 
             $(document).on('click', '#remove-btn', function() {
                 Swal.fire({
@@ -288,16 +357,79 @@
 
         $(document).ready(function () {
             $('#kt_categroy_table').DataTable({
+                pageLength: 20,
+                lengthMenu: [10, 20, 50, 100],
                 order: [[4, 'desc']],
                 columnDefs: [
                     { orderable: false, targets: 0 }
-                ],
-                fixedHeader: {
-                header: true,
-                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-                },
+                ]
             });
         });
+
+        // <-------------START multipel select----->
+            $(document).ready(function () {
+                // Handle select all checkbox
+                $("#select-all").on("change", function () {
+                    $(".row-checkbox").prop("checked", $(this).prop("checked"));
+                    toggleDeleteButton();
+                });
+
+                // Handle single row checkbox
+                $(document).on("change", ".row-checkbox", function () {
+                    if ($(".row-checkbox:checked").length === $(".row-checkbox").length) {
+                        $("#select-all").prop("checked", true);
+                    } else {
+                        $("#select-all").prop("checked", false);
+                    }
+                    toggleDeleteButton();
+                });
+
+                // Enable/disable Delete Selected button
+                function toggleDeleteButton() {
+                    if ($(".row-checkbox:checked").length > 0) {
+                        $("#delete-selected").prop("disabled", false);
+                    } else {
+                        $("#delete-selected").prop("disabled", true);
+                    }
+                }
+
+                // Handle bulk delete
+                $("#delete-selected").on("click", function () {
+                    let ids = $(".row-checkbox:checked").map(function () {
+                        return $(this).val();
+                    }).get();
+
+                    if (ids.length === 0) return;
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Are you sure?',
+                        text: 'You are about to delete selected categories.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete them!',
+                        confirmButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ url('category-suggestion-bulk-delete') }}",
+                                type: "POST",
+                                data: {
+                                    ids: ids,
+                                    _token: $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function (response) {
+                                    Swal.fire('Deleted!', response.message, 'success');
+                                    $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
+                                },
+                                error: function () {
+                                    Swal.fire('Error!', 'Failed to delete records.', 'error');
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+
 
     </script>
 @endsection

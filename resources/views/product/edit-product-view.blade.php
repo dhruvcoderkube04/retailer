@@ -494,7 +494,7 @@
            if (selectedFiles.length + files.length > 3) {
                 alert('You can upload a maximum of 3 images.');
                 updateFileInput();
-                return; 
+                return;
             }
 
             files.forEach(file => {
@@ -983,6 +983,6 @@
             });
         });
 
-        
+
     </script>
 @endsection

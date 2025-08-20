@@ -180,13 +180,13 @@
                             <table class="table align-middle fs-7 table-striped" id="kt_datatable_order_list">
                                 <thead>
                                     <tr class="text-start text-gray-700 fw-bolder fs-6 text-uppercase gs-0">
-                                        <th class="text-center min-w-50px">SR NO</th>
-                                        <th class="text-center min-w-40px">ORDER DATE</th>
-                                        <th class="text-center min-w-110px">MEDIA</th>
-                                        <th class="text-center min-w-280px">ORDER DETAIL</th>
-                                        <th class="text-center min-w-280px">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-280px">TRACKING ID</th>
-                                        <th class="text-center min-w-70px">ACTION</th>
+                                        <th class="text-center min-w-50px" style="background: #0d0e12;color:#fff !important;">SR NO</th>
+                                        <th class="text-center min-w-100px" style="background: #0d0e12;color:#fff !important;">ORDER DATE</th>
+                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">ORDER DETAIL</th>
+                                        <th class="text-center min-w-150px" style="background: #0d0e12;color:#fff !important;">MEDIA</th>
+                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-300px" style="background: #0d0e12;color:#fff !important;">WHOLESALER DETAIL</th>
+                                        <th class="text-center min-w-70px" style="background: #0d0e12;color:#fff !important;">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-700 fs-6">
@@ -1065,21 +1065,23 @@
         //<------------- START : server-side transaction datatable ------------->
         const type = @json($type);
         dataTable = $('#kt_datatable_order_list').DataTable({
-            dom: "<'row mb-5'" +
-                "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                ">" +
-                "<'table-responsive'tr>" +
-                "<'row'" +
+            dom: "<'row mb-2'" +
+            "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+            ">" +
+            "<'table-responsive'tr>" +
+            "<'row'" +
+                "<'col-12 col-sm-0 col-md-0 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
                 "<'col-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start mt-6'i>" +
                 "<'col-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">",
+            pageLength: 20,
+            lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
             fixedHeader: {
             header: true,
                 headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-            },  
+            },
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
                 type: "POST",
@@ -1126,11 +1128,6 @@
                 orderable: false,
             },
             {
-                data: 'order_date',
-                className: 'text-center',
-                orderable: true,
-            },
-            {
                 data: 'media',
                 className: 'text-center',
                 orderable: false,
@@ -1148,6 +1145,11 @@
             {
                 data: 'tracking_id',
                 className: 'text-start',
+                orderable: false,
+            },
+            {
+                data: 'action',
+                className: 'text-center',
                 orderable: false,
             },
             {
