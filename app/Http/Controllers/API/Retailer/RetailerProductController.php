@@ -882,7 +882,7 @@ class RetailerProductController extends Controller
             }
         } else {
             // ========== LOGGED-IN USER FLOW ==========
-            $customerId = $user->id;
+            $customerId = $user->customer_id;
             $customerDetails = CustomerDetails::find($customerId);
             // Check if any required fields are missing in DB
             $missingFields = [];

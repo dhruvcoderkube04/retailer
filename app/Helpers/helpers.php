@@ -125,33 +125,37 @@ if (!function_exists('isMaliciousSearch')) {
 
    function isMaliciousSearch($input)
    {
-      $blacklist = [
-         'select',
-         'insert',
-         'update',
-         'delete',
-         'drop',
-         'truncate',
-         'exec',
-         'union',
-         ' or ',
-         ' and ',
-         '--',
-         ';',
-         '#',
-         '/*',
-         '*/'
-      ];
-
-      $input = strtolower($input);
-      foreach ($blacklist as $word) {
-         if (strpos($input, $word) !== false) {
-            return true;
-         }
-      }
-      return false;
+       // Normalize input
+       $input = strtolower(trim($input));
+   
+       // Common dangerous patterns (SQLi, XSS, etc.)
+       $blacklistPatterns = [
+           '/\bselect\b/',
+           '/\binsert\b/',
+           '/\bupdate\b/',
+           '/\bdelete\b/',
+           '/\bdrop\b/',
+           '/\btruncate\b/',
+           '/\bexec\b/',
+           '/\bunion\b/',
+           '/\b(or|and)\b.+?=/', // pattern like: or 1=1
+           '/--/',               // SQL comment
+           '/;/',                // command chaining
+           '/#/',                // comment
+           '/\/\*/',             // comment start
+           '/\*\//',             // comment end
+           '/<script\b[^>]*>(.*?)<\/script>/is', // basic XSS
+       ];
+   
+       foreach ($blacklistPatterns as $pattern) {
+           if (preg_match($pattern, $input)) {
+               return true;
+           }
+       }
+   
+       return false;
    }
-}
+}   
 
 //<---------------------- END : For  Block known SQL keywords or suspicious patterns -------------------------->
 
