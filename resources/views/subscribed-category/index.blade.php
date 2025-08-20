@@ -42,7 +42,7 @@
                         <div class="card">
                             <div class="card-body pt-4">
                                 <div class="pb-5">
-                                    <div class="row g-5 justify-content-md-end">
+                                    <div class="row g-5 justify-content-md-end mb-4">
 
                                         {{-- Wholesaler Dropdown --}}
                                         <div class="col-12 col-md-3">
@@ -94,12 +94,12 @@
                                 <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Action</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Media</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
-                                            <th class="text-center py-5 border-0 align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Payment Method</th>
-                                            <th class="text-center py-5 border-0 min-w-70px" style="background: #0d0e12;color:#fff !important;">Margin
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px">Action</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px">Media</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px">Sub Category</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px">Wholesaler</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-200px">Payment Method</th>
+                                            <th class="text-center py-5 border-0 min-w-70px">Margin
                                                 <br> <span class="text-capitalize fs-9">(In Rs.)</span>
                                             </th>
                                         </tr>

@@ -48,16 +48,16 @@
                                 <table class="table align-middle table-row-dashed fs-6 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center align-middle min-w-100px">Action</th>
-                                            <th class="text-center align-middle min-w-50px"></th>
-                                            <th class="text-center align-middle min-w-100px">Wholesaler</th>
-                                            <th class="text-center align-middle min-w-200px">Name</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px">Action</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-50px"></th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-100px">Wholesaler</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-200px">Name</th>
                                             {{-- add new column Subcategories  --}}
-                                            <th class="text-center align-middle min-w-300px">Subcategories</th>
-                                            <th class="text-center align-middle min-w-80px">Details</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-300px">Subcategories</th>
+                                            <th class="text-center py-5 border-0 align-middle min-w-80px">Details</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="fw-semibold text-gray-600">
+                                    <tbody class="fw-semibold text-gray-700 fs-6">
                                         {{-- Data will be populated via JS --}}
                                     </tbody>
                                 </table>

@@ -71,11 +71,11 @@
                                         <!--begin::Thead-->
                                         <thead class="border-gray-200 fs-5 fw-semibold bg-lighten ">
                                             <tr>
-                                                <th class="min-w-250px px-10 py-5" style="background: #0d0e12;color:#fff !important;">Action</th>
-                                                <th class="min-w-175px ps-9 py-5" style="background: #0d0e12;color:#fff !important;">Category</th>
-                                                <th class="min-w-250px px-0 py-5" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
-                                                <th class="min-w-250px px-0 py-5" style="background: #0d0e12;color:#fff !important;">Status</th>
-                                                <th class="min-w-100px py-5" style="background: #0d0e12;color:#fff !important;">Created</th>
+                                                <th class="min-w-250px px-10 py-5">Action</th>
+                                                <th class="min-w-175px ps-9 py-5">Category</th>
+                                                <th class="min-w-250px px-0 py-5">Sub Category</th>
+                                                <th class="min-w-250px px-0 py-5">Status</th>
+                                                <th class="min-w-100px py-5">Created</th>
                                             </tr>
                                         </thead>
                                         <!--end::Thead-->

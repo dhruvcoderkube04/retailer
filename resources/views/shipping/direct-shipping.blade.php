@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
                 <div class="card-title">
-                    <h3 class="m-0">Direct Shipping</h3>
+                    <h3 class="page-heading text-gray-900 fw-bold fs-2 my-0">Direct Shipping</h3>
                 </div>
             </div>
 
@@ -17,20 +17,20 @@
                 <form id="directShippingForm" enctype="multipart/form-data">
                     <!-- Product Image -->
                     <div class="col-md-4 mb-4">
-                        <label for="product_image" class="d-block mb-2">Choose Product Image</label>
+                        <label for="product_image" class="d-block mb-2 fs-6">Choose Product Image</label>
                         <input type="file" class="form-control" id="product_image" name="product_image" accept="image/png, image/jpeg, image/jpg" />
                     </div>
 
                     <!-- Product Details -->
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Product Name</label>
+                        <label class="form-label fs-6">Product Name</label>
                         <input type="text" class="form-control" name="product_name" id="product_name"
                                required pattern="^[A-Za-z0-9 ]+$"
                                title="Only letters, numbers, and spaces allowed." />
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
-                            <label class="form-label d-flex justify-content-between align-items-center">
+                            <label class="form-label d-flex justify-content-between align-items-center fs-6">
                                 Price (₹)
                                 <span class="fw-bold text-primary">Price per piece</span>
                             </label>
@@ -39,7 +39,7 @@
                                    title="Only positive whole numbers allowed." />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Quantity</label>
+                            <label class="form-label fs-6">Quantity</label>
                             <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
                                    required pattern="^[1-5]$"
                                    title="Only numbers 1 to 5 allowed." />
@@ -48,13 +48,13 @@
 
                     <!-- Total Price -->
                     <div class="mb-3 col-md-4">
-                        <label class="form-label">Total Price</label>
+                        <label class="form-label fs-6">Total Price</label>
                         <input type="text" class="form-control" id="total_price" disabled placeholder="₹ 0.00" />
                     </div>
 
                     <!-- Category -->
                     <div class="mb-3 col-md-4">
-                        <label class="form-label">Sub Category</label>
+                        <label class="form-label fs-6">Sub Category</label>
                         <select
                             class="form-select mb-2 @error('sub_category_id') is-invalid @enderror"
                             data-control="select2" name="sub_category_id"
