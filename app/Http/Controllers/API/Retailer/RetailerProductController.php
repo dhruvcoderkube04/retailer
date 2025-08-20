@@ -211,6 +211,8 @@ class RetailerProductController extends Controller
             $subCategoryIds = $request->sub_category ? explode(',', $request->sub_category) : '';
             $minPrice = (float) $request->min_price;
             $maxPrice = (float) $request->max_price;
+            $sizes = $request->has('size') ? explode(',', $request->size) : [];
+
 
             // <---------------- map product data ---------------------->
             $products = $allProducts->map(function ($item) use ($retailerSubscribedProducts, $retailerEditedProducts) {
@@ -247,7 +249,7 @@ class RetailerProductController extends Controller
                 }
 
                 return $item;
-            })->filter(function ($item) use ($subCategoryIds, $minPrice, $maxPrice, $retailerEditedProducts, ) {
+            })->filter(function ($item) use ($subCategoryIds, $minPrice, $maxPrice, $sizes, $retailerEditedProducts, ) {
                 //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
                 foreach ($retailerEditedProducts as $editedProduct) {
                     if ($item->id == $editedProduct->product_id) {
@@ -294,6 +296,20 @@ class RetailerProductController extends Controller
                     }
                 }
 
+                // ✅ Size filter (newly added)
+                if (!empty($sizes)) {
+                    if (!empty($item->productVariations) && $item->productVariations->isNotEmpty()) {
+                        $hasSizeMatch = $item->productVariations->contains(function ($variation) use ($sizes) {
+                            return in_array(strtoupper(trim($variation->product_variation)), $sizes);
+                        });
+                        if (!$hasSizeMatch) {
+                            return false;
+                        }
+                    } else {
+                        return false; 
+                    }
+                }
+
                 return true;
             })->map(function ($item) use ($retailerEditedProducts) {
                 return $this->formatProductFromClone($item, $item->final_price, $retailerEditedProducts);
@@ -332,6 +348,9 @@ class RetailerProductController extends Controller
                 }
                 return ApiResponse::success(['product' => $single], 'Product fetched successfully');
             }
+
+            //<------------ FILTER : By Size (S,M,XL etc) --------------->
+
 
 
             // <---------------- pagination ---------------------->
@@ -738,8 +757,14 @@ class RetailerProductController extends Controller
                 }
 
                 // Optionally clear verification after use
-                Cache::forget('otp_verified_' . $request->phone_number);
+                // Cache::forget('otp_verified_' . $request->phone_number);
             }
+
+            // Log::info('OTP verified cache check', [
+            //     'phone' => $request->phone_number,
+            //     'cached' => Cache::get('otp_verified_' . $request->phone_number)
+            // ]);
+
 
             // $request->validate([
             //     'phone_number' => 'required|digits:10',
@@ -1060,7 +1085,7 @@ class RetailerProductController extends Controller
 
                     if ($productModel->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
-                            return ApiResponse::error( 'Product variation is required for Product ID ' . $productId);
+                            return ApiResponse::error('Product variation is required for Product ID ' . $productId);
                         }
 
                         $productVariation = ProductVariation::where('product_id', $productId)->where('product_variation', $product['product_variation'])->first();
@@ -1300,13 +1325,13 @@ class RetailerProductController extends Controller
             $token = $customerDetails->createToken('customer-token')->plainTextToken;
 
             return ApiResponse::success([
-                'order_id'       => $orderIDs,
-                'token'          => $token,
-                'customer'       => $filtercustomerDetails,
+                'order_id' => $orderIDs,
+                'token' => $token,
+                'customer' => $filtercustomerDetails,
                 'wishlist_items' => $wishlistItems,
-                'cart_items'     => $cartItems,
+                'cart_items' => $cartItems,
             ], 'Your order has been placed successfully!');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error:', ['error' => $e->getMessage()]);
@@ -1750,7 +1775,6 @@ class RetailerProductController extends Controller
                 // 'valid_until' => $coupon->valid_until,
             ]
         ], 'Coupon applied successfully.');
-        
     }
 
     private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts)
@@ -1922,15 +1946,18 @@ class RetailerProductController extends Controller
     public function customerOrders()
     {
         try {
-            $customer = auth()->user();
+            $user = auth()->user();
 
-            $orders = CustomerOrders::where('customer_id', $customer->id)->get();
+            $customerDetails = CustomerDetails::where('id', $user->customer_id)->first();
+            $orders = CustomerOrders::where('customer_id', $customerDetails->id)->get();
 
             if ($orders->isEmpty()) {
                 return ApiResponse::error('You have not placed any orders yet.');
             }
 
             $orderList = [];
+            $customerData = [];
+
 
             foreach ($orders as $order) {
                 $product = OrderProductDetails::find($order->order_product_id);
@@ -1952,6 +1979,8 @@ class RetailerProductController extends Controller
                 $imageString = $product->images ?? '';
                 $imageArray = explode(',', $imageString);
 
+
+
                 $orderList[] = [
                     'order_id' => $order->id,
                     'product_id' => $product->id,
@@ -1960,10 +1989,19 @@ class RetailerProductController extends Controller
                     'price' => $product_link->new_price ?? null,
                     'order_date' => $order->created_at->format('d F Y'),
                     'product_link' => $productUrl,
+                    'checkout_type' => $order->checkout_type,
+                    'status' => $order->status
                 ];
             }
 
-            return ApiResponse::success(['orders' => $orderList], 'Order Fetched Successfully');
+            $customerData[] = [
+                'fullName' => $customerDetails->firstname . ' ' . $customerDetails->lastname,
+                'email' => $customerDetails->email,
+                'phone_number' => $customerDetails->phone_number,
+                'shipping_address' => $customerDetails->address . ' ' . $customerDetails->state . ' ' . $customerDetails->city . ' ' . $customerDetails->pincode
+            ];
+
+            return ApiResponse::success(['customerData' => $customerData, 'orders' => $orderList], 'Order Fetched Successfully');
 
         } catch (\Throwable $e) {
             Log::error('Error in customerOrders(): ' . $e->getMessage(), [
@@ -2046,7 +2084,6 @@ class RetailerProductController extends Controller
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
             ];
-
 
             $customerDetails->update($updateData);
 
@@ -2242,10 +2279,11 @@ class RetailerProductController extends Controller
                 $wishList[] = [
                     'wishlist_id' => $item->id,
                     'product_id' => $product->id,
-                    'product_name' => $product->name ?? null,
-                    'price' => $product->new_price ?? null,
+                    'product_name' => $product->name ?? "",
+                    'product_image' => explode(',', $product->images),
+                    'price' => $product->new_price ?? "",
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
-                    'type' => $productType
+                    'added_on' => \Carbon\Carbon::parse($item->created_at)->diffForHumans(),
                 ];
             }
 
@@ -2262,6 +2300,76 @@ class RetailerProductController extends Controller
         }
     }
 
+    public function removeToWishlist(Request $request)
+    {
+
+        try {
+            $customer = auth()->user();
+            $customerDetails = CustomerDetails::find($customer->customer_id);
+
+            $request->validate([
+                'product_id' => 'nullable|integer',
+                'retailer_product_id' => 'nullable|integer',
+            ], [
+                'product_id.integer' => 'Product ID must be an integer.',
+                'retailer_product_id.integer' => 'Retailer Product ID must be an integer.',
+            ]);
+
+            $productId = $request->product_id;
+            $retailerProductId = $request->retailer_product_id;
+
+            // Ensure only one source is provided
+            if ((!$productId && !$retailerProductId) || ($productId && $retailerProductId)) {
+
+                return ApiResponse::error('Provide either product_id or retailer_product_id, but not both.');
+            }
+
+            // Build base query
+            $wishlistQuery = CustomerCart::where('customer_id', $customerDetails->id)
+                ->where('type', 'wishlist')
+                ->where('status', 'active');
+
+            // Add correct condition based on product type
+            if ($productId) {
+                $exists = Product::where('id', $productId)
+                    ->exists();
+                if (!$exists) {
+                    return ApiResponse::error('Invalid wholesaler product.');
+                }
+
+                $wishlistQuery->where('product_id', $productId);
+            } elseif ($retailerProductId) {
+                $exists = RetailerCloneProduct::where('id', $retailerProductId)
+                    ->exists();
+
+                if (!$exists) {
+                    return ApiResponse::error('Invalid retailer product.');
+                }
+
+                $wishlistQuery->where('retailer_product_id', $retailerProductId);
+            }
+
+            // Get wishlist item
+            $wishlistItem = $wishlistQuery->first();
+
+            if (!$wishlistItem) {
+                return ApiResponse::error('Wishlist item not found.');
+            }
+
+            // Soft delete (set status to inactive)
+            $wishlistItem->update(['status' => 'inactive']);
+
+            return ApiResponse::success('Wishlist item removed successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Error in removeToWishlist(): ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return ApiResponse::error('Something went wrong while removing the wishlist item.');
+
+        }
+    }
 
     // public function addToCart(Request $request)
     // {
@@ -2367,6 +2475,7 @@ class RetailerProductController extends Controller
     //     }
     // }
 
+
     public function cart(Request $request)
     {
         try {
@@ -2418,7 +2527,6 @@ class RetailerProductController extends Controller
                     'quantity' => $item->quantity,
                     'price' => $product->new_price ?? null,
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
-                    'type' => $productType
                 ];
             }
 
@@ -2435,80 +2543,6 @@ class RetailerProductController extends Controller
         }
     }
 
-    public function removeToWishlist(Request $request)
-    {
-        try {
-            $customer = auth()->user();
-            $customerDetails = CustomerDetails::find($customer->customer_id);
-
-            // Validate input
-            $request->validate([
-                'product_id' => 'required|integer',
-                'wholesaler_id' => 'nullable|integer',
-                'retailer_id' => 'nullable|integer',
-            ]);
-
-            $productId = $request->product_id;
-            $wholesalerId = $request->wholesaler_id;
-            $retailerId = $request->retailer_id;
-
-            // Ensure only one source is provided
-            if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-
-                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.');
-            }
-
-            // Build base query
-            $wishlistQuery = CustomerCart::where('customer_id', $customerDetails->id)
-                ->where('type', 'wishlist')
-                ->where('status', 'active');
-
-            // Add correct condition based on product type
-            if ($wholesalerId) {
-                $exists = Product::where('id', $productId)
-                    ->where('wholesaler_id', $wholesalerId)
-                    ->exists();
-
-                if (!$exists) {
-
-                    return ApiResponse::error('Invalid wholesaler product.');
-                }
-
-                $wishlistQuery->where('product_id', $productId);
-            } elseif ($retailerId) {
-                $exists = RetailerCloneProduct::where('id', $productId)
-                    ->where('retailer_id', $retailerId)
-                    ->exists();
-
-                if (!$exists) {
-                    return ApiResponse::error('Invalid retailer product.');
-                }
-
-                $wishlistQuery->where('retailer_product_id', $productId);
-            }
-
-            // Get wishlist item
-            $wishlistItem = $wishlistQuery->first();
-
-            if (!$wishlistItem) {
-                return ApiResponse::error('Wishlist item not found.');
-            }
-
-            // Soft delete (set status to inactive)
-            $wishlistItem->update(['status' => 'inactive']);
-
-            return ApiResponse::success('Wishlist item removed successfully.');
-        } catch (\Throwable $e) {
-            Log::error('Error in removeToWishlist(): ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-
-            return ApiResponse::error('Something went wrong while removing the wishlist item.');
-
-        }
-    }
-
     public function removeToCart(Request $request)
     {
         try {
@@ -2517,32 +2551,28 @@ class RetailerProductController extends Controller
 
             // Validate input
             $request->validate([
-                'product_id' => 'required|integer',
-                'wholesaler_id' => 'nullable|integer',
-                'retailer_id' => 'nullable|integer',
+                'product_id' => 'nullable|integer',
+                'retailer_product_id' => 'nullable|integer',
             ]);
 
             $productId = $request->product_id;
-            $wholesalerId = $request->wholesaler_id;
-            $retailerId = $request->retailer_id;
+            $retailerProductId = $request->retailer_product_id;
 
             // Ensure only one product source is selected
-            if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.');
+            if ((!$productId && !$retailerProductId) || ($productId && $retailerProductId)) {
+                return ApiResponse::error('Provide either wholesaler_product_id or retailer_product_id, but not both.');
             }
 
             // Validate product existence
-            if ($wholesalerId) {
+            if ($productId) {
                 $exists = Product::where('id', $productId)
-                    ->where('wholesaler_id', $wholesalerId)
                     ->exists();
 
                 if (!$exists) {
                     return ApiResponse::error('Invalid wholesaler product.');
                 }
-            } elseif ($retailerId) {
-                $exists = RetailerCloneProduct::where('id', $productId)
-                    ->where('retailer_id', $retailerId)
+            } elseif ($retailerProductId) {
+                $exists = RetailerCloneProduct::where('id', $retailerProductId)
                     ->exists();
 
                 if (!$exists) {
@@ -2555,10 +2585,10 @@ class RetailerProductController extends Controller
                 ->where('type', 'cart')
                 ->where('status', 'active');
 
-            if ($wholesalerId) {
+            if ($productId) {
                 $cartQuery->where('product_id', $productId);
             } else {
-                $cartQuery->where('retailer_product_id', $productId);
+                $cartQuery->where('retailer_product_id', $retailerProductId);
             }
 
             $cartItem = $cartQuery->first();
@@ -2586,7 +2616,6 @@ class RetailerProductController extends Controller
         try {
             $customer = auth()->user();
             $customerDetails = CustomerDetails::find($customer->customer_id);
-
             $rawItems = [];
 
             // Detect single vs array input
@@ -2615,6 +2644,7 @@ class RetailerProductController extends Controller
                     'quantity' => $request->quantity ?? 1,
                 ];
             }
+
 
             // Merge duplicate items before processing
             $mergedItems = $this->mergeDuplicateCartItems($rawItems);
@@ -2690,11 +2720,35 @@ class RetailerProductController extends Controller
 
             return [
                 'product_id' => $productId,
+                'quantity' => $existingCart->quantity,
                 'status' => 'updated',
                 'message' => 'Cart quantity updated.',
                 'wishlist_id' => $existingCart->id,
             ];
+        } else {
+            // Check for inactive cart and reactivate
+            $inactiveCart = CustomerCart::where('customer_id', $customerDetails->id)
+                ->when($wholesalerId, fn($query) => $query->where('product_id', $productId))
+                ->when($retailerId, fn($query) => $query->where('retailer_product_id', $productId))
+                ->where('type', 'cart')
+                ->where('status', 'inactive')
+                ->first();
+
+            if ($inactiveCart) {
+                $inactiveCart->status = 'active';
+                $inactiveCart->quantity = $quantity;
+                $inactiveCart->save();
+
+                return [
+                    'product_id' => $productId,
+                    'quantity' => $inactiveCart->quantity,
+                    'status' => 'reactivated',
+                    'message' => 'Add To Cart Successfully.',
+                    'wishlist_id' => $inactiveCart->id,
+                ];
+            }
         }
+
 
         // Create new cart record
         $cartData = [
@@ -2714,6 +2768,7 @@ class RetailerProductController extends Controller
 
         return [
             'product_id' => $productId,
+            'quantity' => $cart->quantity,
             'status' => 'success',
             'message' => 'Product added to cart.',
             'wishlist_id' => $cart->id,

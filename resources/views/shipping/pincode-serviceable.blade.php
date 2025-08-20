@@ -7,46 +7,50 @@
     <!--begin::Content-->
 <div id="kt_app_content" class="app-content flex-column-fluid my-5">
     <div id="kt_app_content_container" class="app-container mx-auto">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
-                    <div class="card-title">
-                        <h3 class="m-0">Check Delivery Availability</h3>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <form id="pincodeCheckForm">
-                        <div class="row gy-5 gx-5">
-                            <div class="col-md-6">
-                                <label class="form-label">Source Pincode <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="source_pincode" id="source_pincode" required />
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+                            <div class="card-title">
+                                <h3 class="m-0">Check Delivery Availability</h3>
                             </div>
-                            @if ($partner->code == 'fship')
-                                <div class="col-md-6">
-                                    <label class="form-label">Destination Pincode <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="destination_pincode" id="destination_pincode"/>
+                        </div>
+        
+                        <div class="card-body">
+                            <form id="pincodeCheckForm">
+                                <div class="row gy-5 gx-5">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Source Pincode <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="source_pincode" id="source_pincode" required />
+                                    </div>
+                                    @if ($partner->code == 'fship')
+                                        <div class="col-md-6">
+                                            <label class="form-label">Destination Pincode <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="destination_pincode" id="destination_pincode"/>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
-                        </div>
-
-                        <div class="mt-5">
-                            <button type="submit" class="btn btn-primary">Check Availability</button>
-                        </div>
-                    </form>
-
-                    <!-- Response Box -->
-                    <div id="availabilityResult" class="mt-5" style="display: none;">
-                        <div class="card shadow-sm border-0 bg-light">
-                            <div class="card-body">
-                                <h5 class="fw-bold text-gray-800 mb-3">
-                                    <i class="bi bi-check2-circle me-2 fs-4" id="status_icon"></i>
-                                    <span id="result_status"></span>
-                                </h5>
-                                <p class="text-muted" id="result_details"></p>
+        
+                                <div class="mt-5">
+                                    <button type="submit" class="btn btn-primary">Check Availability</button>
+                                </div>
+                            </form>
+        
+                            <!-- Response Box -->
+                            <div id="availabilityResult" class="mt-5" style="display: none;">
+                                <div class="card shadow-sm border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="fw-bold text-gray-800 mb-3">
+                                            <i class="bi bi-check2-circle me-2 fs-4" id="status_icon"></i>
+                                            <span id="result_status"></span>
+                                        </h5>
+                                        <p class="text-muted" id="result_details"></p>
+                                    </div>
+                                </div>
                             </div>
+        
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

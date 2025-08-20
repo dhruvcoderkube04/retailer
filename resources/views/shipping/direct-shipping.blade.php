@@ -6,86 +6,92 @@
 @section('content')
 <div id="kt_app_content" class="app-content flex-column-fluid my-5">
     <div id="kt_app_content_container" class="app-container mx-auto">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
-                <div class="card-title">
-                    <h3 class="m-0">Direct Shipping</h3>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+                        <div class="card-title">
+                            <h3 class="page-heading text-gray-900 fw-bold fs-2 my-0">Direct Shipping</h3>
+                        </div>
+                    </div>
+        
+                    <div class="card-body">
+                        <form id="directShippingForm" class="row" enctype="multipart/form-data">
+                            <!-- Product Image -->
+                            <div class="col-md-12 mb-5">
+                                <label for="product_image" class="d-block mb-2 fs-6">Choose Product Image</label>
+                                <input type="file" class="form-control" id="product_image" name="product_image" accept="image/png, image/jpeg, image/jpg" />
+                            </div>
+        
+                            <!-- Product Details -->
+                            <div class="col-md-12 mb-5">
+                                <label class="form-label fs-6">Product Name</label>
+                                <input type="text" class="form-control" name="product_name" id="product_name"
+                                       required pattern="^[A-Za-z0-9 ]+$"
+                                       title="Only letters, numbers, and spaces allowed." />
+                            </div>
+                            <div class="row g-3 mb-5">
+                                <div class="col-md-6">
+                                    <label class="form-label d-flex justify-content-between align-items-center fs-6">
+                                        Price (₹)
+                                        <span class="fw-bold text-primary">Price per piece</span>
+                                    </label>
+                                    <input type="number" class="form-control" name="price" id="price"
+                                           required pattern="^[1-9][0-9]*$" max="5000" min="1"
+                                           title="Only positive whole numbers allowed." />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fs-6">Quantity</label>
+                                    <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
+                                           required pattern="^[1-5]$"
+                                           title="Only numbers 1 to 5 allowed." />
+                                </div>
+                            </div>
+        
+                            <!-- Total Price -->
+                            <div class="col-md-12 mb-5">
+                                <label class="form-label fs-6">Total Price</label>
+                                <input type="text" class="form-control" id="total_price" disabled placeholder="₹ 0.00" />
+                            </div>
+        
+                            <!-- Category -->
+                            <div class="col-md-12 mb-5">
+                                <label class="form-label fs-6">Sub Category</label>
+                                <select
+                                    class="form-select mb-2 @error('sub_category_id') is-invalid @enderror"
+                                    data-control="select2" name="sub_category_id"
+                                    data-placeholder="Select an option" id="subCategory">
+                                    <option></option>
+                                    @foreach ($sub_category_list ?? [] as $sub_category)
+                                        <option data-category-id="{{ $sub_category->category_id }}"
+                                            value="{{ $sub_category->id }}"
+                                            {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
+                                            {{ Str::upper($sub_category->sub_category_name) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('sub_category_id')
+                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                @enderror
+                                <small class="text-warning d-block mt-1">Note: It’s optional to select a category in direct shipping.</small>
+                            </div>
+        
+                            <!-- Customer Section -->
+                            <div class="col-md-12 mb-5">
+                                <div class="mb-5 p-3 bg-light border rounded">
+                                    <h5 class="mb-2"><i class="bi bi-person-fill"></i> Customer Details</h5>
+                                    <a href="javascript:void(0)" class="text-primary" onclick="showCustomerModal()">+ Click To Add Customer Details</a>
+                                    <div id="selectedCustomer" class="mt-3 text-muted"></div>
+                                </div>
+                            </div>
+        
+                            <!-- Buttons -->
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-dark">Cash on delivery</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
-
-            <div class="card-body">
-                <form id="directShippingForm" enctype="multipart/form-data">
-                    <!-- Product Image -->
-                    <div class="col-md-4 mb-4">
-                        <label for="product_image" class="d-block mb-2">Choose Product Image</label>
-                        <input type="file" class="form-control" id="product_image" name="product_image" accept="image/png, image/jpeg, image/jpg" />
-                    </div>
-
-                    <!-- Product Details -->
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" class="form-control" name="product_name" id="product_name"
-                               required pattern="^[A-Za-z0-9 ]+$"
-                               title="Only letters, numbers, and spaces allowed." />
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label d-flex justify-content-between align-items-center">
-                                Price (₹)
-                                <span class="fw-bold text-primary">Price per piece</span>
-                            </label>
-                            <input type="number" class="form-control" name="price" id="price"
-                                   required pattern="^[1-9][0-9]*$" max="5000" min="1"
-                                   title="Only positive whole numbers allowed." />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Quantity</label>
-                            <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
-                                   required pattern="^[1-5]$"
-                                   title="Only numbers 1 to 5 allowed." />
-                        </div>
-                    </div>
-
-                    <!-- Total Price -->
-                    <div class="mb-3 col-md-4">
-                        <label class="form-label">Total Price</label>
-                        <input type="text" class="form-control" id="total_price" disabled placeholder="₹ 0.00" />
-                    </div>
-
-                    <!-- Category -->
-                    <div class="mb-3 col-md-4">
-                        <label class="form-label">Sub Category</label>
-                        <select
-                            class="form-select mb-2 @error('sub_category_id') is-invalid @enderror"
-                            data-control="select2" name="sub_category_id"
-                            data-placeholder="Select an option" id="subCategory">
-                            <option></option>
-                            @foreach ($sub_category_list ?? [] as $sub_category)
-                                <option data-category-id="{{ $sub_category->category_id }}"
-                                    value="{{ $sub_category->id }}"
-                                    {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
-                                    {{ Str::upper($sub_category->sub_category_name) }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('sub_category_id')
-                            <div class="invalid-feedback fs-7">{{ $message }}</div>
-                        @enderror
-                        <small class="text-warning d-block mt-1">Note: It’s optional to select a category in direct shipping.</small>
-                    </div>
-
-                    <!-- Customer Section -->
-                    <div class="mb-4 p-3 bg-light border rounded">
-                        <h5 class="mb-2"><i class="bi bi-person-fill"></i> Customer Details</h5>
-                        <a href="javascript:void(0)" class="text-primary" onclick="showCustomerModal()">+ Click To Add Customer Details</a>
-                        <div id="selectedCustomer" class="mt-3 text-muted"></div>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex gap-3">
-                        <button type="submit" class="btn btn-dark">Cash on delivery</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

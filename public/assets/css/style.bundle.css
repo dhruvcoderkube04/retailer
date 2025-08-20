@@ -48217,9 +48217,9 @@ body[data-kt-sticky-landing-header=on] {
 [data-bs-theme=dark] {
   --bs-app-bg-color: #0F1014;
   --bs-app-blank-bg-color: #0F1014;
-  --bs-app-header-base-bg-color: #0D0E12;
+  --bs-app-header-base-bg-color: #363843;
   --bs-app-header-base-box-shadow: none;
-  --bs-app-header-minimize-bg-color: #0D0E12;
+  --bs-app-header-minimize-bg-color: #363843;
   --bs-app-header-minimize-box-shadow: 0 0.1rem 1rem 0.25rem rgba(0, 0, 0, 0.05);
   --bs-app-toolbar-base-bg-color: #131313;
   --bs-app-toolbar-base-box-shadow: none;
@@ -49993,7 +49993,7 @@ body,
   --bs-app-sidebar-base-toggle-btn-bg-color: #26272F;
   --bs-app-sidebar-base-toggle-btn-border-color: none;
   --bs-app-sidebar-base-border-color: none;
-  --bs-app-sidebar-light-bg-color: #0D0E12;
+  --bs-app-sidebar-light-bg-color: #363843;
   --bs-app-sidebar-light-box-shadow: none;
   --bs-app-sidebar-light-separator-color: #26272F;
   --bs-app-sidebar-light-scrollbar-color-hover: #26272F;
@@ -50113,7 +50113,7 @@ body,
   }
 }
 [data-kt-app-layout=dark-sidebar] .app-sidebar {
-  background-color: #0D0E12;
+  background-color: #1F212A;
   border-right: 0;
 }
 [data-kt-app-layout=dark-sidebar] .app-sidebar .scroll-y,
@@ -50331,7 +50331,7 @@ body,
 
 @media (min-width: 992px) {
   [data-kt-app-layout=dark-sidebar] .app-sidebar .menu-sub-lg-dropdown {
-    background-color: #0D0E12;
+    background-color: #363843;
   }
 }
 [data-bs-theme=dark] [data-kt-app-layout=dark-sidebar] .app-sidebar {
@@ -51155,4 +51155,13 @@ body,
   [data-kt-app-layout=dark-header] .app-header .page-heading {
     color: #ffffff !important;
   }
+}
+
+
+table thead th {
+  background: #363843 !important;
+  color: #fff !important;
+  padding-top: 1.25rem !important;
+  padding-bottom: 1.25rem !important;
+  border: 0 !important;
 }

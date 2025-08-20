@@ -4,68 +4,77 @@
 @section('content')
 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
    <div class="app-container mt-5">
-
-      <form id="rate_calculator_form" class="form">
-         @csrf
-         <div class="card card-flush py-4">
-            <div class="card-header">
-               <div class="card-title">
-                  <h2>Rate Calculator</h2>
+      <div class="row">
+         <div class="col-lg-8">
+            <form id="rate_calculator_form" class="form">
+               @csrf
+               <div class="card card-flush py-4">
+                  <div class="card-header">
+                     <div class="card-title">
+                        <h2>Rate Calculator</h2>
+                     </div>
+                  </div>
+      
+                  <div class="card-body py-0">
+                     <div class="row mb-5">
+                        <div class="col-md-6">
+                           <label class="form-label">Source Pincode</label>
+                           <input type="text" name="source_Pincode" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                           <label class="form-label">Destination Pincode</label>
+                           <input type="text" name="destination_Pincode" class="form-control" required>
+                        </div>
+                     </div>
+      
+                     <div class="row mb-5">
+                        <div class="col-md-6">
+                           <label class="form-label">Payment Mode</label>
+                           <select name="payment_Mode" class="form-select">
+                              <option value="0">COD</option>
+                              <option value="1">Prepaid</option>
+                           </select>
+                        </div>
+                        <div class="col-md-6">
+                           <label class="form-label">Amount</label>
+                           <input type="number" name="amount" class="form-control" required>
+                        </div>
+                     </div>
+      
+                     <div class="row mb-5">
+                        <div class="col-md-12">
+                           <label class="form-label">Weight (Kg)</label>
+                           <input type="number" name="shipment_Weight" class="form-control" step="0.01" required>
+                        </div>
+                     </div>
+      
+                     <div class="row mb-5">
+                        <label class="form-label">Dimensions (cm)</label>
+                        {{-- <div class="d-flex gap-4"> --}}
+                           <div class="col-md-4">
+                              <input type="number" name="shipment_Length" class="form-control w-100" placeholder="L">
+                           </div>
+                           <div class="col-md-4">
+                              <input type="number" name="shipment_Width" class="form-control w-100" placeholder="B">
+                           </div>
+                           <div class="col-md-4">
+                              <input type="number" name="shipment_Height" class="form-control w-100" placeholder="H">
+                           </div>
+                        {{-- </div> --}}
+                     </div>
+                  </div>
+                  <div class="d-flex justify-content-end m-3">
+                     <button type="submit" class="btn btn-primary">Calculate</button>
+                  </div>
                </div>
-            </div>
-
-            <div class="card-body pt-0">
-               <div class="row mb-5">
-                  <div class="col-md-6">
-                     <label class="form-label">Source Pincode</label>
-                     <input type="text" name="source_Pincode" class="form-control" required>
-                  </div>
-                  <div class="col-md-6">
-                     <label class="form-label">Destination Pincode</label>
-                     <input type="text" name="destination_Pincode" class="form-control" required>
-                  </div>
-               </div>
-
-               <div class="row mb-5">
-                  <div class="col-md-6">
-                     <label class="form-label">Payment Mode</label>
-                     <select name="payment_Mode" class="form-select">
-                        <option value="0">COD</option>
-                        <option value="1">Prepaid</option>
-                     </select>
-                  </div>
-                  <div class="col-md-6">
-                     <label class="form-label">Amount</label>
-                     <input type="number" name="amount" class="form-control" required>
-                  </div>
-               </div>
-
-               <div class="row mb-5">
-                  <div class="col-md-6">
-                     <label class="form-label">Weight (Kg)</label>
-                     <input type="number" name="shipment_Weight" class="form-control" step="0.01" required>
-                  </div>
-               </div>
-
-               <div class="row mb-5">
-                  <label class="form-label">Dimensions (cm)</label>
-                  <div class="d-flex gap-2">
-                     <input type="number" name="shipment_Length" class="form-control w-25" placeholder="L">
-                     <input type="number" name="shipment_Width" class="form-control w-25" placeholder="B">
-                     <input type="number" name="shipment_Height" class="form-control w-25" placeholder="H">
-                  </div>
-               </div>
-            </div>
-            <div class="d-flex justify-content-end m-3">
-               <button type="submit" class="btn btn-primary">Calculate</button>
+            </form>
+      
+            <!-- Response -->
+            <div id="rateResults" class="mt-5" style="display:none;">
+               <h3 class="mb-3">Shipping Options</h3>
+               <div id="rateList" class="row g-4"></div>
             </div>
          </div>
-      </form>
-
-      <!-- Response -->
-      <div id="rateResults" class="mt-5" style="display:none;">
-         <h3 class="mb-3">Shipping Options</h3>
-         <div id="rateList" class="row g-4"></div>
       </div>
    </div>
 </div>

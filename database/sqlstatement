@@ -6,3 +6,18 @@ ALTER TABLE `user_details`
   ADD COLUMN `pan_image` VARCHAR(255) NULL AFTER `pancard_number`,
   ADD COLUMN `aadhar_image` VARCHAR(255) NULL AFTER `pan_image`,
   ADD COLUMN `cancel_cheque` VARCHAR(255) NULL AFTER `aadhar_image`;
+
+
+
+
+ALTER TABLE `pickup_addresses`
+MODIFY `warehouse_id` VARCHAR(50);
+
+
+
+adda another column
+
+ALTER TABLE customer_orders
+ADD COLUMN shipment_status VARCHAR(255) NULL AFTER status,
+ADD COLUMN fulfilledby VARCHAR(255) NULL AFTER shipment_status,
+ADD COLUMN shipment_status_updated_at TIMESTAMP NULL AFTER fulfilledby;

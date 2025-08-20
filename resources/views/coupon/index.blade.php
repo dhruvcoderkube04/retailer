@@ -14,7 +14,7 @@
                 <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
                     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                         <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Coupon List</h1>
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
                                 <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
                             </li>
@@ -67,7 +67,6 @@
                             <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_subscriptions_table">
                                 <thead>
                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Name</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Status</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Coupon Code</th>
@@ -77,9 +76,10 @@
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Quantity</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Discount Price</th>
                                         <th class="min-w-125px py-5 border-0" style="background: #0d0e12;color:#fff !important;">Created Date</th>
+                                        <th class="min-w-125px py-5 border-0 ps-3" style="background: #0d0e12;color:#fff !important;">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-gray-700 fw-semibold"></tbody>
+                                <tbody class="text-gray-700 fw-semibold fs-6"></tbody>
                             </table>
                         </div>
                     </div>
@@ -257,6 +257,8 @@ $(document).ready(function () {
 
     // Initialize DataTable
     let table = $('#kt_subscriptions_table').DataTable({
+        pageLength: 20,
+        lengthMenu: [10, 20, 50, 100],
         processing: true,
         serverSide: true,
         fixedHeader: {
@@ -272,16 +274,16 @@ $(document).ready(function () {
             }
         },
         columns: [
-            { data: 'actions', orderable: false, searchable: false, className: 'ps-3' },
-            { data: 'coupon_name' },
-            { data: 'status' },
-            { data: 'coupon_code' },
-            { data: 'used_count' },
-            { data: 'valid_from' },
-            { data: 'valid_until' },
-            { data: 'quantity' },
-            { data: 'discount' },
-            { data: 'created_at' },
+            { data: 'coupon_name', orderable: false, className: 'text-center' },
+            { data: 'status', orderable: false, className: 'text-center' },
+            { data: 'coupon_code', orderable: false, className: 'text-center' },
+            { data: 'used_count', orderable: false, className: 'text-center' },
+            { data: 'valid_from', orderable: false, className: 'text-center' },
+            { data: 'valid_until', orderable: false, className: 'text-center' },
+            { data: 'quantity', orderable: false, className: 'text-center' },
+            { data: 'discount', orderable: false, className: 'text-center' },
+            { data: 'created_at', orderable: false, className: 'text-center' },
+            { data: 'actions', orderable: false, searchable: false, className: 'text-center' },
         ]
     });
 

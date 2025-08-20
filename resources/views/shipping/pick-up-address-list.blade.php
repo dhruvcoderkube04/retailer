@@ -53,9 +53,9 @@
                                             <div>
                                                 <div>
                                                     <div class="fs-4 fw-bold">Mobile: {{ $address->mobile_number }}</div>
-                                                    <div class="fs-6 fw-semibold text-gray-500">{{ $address->address }},
+                                                    <div class="fs-5 fw-semibold text-gray-700">{{ $address->address }},
                                                     </div>
-                                                    <div class="fs-6 fw-semibold text-gray-500">{{ $address->city }},
+                                                    <div class="fs-5 fw-semibold text-gray-700">{{ $address->city }},
                                                         {{ $address->state }} - {{ $address->pincode }}</div>
                                                 </div>
 

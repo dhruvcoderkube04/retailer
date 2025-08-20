@@ -7,46 +7,50 @@
     <!--begin::Content-->
 <div id="kt_app_content" class="app-content flex-column-fluid my-5">
     <div id="kt_app_content_container" class="app-container mx-auto">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
-                    <div class="card-title">
-                        <h3 class="m-0">Track Your Order Status</h3>
-                    </div>
-                </div>
-                <!--end::Card header-->
-
-                <!--begin::Card body-->
-                <div class="card-body">
-                    <form id="orderTrackForm">
-                        <div class="row gy-5 gx-5">
-                            <div class="col-md-6">
-                                <label class="form-label">Tracking No. <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="track_no" id="track_no" required />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between px-9 py-3">
+                            <div class="card-title">
+                                <h3 class="m-0">Track Your Order Status</h3>
                             </div>
                         </div>
-
-                        <div class="mt-5">
-                            <button type="submit" class="btn btn-primary">Track</button>
-                        </div>
-                    </form>
-
-                    <!-- Response Box -->
-                    <div id="availabilityResult" class="mt-5" style="display: none;">
-                        <div class="card shadow-sm border-0 bg-light">
-                            <div class="card-body">
-                                <h5 class="fw-bold text-gray-800 mb-3">
-                                    <i class="bi bi-check2-circle me-2 fs-4" id="status_icon"></i>
-                                    <span id="result_status"></span>
-                                </h5>
-                                <p class="text-muted" id="result_details"></p>
+                        <!--end::Card header-->
+        
+                        <!--begin::Card body-->
+                        <div class="card-body">
+                            <form id="orderTrackForm">
+                                <div class="row gy-5 gx-5">
+                                    <div class="col-md-12">
+                                        <label class="form-label">Tracking No. <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="track_no" id="track_no" required />
+                                    </div>
+                                </div>
+        
+                                <div class="mt-5">
+                                    <button type="submit" class="btn btn-primary">Track</button>
+                                </div>
+                            </form>
+        
+                            <!-- Response Box -->
+                            <div id="availabilityResult" class="mt-5" style="display: none;">
+                                <div class="card shadow-sm border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="fw-bold text-gray-800 mb-3">
+                                            <i class="bi bi-check2-circle me-2 fs-4" id="status_icon"></i>
+                                            <span id="result_status"></span>
+                                        </h5>
+                                        <p class="text-muted" id="result_details"></p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <!--end::Card body-->
                     </div>
+                    <!--end::Check Delivery Availability-->
+        
                 </div>
-                <!--end::Card body-->
             </div>
-            <!--end::Check Delivery Availability-->
-
         </div>
         <!--end::Content container-->
     </div>
