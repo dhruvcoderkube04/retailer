@@ -192,6 +192,11 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
     // Route::get('/edit-ticket/{ticket_id}', [TicketController::class, 'editTicket'])->name('retailer.ticket.edit');
     // Route::post('/update-ticket/{id}', [TicketController::class, 'updateTicket'])->name('retailer.ticket.update');
 
+
+    // Enquiry
+    Route::get('/website-enquiry', [RetailerCategoryController::class, 'websiteEnquiryList'])->name('retailer.website.enquiry.list');
+    Route::post('/website-enquiry/fetch-record', [RetailerCategoryController::class, 'websiteEnquiryListFetchRecord'])->name('retailer.website-enquiry.fetch-record');
+
     // rate calculation
     Route::get('/rate-calculation', [RetilerController::class, 'ratecCalculation'])->name('retailer.rate.calculation');
     Route::post('/rate-calculation', [RetilerController::class, 'ratecCalculationPost'])->name('retailer.rate.calculation.post');
