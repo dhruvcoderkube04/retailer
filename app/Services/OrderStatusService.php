@@ -304,6 +304,7 @@ class OrderStatusService
                         'productName' => $productName,
                         'productSku' => $productSku,
                         'customerOrder' => $customerOrder,
+                        'courier_service' => @$request->courier_service,
                         'date' => Carbon::now(),
                     ]);
                     $pdf->setOptions([
@@ -361,6 +362,7 @@ class OrderStatusService
                             'productName' => $productName,
                             'productSku' => $productSku,
                             'customerOrder' => $customerOrder,
+                            'courier_service' => @$request->courier_service,
                             'date' => Carbon::now(),
                         ]);
                         $pdf->setOptions([
