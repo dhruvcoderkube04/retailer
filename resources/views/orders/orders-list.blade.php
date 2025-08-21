@@ -197,10 +197,10 @@
                                         <th class="text-center min-w-50px">SR NO</th>
                                         <th class="text-center min-w-50px">ORDER DATE</th>
                                         <th class="text-center min-w-110px">MEDIA</th>
-                                        <th class="text-center min-w-280px">ORDER DETAIL</th>
-                                        <th class="text-center min-w-280px">CUSTOMER DETAIL</th>
-                                        <th class="text-center min-w-290px">TRACKING</th>
-                                        <th class="text-center min-w-70px">ACTION</th>
+                                        <th class="text-center min-w-275px">ORDER DETAIL</th>
+                                        <th class="text-center min-w-275px">CUSTOMER DETAIL</th>
+                                        <th class="text-center min-w-200px">TRACKING</th>
+                                        <th class="text-center min-w-75px py-5">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody class="fw-semibold text-gray-700 fs-6">
@@ -1168,7 +1168,7 @@
             },
             {
                 data: 'action',
-                className: 'text-center',
+                className: 'text-center p-0',
                 orderable: false,
                 searchable: false
             },
@@ -1187,7 +1187,7 @@
                     $(this).attr(
                         'style',
                         existingStyle +
-                        // ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
+                        ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
                         ' text-transform: uppercase !important;'
                     );
                 });
@@ -1197,8 +1197,8 @@
                 $('#kt_datatable_order_list').attr(
                     'style',
                     existingTableStyle +
-                    // ' border: 1px solid rgb(222, 226, 230) !important;' +
-                    // ' border-collapse: collapse !important;' +
+                    ' border: 1px solid rgb(222, 226, 230) !important;' +
+                    ' border-collapse: collapse !important;' +
                     ' width: 100% !important;'
                 );
 
@@ -1207,7 +1207,7 @@
                     var existingStyle = $(this).attr('style') || '';
                     $(this).attr(
                         'style',
-                        // existingStyle + ' border: 1px solid rgb(222, 226, 230) !important;'
+                        existingStyle + ' border: 1px solid rgb(222, 226, 230) !important;'
                     );
                 });
             },
