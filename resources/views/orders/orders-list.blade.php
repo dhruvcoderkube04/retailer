@@ -41,6 +41,20 @@
                         </ul>
                     </div>
 
+                    {{-- Search Box --}}
+                    <div class="my-4 w-100 w-md-400px position-relative">
+                        <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                            <i class="bi bi-search fs-5"></i>
+                        </span>
+                        <input type="text" id="order_search" 
+                            class="form-control form-control-solid ps-10 pe-10 solid bg-secondary" 
+                            placeholder="Search Orders...">
+                        <button type="button" id="clear_search" 
+                            class="position-absolute end-0 top-50 translate-middle-y me-3 border-0 bg-transparent d-none">
+                            <span class="fs-4 text-dark">✖</span>
+                        </button>
+                    </div>
+
                     {{-- Filters --}}
                     <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
                         {{-- Date Picker --}}
@@ -1066,9 +1080,10 @@
         const type = @json($type);
         dataTable = $('#kt_datatable_order_list').DataTable({
             dom: "<'row mb-5'" +
-            "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-            ">" +
-            "<'table-responsive'tr>" +
+                // "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
+                // "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
+                ">" +
+                "<'table-responsive'tr>" +
             "<'row d-flex align-items-center justify-content-between' \
                 <'col d-flex align-items-center gap-3'l i> \
                 <'col-auto'p> \
@@ -2991,6 +3006,24 @@
                     });
                 }
             });
+
+            // Custom search
+            $('#order_search').on('keyup change', function () {
+                let value = $(this).val();
+                dataTable.search(value).draw();
+                if (value.length > 0) {
+                    $('#clear_search').removeClass('d-none');
+                } else {
+                    $('#clear_search').addClass('d-none');
+                }
+            });
+            // Clear search button
+            $('#clear_search').on('click', function () {
+                $('#order_search').val('');
+                dataTable.search('').draw();
+                $(this).addClass('d-none');
+            });
+
             //<----------------- END : NDR ---------------->
         });
     </script>
