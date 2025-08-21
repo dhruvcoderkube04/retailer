@@ -1,192 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shipping Receipt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Label</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
-            width: 140mm;
-            margin: 0 auto;
-            padding: 0;
+            font-size: 14px;
+        }
+        .label-container {
+            width: 700px;
+            border: 2px solid #000;
+            margin: auto;
         }
 
-        .wrapper {
-            border: 1px solid #3d3d3d;
-            border-collapse: collapse;
-        }
-
-        table {
+        /* --- Header (3 equal columns) --- */
+        .header {
             width: 100%;
-            border-collapse: collapse;
-            margin: 0;
+            border-bottom: 2px solid #000;
+            table-layout: fixed;
         }
-
-        th,
-        td {
-            padding: 9px 5px;
-            border: 0.3px solid #3d3d3d;
-            vertical-align: middle;
-        }
-
-        .no-border {
-            border: none !important;
-        }
-
-        .no-border-left {
-            border-left: none !important;
-        }
-
-        .no-border-right {
-            border-right: none !important;
-        }
-
-        .center {
+        .header td {
+            border-left: 2px solid #000;
             text-align: center;
+            vertical-align: middle;
+            height: 150px;
+            padding: 10px;
+        }
+        .header td:first-child {
+            border-left: none;
         }
 
-        .section-title {
+        .section {
+            border-bottom: 1px solid #000;
+            padding: 8px;
+        }
+        .bold {
             font-weight: bold;
         }
 
-        .footer {
-            font-size: 10px;
+        /* Buyer + COD box */
+        .buyer-details {
+            position: relative;
+            min-height: 120px;
+            border-bottom: 1px solid #000;
+            padding: 8px;
+            padding-right: 200px; /* reserve space for COD box */
+        }
+        .cod-box {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 180px;
+            border: 2px solid #000;
             text-align: center;
-            margin-top: 10px;
+        }
+        .cod-section {
+            border-bottom: 2px solid #000;
+            padding: 6px;
+        }
+        .cod-section:last-child {
+            border-bottom: none;
         }
 
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Barcode */
+        .barcode {
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
         }
 
-        img {
-            max-width: 100px;
-            max-height: 100px;
-            object-fit: contain;
+        /* Footer */
+        .footer {
+            padding: 10px;
         }
     </style>
 </head>
-
 <body>
-    <div class="wrapper">
-        <!-- Row 1 -->
-        <table>
+    <div class="label-container">
+        <!-- Header logos -->
+        <table class="header">
             <tr>
-                <td width="25%">&nbsp;</td>
-                <td width="50%" class="center">
-                    <img src="{{ $courier_logo }}" style="width: 125px; height: 100px;">
+                <td>
+                    <img src="{{ optional($customerOrder->retailer->userDetail)->company_logo }}" alt="{{@$customerOrder->retailer->userDetail->company_name}}" height="50">
                 </td>
-                <td width="25%">&nbsp;</td>
-            </tr>
-        </table>
-
-        <!-- Row 2 -->
-        <table>
-            <tr>
-                <td width="45%" class="center no-border-right">
-                    <img src="data:image/png;base64, {!! DNS1D::getBarcodePNG($courier_service_response['waybill'], 'C128') !!}" alt="barcode"
-                        style="height: 60px; width: 175px;" />
-                    <div style="margin-top: 3px; font-size: 16px;">{{ $courier_service_response['waybill'] }}</div>
+                <td>
+                    <img src="{{@$courier_logo}}" height="50">
                 </td>
-                <td width="55%" class="no-border-left">
-                    <div></div>
+                <td>
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/logos/bigmart.jpg'))) }}" height="50">
                 </td>
             </tr>
         </table>
 
-        <!-- Row 3 -->
-        <table>
-            <tr>
-                <td width="70%">
-                    <div class="section-title">Shipping Address:</div>
-                    <div>{{ $customerOrder->customer->address }}, {{ $customerOrder->customer->state }},
-                        {{ $customerOrder->customer->city }}</div>
-                    <div>PIN: {{ $customerOrder->customer->pincode }}</div>
-                    <div>Phone: {{ $customerOrder->customer->phone_number }}</div>
-                </td>
-                <td width="30%">
-                    <h4 class="center" style="text-transform: uppercase; font-size: 18px; margin: 5px;">
-                        {{ $customerOrder->payment_method }}</h4>
-                    <div class="center">{{ $customerOrder->final_amount }}</div>
-                </td>
-            </tr>
-        </table>
+        {{-- {{dd($customerOrder->retailer->userDetail->company_logo)}} --}}
+        <!-- Product details -->
+        <div class="section">
+            <b>{{ @$productName }}  {{ @$customerOrder->order_product_detail->variation ?? '' }} ( Qty : {{ @$customerOrder->order_product_detail->quantity }})</b>
+        </div>
 
-        <!-- Row 4 -->
-        <table>
-            <tr>
-                <td width="60%">
-                    <div class="section-title">Shipped by (if undelivered, return to):</div>
-                    <div>{{ $pickupAddress->warehouse_name }}</div>
-                    <div>{{ $pickupAddress->address }}, {{ $pickupAddress->state }}, {{ $pickupAddress->city }}</div>
-                    <div>PIN : {{ $pickupAddress->pincode }}</div>
-                    <div>Phone : {{ $pickupAddress->mobile_number }}</div>
-                </td>
-                <td width="40%">
-                    <div><strong>Invoice No.: </strong> N/A </div>
-                    <div><strong>Date: </strong> {{ $date }}</div>
-                </td>
-            </tr>
-        </table>
+        <!-- Seller info -->
+        <div class="section">
+            <b>This order comes from:</b> {{ optional($customerOrder->retailer->userDetail)->company_name ?? '' }} <br>
+        </div>
 
-        <!-- Row 5 (Headers) -->
-        <table>
-            <tr>
-                <th width="60%">Product</th>
-                <th width="20%">Price</th>
-                <th width="20%">Total</th>
-            </tr>
-        </table>
+        <!-- Note + Order Info -->
+        <div class="section">
+            <span class="bold">Note- No Open Delivery Allowed </span> <br>
+            <span class="bold">Order Number:  {{ @$customerOrder->order_id }} &nbsp;&nbsp; || </span>
+            <span class="bold">Channel Order ID:  CHN987654 </span>
+        </div>
 
-        <!-- Row 6 (Product Row) -->
-        <table>
-            <tr>
-                <td width="60%">{{ $productName }}</td>
-                <td width="20%" class="center">{{ $customerOrder->final_amount }}</td>
-                <td width="20%" class="center">{{ $customerOrder->final_amount }}</td>
-            </tr>
-        </table>
+        <!-- Buyer Details + COD Box -->
+        <div class="buyer-details">
+            <div class="buyer-info">
+                <span class="bold">Buyer Details:<br>
+                {{ @$customerOrder->firstname }} <br>
+                {{ @$customerOrder->customer->address }},
+                {{ @$customerOrder->customer->state }},
+                {{ @$customerOrder->customer->city }} <br>
+                - {{ @$customerOrder->customer->pincode }} <br>
+                </span>
+                <span class="bold">Contact Number:</span> {{ @$customerOrder->customer->phone_number }}
+            </div>
 
-        <!-- Row 7 (Total) -->
-        <table>
-            <tr>
-                <th width="60%">Total</th>
-                <th width="20%" class="center">{{ $customerOrder->final_amount }}</th>
-                <th width="20%" class="center">{{ $customerOrder->final_amount }}</th>
-            </tr>
-        </table>
+            <div class="cod-box">
+                <div class="cod-section"><span class="bold">COD <br> Rs.{{ @$customerOrder->final_amount }}</span></div>
+                <div class="cod-section"><span class="bold">{{ @$customerOrder->customer->city }}</span></div>
+                <div class="cod-section"><span class="bold">{{ @$customerOrder->customer->pincode }}</span></div>
+            </div>
+        </div>
 
-        <!-- Row 8 (Return Address) -->
-        <table style="border: none;">
-            <tr>
-                <td width="45%" class="center no-border-right">
-                    <img src="data:image/png;base64, {!! DNS1D::getBarcodePNG($courier_service_response['waybill'], 'C128') !!}" alt="barcode"
-                        style="height: 60px; width: 175px;" />
-                    <div style="margin-top: 3px; font-size: 16px;">{{ $courier_service_response['waybill'] }}</div>
-                </td>
-                <td width="55%" class="no-border-left">
-                    <div>
-                        <div>
-                            <strong>Return Address: </strong>
-                            {{ $pickupAddress->warehouse_name }},
-                            {{ $pickupAddress->address }}, {{ $pickupAddress->state }},
-                            {{ $pickupAddress->city }}, PIN : {{ $pickupAddress->pincode }}
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </table>
+        <!-- Barcode Section -->
+        <div class="barcode">
+            <span class="bold">{{ strtoupper(@$courierName) }}</span><br>
+                <img src="data:image/png;base64,{!! DNS1D::getBarcodePNG($courier_service_response['waybill'], 'C128') !!}" alt="Barcode"><br>
+                {{ $courier_service_response['waybill'] }}
+        </div>
 
-    </div>
-
-    <div class="footer">
-        Thank you for your order!
+        <!-- Return Address -->
+        <div class="footer">
+            <span class="bold">If not delivered, please return at below address:-</span><br>
+            <span class="bold">{{ @$pickupAddress->address }} </span>
+            {{ @$pickupAddress->state }},<br>
+            {{ @$pickupAddress->city }} - {{ @$pickupAddress->pincode }} <br>
+            <span class="bold"> Mobile: {{ @$pickupAddress->mobile_number }}</span>
+        </div>
     </div>
 </body>
-
 </html>
