@@ -771,7 +771,7 @@ class RetailerOrderController extends Controller
         DB::beginTransaction();
         try {
             $retailer = Auth::user();
-            $customerOrder = CustomerOrders::with(['customer', 'order_product_detail'])->find($request->order_id);
+            $customerOrder = CustomerOrders::with(['customer', 'order_product_detail','retailer','wholesaler'])->find($request->order_id);
 
             if (!$customerOrder) {
                 return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);

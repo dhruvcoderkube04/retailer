@@ -343,32 +343,37 @@ class LorrigoServiceLive implements CourierInterface
                 ]);
 
                 $responseData = $response->json();
+                $rates = collect($responseData['rates'])->where('nickName', 'BDS')->where('minWeight', (float) $data['shipment_Weight']);
+                // dd($rates,(float) $data['shipment_Weight']);
                 // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
-                $marginTagName = Auth::user()->userDetail->margin_tag_name;
-
-                $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-
-                if (!empty($responseData['rates']) && is_array($responseData['rates']) && $getMargin) {
+                $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name : null;
+                if (!empty($marginTagName)) {
+                    $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+                } else {
+                    $getMargin = MarginManagement::where('default', 1)->first();
+                }
+                // dd($getMargin,Auth::user()->userDetail->margin_tag_name,$rates);
+                if (!empty($rates) && $getMargin) {
                     $marginType = $getMargin->type; // 'percentage' or 'flat'
                     $flatAmount = (float)($getMargin->flat_percentage ?? 0);
 
-                    foreach ($responseData['rates'] as &$rate) {
+                    foreach ($rates as $index => $rate) {
                         foreach ($rate as $key => $value) {
                             if ($key !== 'name' && is_numeric($value)) {
                                 if ($marginType === 'percentage') {
-                                    $rate[$key] = round($value + ($value * $flatAmount / 100), 2);
+                                    $rate[$key] = round($value + ($value *  $flatAmount / 100), 2);
                                 } elseif ($marginType === 'flat') {
                                     $rate[$key] = round($value + $flatAmount, 2);
                                 }
                             }
                         }
+                        $rates[$index] = $rate;
                     }
-                    unset($rate); // good practice
+                    // unset($rate); // good practice
                 }
-
                 return [
                     'status' => true,
-                    'rates' => $responseData['rates'],
+                    'rates' => $rates->toArray(),
                 ];
             } else {
                 Log::error('Lorrigo Rate Calculation failed', ['response' => $response->body()]);
@@ -396,6 +401,9 @@ class LorrigoServiceLive implements CourierInterface
             ],
             'type' => 'shipment'
         ];
+
+        Log::info("CANCEL POYLOAD");
+        Log::info(json_encode($payload));
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -464,11 +472,12 @@ class LorrigoServiceLive implements CourierInterface
 
     public function createShipment(array $payload): array|bool
     {
+        Log::info('Payload being sent Lorrigo Test', $payload);
         try {
-            $response = Http::withToken($this->token)
-                ->acceptJson()
-                ->post("{$this->apiUrl}/api/shipment/v2", $payload);
-
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $this->token,
+            ])->post($this->apiUrl . '/api/shipment/v2', $payload);
             if ($response->successful()) {
                 Log::info('createShipment In Lorrgido Live (Retailer side)', [
                     'status' => $response->status(),
