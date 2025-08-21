@@ -41,8 +41,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\ApiResponse;
-
-
+use App\Models\RetailerWebsiteEnquiry;
 
 class RetailerProductController extends Controller
 {
@@ -115,7 +114,6 @@ class RetailerProductController extends Controller
             if ($storeinfo->theme_data) {
                 $storeinfo->theme_data->theme_image = $storeinfo->theme_data->theme_image ? Storage::disk('spaces')->url($storeinfo->theme_data->theme_image) : '';
             }
-
             $subCategories = SubCategory::with([
                 'retailer_categories' => function ($q) use ($storeinfo) {
                     $q->where('retailer_id', $storeinfo->retailer_id);
@@ -127,17 +125,36 @@ class RetailerProductController extends Controller
                 ->get();
 
             $subCategoryList = [];
+
             foreach ($subCategories as $sub_category) {
                 $retailerCategory = $sub_category->retailer_categories->first();
+
+                $image = '';
+
+                if ($retailerCategory && $retailerCategory->category_image) {
+                    // ✅ Priority 1: image from retailer_categories
+                    $image = Storage::disk('spaces')->url($retailerCategory->category_image);
+                } elseif ($retailerCategory && $retailerCategory->category_id) {
+                    // 🔁 Priority 2: image from categories table
+                    $category = Category::find($retailerCategory->category_id);
+                    if ($category && $category->category_image) {
+                        $image = Storage::disk('spaces')->url($category->category_image);
+                    }
+                } elseif ($retailerCategory && $retailerCategory->sub_category_id) {
+                    // 🔁 Priority 3: image from sub_categories table
+                    $fallbackSubCategory = SubCategory::find($retailerCategory->sub_category_id);
+                    if ($fallbackSubCategory && $fallbackSubCategory->category_image) {
+                        $image = Storage::disk('spaces')->url($fallbackSubCategory->category_image);
+                    }
+                }
 
                 $subCategoryList[] = [
                     'id' => $sub_category->id,
                     'name' => $sub_category->sub_category_name,
-                    'image' => $retailerCategory && $retailerCategory->category_image
-                        ? Storage::disk('spaces')->url($retailerCategory->category_image)
-                        : '',
+                    'image' => $image,
                 ];
             }
+
 
             return response()->json([
                 'success' => true,
@@ -249,7 +266,7 @@ class RetailerProductController extends Controller
                 }
 
                 return $item;
-            })->filter(function ($item) use ($subCategoryIds, $minPrice, $maxPrice, $sizes, $retailerEditedProducts, ) {
+            })->filter(function ($item) use ($subCategoryIds, $minPrice, $maxPrice, $sizes, $retailerEditedProducts,) {
                 //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
                 foreach ($retailerEditedProducts as $editedProduct) {
                     if ($item->id == $editedProduct->product_id) {
@@ -306,7 +323,7 @@ class RetailerProductController extends Controller
                             return false;
                         }
                     } else {
-                        return false; 
+                        return false;
                     }
                 }
 
@@ -391,6 +408,110 @@ class RetailerProductController extends Controller
             ]);
 
             // return response()->json(['error' => $e->getMessage(), $e->getLine()], 500);
+            return ApiResponse::error('An unexpected error occurred');
+        }
+    }
+
+    public function getNewArrivals(Request $request)
+    {
+        try {
+            // <------------- Validate API Key ---------------->
+            $apiKey = $request->header('API-KEY');
+
+            if (!$apiKey) {
+                return ApiResponse::error('API Key is required');
+            }
+
+            $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
+                $query->where('is_delete', 0)->where('status', 1);
+            }])
+                ->whereHas('retailer', function ($query) {
+                    $query->where('is_delete', 0)->where('status', 1);
+                })
+                ->where('product_listing_key', $apiKey)
+                ->first();
+
+            if (!$retailer) {
+                return ApiResponse::error('Unauthorized: Invalid API Key');
+            }
+
+            $retailerId = $retailer->retailer_id;
+
+            // <------------- Fetch Latest 12 In-Stock Products (Clone + Subscribed) -------------->
+            $products = collect();
+
+            // Fetch retailer’s own (cloned) products
+            $cloneProducts = RetailerCloneProduct::with('productVariations')
+                ->where('retailer_id', $retailerId)
+                ->where('status', 'active')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Filter in-stock cloned products
+            $cloneProducts = $cloneProducts->filter(function ($item) {
+                if ($item->productVariations->isNotEmpty()) {
+                    return $item->productVariations->sum('stock') > 0;
+                }
+                return $item->stock > 0;
+            });
+
+            $products = $products->concat($cloneProducts);
+
+            // If `is_all_wholesaler_visible`, fetch wholesaler products
+            $retailerUser = User::find($retailerId);
+            if ($retailerUser && $retailerUser->is_all_wholesaler_visible == 1) {
+                $subscriptions = RetailerProducts::where('retailer_id', $retailerId)->get();
+
+                foreach ($subscriptions as $sub) {
+                    $wholesalerProducts = Product::with('productVariations')
+                        ->where('wholesaler_id', $sub->wholesaler_id)
+                        ->where('sub_category_id', $sub->sub_category_id)
+                        ->where('status', 'active')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+                    $inStock = $wholesalerProducts->filter(function ($item) {
+                        if ($item->productVariations->isNotEmpty()) {
+                            return $item->productVariations->sum('stock') > 0;
+                        }
+                        return $item->stock > 0;
+                    });
+
+                    $products = $products->concat($inStock);
+                }
+            }
+
+            // Sort all combined by latest created
+            $products = $products->sortByDesc('created_at')->take(12)->values();
+
+            // Format each product (reuse existing logic if available)
+            $formatted = $products->map(function ($item) {
+                // Assume formatProductFromClone works for both clone and original
+                $formatted = $this->formatProductFromClone($item, $item->final_price ?? $item->new_price ?? 0, collect());
+
+
+                // Handle 1 image only
+                $images = explode(',', $formatted['product_images'] ?? '');
+                $formatted['product_images'] = !empty($images[0]) ? Storage::disk('spaces')->url($images[0]) : '';
+
+                // Video
+                $formatted['product_video'] = !empty($formatted['product_video'])
+                    ? Storage::disk('spaces')->url($formatted['product_video'])
+                    : '';
+
+                return $formatted;
+            });
+
+            return ApiResponse::success([
+                'products' => $formatted,
+            ], 'New arrival products fetched successfully');
+        } catch (Exception $e) {
+            Log::error('Error in getNewArrivals: ' . $e->getMessage(), [
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return ApiResponse::error('An unexpected error occurred');
         }
     }
@@ -727,7 +848,6 @@ class RetailerProductController extends Controller
             // <---------------- return data ---------------------->
 
             return ApiResponse::success(['product' => $formatted_product], 'Products fetched successfully');
-
         } catch (\Exception $e) {
             \Log::error('Get product detail error: ' . $e->getMessage(), [
                 'line' => $e->getLine(),
@@ -958,7 +1078,6 @@ class RetailerProductController extends Controller
 
                 $customerDetails->update($updateData);
             }
-
         }
 
         // $validator = Validator::make($request->all(), [
@@ -1331,7 +1450,6 @@ class RetailerProductController extends Controller
                 'wishlist_items' => $wishlistItems,
                 'cart_items' => $cartItems,
             ], 'Your order has been placed successfully!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error:', ['error' => $e->getMessage()]);
@@ -2002,7 +2120,6 @@ class RetailerProductController extends Controller
             ];
 
             return ApiResponse::success(['customerData' => $customerData, 'orders' => $orderList], 'Order Fetched Successfully');
-
         } catch (\Throwable $e) {
             Log::error('Error in customerOrders(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2095,7 +2212,6 @@ class RetailerProductController extends Controller
                     'lastname' => $customerDetails->lastname,
                 ]
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Error in accountDetails(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2132,7 +2248,6 @@ class RetailerProductController extends Controller
             $customer->save();
 
             return ApiResponse::error('Password has been successfully updated.');
-
         } catch (\Throwable $e) {
             Log::error('Error in resetPassword(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2219,7 +2334,6 @@ class RetailerProductController extends Controller
             $wishlist = CustomerCart::create($wishlistData);
 
             return ApiResponse::success(['wishlist_id' => $wishlist->id], 'Product added to wishlist successfully.');
-
         } catch (\Throwable $e) {
 
             Log::error('Error in addToWishlist(): ' . $e->getMessage(), [
@@ -2288,7 +2402,6 @@ class RetailerProductController extends Controller
             }
 
             return ApiResponse::success(['wishlist' => $wishList], 'WishList Fetched Succesfully');
-
         } catch (\Throwable $e) {
             Log::error('Error in wishlist(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2367,7 +2480,6 @@ class RetailerProductController extends Controller
             ]);
 
             return ApiResponse::error('Something went wrong while removing the wishlist item.');
-
         }
     }
 
@@ -2531,7 +2643,6 @@ class RetailerProductController extends Controller
             }
 
             return ApiResponse::success(['cart' => $cart], 'Cart Fetched Successfully');
-
         } catch (\Throwable $e) {
             Log::error('Error in cart(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2802,4 +2913,72 @@ class RetailerProductController extends Controller
         return array_values($merged);
     }
 
+    public function contactUs(Request $request)
+    {
+        try {
+            $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
+                ->where('is_active', 1)
+                ->first();
+
+            if (!$retailer) {
+                return ApiResponse::error('Invalid user token.');
+            }
+
+            // Step 2: Validate input
+            $validator = Validator::make($request->all(), [
+                'firstname'     => 'required|string|max:100',
+                'lastname'      => 'nullable|string|max:100',
+                'email'         => 'required|email|max:255',
+                'phone_number'  => 'nullable|string|max:10',
+                'subject'       => 'required|string|max:255',
+                'message'       => 'required|string',
+                'subscribe'     => 'nullable|boolean',
+            ], [
+                'firstname.required'   => 'Please enter your first name.',
+                'firstname.max'        => 'First name cannot exceed 100 characters.',
+                'lastname.max'         => 'Last name cannot exceed 100 characters.',
+                'email.required'       => 'Email address is required.',
+                'email.email'          => 'Please provide a valid email address.',
+                'email.max'            => 'Email cannot exceed 255 characters.',
+                'phone_number.max'     => 'Phone number cannot exceed 10 characters.',
+                'subject.required'     => 'Subject is required.',
+                'subject.max'          => 'Subject cannot exceed 255 characters.',
+                'message.required'     => 'Please enter your message.',
+                'subscribe.boolean'    => 'Invalid value for subscribe checkbox.',
+            ]);
+
+            if ($validator->fails()) {
+                return ApiResponse::error(
+                    'Validation failed',
+                    $validator->errors()->toArray()
+                );
+            }
+
+            // Step 3: Create the enquiry
+            $enquiry = RetailerWebsiteEnquiry::create([
+                'retailer_id'   => $retailer->retailer_id,
+                'firstname'     => $request->firstname,
+                'lastname'      => $request->lastname,
+                'email'         => $request->email,
+                'phone_number'  => $request->phone_number,
+                'subject'       => $request->subject,
+                'message'       => $request->message,
+                'subscribe'     => $request->has('subscribe') ? true : false,
+            ]);
+
+            // Step 4: Return success response
+            return ApiResponse::success(
+                ['data' => $enquiry],
+                'Your enquiry has been submitted successfully.'
+            );
+        } catch (\Exception $e) {
+            // Optional: Log the error
+            \Log::error('Retailer contact form error: ' . $e->getMessage(), [
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+
+            return ApiResponse::error('Something went wrong. Please try again later.');
+        }
+    }
 }
