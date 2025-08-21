@@ -134,7 +134,7 @@
         <div class="section">
             <span class="bold">Note- No Open Delivery Allowed </span> <br>
             <span class="bold">Order Number:  {{ @$customerOrder->order_id }} &nbsp;&nbsp; || </span>
-            <span class="bold">Channel Order ID:  CHN987654 </span>
+            {{-- <span class="bold">Channel Order ID:  CHN987654 </span> --}}
         </div>
 
         <!-- Buyer Details + COD Box -->
