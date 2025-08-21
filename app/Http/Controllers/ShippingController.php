@@ -409,7 +409,30 @@ class ShippingController extends Controller
                 'max:255',
                 'regex:/^[A-Za-z\s]+$/'
             ],
-            'mobile' => 'required|digits:10',
+
+            'mobile' => [
+                'required',
+                'digits:10',
+                'regex:/^[6-9][0-9]{9}$/', // must start with 6-9 and 10 digits
+                function ($attribute, $value, $fail) {
+                    // Block ascending sequence
+                    if ($value === '1234567890') {
+                        $fail('Invalid mobile number.');
+                    }
+
+                    // Block descending sequence
+                    if ($value === '9876543210') {
+                        $fail('Invalid mobile number.');
+                    }
+
+                    // Block same digit repeated 10 times (1111111111, 9999999999)
+                    if (preg_match('/^(\d)\1{9}$/', $value)) {
+                        $fail('Invalid mobile number.');
+                    }
+                },
+            ],
+
+
             'pincode' => 'required|digits:6',
             'address' => 'required|string|min:10|max:255',
             'state' => 'required|string',
