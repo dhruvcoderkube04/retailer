@@ -477,6 +477,24 @@
                             </div>
                             <!--end:Menu item-->
                         </div>
+
+
+                          <!--begin:Menu sub-->
+                          <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link {{ request()->is('website-enquiry') ? 'active' : '' }}"
+                                    href="{{ route('retailer.website.enquiry.list') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Website Enquiry</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
                         <!--end:Menu sub-->
                     </div>
                     <!--end:Menu item-->

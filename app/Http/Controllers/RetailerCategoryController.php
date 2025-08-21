@@ -8,6 +8,7 @@ use App\Models\CategorySuggestion;
 use App\Models\RetailerCategory;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
+use App\Models\RetailerWebsiteEnquiry;
 use App\Rules\NoCodeInjection;
 use Exception;
 use Illuminate\Http\Request;
@@ -205,8 +206,8 @@ class RetailerCategoryController extends Controller
 
             $sub_category_image = '
                 <img src="' . ($item->category_image
-                    ? Storage::disk('spaces')->url($item->category_image)
-                    : asset('assets/media/images/no_image.jpg')) . '" 
+                ? Storage::disk('spaces')->url($item->category_image)
+                : asset('assets/media/images/no_image.jpg')) . '" 
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
                     class="w-40px me-3" 
                     alt="sub-category-image" />
@@ -229,9 +230,9 @@ class RetailerCategoryController extends Controller
                     id="image-upload"
                     data-id="' . $item->id . '"
                     data-image="' . ($item->category_image
-                    ? Storage::disk('spaces')->url($item->category_image)
-                    : asset('assets/media/images/no_image.jpg')
-                ) . '"
+                ? Storage::disk('spaces')->url($item->category_image)
+                : asset('assets/media/images/no_image.jpg')
+            ) . '"
                     data-bs-toggle="tooltip"
                     aria-label="Image Upload">
                     <i class="ki-duotone ki-setting-3 fs-3">
@@ -455,4 +456,91 @@ class RetailerCategoryController extends Controller
         return response()->json(['message' => 'No categories selected.'], 400);
     }
 
+
+    // INDEX : my-categories list
+    public function websiteEnquiryList()
+    {
+        $user = Auth::user();
+        $retailerCateogries = RetailerCategory::with([
+            'retailer',
+            'category',
+            'subCategory'
+        ])
+            ->where('retailer_id', $user->id)
+            ->get();
+        return view('support.enquiry-show', compact('retailerCateogries'));
+    }
+
+    // AJAX : server-side data-table for my-categories list
+    public function websiteEnquiryListFetchRecord(Request $request)
+    {
+        $limit = $request->input('length', 10);
+        $start = $request->input('start', 0);
+        $search = $request->input('search', '');
+        $draw = $request->input('draw');
+
+        $retailer = Auth::user();
+
+        $query = RetailerWebsiteEnquiry::where('retailer_id', $retailer->id);
+
+        // Search filters
+        if (!empty($search)) {
+            $search = trim($search);
+            $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+            if (!preg_match('/^[a-zA-Z0-9\s_\-\.@#,:]+$/', $search)) {
+                abort(400, 'Invalid search input detected.');
+            }
+
+            $query->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', '%' . $search . '%')
+                    ->orWhere('lastname', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('subject', 'like', '%' . $search . '%')
+                    ->orWhere('message', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('order')) {
+            $orderColumnIndex = $request->order[0]['column'];
+            $orderColumnName = $request->columns[$orderColumnIndex]['data'];
+            $orderDirection = $request->order[0]['dir'];
+
+            // Prevent ordering by non-database columns
+            $allowedSortColumns = ['firstname', 'email', 'subject', 'created_at'];
+
+            if (in_array($orderColumnName, $allowedSortColumns)) {
+                $query->orderBy($orderColumnName, $orderDirection);
+            } else {
+                $query->orderBy('created_at', 'desc'); // fallback
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $totalFiltered = $query->count();
+        $enquiries = $query->offset($start)->limit($limit)->get();
+
+        $data = [];
+        $serial = $start + 1;
+
+        foreach ($enquiries as $item) {
+            $data[] = [
+                'sr_no'       => $serial++,
+                'firstname'   => ucfirst($item->firstname) . ' ' . ucfirst($item->lastname),
+                'email'       => $item->email,
+                'subject'     => $item->subject,
+                'message'     => $item->message,
+                60,
+                'created_at'  => $item->created_at->format('M d, Y h:i A'),
+            ];
+        }
+
+        return response()->json([
+            'draw'            => intval($draw),
+            'recordsTotal'    => RetailerWebsiteEnquiry::where('retailer_id', $retailer->id)->count(),
+            'recordsFiltered' => $totalFiltered,
+            'data'            => $data,
+        ]);
+    }
 }

@@ -75,6 +75,16 @@ class CustomerRegisterController extends Controller
                             return $fail('The :attribute should not be a sequential or reverse-sequential number.');
                         }
                     },
+                    function ($attribute, $value, $fail) use ($request) {
+                        $existing = DB::table('store_customers_details')
+                            ->where('phone_number', $value)
+                            ->where('user_token', $request->user_token)
+                            ->first();
+
+                        if ($existing) {
+                            $fail('This Phone Number is already registered.');
+                        }
+                    },
                 ],
                 'password' => 'required|string|min:6',
             ]);
@@ -115,7 +125,6 @@ class CustomerRegisterController extends Controller
             DB::commit();
 
             return ApiResponse::success([], 'Customer registered. Please verify your email.');
-
         } catch (\Illuminate\Database\QueryException $e) {
             DB::rollBack();
 
@@ -138,11 +147,12 @@ class CustomerRegisterController extends Controller
     {
         DB::beginTransaction();
 
+        $frontendUrl = env('FRONTEND_BASE_URL', 'https://fresh-retailer-website.vercel.app');
         try {
             $customer = StoreCustomersDetails::where('email_verification_token', $token)->first();
 
             if (!$customer) {
-                return redirect('customer/login?status=invalid-token');
+               return redirect($frontendUrl . '/login?status=invalid-token');
             }
 
             // Mark as verified
@@ -174,11 +184,10 @@ class CustomerRegisterController extends Controller
 
             DB::commit();
 
-            return redirect('customer/login?status=verified');
+            return redirect($frontendUrl . '/login?status=verified');
         } catch (\Throwable $e) {
             DB::rollBack();
-
-            return redirect('customer/login?status=error');
+            return redirect($frontendUrl . '/login?status=error');
         }
     }
 
@@ -203,7 +212,6 @@ class CustomerRegisterController extends Controller
         } catch (ValidationException $e) {
             return ApiResponse::error('Validation failed', $e->errors());
         }
-
 
         DB::beginTransaction();
 
@@ -281,7 +289,6 @@ class CustomerRegisterController extends Controller
                 'wishlist_items' => $wishlistItems,
                 'cart_items' => $cartItems
             ], 'Login successful.');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -473,11 +480,11 @@ class CustomerRegisterController extends Controller
             'created_at',
             'updated_at'
         ]) : collect($customer)->except([
-                        'id',
-                        'user_id',
-                        'created_at',
-                        'updated_at'
-                    ]);
+            'id',
+            'user_id',
+            'created_at',
+            'updated_at'
+        ]);
 
 
         $customerCart = CustomerCart::where('customer_id', $customerDetails->id)->get();
