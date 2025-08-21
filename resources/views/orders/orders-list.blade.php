@@ -43,8 +43,11 @@
 
                     {{-- Search Box --}}
                     <div class="my-4 w-100 w-md-400px position-relative">
+                        <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                            <i class="bi bi-search fs-5"></i>
+                        </span>
                         <input type="text" id="order_search" 
-                            class="form-control form-control-solid pe-10" 
+                            class="form-control form-control-solid ps-10 pe-10 solid bg-secondary" 
                             placeholder="Search Orders...">
                         <button type="button" id="clear_search" 
                             class="position-absolute end-0 top-50 translate-middle-y me-3 border-0 bg-transparent d-none">
