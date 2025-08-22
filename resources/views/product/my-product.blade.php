@@ -381,7 +381,7 @@
                 {
                     data: 'name',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'sub_category',
@@ -391,7 +391,7 @@
                 {
                     data: 'new_price',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'quantity',
@@ -411,7 +411,7 @@
                 {
                     data: 'created_updated_at',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'action',
@@ -499,7 +499,7 @@
                 {
                     data: 'name',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'sub_category',
@@ -509,7 +509,7 @@
                 {
                     data: 'new_price',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'quantity',
@@ -529,7 +529,7 @@
                 {
                     data: 'created_updated_at',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'action',
