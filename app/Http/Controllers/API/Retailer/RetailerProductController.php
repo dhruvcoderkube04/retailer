@@ -43,6 +43,8 @@ use Illuminate\Support\Facades\Cache;
 use App\Helpers\ApiResponse;
 use App\Models\RetailerWebsiteEnquiry;
 
+use function Laravel\Prompts\error;
+
 class RetailerProductController extends Controller
 {
     public function storeInfo(Request $request)
@@ -486,21 +488,30 @@ class RetailerProductController extends Controller
 
             // Format each product (reuse existing logic if available)
             $formatted = $products->map(function ($item) {
-                // Assume formatProductFromClone works for both clone and original
-                $formatted = $this->formatProductFromClone($item, $item->final_price ?? $item->new_price ?? 0, collect());
+                $formatted = $this->formatProductFromClone($item, $item->final_price ?? $item->new_price ?? 0, collect(), true);
 
-
-                // Handle 1 image only
+                // Get first image
                 $images = explode(',', $formatted['product_images'] ?? '');
-                $formatted['product_images'] = !empty($images[0]) ? Storage::disk('spaces')->url($images[0]) : '';
+                $firstImage = !empty($images[0]) ? trim($images[0]) : '';
 
-                // Video
+                if ($firstImage) {
+                    $formatted['product_images'] = Storage::disk('spaces')->url($firstImage);
+                } else {
+                    // Mark as no image
+                    $formatted['product_images'] = null;
+                }
+
+                // Format video if exists
                 $formatted['product_video'] = !empty($formatted['product_video'])
                     ? Storage::disk('spaces')->url($formatted['product_video'])
                     : '';
 
                 return $formatted;
-            });
+            })->filter(function ($product) {
+                // Only keep products that have at least one image
+                return !empty($product['product_images']);
+            })->values();
+
 
             return ApiResponse::success([
                 'products' => $formatted,
@@ -880,50 +891,6 @@ class RetailerProductController extends Controller
                 // Cache::forget('otp_verified_' . $request->phone_number);
             }
 
-            // Log::info('OTP verified cache check', [
-            //     'phone' => $request->phone_number,
-            //     'cached' => Cache::get('otp_verified_' . $request->phone_number)
-            // ]);
-
-
-            // $request->validate([
-            //     'phone_number' => 'required|digits:10',
-            // ]);
-
-            // $otpService = new OtpService();
-
-            // // Step 1: Send OTP if not present
-            // if (!$request->has('otp')) {
-            //     $otp = $otpService->send($request->phone_number);
-
-            //     if (!$otp) {
-            //         return response()->json([
-            //             'error' => true,
-            //             'message' => 'Failed to send OTP. Please try again.'
-            //         ], 500);
-            //     }
-
-            //     return response()->json([
-            //         'success' => true,
-            //         'message' => 'OTP sent successfully',
-            //         'otp_required' => true,
-            //         'otp' => $otp
-            //     ], 200);
-            // }
-
-
-            // // Step 2: Verify OTP
-            // $request->validate([
-            //     'otp' => 'required|digits:4',
-            // ]);
-
-            // if (!$otpService->verify($request->phone_number, $request->otp)) {
-            //     return response()->json([
-            //         'error' => true,
-            //         'message' => 'Invalid or expired OTP.'
-            //     ], 401);
-            // }
-
             // Step 3: Check if customer already exists
             $existCustomer = CustomerDetails::where('phone_number', $request->phone_number)->first();
 
@@ -931,27 +898,29 @@ class RetailerProductController extends Controller
 
                 $missingFields = [];
 
-                if (empty(trim($existCustomer->address))) {
-                    $missingFields[] = 'address';
-                }
-                if (empty(trim($existCustomer->state))) {
-                    $missingFields[] = 'state';
-                }
-                if (empty(trim($existCustomer->city))) {
-                    $missingFields[] = 'city';
-                }
-                if (empty(trim($existCustomer->pincode))) {
-                    $missingFields[] = 'pincode';
-                }
-
-                if (!empty($missingFields)) {
-                    return ApiResponse::error("Please fill these fields: " . implode(', ', $missingFields));
-                }
-
                 $existCustomer->address = $request->input('address', $existCustomer->address);
                 $existCustomer->state = $request->input('state', $existCustomer->state);
                 $existCustomer->city = $request->input('city', $existCustomer->city);
                 $existCustomer->pincode = $request->input('pincode', $existCustomer->pincode);
+
+                $missingFields = [];
+
+                if (empty(trim($existCustomer->address))) {
+                    $missingFields[] = 'Address is required.';
+                }
+                if (empty(trim($existCustomer->state))) {
+                    $missingFields[] = 'State is required.';
+                }
+                if (empty(trim($existCustomer->city))) {
+                    $missingFields[] = 'City is required.';
+                }
+                if (empty(trim($existCustomer->pincode))) {
+                    $missingFields[] = 'Pincode is required.';
+                }
+
+                if (!empty($missingFields)) {
+                    return ApiResponse::error("Missing required fields:", $missingFields);
+                }
 
                 $existCustomer->save();
 
@@ -959,16 +928,46 @@ class RetailerProductController extends Controller
                 $customerDetails = $existCustomer;
             } else {
                 // Step 4: Create new customer
-                $request->validate([
-                    'firstname' => 'required|string|max:30',
-                    'lastname' => 'required|string|max:30',
-                    'email' => 'required|email',
-                    'address' => 'required|string|max:250',
-                    'state' => 'required|string',
-                    'city' => 'required|string',
-                    'pincode' => 'required|digits:6',
-                    'user_token' => 'required|string',
-                ]);
+
+                $rules = [
+                    'firstname'   => 'required|string|max:30',
+                    'lastname'    => 'required|string|max:30',
+                    'email'       => 'required|email',
+                    'address'     => 'required|string|max:250',
+                    'state'       => 'required|string',
+                    'city'        => 'required|string',
+                    'pincode'     => 'required|digits:6',
+                    'user_token'  => 'required|string',
+                ];
+
+                $messages = [
+                    'firstname.required'  => 'First name is required.',
+                    'firstname.string'    => 'First name must be a string.',
+                    'firstname.max'       => 'First name cannot exceed 30 characters.',
+                    'lastname.required'   => 'Last name is required.',
+                    'lastname.string'     => 'Last name must be a string.',
+                    'lastname.max'        => 'Last name cannot exceed 30 characters.',
+                    'email.required'      => 'Email is required.',
+                    'email.email'         => 'Please provide a valid email address.',
+                    'address.required'    => 'Address is required.',
+                    'address.string'      => 'Address must be a valid string.',
+                    'address.max'         => 'Address cannot exceed 250 characters.',
+                    'state.required'      => 'State is required.',
+                    'city.required'       => 'City is required.',
+                    'pincode.required'    => 'Pincode is required.',
+                    'pincode.digits'      => 'Pincode must be exactly 6 digits.',
+                    'user_token.required' => 'User token is required.',
+                ];
+
+                $validator = Validator::make($request->all(), $rules, $messages);
+
+                if ($validator->fails()) {
+                    return ApiResponse::error(
+                        'Validation failed. Please correct the following fields:',
+                        $validator->errors()->all() // or use ->errors() for field-wise array
+                    );
+                }
+
 
                 // ✅ Check if email already exists in store_customers_details
                 $existingCustomer = StoreCustomersDetails::where('email', $request->email)->first();
@@ -1027,7 +1026,7 @@ class RetailerProductController extends Controller
             }
         } else {
             // ========== LOGGED-IN USER FLOW ==========
-            $customerId = $user->customer_id;
+            $customerId = $user->id;
             $customerDetails = CustomerDetails::find($customerId);
             // Check if any required fields are missing in DB
             $missingFields = [];
@@ -1051,13 +1050,19 @@ class RetailerProductController extends Controller
                 $customMessages = [];
 
                 foreach ($missingFields as $field) {
-                    if ($field === 'pincode') {
-                        $validationRules[$field] = 'required|digits:6';
-                        $customMessages["$field.required"] = 'Pincode is required.';
-                        $customMessages["$field.digits"] = 'Pincode must be exactly 6 digits.';
-                    } else {
-                        $validationRules[$field] = 'required|string|max:250';
-                        $customMessages["$field.required"] = ucfirst($field) . ' is required.';
+                    switch ($field) {
+                        case 'pincode':
+                            $validationRules[$field] = 'required|digits:6';
+                            $customMessages["$field.required"] = 'Pincode is required.';
+                            $customMessages["$field.digits"] = 'Pincode must be exactly 6 digits.';
+                            break;
+
+                        default:
+                            $validationRules[$field] = 'required|string|max:250';
+                            $customMessages["$field.required"] = ucfirst($field) . ' is required.';
+                            $customMessages["$field.string"] = ucfirst($field) . ' must be a string.';
+                            $customMessages["$field.max"] = ucfirst($field) . ' cannot be longer than 250 characters.';
+                            break;
                     }
                 }
 
@@ -1065,8 +1070,8 @@ class RetailerProductController extends Controller
 
                 if ($validator->fails()) {
                     return ApiResponse::error(
-                        'Order not placed. Required address details missing.',
-                        $validator->errors()
+                        'Order not placed. Required address details are missing or invalid.',
+                        $validator->errors()->all()
                     );
                 }
 
@@ -1075,33 +1080,9 @@ class RetailerProductController extends Controller
                 foreach ($missingFields as $field) {
                     $updateData[$field] = $request->$field;
                 }
-
                 $customerDetails->update($updateData);
             }
         }
-
-        // $validator = Validator::make($request->all(), [
-        //     'firstname' => $user ? 'nullable' : 'required|string|max:30',
-        //     'lastname' => $user ? 'nullable' : 'required|string|max:30',
-        //     'phone_number' => 'required|numeric|digits:10',
-        //     'email' => $user ? 'nullable|email' : 'required|email',
-        //     'address' => 'required|string|max:250',
-        //     'payment_method' => 'required|in:cod,upi',
-        //     'products' => 'required|array|min:1',
-        //     'products.*.product_id' => 'nullable|integer',
-        //     'products.*.retailer_product_id' => 'nullable|integer',
-        //     'products.*.wholesaler_id' => 'nullable|integer',
-        //     'products.*.retailer_id' => 'nullable|integer',
-        //     'products.*.quantity' => 'required|integer|min:1',
-        //     'products.*.final_amount' => 'required|numeric|min:0',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'message' => 'Validation failed',
-        //         'errors' => $validator->errors()
-        //     ], 422);
-        // }
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
@@ -1123,26 +1104,6 @@ class RetailerProductController extends Controller
         DB::beginTransaction();
 
         try {
-
-            // $verificationToken = Str::random(64);
-            // $userToken = Str::random(60);
-
-            // $customerDetail = CustomerDetails::create([
-            //     'user_id' => $retailer->retailer_id,
-            //     'firstname' => $firstname,
-            //     'lastname' => $lastname,
-            //     'phone_number' => $request->phone_number,
-            //     'password' => Hash::make($request->password),
-            //     'email' => $user ? $user->email : ($request->email ?? null),
-            //     'address' => $request->address,
-            //     'state' => $request->state,
-            //     'city' => $request->city,
-            //     'pincode' => $request->pincode,
-            //     'user_token' => $userToken,
-            //     'is_active' => false,
-            //     'email_verification_token' => $verificationToken,
-            // ]);
-
             $orderItems = [];
             $orderIDs = [];
             $orderItemsForMail = [];
@@ -1895,7 +1856,7 @@ class RetailerProductController extends Controller
         ], 'Coupon applied successfully.');
     }
 
-    private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts)
+    private function formatProductFromClone($product, $finalPrice, $retailerEditedProducts, $filterStock = false)
     {
         $product_name = null;
         $product_slug = null;
@@ -1921,13 +1882,21 @@ class RetailerProductController extends Controller
         if (!empty($product->productVariations) && $product->productVariations->isNotEmpty()) {
             $oldPrices = $product->productVariations->pluck('old_price')->filter()->map(fn($v) => (float) $v);
             $newPrices = $product->productVariations->pluck('price')->filter()->map(fn($v) => (float) $v);
-            $finalPrices = $product->productVariations->pluck('final_price')->filter()->map(fn($v) => (float) $v);
+
+            // FIXED FINAL PRICE HANDLING
+            $finalPrices = $product->productVariations->map(function ($v) {
+                return isset($v->final_price) && $v->final_price !== null
+                    ? (float) $v->final_price
+                    : (isset($v->price) ? (float) $v->price : null);
+            })->filter();
+
             $totalStock = $product->productVariations->sum('stock');
 
             $oldPriceRange = $oldPrices->isNotEmpty() ? round($oldPrices->min(), 2) : null;
             $newPriceRange = $newPrices->isNotEmpty() ? round($newPrices->min(), 2) : null;
-            $finalPriceRange = $finalPrices->isNotEmpty() ? round($finalPrices->min(), 2) : null;
+            $finalPriceRange = $finalPrices->isNotEmpty() ? round($finalPrices->min(), 2) : 0.0;
         }
+
 
         $product_image = explode(',', $product_images_fetch ?? $product->images);
         $product_image_array = [];
@@ -1966,7 +1935,9 @@ class RetailerProductController extends Controller
             'meta_description' => $product->meta_description,
             'meta_keywords' => $product->meta_keywords,
             'created_at' => $product->created_at,
-            'productVariations' => $product->productVariations,
+            'productVariations' => $filterStock
+                ? $product->productVariations->filter(fn($v) => $v->stock > 0)->values()
+                : $product->productVariations,
         ];
     }
 
@@ -2065,8 +2036,7 @@ class RetailerProductController extends Controller
     {
         try {
             $user = auth()->user();
-
-            $customerDetails = CustomerDetails::where('id', $user->customer_id)->first();
+            $customerDetails = CustomerDetails::where('id', $user->id)->first();
             $orders = CustomerOrders::where('customer_id', $customerDetails->id)->get();
 
             if ($orders->isEmpty()) {
@@ -2143,7 +2113,7 @@ class RetailerProductController extends Controller
                 'pincode' => 'required|digits_between:4,10',
             ]);
 
-            $customerDetails = CustomerDetails::find($customer->customer_id);
+            $customerDetails = CustomerDetails::find($customer->id);
 
             if (!$customerDetails) {
 
@@ -2188,13 +2158,10 @@ class RetailerProductController extends Controller
                 'lastname' => 'required|string|max:255',
             ]);
 
-            $customerDetails = CustomerDetails::find($customer->customer_id);
+            $customerDetails = CustomerDetails::find($customer->id);
 
             if (!$customerDetails) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Customer record not found.',
-                ], 404);
+                return ApiResponse::error('Customer record not found.');
             }
 
             $updateData = [
@@ -2204,14 +2171,10 @@ class RetailerProductController extends Controller
 
             $customerDetails->update($updateData);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Account details updated successfully.',
-                'data' => [
-                    'firstname' => $customerDetails->firstname,
-                    'lastname' => $customerDetails->lastname,
-                ]
-            ]);
+            return ApiResponse::success([
+                'firstname' => $customerDetails->firstname,
+                'lastname' => $customerDetails->lastname,
+            ], 'Account details updated successfully.');
         } catch (\Throwable $e) {
             Log::error('Error in accountDetails(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2219,11 +2182,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while processing account details.',
-                'error' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error('Something went wrong while processing account details.');
         }
     }
 
@@ -2239,15 +2198,15 @@ class RetailerProductController extends Controller
 
             $customer = auth()->user();
 
-            if (!Hash::check($request->old_password, $customer->password)) {
+            $storeCustomer = StoreCustomersDetails::where('customer_id', $customer->id)->first();
 
+            if (!Hash::check($request->old_password, $storeCustomer->password)) {
                 return ApiResponse::error('Your current password is incorrect.');
             }
+            $storeCustomer->password = Hash::make($request->new_password);
+            $storeCustomer->save();
 
-            $customer->password = Hash::make($request->new_password);
-            $customer->save();
-
-            return ApiResponse::error('Password has been successfully updated.');
+            return ApiResponse::success('Password has been successfully updated.');
         } catch (\Throwable $e) {
             Log::error('Error in resetPassword(): ' . $e->getMessage(), [
                 'file' => $e->getFile(),
@@ -2263,7 +2222,7 @@ class RetailerProductController extends Controller
     {
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $customerDetails = CustomerDetails::where('id', $customer->id)->first();
 
             $request->validate([
                 'product_id' => 'required|integer',
@@ -2350,7 +2309,7 @@ class RetailerProductController extends Controller
     {
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+            $customerDetails = CustomerDetails::where('id', $customer->id)->first();
 
             $wishlistItems = CustomerCart::where('customer_id', $customerDetails->id)
                 ->where('type', 'wishlist')
@@ -2392,7 +2351,8 @@ class RetailerProductController extends Controller
 
                 $wishList[] = [
                     'wishlist_id' => $item->id,
-                    'product_id' => $product->id,
+                    'product_id' => $productType === 'wholesaler' ? $product->id : null,
+                    'retailer_product_id' => $productType === 'retailer' ? $product->id : null,
                     'product_name' => $product->name ?? "",
                     'product_image' => explode(',', $product->images),
                     'price' => $product->new_price ?? "",
@@ -2418,7 +2378,7 @@ class RetailerProductController extends Controller
 
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::find($customer->customer_id);
+            $customerDetails = CustomerDetails::find($customer->id);
 
             $request->validate([
                 'product_id' => 'nullable|integer',
@@ -2483,118 +2443,14 @@ class RetailerProductController extends Controller
         }
     }
 
-    // public function addToCart(Request $request)
-    // {
-    //     try {
-
-    //         $customer = auth()->user();
-    //         $customerDetails = CustomerDetails::find($customer->customer_id);
-
-    //         // Validate inputs
-    //         $request->validate([
-    //             'product_id' => 'required|integer',
-    //             'wholesaler_id' => 'nullable|integer',
-    //             'retailer_id' => 'nullable|integer',
-    //             'quantity' => 'nullable|integer|min:1',
-    //         ]);
-
-    //         $productId = $request->product_id;
-    //         $wholesalerId = $request->wholesaler_id;
-    //         $retailerId = $request->retailer_id;
-    //         $quantity = $request->quantity ?? 1;
-
-    //         // Ensure only one of wholesaler_id or retailer_id is provided
-    //         if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Provide either wholesaler_id or retailer_id, but not both.',
-    //             ], 422);
-    //         }
-
-    //         // Validate product existence
-    //         if ($wholesalerId) {
-    //             $isValid = Product::where('id', $productId)
-    //                 ->where('wholesaler_id', $wholesalerId)
-    //                 ->exists();
-
-    //             if (!$isValid) {
-    //                 return response()->json([
-    //                     'success' => false,
-    //                     'message' => 'Invalid wholesaler product.',
-    //                 ], 404);
-    //             }
-    //         } elseif ($retailerId) {
-    //             $isValid = RetailerCloneProduct::where('id', $productId)
-    //                 ->where('retailer_id', $retailerId)
-    //                 ->exists();
-
-    //             if (!$isValid) {
-    //                 return response()->json([
-    //                     'success' => false,
-    //                     'message' => 'Invalid retailer product.',
-    //                 ], 404);
-    //             }
-    //         }
-
-    //         // Check if already in cart
-    //         $exists = CustomerCart::where('customer_id', $customerDetails->id)
-    //             ->when($wholesalerId, fn($query) => $query->where('product_id', $productId))
-    //             ->when($retailerId, fn($query) => $query->where('retailer_product_id', $productId))
-    //             ->where('type', 'cart')
-    //             ->where('status', 'active')
-    //             ->exists();
-
-    //         if ($exists) {
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'message' => 'Product is already in your cart.',
-    //             ]);
-    //         }
-
-    //         // Create wishlist record
-    //         $cartData = [
-    //             'customer_id' => $customerDetails->id,
-    //             'quantity' => $quantity,
-    //             'type' => 'cart',
-    //             'status' => 'active',
-    //         ];
-
-    //         if ($wholesalerId) {
-    //             $cartData['product_id'] = $productId;
-    //         } else {
-    //             $cartData['retailer_product_id'] = $productId;
-    //         }
-
-    //         $wishlist = CustomerCart::create($cartData);
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Product added to wishlist successfully.',
-    //             'wishlist_id' => $wishlist->id,
-    //         ]);
-    //     } catch (\Throwable $e) {
-    //         Log::error('Error in addToCart(): ' . $e->getMessage(), [
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine(),
-    //             'trace' => $e->getTraceAsString(),
-    //         ]);
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Something went wrong while adding to cart.',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
 
 
     public function cart(Request $request)
     {
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
 
-            $cartItems = CustomerCart::where('customer_id', $customerDetails->id)
+            $cartItems = CustomerCart::where('customer_id', $customer->id)
                 ->where('type', 'cart')
                 ->where('status', 'active')
                 ->get();
@@ -2608,37 +2464,59 @@ class RetailerProductController extends Controller
             foreach ($cartItems as $item) {
                 $product = null;
                 $productType = null;
+                $selectedVariant = null;
+                $finalPrice = null;
 
-                // Check for retailer product first
+                // Retailer product
                 if ($item->retailer_product_id) {
-                    $retailerProduct = RetailerCloneProduct::find($item->retailer_product_id);
-                    if ($retailerProduct) {
-                        $product = $retailerProduct;
-                        $productType = 'retailer';
-                    }
+                    $product = RetailerCloneProduct::with('productVariations')->find($item->retailer_product_id);
+                    $productType = 'retailer';
                 }
 
-                // If not a retailer, check wholesaler product using product_id
+                // Wholesaler product
                 if (!$product && $item->product_id) {
-                    $wholesalerProduct = Product::find($item->product_id);
-                    if ($wholesalerProduct) {
-                        $product = $wholesalerProduct;
-                        $productType = 'wholesaler';
-                    }
+                    $product = Product::with('productVariations')->find($item->product_id);
+                    $productType = 'wholesaler';
                 }
 
                 if (!$product) {
-                    Log::warning("Product not found for wishlist item ID: {$item->id}");
+                    Log::warning("Product not found for cart item ID: {$item->id}");
                     continue;
                 }
 
+                // Handle selected variant
+                if ($item->product_variations_id) {
+                    $selectedVariant = $product->productVariations
+                        ->where('id', $item->product_variations_id)
+                        ->first();
+
+                    // If variant has margin logic, calculate final_price accordingly
+                    if ($selectedVariant) {
+                        $finalPrice = $selectedVariant->final_price ?? $selectedVariant->price ?? null;
+                    }
+                }
+
+                if (!$finalPrice) {
+                    $finalPrice = $product->final_price ?? $product->new_price ?? null;
+                }
+
                 $cart[] = [
-                    'wishlist_id' => $item->id,
-                    'product_id' => $product->id,
+                    'cart_id' => $item->id,
+                    'product_id' => $productType === 'wholesaler' ? $product->id : null,
+                    'retailer_product_id' => $productType === 'retailer' ? $product->id : null,
                     'product_name' => $product->name ?? null,
                     'quantity' => $item->quantity,
-                    'price' => $product->new_price ?? null,
+                    'final_price' => $finalPrice,
+                    'retailer_id' => $product->retailer_id ?? null,
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
+                    'selected_variant' => $selectedVariant ? [
+                        'id' => $selectedVariant->id,
+                        'product_variation' => $selectedVariant->product_variation,
+                        'price' => $selectedVariant->price,
+                        'stock' => $selectedVariant->stock,
+                        'final_price' => $finalPrice,
+                    ] : null,
+
                 ];
             }
 
@@ -2654,11 +2532,12 @@ class RetailerProductController extends Controller
         }
     }
 
+
     public function removeToCart(Request $request)
     {
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::find($customer->customer_id);
+            $customerDetails = CustomerDetails::find($customer->id);
 
             // Validate input
             $request->validate([
@@ -2724,9 +2603,10 @@ class RetailerProductController extends Controller
 
     public function addToCart(Request $request)
     {
+
         try {
             $customer = auth()->user();
-            $customerDetails = CustomerDetails::find($customer->customer_id);
+            $customerDetails = CustomerDetails::find($customer->id);
             $rawItems = [];
 
             // Detect single vs array input
@@ -2735,6 +2615,7 @@ class RetailerProductController extends Controller
                 $request->validate([
                     'cart_items' => 'required|array|min:1',
                     'cart_items.*.product_id' => 'required|integer',
+                    'cart_items.*.id' => 'nullable|integer',
                     'cart_items.*.wholesaler_id' => 'nullable|integer',
                     'cart_items.*.retailer_id' => 'nullable|integer',
                     'cart_items.*.quantity' => 'nullable|integer|min:1',
@@ -2745,11 +2626,13 @@ class RetailerProductController extends Controller
                 $request->validate([
                     'product_id' => 'required|integer',
                     'wholesaler_id' => 'nullable|integer',
+                    'id' => 'nullable|integer',
                     'retailer_id' => 'nullable|integer',
                     'quantity' => 'nullable|integer|min:1',
                 ]);
                 $rawItems[] = [
                     'product_id' => $request->product_id,
+                    'id' => $request->id,
                     'wholesaler_id' => $request->wholesaler_id,
                     'retailer_id' => $request->retailer_id,
                     'quantity' => $request->quantity ?? 1,
@@ -2782,11 +2665,11 @@ class RetailerProductController extends Controller
     private function processCartItem(array $item, $customerDetails)
     {
         $productId = $item['product_id'];
+        $variantId = $item['id'] ?? null;
         $wholesalerId = $item['wholesaler_id'] ?? null;
         $retailerId = $item['retailer_id'] ?? null;
         $quantity = $item['quantity'] ?? 1;
 
-        // Validate that exactly one ID is provided
         if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
             return [
                 'product_id' => $productId,
@@ -2795,78 +2678,99 @@ class RetailerProductController extends Controller
             ];
         }
 
-        // Validate product existence
         $isValid = false;
+
 
         if ($wholesalerId) {
             $isValid = Product::where('id', $productId)
                 ->where('wholesaler_id', $wholesalerId)
                 ->exists();
+
+            if ($isValid && $variantId) {
+                $isValid = ProductVariation::where('id', $variantId)
+                    ->where('product_id', $productId)
+                    ->exists();
+            }
         } elseif ($retailerId) {
             $isValid = RetailerCloneProduct::where('id', $productId)
                 ->where('retailer_id', $retailerId)
                 ->exists();
+
+            if ($isValid && $variantId) {
+                $isValid = ProductVariation::where('id', $variantId)
+                    ->where('product_id', $productId)
+                    ->exists();
+            }
         }
 
         if (!$isValid) {
             return [
                 'product_id' => $productId,
                 'status' => 'failed',
-                'message' => 'Invalid product.',
+                'message' => 'Invalid product or variant.',
             ];
         }
 
-        // Check if already in cart
+
+        // 🔁 Check if already in cart
         $existingCart = CustomerCart::where('customer_id', $customerDetails->id)
-            ->when($wholesalerId, fn($query) => $query->where('product_id', $productId))
-            ->when($retailerId, fn($query) => $query->where('retailer_product_id', $productId))
             ->where('type', 'cart')
             ->where('status', 'active')
+            ->when(!empty($wholesalerId), function ($q) use ($productId) {
+                $q->where('product_id', $productId);
+            })
+            ->when(!empty($retailerId), function ($q) use ($productId) {
+                $q->where('retailer_product_id', $productId);
+            })
+            ->when(!empty($variantId), function ($q) use ($variantId) {
+                $q->where('product_variations_id', $variantId);
+            })
             ->first();
 
         if ($existingCart) {
-            // Update quantity
             $existingCart->quantity += $quantity;
             $existingCart->save();
 
             return [
                 'product_id' => $productId,
+                'product_variations_id' => $variantId,
                 'quantity' => $existingCart->quantity,
                 'status' => 'updated',
                 'message' => 'Cart quantity updated.',
                 'wishlist_id' => $existingCart->id,
             ];
-        } else {
-            // Check for inactive cart and reactivate
-            $inactiveCart = CustomerCart::where('customer_id', $customerDetails->id)
-                ->when($wholesalerId, fn($query) => $query->where('product_id', $productId))
-                ->when($retailerId, fn($query) => $query->where('retailer_product_id', $productId))
-                ->where('type', 'cart')
-                ->where('status', 'inactive')
-                ->first();
-
-            if ($inactiveCart) {
-                $inactiveCart->status = 'active';
-                $inactiveCart->quantity = $quantity;
-                $inactiveCart->save();
-
-                return [
-                    'product_id' => $productId,
-                    'quantity' => $inactiveCart->quantity,
-                    'status' => 'reactivated',
-                    'message' => 'Add To Cart Successfully.',
-                    'wishlist_id' => $inactiveCart->id,
-                ];
-            }
         }
 
+        // ♻️ Reactivate inactive cart if exists
+        $inactiveCart = CustomerCart::where('customer_id', $customerDetails->id)
+            ->when($wholesalerId, fn($q) => $q->where('product_id', $productId))
+            ->when($retailerId, fn($q) => $q->where('retailer_product_id', $productId))
+            ->when($variantId, fn($q) => $q->where('product_variations_id', $variantId))
+            ->where('type', 'cart')
+            ->where('status', 'inactive')
+            ->first();
 
-        // Create new cart record
+        if ($inactiveCart) {
+            $inactiveCart->status = 'active';
+            $inactiveCart->quantity = $quantity;
+            $inactiveCart->save();
+
+            return [
+                'product_id' => $productId,
+                'quantity' => $inactiveCart->quantity,
+                'status' => 'reactivated',
+                'message' => 'Add To Cart Successfully.',
+                'wishlist_id' => $inactiveCart->id,
+            ];
+        }
+
+        // ➕ Create new cart record
         $cartData = [
             'customer_id' => $customerDetails->id,
             'quantity' => $quantity,
             'type' => 'cart',
             'status' => 'active',
+            'product_variations_id' => $variantId,
         ];
 
         if ($wholesalerId) {
@@ -2880,29 +2784,33 @@ class RetailerProductController extends Controller
         return [
             'product_id' => $productId,
             'quantity' => $cart->quantity,
+            'product_variations_id' => $variantId,
             'status' => 'success',
             'message' => 'Product added to cart.',
             'wishlist_id' => $cart->id,
         ];
     }
+
     private function mergeDuplicateCartItems(array $items): array
     {
         $merged = [];
 
         foreach ($items as $item) {
             $productId = $item['product_id'];
+            $id = $item['id'] ?? null;
             $wholesalerId = $item['wholesaler_id'] ?? null;
             $retailerId = $item['retailer_id'] ?? null;
             $quantity = $item['quantity'] ?? 1;
 
-            // Unique key based on product + source type
-            $key = $productId . '_' . ($wholesalerId ? 'w_' . $wholesalerId : 'r_' . $retailerId);
+            // Unique key includes variant ID
+            $key = $productId . '_' . ($id ?? 'noid') . '_' . ($wholesalerId ? 'w_' . $wholesalerId : 'r_' . $retailerId);
 
             if (isset($merged[$key])) {
                 $merged[$key]['quantity'] += $quantity;
             } else {
                 $merged[$key] = [
                     'product_id' => $productId,
+                    'id' => $id,
                     'wholesaler_id' => $wholesalerId,
                     'retailer_id' => $retailerId,
                     'quantity' => $quantity,
@@ -2912,6 +2820,7 @@ class RetailerProductController extends Controller
 
         return array_values($merged);
     }
+
 
     public function contactUs(Request $request)
     {
