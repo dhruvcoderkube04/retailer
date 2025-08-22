@@ -199,7 +199,9 @@
                                         <th class="text-center min-w-110px">MEDIA</th>
                                         <th class="text-center min-w-275px">ORDER DETAIL</th>
                                         <th class="text-center min-w-275px">CUSTOMER DETAIL</th>
+                                        @if($type != 'new' && $type != 'approved-by-retailer')
                                         <th class="text-center min-w-200px">TRACKING</th>
+                                        @endif
                                         <th class="text-center min-w-75px py-5">ACTION</th>
                                     </tr>
                                 </thead>
@@ -1078,23 +1080,39 @@
 
         //<------------- START : server-side transaction datatable ------------->
         const type = @json($type);
-        dataTable = $('#kt_datatable_order_list').DataTable({
-            dom: "<'row mb-5'" +
-                // "<'col-4 col-sm-6 col-md-3 d-flex align-items-center justify-content-start dt-toolbar datatable-length-section'l>" +
-                // "<'col-8 col-sm-6 col-md-9 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-                ">" +
+        let columns = [
+            { data: 'sr_no', className: 'text-center', orderable: false },
+            { data: 'order_date', className: 'text-center', orderable: true },
+            { data: 'media', className: 'text-center', orderable: false },
+            { data: 'order_detail', className: 'text-start', orderable: false },
+            { data: 'customer_detail', className: 'text-start', orderable: false },
+        ];
+
+        if (type !== 'new' && type !== 'approved-by-retailer') {
+            columns.push({ data: 'tracking_id', className: 'text-start', orderable: false });
+        }
+
+        columns.push({
+            data: 'action',
+            className: 'text-center p-0',
+            orderable: false,
+            searchable: false
+        });
+
+        let dataTable = $('#kt_datatable_order_list').DataTable({
+            dom: "<'row mb-5'>" +
                 "<'table-responsive'tr>" +
-            "<'row d-flex align-items-center justify-content-between' \
-                <'col d-flex align-items-center gap-3'l i> \
-                <'col-auto'p> \
-            >",
+                "<'row d-flex align-items-center justify-content-between' \
+                    <'col d-flex align-items-center gap-3'l i> \
+                    <'col-auto'p> \
+                >",
             pageLength: 20,
             lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
             fixedHeader: {
-            header: true,
-                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                header: true,
+                headerOffset: document.querySelector("#kt_app_header_wrapper")?.offsetHeight || 0
             },
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
@@ -1104,14 +1122,9 @@
                     d.date_filter = $('#kt_daterangepicker_order_list').val();
                     d.payment_method_filter = $('#payment_method_filter').val();
                     d.type = type;
-                    d.order = d.order; // Add order data
-                    d.columns = d.columns; // Add columns data
                 },
-                dataSrc: function (json) {
-                    return json.data;
-                },
+                dataSrc: "data",
                 error: function (xhr) {
-                    // Detect 400 Bad Request from Laravel
                     if (xhr.status === 400) {
                         let message = 'An error occurred.';
                         try {
@@ -1120,124 +1133,36 @@
                         } catch (e) {
                             message = xhr.responseText || message;
                         }
-
                         Swal.fire({
                             icon: 'error',
                             title: 'Invalid Search',
                             text: message,
                         }).then(() => {
-                            // Clear only the search input field that caused it
                             $('#search_input').val('');
-                            // You can choose to comment this out to prevent auto-refresh
                             dataTable.search('').draw();
-
                         });
                     }
                 }
             },
             order: [],
-            columns: [{
-                data: 'sr_no',
-                className: 'text-center',
-                orderable: false,
+            columns: columns,
+            createdRow: function (row) {
+                $(row).find('td').css('border', '1px solid rgb(0, 0, 0)');
             },
-            {
-                data: 'order_date',
-                className: 'text-center',
-                orderable: true,
-            },
-            {
-                data: 'media',
-                className: 'text-center',
-                orderable: false,
-            },
-            {
-                data: 'order_detail',
-                className: 'text-start',
-                orderable: false,
-            },
-            {
-                data: 'customer_detail',
-                className: 'text-start',
-                orderable: false,
-            },
-            {
-                data: 'tracking_id',
-                className: 'text-start',
-                orderable: false,
-            },
-            {
-                data: 'action',
-                className: 'text-center p-0',
-                orderable: false,
-                searchable: false
-            },
-            ],
-            createdRow: function (row, data, dataIndex) {
-                // Apply dark border style to each cell in the row
-                $(row).find('td').each(function () {
-                    $(this).css('border', '1px solidrgb(0, 0, 0)'); // or your preferred style
+            drawCallback: function () {
+                $('#kt_datatable_order_list thead th').css({
+                    'border': '1px solid rgb(222, 226, 230)',
+                    'text-transform': 'uppercase'
                 });
-
-            },
-            drawCallback: function (settings) {
-                // Apply light border and preserve existing styles on <th>
-                $('#kt_datatable_order_list thead th').each(function () {
-                    var existingStyle = $(this).attr('style') || '';
-                    $(this).attr(
-                        'style',
-                        existingStyle +
-                        ' border: 1px solid rgb(222, 226, 230) !important;' + // light border
-                        ' text-transform: uppercase !important;'
-                    );
+                $('#kt_datatable_order_list').css({
+                    'border': '1px solid rgb(222, 226, 230)',
+                    'border-collapse': 'collapse',
+                    'width': '100%'
                 });
-
-                // Apply light outer border to table
-                var existingTableStyle = $('#kt_datatable_order_list').attr('style') || '';
-                $('#kt_datatable_order_list').attr(
-                    'style',
-                    existingTableStyle +
-                    ' border: 1px solid rgb(222, 226, 230) !important;' +
-                    ' border-collapse: collapse !important;' +
-                    ' width: 100% !important;'
-                );
-
-                // Apply light inner borders to all <td> in main table
-                $('#kt_datatable_order_list > tbody > tr > td').each(function () {
-                    var existingStyle = $(this).attr('style') || '';
-                    $(this).attr(
-                        'style',
-                        existingStyle + ' border: 1px solid rgb(222, 226, 230) !important;'
-                    );
-                });
-            },
-            initComplete: function () {
-                let searchBox = $('.datatable-search-section input');
-                let searchLabel = $('.datatable-search-section label');
-                let lengthSelect = $('.datatable-length-section select');
-
-                searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
-                searchBox.before(
-                    '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
-                ); // add icon
-                searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
-                    'placeholder', 'Search'); // style the search input
-                searchBox.css({
-                    'padding': '13px 15px 12px 15px',
-                    'font-size': '14px',
-                });
-
-                searchLabel.css({
-                    'display': 'none',
-                });
-
-                lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
-                lengthSelect.css({
-                    'padding': '13px 27px 12px 14px',
-                    'font-size': '14px',
-                })
+                $('#kt_datatable_order_list > tbody > tr > td').css('border', '1px solid rgb(222, 226, 230)');
             }
         });
+
         //<------------- END : server-side transaction datatable ------------->
 
         //<------Start cancel modal close---------->
