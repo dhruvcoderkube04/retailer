@@ -16,6 +16,7 @@ class CustomerCart extends Model
 
         'customer_id',
         'product_id',
+        'product_variations_id',    
         'retailer_product_id',
         'quantity',
         'type',

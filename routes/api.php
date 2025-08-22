@@ -15,15 +15,10 @@ Route::post('/checkout', [RetailerProductController::class, 'checkout']);
 Route::post('/checkout1', [RetailerProductController::class, 'checkoutNew']);  //this is checkout1
 Route::post('/new-arrivals', [RetailerProductController::class, 'getNewArrivals']);
 Route::post('/contact-us', [RetailerProductController::class, 'contactUs']);
-
 Route::post('/otp/send', [OtpController::class, 'sendOtp']);
-Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);
+Route::post('/otp/verify/login', [OtpController::class, 'verifyOtpLogin']);
+Route::post('/otp/verify/checkout', [OtpController::class, 'verifyOtpCheckout']);
 Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
-
-// Route::post('/retailer-products', [RetailerProductController::class, 'getProducts']);
-// Route::post('/retailer-products', [RetailerProductController::class, 'getRetailerProducts']);
-// Route::post('/send-otp', [RetailerProductController::class, 'sendOtp']);
-// Route::post('/verify-otp', [RetailerProductController::class, 'verifyOtp']);
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -40,31 +35,13 @@ Route::prefix('customer')->group(function () {
     Route::post('logout', [CustomerRegisterController::class, 'logout'])->middleware('auth:sanctum');
     Route::post('forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
     Route::post('reset-password', [CustomerRegisterController::class, 'resetPassword']);
-
     Route::get('verify-email/{token}', [CustomerRegisterController::class, 'verifyEmail']);
+
     // Send password reset link
     Route::post('/forgot-password', [CustomerRegisterController::class, 'forgotPassword']);
-
     Route::post('/token-password', [CustomerRegisterController::class, 'resetPassword']);
 
-    // Account
     Route::middleware('auth:customer')->group(function () {
-        Route::get('account', [CustomerRegisterController::class, 'details']);
-        Route::post('account', [CustomerRegisterController::class, 'update']);
-
-        // Shipping Address CRUD
-        Route::get('addresses', [CustomerRegisterController::class, 'index']);
-        Route::post('addresses', [CustomerRegisterController::class, 'store']);
-        Route::post('addresses/{id}', [CustomerRegisterController::class, 'update']);
-        Route::delete('addresses/{id}', [CustomerRegisterController::class, 'destroy']);
-
-        // Wishlist
-        Route::get('wishlist', [CustomerRegisterController::class, 'index']);
-        Route::post('wishlist', [CustomerRegisterController::class, 'store']);
-        Route::delete('wishlist/{id}', [CustomerRegisterController::class, 'destroy']);
-    });
-
-    Route::middleware('auth:sanctum')->group(function () {
         Route::get('/details', [CustomerRegisterController::class, 'getCustomerDetails']);
         Route::get('/orders', [RetailerProductController::class, 'customerOrders']);
         Route::post('/shipping-address', [RetailerProductController::class, 'shippingAddress']);
