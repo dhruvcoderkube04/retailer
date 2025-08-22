@@ -220,12 +220,12 @@
                 {
                     data: 'product',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'wholesaler',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'sub_category',
@@ -245,7 +245,7 @@
                 {
                     data: 'new_price',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'margin',
