@@ -6,10 +6,14 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerCart;
 use App\Models\CustomerDetails;
+use App\Models\CustomerOrders;
+use App\Models\OrderProductDetails;
 use App\Models\Product;
 use App\Models\RetailerCloneProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
 
 class OtpController extends Controller
 {
@@ -99,13 +103,50 @@ class OtpController extends Controller
                 }
             }
 
+            $orders = CustomerOrders::where('customer_id', $customer->id)->get();
+
+            $orderList = [];
+
+            foreach ($orders as $order) {
+                $product = OrderProductDetails::find($order->order_product_id);
+
+                if (!$product) {
+                    Log::warning("OrderProductDetails not found for order_id: {$order->id}");
+                    continue;
+                }
+
+                $product_link = Product::find($product->product_id ?? $product->id);
+
+                if (!$product_link) {
+                    Log::warning("Product not found for order_product_id: {$product->id}");
+                    continue;
+                }
+
+                $productUrl = url('/api/singal-product-details/' . $product_link->slug);
+
+                $imageString = $product->images ?? '';
+                $imageArray = explode(',', $imageString);
+
+                $orderList[] = [
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product_link->name ?? null,
+                    'image' => $imageArray,
+                    'price' => $product_link->new_price ?? null,
+                    'order_date' => $order->created_at->format('d F Y'),
+                    'product_link' => $productUrl,
+                    'checkout_type' => $order->checkout_type,
+                    'status' => $order->status
+                ];
+            }
+
             return ApiResponse::success([
                 'token' => $token,
                 'customer' => $customerData,
                 'wishlist_items' => $wishlistItems,
                 'cart_items' => $cartItems,
+                'orders' => $orderList,
             ], 'OTP verified successfully.');
-
         }
 
         return ApiResponse::error('Invalid or expired OTP. Please try again.');

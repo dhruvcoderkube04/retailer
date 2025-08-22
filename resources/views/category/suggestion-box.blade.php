@@ -280,6 +280,10 @@
                     // ✅ Clear old error messages
                     $(".invalid-feedback").text('');
                     $(".form-control").removeClass("is-invalid");
+                    Swal.fire({
+                        title: 'Category and Sub Category Suggestion Added Successfully!',
+                        icon: 'success',
+                    });
 
                     // Success message (optional inline)
                     $("#kt_categroy_table").load(location.href + " #kt_categroy_table");
