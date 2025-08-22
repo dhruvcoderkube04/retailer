@@ -1,28 +1,29 @@
 <?php
 
-use App\Http\Controllers\AbandonardCard;
-use App\Http\Controllers\AdminAuthController;
-use App\Http\Controllers\Automation;
 use App\Http\Controllers\CMS;
+use App\Models\RetailerCategory;
+use App\Http\Controllers\Setting;
+use App\Http\Controllers\VBuilder;
+use App\Http\Controllers\Automation;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\AbandonardCard;
+use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\TicketController;
+
+
+use App\Http\Controllers\RetilerController;
+use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AccountingController;
+use App\Http\Controllers\RetilerWebManagement;
+use App\Http\Controllers\RetailerAuthController;
+use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\RetailerOrderController;
+use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\OrderNotificationController;
 use App\Http\Controllers\RetailerAccountTransactionController;
-use App\Http\Controllers\RetailerAuthController;
-use App\Http\Controllers\RetailerCategoryController;
-use App\Http\Controllers\RetailerOrderController;
-use App\Http\Controllers\RetilerController;
-
-
-use App\Http\Controllers\RetilerWebManagement;
-use App\Http\Controllers\Setting;
-use App\Http\Controllers\ShippingController;
-use App\Http\Controllers\ThemeController;
-use App\Http\Controllers\TicketController;
-use App\Http\Controllers\VBuilder;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\VerificationController;
-use App\Models\RetailerCategory;
 
 Route::get('/', function () {
     return redirect()->to('login');
@@ -285,6 +286,12 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
     // notification
     Route::get('/notifications', [OrderNotificationController::class, 'getNotifications'])->name('notifications.get');
     Route::get('/notifications-count', [OrderNotificationController::class, 'getNotificationsCount'])->name('notifications.count');
+
+    Route::prefix('accounting')->group(function () {
+        Route::get('/finance-tracking', [AccountingController::class, 'financeTracking'])->name('retailer.finance-tracking.index');
+        Route::post('/fetch-record', [AccountingController::class, 'getFinanceTracking'])->name('retailer.finance-tracking.fetch-record');
+        Route::get('/finance-tracking/export-csv', [AccountingController::class, 'exportCsv'])->name('retailer.finance-tracking.export-csv');
+    });
 });
 // autologin
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);

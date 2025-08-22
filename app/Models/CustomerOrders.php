@@ -108,4 +108,14 @@ class CustomerOrders extends Model
     {
         return $this->belongsTo(Coupon::class, 'coupon_applied_id');
     }
+
+    public function buyer()
+    {
+        return $this->belongsTo(CustomerDetails::class, 'customer_id');
+    }
+
+    public function courierPartner()
+    {
+        return $this->belongsTo(CourierPartner::class, 'courier_partner_id', 'id');
+    }
 }
