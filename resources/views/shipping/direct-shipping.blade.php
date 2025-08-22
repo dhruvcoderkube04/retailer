@@ -14,7 +14,7 @@
                             <h3 class="page-heading text-gray-900 fw-bold fs-2 my-0">Direct Shipping</h3>
                         </div>
                     </div>
-        
+
                     <div class="card-body">
                         <form id="directShippingForm" class="row" enctype="multipart/form-data">
                             <!-- Product Image -->
@@ -22,7 +22,7 @@
                                 <label for="product_image" class="d-block mb-2 fs-6">Choose Product Image</label>
                                 <input type="file" class="form-control" id="product_image" name="product_image" accept="image/png, image/jpeg, image/jpg" />
                             </div>
-        
+
                             <!-- Product Details -->
                             <div class="col-md-12 mb-5">
                                 <label class="form-label fs-6">Product Name</label>
@@ -47,13 +47,13 @@
                                            title="Only numbers 1 to 5 allowed." />
                                 </div>
                             </div>
-        
+
                             <!-- Total Price -->
                             <div class="col-md-12 mb-5">
                                 <label class="form-label fs-6">Total Price</label>
                                 <input type="text" class="form-control" id="total_price" disabled placeholder="₹ 0.00" />
                             </div>
-        
+
                             <!-- Category -->
                             <div class="col-md-12 mb-5">
                                 <label class="form-label fs-6">Sub Category</label>
@@ -75,7 +75,7 @@
                                 @enderror
                                 <small class="text-warning d-block mt-1">Note: It’s optional to select a category in direct shipping.</small>
                             </div>
-        
+
                             <!-- Customer Section -->
                             <div class="col-md-12 mb-5">
                                 <div class="mb-5 p-3 bg-light border rounded">
@@ -84,7 +84,7 @@
                                     <div id="selectedCustomer" class="mt-3 text-muted"></div>
                                 </div>
                             </div>
-        
+
                             <!-- Buttons -->
                             <div class="d-flex gap-3">
                                 <button type="submit" class="btn btn-dark">Cash on delivery</button>
@@ -275,6 +275,8 @@
     });
 
     document.getElementById("directShippingForm").addEventListener("submit", function (e) {
+        const submitButton = document.getElementById("directShippingForm");
+        submitButton.disabled = true;
         e.preventDefault();
         if (!window.selectedCustomer) {
             Swal.fire({ icon: 'warning', title: 'Select Customer', text: 'Please select a customer before placing the order.' });
@@ -299,7 +301,10 @@
                 Swal.fire({ icon: 'error', title: 'Error', text: data.message });
             }
         })
-        .catch(err => console.error("Order placement error:", err));
+        .catch(err => console.error("Order placement error:", err))
+        .finally(() => {
+            submitButton.disabled = false;
+        });
     });
 
     document.getElementById('price').addEventListener('input', function () {
