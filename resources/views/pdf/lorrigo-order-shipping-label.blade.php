@@ -113,9 +113,13 @@
                 <td>
                     <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/courier_partner/new_logo/' . $logo))) }}" height="50">
                 </td>
-                <td>
-                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/logos/bigmart.jpg'))) }}" height="50">
+                <td style="font-size:18px; font-weight:bold; height:50px; vertical-align:middle;">
+                        Powered by <br>
+                        JDWEBNSHIP
                 </td>
+                {{-- <td>
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/logos/bigmart.jpg'))) }}" height="50">
+                </td> --}}
             </tr>
         </table>
 
@@ -133,7 +137,7 @@
         <!-- Note + Order Info -->
         <div class="section">
             <span class="bold">Note- No Open Delivery Allowed </span> <br>
-            <span class="bold">Order Number:  {{ @$customerOrder->order_id }} &nbsp;&nbsp; || </span>
+            <span class="bold">Order Number:  {{ @$customerOrder->order_id }} &nbsp;&nbsp;</span>
             {{-- <span class="bold">Channel Order ID:  CHN987654 </span> --}}
         </div>
 
@@ -167,6 +171,7 @@
         <!-- Return Address -->
         <div class="footer">
             <span class="bold">If not delivered, please return at below address:-</span><br>
+            <span class="bold">{{ optional($customerOrder->retailer->userDetail)->company_name ?? '' }} </span><br>
             <span class="bold">{{ @$pickupAddress->address }} </span>
             {{ @$pickupAddress->state }},<br>
             {{ @$pickupAddress->city }} - {{ @$pickupAddress->pincode }} <br>

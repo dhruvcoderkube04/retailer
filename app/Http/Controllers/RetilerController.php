@@ -995,20 +995,63 @@ class RetilerController extends Controller
         }
 
         //<--------------- Union both queries ------------------>
+        // $query = $singleProductFetchQuery->unionAll($wholesalerProductFetchQuery);
+        // // Wrap the union query for pagination and filtering
+        // $query = DB::table(DB::raw("({$query->toSql()}) as unified"))
+        //     ->mergeBindings($singleProductFetchQuery->getQuery());
+
+        // $cloneQuery = $cloneSingleProductFetchQuery->unionAll($cloneWholesalerProductFetchQuery);
+
+
+        // //<------------------- Pagination ----------------------->
+        // $recordsTotal = $cloneQuery->count(); // Total count
+        // $recordsFiltered = $query->count(); // Total filtered count
+        // $start = $request->start ?? 0;
+        // $length = $request->length ?? 10;
+        // $products = $query->orderBy('id', 'desc')->skip($start)->take($length)->get();
+
+        //<--------------- Union both queries ------------------>
         $query = $singleProductFetchQuery->unionAll($wholesalerProductFetchQuery);
-        // Wrap the union query for pagination and filtering
         $query = DB::table(DB::raw("({$query->toSql()}) as unified"))
             ->mergeBindings($singleProductFetchQuery->getQuery());
 
         $cloneQuery = $cloneSingleProductFetchQuery->unionAll($cloneWholesalerProductFetchQuery);
 
-
-        //<------------------- Pagination ----------------------->
+        //<------------------- Pagination & Ordering ----------------------->
         $recordsTotal = $cloneQuery->count(); // Total count
-        $recordsFiltered = $query->count(); // Total filtered count
+        $recordsFiltered = $query->count();   // Filtered count
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
-        $products = $query->orderBy('id', 'desc')->skip($start)->take($length)->get();
+
+        // 🔹 Dynamic ordering
+        $orderColumn = 'id';
+        $orderDir = 'desc';
+
+        if ($request->has('order')) {
+            $order = $request->order[0];
+            $columnIndex = $order['column'];
+            $orderDir = $order['dir'];
+            $columnName = $request->columns[$columnIndex]['data'];
+
+            $columnMap = [
+                'product'     => 'product_name',            // alias inside unified
+                'wholesaler'  => 'company_name',
+                'sub_category'=> 'sub_category_name',
+                'new_price'   => 'new_price',
+                'margin'      => 'margin',
+                'status'      => 'product_status'
+            ];
+
+            if (array_key_exists($columnName, $columnMap)) {
+                $orderColumn = $columnMap[$columnName];
+            }
+        }
+
+        $products = $query->orderBy($orderColumn, $orderDir)
+            ->skip($start)
+            ->take($length)
+            ->get();
+
 
         $data = [];
         foreach ($products as $product) {
@@ -1423,7 +1466,7 @@ class RetilerController extends Controller
             if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\_\.\@\#\:\,\!\$\%\^\&\*\(\)\+]+$/', $search)) {
                 abort(400, 'Invalid search input detected.');
             }
-            
+
 
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
@@ -1457,12 +1500,44 @@ class RetilerController extends Controller
         }
 
         // Use DataTables pagination parameters: start and length
-        $start = $request->start ?? 0;
-        $length = $request->length ?? 10;
+        // $start = $request->start ?? 0;
+        // $length = $request->length ?? 10;
 
         $recordsFiltered = $query->count();  // total records after filters
 
-        $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
+        // $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
+
+                // Pagination params
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 10;
+
+        // Ordering
+        $orderColumn = 'id';
+        $orderDir = 'desc';
+
+        if ($request->has('order')) {
+            $order = $request->order[0];
+            $columnIndex = $order['column'];
+            $orderDir = $order['dir'];
+            $columnName = $request->columns[$columnIndex]['data'];
+
+            $columnMap = [
+                'name'               => 'name',
+                'new_price'          => 'new_price',
+                'created_updated_at' => 'created_at',
+            ];
+
+            if (array_key_exists($columnName, $columnMap)) {
+                $orderColumn = $columnMap[$columnName];
+            }
+        }
+
+        // Apply sorting + pagination
+        $products = $query->orderBy($orderColumn, $orderDir)
+                        ->skip($start)
+                        ->take($length)
+                        ->get();
+
 
         $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
             ->where('retailer_id', $retailer->id)
@@ -1650,12 +1725,44 @@ class RetilerController extends Controller
         }
 
         // Use DataTables pagination parameters: start and length
-        $start = $request->start ?? 0;
-        $length = $request->length ?? 10;
+        // $start = $request->start ?? 0;
+        // $length = $request->length ?? 10;
 
         $recordsFiltered = $query->count();  // total records after filters
 
-        $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
+        // $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
+
+        // Pagination params
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 10;
+
+        // Ordering
+        $orderColumn = 'id';
+        $orderDir = 'desc';
+
+        if ($request->has('order')) {
+            $order = $request->order[0];
+            $columnIndex = $order['column'];
+            $orderDir = $order['dir'];
+            $columnName = $request->columns[$columnIndex]['data'];
+
+            $columnMap = [
+                'name'               => 'name',
+                'new_price'          => 'new_price',
+                'created_updated_at' => 'created_at',
+            ];
+
+            if (array_key_exists($columnName, $columnMap)) {
+                $orderColumn = $columnMap[$columnName];
+            }
+        }
+
+        // Apply sorting + pagination
+        $products = $query->orderBy($orderColumn, $orderDir)
+                        ->skip($start)
+                        ->take($length)
+                        ->get();
+
 
         $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
             ->where('retailer_id', $retailer->id)
