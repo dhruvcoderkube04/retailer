@@ -49,12 +49,12 @@
                 <div id="kt_app_content_container" class="app-container ">
 
                     @if (session('success'))
-                        <div class="alert alert-success text-green-600 p-2">
+                        <div class="alert alert-success text-green-600 p-2" id="flash-message">
                             {{ session('success') }}
                         </div>
                     @endif
                     @if (session('error'))
-                        <div class="alert alert-danger text-green-600 p-2">
+                        <div class="alert alert-danger text-green-600 p-2" id="flash-message">
                             {{ session('error') }}
                         </div>
                     @endif
@@ -448,5 +448,14 @@
             });
 
         });
+        // <-----------success message time--------------->
+        setTimeout(function() {
+            let flash = document.getElementById('flash-message');
+            if (flash) {
+                flash.style.transition = "opacity 0.5s ease";
+                flash.style.opacity = "0";
+                setTimeout(() => flash.remove(), 500);
+            }
+        }, 3000); // 3 seconds
     </script>
 @endsection

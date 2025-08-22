@@ -13,6 +13,8 @@ Route::post('/search-products', [RetailerProductController::class, 'searchProduc
 Route::get('/singal-product-details/{slug}', [RetailerProductController::class, 'getSingalProductDetails']);
 Route::post('/checkout', [RetailerProductController::class, 'checkout']);
 Route::post('/checkout1', [RetailerProductController::class, 'checkoutNew']);  //this is checkout1
+Route::post('/new-arrivals', [RetailerProductController::class, 'getNewArrivals']);
+Route::post('/contact-us', [RetailerProductController::class, 'contactUs']);
 
 Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify', [OtpController::class, 'verifyOtp']);

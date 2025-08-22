@@ -198,6 +198,7 @@
 
             @include('layouts.footer')
         </div>
+    </div>
     @endsection
 
     @section('script')
