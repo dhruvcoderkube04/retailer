@@ -599,7 +599,11 @@ class RetailerOrderController extends Controller
                 $tracking_info = '<div class="p-0">
                     <div class="d-flex mb-0 gap-2">
                         <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
-                    </div></div>';
+                    </div>
+                    <div class="d-flex mb-0 gap-2">
+                        <span class="badge badge-light-success text-wrap fs-6">' . strtok($item->courier_service, ' ') . '</span>
+                    </div>
+                    </div>';
             }
             if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd'||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
                 $tracking_info .= '
