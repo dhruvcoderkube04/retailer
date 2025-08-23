@@ -401,7 +401,7 @@
                 {
                     data: 'stock',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'status',
@@ -519,7 +519,7 @@
                 {
                     data: 'stock',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                 {
                     data: 'status',
