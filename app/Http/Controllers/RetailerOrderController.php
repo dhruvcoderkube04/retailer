@@ -1107,10 +1107,39 @@ class RetailerOrderController extends Controller
             }
 
             $cntFilter = clone $query;
-            $records = $query->orderBy('id', 'desc')
-                ->skip($request->start)
-                ->take($request->length)
-                ->get();
+            // $records = $query->orderBy('id', 'desc')
+            //     ->skip($request->start)
+            //     ->take($request->length)
+            //     ->get();
+
+            // Default order
+            $orderColumn = 'id';
+            $orderDir = 'desc';
+
+            if ($request->has('order')) {
+                $order = $request->order[0];
+                $columnIndex = $order['column'];
+                $orderDir = $order['dir'];
+                $columnName = $request->columns[$columnIndex]['data'];
+
+                // Map datatable columns to DB columns
+                $columnMap = [
+                    'order_date'   => 'created_at',       // if you display created_at as order_date
+                    'order_id'     => 'order_id',
+                    'quantity'     => 'quantity',
+                    'final_amount' => 'final_amount',
+                    'status'       => 'status',           // depends on your table schema
+                ];
+
+                if (array_key_exists($columnName, $columnMap)) {
+                    $orderColumn = $columnMap[$columnName];
+                }
+            }
+
+            $records = $query->orderBy($orderColumn, $orderDir)
+            ->skip($request->start)
+            ->take($request->length)
+            ->get();
 
             $totalRecords = CustomerOrders::where('order_process_by', 'wholesaler')
                 ->where('checkout_type', 'punch')
