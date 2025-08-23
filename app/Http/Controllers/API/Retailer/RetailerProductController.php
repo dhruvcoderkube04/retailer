@@ -488,6 +488,8 @@ class RetailerProductController extends Controller
 
             // Format each product (reuse existing logic if available)
             $formatted = $products->map(function ($item) {
+
+                $productType = $item instanceof \App\Models\RetailerCloneProduct ? 'retailer' : 'wholesaler';
                 $formatted = $this->formatProductFromClone($item, $item->final_price ?? $item->new_price ?? 0, collect(), true);
 
                 // Get first image
@@ -506,6 +508,7 @@ class RetailerProductController extends Controller
                     ? Storage::disk('spaces')->url($formatted['product_video'])
                     : '';
 
+                $formatted['product_type'] = $productType;
                 return $formatted;
             })->filter(function ($product) {
                 // Only keep products that have at least one image
@@ -2072,6 +2075,7 @@ class RetailerProductController extends Controller
                 $orderList[] = [
                     'order_id' => $order->id,
                     'product_id' => $product->id,
+                    'product_variation' => $product->product_variation,
                     'product_name' => $product_link->name ?? null,
                     'image' => $imageArray,
                     'price' => $product_link->new_price ?? null,
@@ -2325,10 +2329,12 @@ class RetailerProductController extends Controller
             foreach ($wishlistItems as $item) {
                 $product = null;
                 $productType = null;
+                $selectedVariant = null;
+                $finalPrice = null;
 
                 // Check for retailer product first
                 if ($item->retailer_product_id) {
-                    $retailerProduct = RetailerCloneProduct::find($item->retailer_product_id);
+                    $retailerProduct = RetailerCloneProduct::with('productVariations')->find($item->retailer_product_id);
                     if ($retailerProduct) {
                         $product = $retailerProduct;
                         $productType = 'retailer';
@@ -2337,17 +2343,34 @@ class RetailerProductController extends Controller
 
                 // If not a retailer, check wholesaler product using product_id
                 if (!$product && $item->product_id) {
-                    $wholesalerProduct = Product::find($item->product_id);
+                    $wholesalerProduct = Product::with('productVariations')->find($item->product_id);
                     if ($wholesalerProduct) {
                         $product = $wholesalerProduct;
                         $productType = 'wholesaler';
                     }
                 }
 
+                // Handle selected variant
+                if ($item->product_variations_id) {
+                    $selectedVariant = $product->productVariations
+                        ->where('id', $item->product_variations_id)
+                        ->first();
+
+                    // If variant has margin logic, calculate final_price accordingly
+                    if ($selectedVariant) {
+                        $finalPrice = $selectedVariant->final_price ?? $selectedVariant->price ?? null;
+                    }
+                }
+
+                if (!$finalPrice) {
+                    $finalPrice = $product->final_price ?? $product->new_price ?? null;
+                }
+
                 if (!$product) {
                     Log::warning("Product not found for wishlist item ID: {$item->id}");
                     continue;
                 }
+
 
                 $wishList[] = [
                     'wishlist_id' => $item->id,
@@ -2358,6 +2381,27 @@ class RetailerProductController extends Controller
                     'price' => $product->new_price ?? "",
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
                     'added_on' => \Carbon\Carbon::parse($item->created_at)->diffForHumans(),
+
+                    'selected_variant' => $selectedVariant ? [
+                        'id' => $selectedVariant->id,
+                        'product_variation' => $selectedVariant->product_variation,
+                        'price' => $selectedVariant->price,
+                        'stock' => $selectedVariant->stock,
+                        'final_price' => $finalPrice,
+                    ] : null,
+
+                    'all_variants' => $product->productVariations->map(function ($variant) {
+                        return [
+                            'id' => $variant->id,
+                            'product_id' => $variant->product_id,
+                            'product_variation' => $variant->product_variation,
+                            'variation_type' => $variant->variation_type,
+                            'old_price' =>  $variant->old_price,
+                            'price' => $variant->price,
+                            'stock' => $variant->stock,
+                            'final_price' => $variant->final_price ?? $variant->price,
+                        ];
+                    })->values(),
                 ];
             }
 

@@ -312,7 +312,7 @@
                                 </div>
 
                                 {{-- Request Type --}}
-                                <div class="form-group mb-5">
+                                {{-- <div class="form-group mb-5">
                                     <label class="form-label fw-semibold d-block">Request Type <span
                                             class="text-danger">*</span></label>
                                     <div class="form-check form-check-inline">
@@ -326,7 +326,7 @@
                                         <label class="form-check-label" for="toWholesaler">To Wholesaler</label>
                                     </div>
                                     <span class="error error_request_type text-danger m-2 d-none"></span>
-                                </div>
+                                </div> --}}
 
                                 {{-- Wholesaler Email --}}
                                 <div class="form-group mb-5 d-none" id="wholesalerDetailSection">
