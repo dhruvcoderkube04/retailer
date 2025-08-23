@@ -348,9 +348,23 @@
                                                 </i>
                                                 <span>Your account has been verified</span>
                                             </div>
+                                        @elseif ($userprofile->userDetail->wallet_status == 'submitted')
+                                            <div class="d-flex align-items-center mt-8 ms-3 fs-5 text-danger">
+                                                <i class="fa-solid fa-circle-xmark fs-1 me-2"></i>
+                                                <span>Your account details have been submitted. Please wait for admin verification.</span>
+                                            </div>
                                         @endif
 
-                                        <form action="{{ route('retailer.accountinfo') }}" method="POST"
+                                        @if ($userprofile->userDetail->wallet_status == 'approved')
+                                            <div class="text-end my-3">
+                                                <form action="{{ route('retailer.accountinfo.edit') }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-warning">Edit Bank Details</button>
+                                                </form>
+                                            </div>
+                                        @endif
+
+                                        <form action="{{ route('retailer.accountinfo.save') }}" method="POST"
                                             enctype="multipart/form-data">
                                             @csrf
                                             <div class="card-body pt-9 p-5">

@@ -2729,31 +2729,52 @@ class RetilerController extends Controller
 
     public function storeAccoutinfo(Request $request)
     {
-        $request->validate([
+        $userId = Auth::id();
+        $userDetail = UserDetail::where('user_id', $userId)->first();
+
+        if (!$userDetail) {
+            return back()->with('error', 'User detail not found');
+        }
+
+        $isChanged = false;
+
+        $fields = ['account_number', 'ifsc_code', 'account_holder_name', 'pancard_number'];
+        foreach ($fields as $field) {
+            if ($request->input($field) !== $userDetail->$field) {
+                $isChanged = true;
+            }
+        }
+
+        $fileFields = ['pan_image', 'aadhar_1_image', 'aadhar_2_image', 'cancel_cheque'];
+        foreach ($fileFields as $fileField) {
+            if ($request->hasFile($fileField)) {
+                $isChanged = true;
+            }
+        }
+
+        if (!$isChanged) {
+            return back()->with('success', 'No changes detected. Account info remains the same.');
+        }
+
+        $rules = [
             'account_number' => 'required|string|max:30',
             'ifsc_code' => 'required|string|max:15',
             'account_holder_name' => 'required|string|max:100',
             'pancard_number' => 'required|string|min:10|max:10',
-            'pan_image' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'aadhar_1_image' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'aadhar_2_image' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'cancel_cheque' => 'required|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        ];
+
+        $rules['pan_image']      = $userDetail->pan_image ? 'nullable|mimes:jpeg,png,jpg|max:2048' : 'required|mimes:jpeg,png,jpg|max:2048';
+        $rules['aadhar_1_image'] = $userDetail->aadhar_1_image ? 'nullable|mimes:jpeg,png,jpg|max:2048' : 'required|mimes:jpeg,png,jpg|max:2048';
+        $rules['aadhar_2_image'] = $userDetail->aadhar_2_image ? 'nullable|mimes:jpeg,png,jpg|max:2048' : 'required|mimes:jpeg,png,jpg|max:2048';
+        $rules['cancel_cheque']  = $userDetail->cancel_cheque ? 'nullable|mimes:jpeg,png,jpg|max:2048' : 'required|mimes:jpeg,png,jpg|max:2048';
+
+        $request->validate($rules);
 
         DB::beginTransaction();
         try {
-            $userId = Auth::id();
-            $userDetail = UserDetail::where('user_id', $userId)->first();
+            $data = $request->only($fields);
 
-            $data = $request->only([
-                'account_number',
-                'ifsc_code',
-                'account_holder_name',
-                'pancard_number'
-            ]);
-
-            // Upload to DigitalOcean Spaces
-            foreach (['pan_image', 'aadhar_1_image', 'aadhar_2_image', 'cancel_cheque'] as $field) {
+            foreach ($fileFields as $field) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
                     $data[$field] = uploadOrUpdateImageToSpaces($file, 'account_documents', $userDetail->$field);
@@ -2763,12 +2784,10 @@ class RetilerController extends Controller
             $data['wallet_status'] = 'submitted';
             $data['bank_details_submitted_at'] = Carbon::now();
 
-            if ($userDetail) {
-                $userDetail->update($data);
-            }
+            $userDetail->update($data);
 
             DB::commit();
-            return back()->with('success', 'Account information saved successfully!');
+            return back()->with('success', 'Account information updated and sent for admin verification.');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Bank details store/post error : ' . $e->getMessage());
@@ -2776,6 +2795,19 @@ class RetilerController extends Controller
         }
     }
 
+    public function editAccountInfo(Request $request)
+    {
+        $user = auth()->user();
+
+        if ($user->userDetail) {
+            // Reset wallet status so fields are editable
+            $user->userDetail->wallet_status = 'pending';
+            $user->userDetail->save();
+        }
+
+        return redirect()->back()->with('success', 'You can now edit your bank details. Status is reset to pending.');
+    }
+    
     public function verifyBankDetailsCode(Request $request)
     {
         $request->validate([
