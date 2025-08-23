@@ -169,12 +169,10 @@ class OrderStatusService
         if ($get_pickup) {
             $warehouseName = $get_pickup->warehouse_name;
 
-            $get_pickup_address = PickAddress::where('warehouse_name', $warehouseName)
-                ->where('user_id', $user->id)
-                ->where('courier_code', $request->courier_code)
+            $get_pickup_address = PickAddress::where('id', $get_pickup->id)
                 ->first();
 
-            $active_courier_partners = CourierPartner::where('is_active', 1)->where('code', $get_pickup_address->courier_code)->first();
+            $active_courier_partners = CourierPartner::where('is_active', 1)->where('code', !empty($get_pickup_address->courier_code) ? $get_pickup_address->courier_code : "lorrigolive")->first();
 
             $updateData = [
                 'status' => $request->status,
