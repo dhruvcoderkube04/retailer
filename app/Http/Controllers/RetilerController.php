@@ -545,19 +545,19 @@ class RetilerController extends Controller
 
     // <--------------------- START : Add category margin ---------------------->
     // add category margin view page
-    public function viewCategoryMargin(string $wholesaler_id)
+    public function viewCategoryMargin(string $id)
     {
         // Attempt decryption, will throw if tampered
-        $decryptedId = decryptId($wholesaler_id);
+        $wholesaler_id = decryptId($id);
 
         // Optional: validate format after decryption
-        if (!is_numeric($decryptedId)) {
+        if (!is_numeric($wholesaler_id)) {
             abort(404, 'Invalid ID format after decryption.');
         }
         $retailer = Auth::user();
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
-
+        
         $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
             ->whereNull('product_id')
