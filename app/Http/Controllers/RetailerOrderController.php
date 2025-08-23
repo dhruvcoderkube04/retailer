@@ -401,14 +401,18 @@ class RetailerOrderController extends Controller
         }
 
         if ($request->has('order') && isset($request->order[0])) {
-            $columnIndex = $request->order[0]['column'];  // get column index
-            $columnName = $request->columns[$columnIndex]['data'];  // get column name
-            $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+            $columnIndex = $request->order[0]['column'];
+            $columnName = $request->columns[$columnIndex]['data'];
+            $direction = $request->order[0]['dir'];
 
-            $query->orderBy($columnName, $direction);
+            // use map instead of raw column
+            if (isset($columnMap[$columnName])) {
+                $query->orderBy($columnMap[$columnName], $direction);
+            }
         } else {
             $query->orderBy($stageDateMap[$type], 'desc');
         }
+
 
         $cntFilter = clone $query;
         $query->offset($page)->limit($limit);
