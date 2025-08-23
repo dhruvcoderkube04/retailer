@@ -152,7 +152,7 @@ class CustomerRegisterController extends Controller
             $customer = StoreCustomersDetails::where('email_verification_token', $token)->first();
 
             if (!$customer) {
-               return redirect($frontendUrl . '/login?status=invalid-token');
+                return redirect($frontendUrl . '/login?status=invalid-token');
             }
 
             // Mark as verified
@@ -277,7 +277,14 @@ class CustomerRegisterController extends Controller
             }
 
             // Step 6: Token creation
-            $token = $customer->createToken('customer-token')->plainTextToken;
+            $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
+
+            if (!$customerDetails) {
+                return ApiResponse::error('Customer details not found.');
+            }
+
+            $token = $customerDetails->createToken('customer-token')->plainTextToken;
+
 
             DB::commit();
 
@@ -387,152 +394,6 @@ class CustomerRegisterController extends Controller
 
 
 
-    //unused API
-    public function loginOtp(Request $request)
-    {
-
-        // $request->validate([
-        //     'phone_number' => 'required|digits:10',
-        // ]);
-
-        // $otpService = new OtpService();
-
-        // // Step 1: Send OTP if not present
-        // if (!$request->has('otp')) {
-        //     $otp = $otpService->send($request->phone_number);
-
-        //     if (!$otp) {
-        //         return response()->json([
-        //             'error' => true,
-        //             'message' => 'Failed to send OTP. Please try again.'
-        //         ], 500);
-        //     }
-
-        //     return response()->json([
-        //         'success' => true,
-        //         'message' => 'OTP sent successfully',
-        //         'otp_required' => true,
-        //         'otp' => $otp // ✅ returning OTP in response
-        //     ], 200);
-        // }
-
-
-        // // Step 2: Verify OTP
-        // $request->validate([
-        //     'otp' => 'required|digits:6',
-        // ]);
-
-        // if (!$otpService->verify($request->phone_number, $request->otp)) {
-        //     return response()->json([
-        //         'error' => true,
-        //         'message' => 'Invalid or expired OTP.'
-        //     ], 401);
-        // }
-
-        $request->validate([
-            'phone_number' => 'required|digits:10',
-        ]);
-
-        // Check if this number has been verified
-        if (!Cache::get('otp_verified_' . $request->phone_number)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Phone number not verified. Please verify via OTP first.'
-            ], 401);
-        }
-
-        // Optionally clear verification after use
-        Cache::forget('otp_verified_' . $request->phone_number);
-
-        // Check valid retailer
-        $retailer = RetailerWebManagement::where('product_listing_key', $request->user_token)
-            ->where('is_active', 1)
-            ->first();
-
-        if (!$retailer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid user token.'
-            ], 404);
-        }
-
-
-        // Find customer
-        $customer = StoreCustomersDetails::where('user_id', $retailer->retailer_id)
-            ->where('phone_number', $request->phone_number)
-            ->where('is_active', true)
-            ->first();
-
-
-        if (!$customer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Please Verify your email.'
-            ], 404);
-        }
-
-        // Optional: Fetch full customer details if needed
-        $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
-
-        $filteredCustomer = $customerDetails ? collect($customerDetails)->except([
-            'id',
-            'user_id',
-            'created_at',
-            'updated_at'
-        ]) : collect($customer)->except([
-            'id',
-            'user_id',
-            'created_at',
-            'updated_at'
-        ]);
-
-
-        $customerCart = CustomerCart::where('customer_id', $customerDetails->id)->get();
-
-        $cartItems = [];
-        $wishlistItems = [];
-
-        foreach ($customerCart as $item) {
-            if ($item->type === 'wishlist') {
-                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
-                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
-                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
-                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
-                } else {
-                    $product = null;
-                }
-
-                if ($product) {
-                    $wishlistItems[] = $product;
-                }
-            } elseif ($item->type === 'cart') {
-                if (!is_null($item->product_id) && is_null($item->retailer_product_id)) {
-                    $product = Product::select('name', 'slug', 'new_price')->find($item->product_id);
-                } elseif (!is_null($item->retailer_product_id) && is_null($item->product_id)) {
-                    $product = RetailerCloneProduct::select('name', 'slug', 'new_price')->find($item->retailer_product_id);
-                } else {
-                    $product = null;
-                }
-
-                if ($product) {
-                    $cartItems[] = $product;
-                }
-            }
-        }
-
-        // Generate token
-        $token = $customer->createToken('customer-token')->plainTextToken;
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Login successful.',
-            'token' => $token,
-            'user_token' => $request->user_token,
-            'customer' => $filteredCustomer,
-            'wishlist_items' => $wishlistItems,
-            'cart_items' => $cartItems
-        ]);
-    }
     public function getCustomerDetails(Request $request)
     {
         $customer = auth()->user();
