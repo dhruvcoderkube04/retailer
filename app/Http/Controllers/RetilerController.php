@@ -2802,6 +2802,7 @@ class RetilerController extends Controller
         if ($user->userDetail) {
             // Reset wallet status so fields are editable
             $user->userDetail->wallet_status = 'pending';
+            $user->userDetail->verification_code = null;
             $user->userDetail->save();
         }
 
