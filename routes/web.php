@@ -155,7 +155,8 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
     Route::get('/profile/bank-details', [RetilerController::class, 'Profile'])->name('retailer.profile.bank-details');
 
     Route::post('/profile-update', [RetilerController::class, 'profileUpdate'])->name('retailer.profile.update');
-    Route::post('/account-info', [RetilerController::class, 'storeAccoutinfo'])->name('retailer.accountinfo');
+    Route::post('/account-info/save', [RetilerController::class, 'storeAccoutinfo'])->name('retailer.accountinfo.save');
+    Route::post('/account-info/edit', [RetilerController::class, 'editAccountInfo'])->name('retailer.accountinfo.edit');
     Route::post('/retailer/bank-details-verify', [RetilerController::class, 'verifyBankDetailsCode'])->name('retailer.bank-details.verify');
 
     // abandonedcard
