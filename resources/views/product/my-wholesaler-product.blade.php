@@ -255,7 +255,7 @@
                 {
                     data: 'status',
                     className: 'text-center',
-                    orderable: false,
+                    orderable: true,
                 },
                  {
                     data: 'action',
