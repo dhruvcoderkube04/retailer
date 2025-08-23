@@ -166,7 +166,7 @@
                 },
                 columns: [
                     { data: 'no', className: 'text-center' },
-                    { data: 'order_date', className: 'text-center' },
+                    { data: 'order_date', className: 'text-center', orderable: true},
                     { data: 'order_detail' },
                     { data: 'media' },
                     { data: 'wholesaler_detail' },
