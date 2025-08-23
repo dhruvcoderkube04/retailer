@@ -151,8 +151,8 @@ class TrackShipments extends Command
         }
 
         $services = CourierServiceManager::getAllServicesForTracking();
+        DB::beginTransaction();
         foreach ($orders as $order) {
-            DB::beginTransaction();
             try {
                 $partnerCode = $order->courier_partner_code;
 
