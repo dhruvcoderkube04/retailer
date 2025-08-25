@@ -505,7 +505,7 @@ class RetailerOrderController extends Controller
                         <div class="d-flex mb-2 gap-2">
                             <span"><strong>Amount:</strong></span>
                             <span class="text-start">
-                                <span class="badge badge-light-primary">₹' . $item->final_amount . '</span>
+                                <span class="badge badge-light-primary fs-6">₹' . $item->final_amount . '</span>
                             </span>
                         </div>';
 
@@ -601,10 +601,10 @@ class RetailerOrderController extends Controller
             $tracking_info = '';
             if ($item->tracking_number) {
                 $tracking_info = '<div class="p-0">
-                    <div class="d-flex mb-0 gap-2">
+                    <div class="d-flex gap-2 justify-content-center mb-2">
                         <span class="text-dark fw-bold">' . $item->tracking_number . '</span>
                     </div>
-                    <div class="d-flex mb-0 gap-2">
+                    <div class="d-flex gap-2 justify-content-center mb-2">
                         <span class="badge badge-light-success text-wrap fs-6">' . strtok($item->courier_service, ' ') . '</span>
                     </div>
                     </div>';
@@ -645,33 +645,33 @@ class RetailerOrderController extends Controller
                     data-api-order_id="' . $item->api_order_id . '"';
 
             if ($item->status == 'pending' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px newOrderAction"' . $common_attrs . '><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button>';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto newOrderAction"' . $common_attrs . '>Action</button> <div class="d-block w-100"></div> <br>';
             } elseif ($item->status == 'approved_by_retailer' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px  confirmedOrderAction"' . $common_attrs . '><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button> ';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto  confirmedOrderAction"' . $common_attrs . '>Action</button><div class="d-block w-100"></div> <br> ';
             } elseif ($item->status == 'pickup' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px  pickupOrderAction"' . $common_attrs . ' ><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button> ';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto  pickupOrderAction"' . $common_attrs . ' >Action</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'in_transit' && $type !== 'transferred-to-wholesaler') {
                 // $action .= '<button type="button" style="white-space: nowrap; opacity: 0.4" class="btn btn-primary btn-sm"' . $common_attrs . ' disabled>Action</button>';
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px  inTransitOrderAction"' . $common_attrs . ' ><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button> ';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto  inTransitOrderAction"' . $common_attrs . ' >Action</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
             } elseif ($item->status == 'ofd' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' ><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button> ';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
              }elseif ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" style="white-space: nowrap;" class="btn btn-primary btn-sm ndr-reattempt"' . $common_attrs . ' >Re-Attempet Order</button> ';
+                $action .= '<button type="button" style="white-space: nowrap;" class="btn btn-primary btn-sm ndr-reattempt"' . $common_attrs . ' >Re-Attempet Order</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
 
             } elseif ($item->status == 'delivered' && $type !== 'transferred-to-wholesaler') {
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' ><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button> ';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
 
             } else {
-                $action .= '<button type="button" class="btn btn-primary btn-icon w-30px h-30px " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' ><i class="ki-duotone ki-setting text-white fs-3"><span class="path1"></span><span class="path2"></span></i></button> ';
+                $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button><div class="d-block w-100"></div> <br> ';
             }
 
             if ($type !== 'transferred-to-wholesaler') {

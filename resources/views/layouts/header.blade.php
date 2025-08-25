@@ -110,7 +110,7 @@
                         id="kt_menu_notifications">
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="kt_topbar_notifications_3" role="tabpanel">
-                                <div class="scroll-y mh-325px my-5 px-8" id="notification-list">
+                                <div class="scroll-y mh-325px my-5 px-4" id="notification-list">
                                     <!-- Dynamic notifications will appear here -->
                                     <div class="text-muted text-center py-10">Loading...</div>
                                 </div>

@@ -194,7 +194,7 @@
                                 <div class="d-flex flex-stack py-4 border-bottom">
                                     <div class="d-flex align-items-center me-2">
                                         <a href="#" class="text-gray-800 text-hover-primary fw-semibold">
-                                        ${item.message} <span class="badge badge-primary">${item.order_id}<span>
+                                        ${item.message} <span class="badge badge-primary ms-2">${item.order_id}<span>
                                         </a>
                                     </div>
                                     <span class="badge badge-light fs-8">${item.time_ago}</span>
