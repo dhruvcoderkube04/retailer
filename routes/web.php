@@ -29,6 +29,8 @@ Route::get('/', function () {
     return redirect()->to('login');
 });
 
+Route::post('/lorrigo-webhook', [ShippingController::class, 'lorrigoWebhook']);
+
 Route::controller(RetailerAuthController::class)->group(function () {
     Route::get('login', 'showLoginForm')->name('retailer.login')->middleware('user.active');
     Route::post('login', 'login')->name('retailer.post.login');
