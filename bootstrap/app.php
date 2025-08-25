@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'retailer' => RetailerMiddleware::class,
             'user.active' => \App\Http\Middleware\CheckRetailerStatus::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'lorrigo-webhook' // <-- exclude this route
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

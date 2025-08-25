@@ -96,6 +96,16 @@ class TrackShipments extends Command
             105 => 'RETURN_SHIPMENT_LOST',
         ];
 
+        $stageActions = [
+            "New" => "pickup",
+            "Courier Assigned" => "pickup",
+            "Picked Up" => "in_transit",
+            "Shipped" => "in_transit",
+            "In Transit" => "in_transit",
+            "Out For Delivery" => "ofd"
+        ];
+
+
         $statusTextMap = [
             'NEW' => 'pending',
             'READY_TO_SHIP' => 'pickup',
@@ -151,8 +161,8 @@ class TrackShipments extends Command
         }
 
         $services = CourierServiceManager::getAllServicesForTracking();
+        DB::beginTransaction();
         foreach ($orders as $order) {
-            DB::beginTransaction();
             try {
                 $partnerCode = $order->courier_partner_code;
 
@@ -328,11 +338,11 @@ class TrackShipments extends Command
                     $dateColumn = $stageDateMap[$bucket_status] ?? null;
 
                     $latestStage = collect($response['order']['orderStages'] ?? [])->last();
-                    $status = $latestStage['action'] ?? $order->shipment_status;
+                    $status = isset($stageActions[$latestStage['action']]) ? $stageActions[$latestStage['action']] : $bucket_status;
                     $stage_reason  = $latestStage['activity'] ?? '';
 
                     $updateData = [
-                        'shipment_status' => $status,
+                        'shipment_status' => $latestStage['action'],
                         'fulfilledby' => $response['order']['carrierName'] ?? $order->fulfilledby,
                         'shipment_activity' => $stage_reason
                     ];
@@ -340,7 +350,7 @@ class TrackShipments extends Command
                     if ($dateColumn && Schema::hasColumn('customer_orders', $dateColumn)) {
                         $updateData[$dateColumn] = now();
                     }
-
+                    
                     DB::table('customer_orders')->where('order_id', $order->order_id)->update($updateData);
 
                     $orderModel = CustomerOrders::with('retailer')->where('order_id', $order->order_id)->first();
@@ -349,7 +359,7 @@ class TrackShipments extends Command
                         $statusService = new OrderStatusService();
 
                         // IN-TRANSIT
-                        if ($bucket_status === 'in_transit') {
+                        if ($status === 'in_transit') {
                             if ($orderModel->status === 'in_transit' && $orderModel->in_transit_at) {
                                 Log::info("🚫 Order #{$order->order_id} already in_transit. Skipping update.");
                                 DB::rollBack();
@@ -366,8 +376,19 @@ class TrackShipments extends Command
                                 Log::error("🚫 Failed : In Transit processed for order #{$order->order_id}: {$msg}");
                             }
                         }
+                        // Out for delivery 
+                        if ($status === 'ofd'){
+
+                            [$success, $msg, $finalStatus] = $statusService->handleOutForDeliveryStatus($orderModel);
+
+                            if ($success) {
+                                Log::info("🎯 Success : In Transit processed for order #{$order->order_id}: {$msg}");
+                            } else {
+                                Log::error("🚫 Failed : In Transit processed for order #{$order->order_id}: {$msg}");
+                            }
+                        }
                         // DELIVERED
-                        elseif ($bucket_status === 'delivered') {
+                        elseif ($status === 'delivered') {
                             if ($orderModel->status === 'delivered' && $orderModel->delivered_at) {
                                 Log::info("🚫 Order #{$order->order_id} already delivered. Skipping update.");
                                 DB::rollBack();
@@ -386,7 +407,7 @@ class TrackShipments extends Command
                         }
                         // ndr  customer not accept
 
-                        elseif ($bucket_status === 'ndr')
+                        elseif ($status === 'ndr')
                         {
                             if ($orderModel->status === 'ndr' && $orderModel->ndr_at) {
                                 Log::info("🚫 Order #{$order->order_id} already Non Delivered Report. Skipping update.");
@@ -405,7 +426,7 @@ class TrackShipments extends Command
                             }
                         }
                         // rto
-                        elseif ($bucket_status === 'rto')
+                        elseif ($status === 'rto')
                         {
                             if ($orderModel->status === 'rto' && $orderModel->rto_at) {
                                 Log::info("🚫 Order #{$order->order_id} already RTO. Skipping update.");
@@ -424,7 +445,7 @@ class TrackShipments extends Command
                             }
                         }
                         // rto to seller
-                        elseif ($bucket_status === 'rtn_to_seller')
+                        elseif ($status === 'rtn_to_seller')
                         {
                             if ($orderModel->status === 'rtn_to_seller' && $orderModel->rtn_to_seller_at) {
                                 Log::info("🚫 Order #{$order->order_id} already Return to Seller. Skipping update.");
@@ -443,7 +464,7 @@ class TrackShipments extends Command
                             }
                         }
                         // CANCEL
-                        elseif ($bucket_status === 'cancel') {
+                        elseif ($status === 'cancel') {
                             if ($orderModel->status === 'cancel' && $orderModel->cancel_at) {
                                 Log::info("🚫 Order #{$order->order_id} already cancelled. Skipping update.");
                                 DB::rollBack();

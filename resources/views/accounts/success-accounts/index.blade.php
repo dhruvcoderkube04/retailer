@@ -681,7 +681,7 @@
                 e.preventDefault();
 
                 const form = $(this);
-                const requestType = $('input[name="request_type"]:checked').val();
+                // const requestType = $('input[name="request_type"]:checked').val();
                 const amountInput = form.find('input[name="request_amount"]');
                 const amount = parseFloat(amountInput.val());
                 const currentWalletBalance = parseFloat('{{ $user->userDetail->success_wallet ?? 0 }}');
@@ -706,35 +706,35 @@
                     return false;
                 }
 
-                // Validate request type
-                if (!requestType) {
-                    $('.error_request_type').text('Please select a request type.').removeClass('d-none');
-                    return false;
-                }
+                // // Validate request type
+                // if (!requestType) {
+                //     $('.error_request_type').text('Please select a request type.').removeClass('d-none');
+                //     return false;
+                // }
 
                 // If to_wholesaler, validate email
-                if (requestType === 'to_wholesaler') {
-                    if (wholesalerEmail === '') {
-                        $('.error_wholesaler_email').text('Please enter wholesaler email.').removeClass(
-                            'd-none');
-                        wholesalerEmailInput.focus();
-                        return false;
-                    }
-                    if ($('#wholesaler_id_hidden').val() === '') {
-                        $('.error_wholesaler_email').text('Please verify the wholesaler email.')
-                            .removeClass('d-none');
-                        wholesalerEmailInput.focus();
-                        return false;
-                    }
-                    if ($('#wholesaler_wallet_status_hidden').val() === '') {
-                        $('.error_wholesaler_email').text(
-                                'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.'
-                            )
-                            .removeClass('d-none');
-                        wholesalerEmailInput.focus();
-                        return false;
-                    }
-                }
+                // if (requestType === 'to_wholesaler') {
+                //     if (wholesalerEmail === '') {
+                //         $('.error_wholesaler_email').text('Please enter wholesaler email.').removeClass(
+                //             'd-none');
+                //         wholesalerEmailInput.focus();
+                //         return false;
+                //     }
+                //     if ($('#wholesaler_id_hidden').val() === '') {
+                //         $('.error_wholesaler_email').text('Please verify the wholesaler email.')
+                //             .removeClass('d-none');
+                //         wholesalerEmailInput.focus();
+                //         return false;
+                //     }
+                //     if ($('#wholesaler_wallet_status_hidden').val() === '') {
+                //         $('.error_wholesaler_email').text(
+                //                 'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.'
+                //             )
+                //             .removeClass('d-none');
+                //         wholesalerEmailInput.focus();
+                //         return false;
+                //     }
+                // }
 
                 $.ajax({
                     url: '{{ route('retailer.accounts.withdrawal-request-post') }}',

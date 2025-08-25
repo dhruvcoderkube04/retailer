@@ -409,6 +409,16 @@ class OrderStatusService
         return [true, 'Order has been transferred to In-transit', 'in-transit'];
     }
 
+    public function handleOutForDeliveryStatus($customerOrder)
+    {
+        $customerOrder->update([
+            'status' => 'ofd',
+            'ofd_at' => Carbon::now(),
+        ]);
+
+        return [true, 'Order has been transferred to In-transit', 'in-transit'];
+    }
+
     public function handleNdrOrder($customerOrder)
     {
         $customerOrder->update([

@@ -510,30 +510,12 @@ class RetailerAccountTransactionController extends Controller
     {
         $request->validate([
             'request_amount' => 'required|numeric|min:0.01',
-            'request_type' => 'required|in:to_account,to_wholesaler',
             'remarks' => 'nullable|string|max:255',
         ], [
             'request_amount.required' => 'Withdrawal amount is required.',
             'request_amount.numeric' => 'Amount must be a number.',
             'request_amount.min' => 'Amount must be greater than zero.',
-            'request_type.required' => 'Please select a request type.',
-            'request_type.in' => 'Invalid request type.',
         ]);
-
-        if ($request->request_type == 'to_wholesaler') {
-            $request->validate([
-                'wholesaler_email' => 'required|email',
-                'wholesaler_id' => 'required|numeric|exists:users,id',
-                'wholesaler_wallet_status' => 'required|in:yes',
-            ], [
-                'wholesaler_email.required' => 'Wholesaler email is required when sending to wholesaler.',
-                'wholesaler_email.email' => 'Please enter a valid email address.',
-                'wholesaler_id.required' => 'Please verify the wholesaler email.',
-                'wholesaler_id.exists' => 'Please verify the wholesaler email.',
-                'wholesaler_wallet_status.required' => 'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.',
-                'wholesaler_wallet_status.in' => 'Wholesaler wallet is inactive, Request wholesaler to activate the wallet.'
-            ]);
-        }
 
         DB::beginTransaction();
         try {
@@ -560,15 +542,9 @@ class RetailerAccountTransactionController extends Controller
             $userDetail->success_wallet = ($userDetail->success_wallet) - ($request->request_amount);
             $userDetail->save();
 
-            $desctiption = 'No Remarks';
-            $msg = '';
-            if ($request->request_type == 'to_account') {
-                $desctiption = 'Withdrawal Request : to self account on ' . Carbon::now()->format('F d, Y, h:i a');
-                $msg = 'Withdrawal request submitted successfully to self account, Amount will be transfered shortly after the approval';
-            } else if ($request->request_type == 'to_wholesaler') {
-                $desctiption = 'Withdrawal Request : to wholesaler (wallet to wallet transfer) on ' . Carbon::now()->format('F d, Y, h:i a');
-                $msg = 'Withdrawal request submitted successfully to wholesaler (wallet), Amount will be transfered shortly after the approval';
-            }
+            $desctiption = 'Withdrawal Request : to self account on ' . Carbon::now()->format('F d, Y, h:i a');
+            $msg = 'Withdrawal request submitted successfully to self account, Amount will be transfered shortly after the approval';
+
             $accountTransaction = AccountTransaction::create([
                 'user_id' => $user->id,
                 'user_type' => 'retailer',

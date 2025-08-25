@@ -1,153 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shipping Label</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
-        .label-container {
-            width: 700px;
-            border: 2px solid #000;
-            margin: auto;
-        }
-
-        /* --- Header (3 equal columns) --- */
-        .header {
-            width: 100%;
-            border-bottom: 2px solid #000;
-            table-layout: fixed;
-        }
-        .header td {
-            border-left: 2px solid #000;
-            text-align: center;
-            vertical-align: middle;
-            height: 150px;
-            padding: 10px;
-        }
-        .header td:first-child {
-            border-left: none;
-        }
-
-        .section {
-            border-bottom: 1px solid #000;
-            padding: 8px;
-        }
-        .bold {
-            font-weight: bold;
-        }
-
-        /* Buyer + COD box */
-        .buyer-details {
-            position: relative;
-            min-height: 120px;
-            border-bottom: 1px solid #000;
-            padding: 8px;
-            padding-right: 200px; /* reserve space for COD box */
-        }
-        .cod-box {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 180px;
-            border: 2px solid #000;
-            text-align: center;
-        }
-        .cod-section {
-            border-bottom: 2px solid #000;
-            padding: 6px;
-        }
-        .cod-section:last-child {
-            border-bottom: none;
-        }
-
-        /* Barcode */
-        .barcode {
-            text-align: center;
-            padding: 15px;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-        }
-
-        /* Footer */
-        .footer {
-            padding: 10px;
-        }
-    </style>
 </head>
-<body>
-    <div class="label-container">
-        <!-- Header logos -->
-        <table class="header">
+
+<body style="margin:0; padding:0; font-family: Arial, Helvetica, sans-serif; font-size:14px; color:#000;">
+    <table style="width:100%; border-collapse:collapse; table-layout:fixed; border-bottom:px solid #000;">
+        <tr>
+            <td style="height:150px; text-align:center; vertical-align:middle; padding:10px;">
+            </td>
+        </tr>
+    </table>
+    <div style="width:700px; margin:0 auto; border:2px solid #000;">
+
+
+        <!-- Header (3 equal cells for logos or text) -->
+        <table style="width:100%; border-collapse:collapse; table-layout:fixed; border-bottom:2px solid #000;">
             <tr>
-                <td>
-                    <img src="{{ optional($customerOrder->retailer->userDetail)->company_logo }}" alt="{{@$customerOrder->retailer->userDetail->company_name}}" height="50">
+                <td style="height:150px; text-align:center; vertical-align:middle; padding:10px;">
+                    @if(optional($customerOrder->retailer->userDetail)->company_logo)
+                        <img
+                            src="{{ optional($customerOrder->retailer->userDetail)->company_logo }}"
+                            alt="{{ optional($customerOrder->retailer->userDetail)->company_name }}"
+                            style="max-height:100px; max-width:100%;">
+                    @else
+                        <p style="font-size:18px; font-weight:bold; height:50px; vertical-align:middle;">
+                            {{ optional($customerOrder->retailer->userDetail)->company_name }}
+                        </p>
+                    @endif
                 </td>
-                <td>
-                    <img src="{{@$courier_logo}}" height="50">
+                <td style="height:150px; text-align:center; vertical-align:middle; padding:10px; border-left:2px solid #000;">
+                    <img src="{{ @$courier_logo }}" height="50" style="max-height:100px; max-width:100%;">
                 </td>
-                <td>
-                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/logos/bigmart.jpg'))) }}" height="50">
+                <td style="height:150px; text-align:center; vertical-align:middle; padding:10px; border-left:2px solid #000;">
+                    <b>
+                        Powered by <br>
+                        JDWEBNSHIP
+                    </b>
                 </td>
             </tr>
         </table>
 
-        {{-- {{dd($customerOrder->retailer->userDetail->company_logo)}} --}}
-        <!-- Product details -->
-        <div class="section">
-            <b>{{ @$productName }}  {{ @$customerOrder->order_product_detail->variation ?? '' }} ( Qty : {{ @$customerOrder->order_product_detail->quantity }})</b>
-        </div>
+        <!-- Product Details -->
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="padding:15px 20px; border-bottom:2px solid #000;">
+                    <b>{{ @$productName }}  {{ @$customerOrder->order_product_detail->variation ?? '' }} ( Qty : {{ @$customerOrder->order_product_detail->quantity }}) ,</b>
+                </td>
+            </tr>
+        </table>
 
-        <!-- Seller info -->
-        <div class="section">
-            <b>This order comes from:</b> {{ optional($customerOrder->retailer->userDetail)->company_name ?? '' }} <br>
-        </div>
+        <!-- Seller -->
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="padding:15px 20px; border-bottom:2px solid #000;">
+                    <b>This order comes from -</b> {{ optional($customerOrder->retailer->userDetail)->company_name ?? '' }} <br>
+                </td>
+            </tr>
+        </table>
 
         <!-- Note + Order Info -->
-        <div class="section">
-            <span class="bold">Note- No Open Delivery Allowed </span> <br>
-            <span class="bold">Order Number:  {{ @$customerOrder->order_id }} &nbsp;&nbsp; || </span>
-            {{-- <span class="bold">Channel Order ID:  CHN987654 </span> --}}
-        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="padding:15px 20px; border-bottom:2px solid #000;">
+                    <b>Note- No Open Delivery Allowed</b><br>
+                    <b>Order Number-</b>  {{ @$customerOrder->order_id }} &nbsp;&nbsp;
+                    {{-- <b>Channel Order ID:</b> --}}
+                </td>
+            </tr>
+        </table>
 
-        <!-- Buyer Details + COD Box -->
-        <div class="buyer-details">
-            <div class="buyer-info">
-                <span class="bold">Buyer Details:<br>
-                {{ @$customerOrder->firstname }} <br>
-                {{ @$customerOrder->customer->address }},
-                {{ @$customerOrder->customer->state }},
-                {{ @$customerOrder->customer->city }} <br>
-                - {{ @$customerOrder->customer->pincode }} <br>
-                </span>
-                <span class="bold">Contact Number:</span> {{ @$customerOrder->customer->phone_number }}
-            </div>
+        <!-- Buyer Details + COD Box (no absolute positioning) -->
+        <table style="width:100%; border-collapse:collapse; border-bottom:1px solid #000;">
+            <tr>
+                <!-- Buyer -->
+                <td style="width:70%; vertical-align:top; padding:15px 20px;">
+                    <b>Buyer Details:</b><br>
+                    {{ @$customerOrder->firstname }} <br>
+                    {{ @$customerOrder->customer->address }},
+                    {{ @$customerOrder->customer->state }},
+                    {{ @$customerOrder->customer->city }} <br>
+                    - {{ @$customerOrder->customer->pincode }} <br><br>
+                    <b>Contact Number: {{ @$customerOrder->customer->phone_number }}</b>
+                </td>
 
-            <div class="cod-box">
-                <div class="cod-section"><span class="bold">COD <br> Rs.{{ @$customerOrder->final_amount }}</span></div>
-                <div class="cod-section"><span class="bold">{{ @$customerOrder->customer->city }}</span></div>
-                <div class="cod-section"><span class="bold">{{ @$customerOrder->customer->pincode }}</span></div>
-            </div>
-        </div>
+                <!-- COD Box -->
+                <td style="width:30%; padding:10px; vertical-align:middle; padding-right: 0;">
+                    <table style="width:100%; border-collapse:collapse; border:2px solid #000; text-align:center; border-right: 0;">
+                        <tr>
+                            <td style="padding:8px; border-bottom:2px solid #000;">
+                                <b>COD</b><br><b>Rs.{{ @$customerOrder->final_amount }}</b>
+                            </td>
+                        </tr>
+                        <!-- <tr>
+                            <td style="padding:8px; border-bottom:2px solid #000;">
+                                <b>NDA/NEC</b>
+                            </td>
+                        </tr> -->
+                        <tr>
+                            <td style="padding:8px; border-bottom:2px solid #000;">
+                                <b>{{ @$customerOrder->customer->pincode }}</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:8px;">
+                                <b>{{ @$courier_service }}</b>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
 
-        <!-- Barcode Section -->
-        <div class="barcode">
-            <span class="bold">{{ strtoupper(@$courierName) }}</span><br>
-                <img src="data:image/png;base64,{!! DNS1D::getBarcodePNG($courier_service_response['waybill'], 'C128') !!}" alt="Barcode"><br>
-                {{ $courier_service_response['waybill'] }}
-        </div>
+        <!-- Barcode placeholder -->
+        <table style="width:100%; border-collapse:collapse; border-top:1px solid #000; border-bottom:1px solid #000;">
+            <tr>
+                <td style="text-align:center; padding:15px 20px;">
+                    <b>{{ strtoupper(@$courierName) }}</b><br>
+                    <img src="data:image/png;base64,{!! DNS1D::getBarcodePNG($courier_service_response['waybill'], 'C128') !!}" alt="Barcode" style="display:block; margin:15px auto;"><br>
+                    {{ $courier_service_response['waybill'] }}
+                </td>
+            </tr>
+        </table>
 
         <!-- Return Address -->
-        <div class="footer">
-            <span class="bold">If not delivered, please return at below address:-</span><br>
-            <span class="bold">{{ @$pickupAddress->address }} </span>
-            {{ @$pickupAddress->state }},<br>
-            {{ @$pickupAddress->city }} - {{ @$pickupAddress->pincode }} <br>
-            <span class="bold"> Mobile: {{ @$pickupAddress->mobile_number }}</span>
-        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="padding:15px 20px;">
+                    <b>If not delivered, please return at below address:-</b><br>
+                     {{ optional($customerOrder->retailer->userDetail)->company_name ?? '' }}<br>
+                    Return Address: {{ @$pickupAddress->address }},  {{ @$pickupAddress->city }} ,  {{ @$pickupAddress->state }} -{{ @$pickupAddress->pincode }}<br>
+                    <b>Mobile: {{ @$pickupAddress->mobile_number }} </b>
+                </td>
+            </tr>
+        </table>
+
     </div>
 </body>
+
 </html>
