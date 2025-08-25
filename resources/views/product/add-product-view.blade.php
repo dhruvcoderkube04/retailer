@@ -291,9 +291,9 @@
                                     <div class="card-body pt-0">
                                         <div class="row">
                                             {{-- sku --}}
-                                            <div class="col-md-6">
+                                            <div class="col-md-6" id="sku_section">
                                                 <div class="mb-3 fv-row">
-                                                    <label class="form-label">SKU</label>
+                                                    <label class="required form-label">SKU</label>
                                                     <input type="text" name="sku"
                                                         class="form-control mb-2 @error('sku') is-invalid @enderror"
                                                         placeholder="SKU Number" value="{{ old('sku') }}" />
@@ -401,7 +401,7 @@
             if (selectedFiles.length + files.length > 3) {
                 alert('You can upload a maximum of 3 images.');
                 updateFileInput();
-                return; 
+                return;
             }
 
             files.forEach(file => {
@@ -553,6 +553,7 @@
                     case 'status':
                     case 'product_name':
                     case 'meta_description':
+                    case 'sku':
                         if (isEmpty(value)) {
                             showError(input, `${formatFieldName(name)} field is required`);
                         } else {
@@ -636,7 +637,7 @@
                 $('.invalid-feedback').remove();
 
                 const allFields = [
-                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'quantity',
+                    'status', 'product_name', 'sub_category_id', 'new_price', 'old_price', 'sku', 'quantity',
                     'images[]'
                 ];
 
@@ -665,7 +666,7 @@
                 }).length > 0;
 
                 const allRequiredFilled = [
-                        'status', 'product_name', 'sub_category_id', 'images[]'
+                        'status', 'product_name', 'sub_category_id', 'images[]', 'sku'
                     ].concat(hasVariations ? [] : ['new_price', 'old_price', 'quantity'])
                     .every(name => {
                         const input = $(`[name="${name}"]`);
