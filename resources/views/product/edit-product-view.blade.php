@@ -162,7 +162,7 @@
                                                         class="form-control mb-2 @error('product_tags') is-invalid @enderror"
                                                         id="product_tags"
                                                         value="{{ old('product_tags', $product_detail->tags) }}"
-                                                        placeholder="Fashion, Style, Electric" />
+                                                        placeholder="Fashion, Style, Electric" pattern=".*[A-Za-z0-9].*" />
                                                     @error('product_tags')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror

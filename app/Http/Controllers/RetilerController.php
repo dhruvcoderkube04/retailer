@@ -352,6 +352,7 @@ class RetilerController extends Controller
             $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($sub_category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add/Update Margin</a>';
 
             $data[] = array(
+                "sr_no" => $i,
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
@@ -2290,7 +2291,7 @@ class RetilerController extends Controller
             }
 
 
-            $slug = Str::slug($request->slug) . '-' . now()->timestamp . '-' . uniqid();
+            $slug = Str::slug($request->product_name) . '-' . now()->timestamp . '-' . uniqid();
             // Update product details
             $product->name = $request->product_name;
             $product->slug = $slug;

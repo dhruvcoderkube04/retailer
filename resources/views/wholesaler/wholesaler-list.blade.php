@@ -48,6 +48,7 @@
                                 <table class="table align-middle table-row-dashed fs-6 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">NO</th>
                                             <th class="text-center align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Image</th>
                                             <th class="text-center align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Name</th>
@@ -165,6 +166,11 @@
             },
             order: [],
             columns: [
+            {
+                data: 'sr_no',
+                className: 'text-center fs-5 text-dark text-capitalize',
+                orderable: false,
+            },
             {
                 data: 'company_logo',
                 className: 'text-end fs-5 text-dark text-capitalize',
