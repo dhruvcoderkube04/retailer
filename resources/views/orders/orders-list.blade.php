@@ -1226,6 +1226,7 @@
         });
 
         function resetConfirmedOrderForm() {
+            $("#submitButton").prop("disabled", true);
             let $form = $('#confirmedOrderForm');
 
             // Reset normal fields
@@ -1309,6 +1310,7 @@
         });
 
         function resetConfirmedOrderForm() {
+            $("#submitButton").prop("disabled", true);
             let $form = $('#confirmedOrderForm');
 
             // Reset normal fields
@@ -2947,6 +2949,30 @@
                 $('#order_search').val('');
                 dataTable.search('').draw();
                 $(this).addClass('d-none');
+            });
+
+            $(document).ready(function () {
+                $("#submitButton").prop("disabled", true);
+
+                $("input[name='status']").on("change", function () {
+                    $("#submitButton").prop("disabled", !$("input[name='status']:checked").length);
+                });
+
+                function resetConfirmedOrderModal() {
+                    $("#submitButton").prop("disabled", true);
+                    $("input[name='status']").prop("checked", false);
+                    $(".reject_reason_select_confirmed").val("").trigger("change");
+                    $(".reject_reason_input_confirmed").val("");
+                }
+
+                $(document).on("click", "#confirmDiscardYes", function () {
+                    resetConfirmedOrderModal();
+                    $("#confirmed-order-action-modal").modal("hide");
+                });
+
+                $(document).on("click", "#confirmDiscardNo", function () {
+
+                });
             });
 
             //<----------------- END : NDR ---------------->

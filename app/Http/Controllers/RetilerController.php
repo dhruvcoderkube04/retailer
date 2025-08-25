@@ -2290,7 +2290,7 @@ class RetilerController extends Controller
             }
 
 
-            $slug = Str::slug($request->slug) . '-' . now()->timestamp . '-' . uniqid();
+            $slug = Str::slug($request->product_name) . '-' . now()->timestamp . '-' . uniqid();
             // Update product details
             $product->name = $request->product_name;
             $product->slug = $slug;
