@@ -328,13 +328,13 @@ class RetilerController extends Controller
 
 
             $details = '
-                <div>
+                <div class="mb-2">
                     <span>Total Sub Category : </span>
                     <div class="badge ' . ($sub_category_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
                                     ' . $sub_category_count_fetch . '
                     </div>
                 </div>
-                <div>
+                <div class="mb-2">
                     <span>Total Products : </span>
                     <div class="badge ' . ($product_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
                                     ' . $product_count_fetch . '
@@ -526,7 +526,7 @@ class RetilerController extends Controller
                     style="height: 75px; width: 75px;" />
             </div>';
 
-            $margin = '<div class="badge badge-light-primary">
+            $margin = '<div class="badge badge-light-primary fs-6">
                             ₹ ' . $item->margin . '
                         </div>';
 
@@ -1150,11 +1150,11 @@ class RetilerController extends Controller
                             <a href="' . route('retailer.view-category-margin', encryptId($product->wholesaler_id) ?? 0) . '" class="text-gray-800 text-hover-primary fs-5 fw-bold" data-kt-ecommerce-product-filter="product_name">' . htmlspecialchars(ucfirst($product->company_name ?? 'N/A'), ENT_QUOTES, 'UTF-8') . '</a>
                         </div>';
 
-            $new_price = '<div class="badge badge-light-primary text-wrap">'
+            $new_price = '<div class="badge badge-light-primary text-wrap fs-6">'
                 . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
                 . '</div>';
 
-            $margin = '<div class="badge badge-light-info">' . ($product->margin ? '₹ ' . $product->margin : 'N/A') . '</div>';
+            $margin = '<div class="badge badge-light-info fs-6">' . ($product->margin ? '₹ ' . $product->margin : 'N/A') . '</div>';
 
             $product_status_view = $product->product_status ? $product->product_status : $product->status;
             $status = $product_status_view === 'active'
@@ -1188,11 +1188,11 @@ class RetilerController extends Controller
                     </div>';
 
             if ($totalStock && $totalStock > 0) {
-                $stock = '<div class="badge badge-light-success">Available</div>';
+                $stock = '<div class="badge badge-light-success fs-6">Available</div>';
             } else if (!$totalStock && $product->quantity && $product->quantity > 0) {
-                $stock = '<div class="badge badge-light-success">Available</div>';
+                $stock = '<div class="badge badge-light-success fs-6">Available</div>';
             } else {
-                $stock = '<div class="badge badge-light-danger">Unavailable</div>';
+                $stock = '<div class="badge badge-light-danger fs-6">Unavailable</div>';
             }
 
             $data[] = [
@@ -1609,7 +1609,7 @@ class RetilerController extends Controller
             </div>'
                 : e($product->name);
 
-            $new_price = '<div class="badge badge-light-primary text-wrap">'
+            $new_price = '<div class="badge badge-light-primary text-wrap fs-6">'
                 . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
                 . '</div>';
 
@@ -1665,7 +1665,7 @@ class RetilerController extends Controller
                         style="width: 50px; height: 50px; object-fit: cover;"
                         onerror="this.onerror=null;this.src=\'' . $defaultImage . '\';" />';
 
-            $stock = '<div class="badge badge-light-success">Available</div>';
+            $stock = '<div class="badge badge-light-success fs-6">Available</div>';
 
             $created_updated_at = '<div>
                 ' . $product->created_at . '
@@ -1837,13 +1837,13 @@ class RetilerController extends Controller
             </div>'
                 : e($product->name);
 
-            $new_price = '<div class="badge badge-light-primary text-wrap">'
+            $new_price = '<div class="badge badge-light-primary text-wrap fs-6">'
                 . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
                 . '</div>';
 
             $status = $product->status === 'active'
                 ? '<div class="text-center">
-                        <div class="badge badge-light-success px-4 py-2 mb-1">Active</div>
+                        <div class="badge badge-light-success px-4 py-2 mb-1 fs-6">Active</div>
                         <label class="form-check form-switch form-check-custom form-check-solid justify-content-center">
                             <input type="checkbox"
                                 class="form-check-input changeStatusToggle"
@@ -1852,7 +1852,7 @@ class RetilerController extends Controller
                         </label>
                     </div>'
                 : '<div class="text-center">
-                        <div class="badge badge-light-danger px-4 py-2 mb-1">Inactive</div>
+                        <div class="badge badge-light-danger px-4 py-2 mb-1 fs-6">Inactive</div>
                         <label class="form-check form-switch form-check-custom form-check-solid justify-content-center">
                             <input type="checkbox"
                                 class="form-check-input changeStatusToggle"

@@ -219,7 +219,7 @@
                                                 {{ $marginDetail->payment_method }}
                                             </td>
                                             <td class="text-center pe-0" data-order="2">
-                                                <div class="badge badge-light-success">
+                                                <div class="badge badge-light-success fs-6">
                                                     {{ $marginDetail->margin }}
                                                 </div>
                                             </td>

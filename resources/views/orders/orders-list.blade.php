@@ -101,7 +101,7 @@
                         </div>
                     @endif
 
-                    <div class="card card-flush">
+                    <div class="card card-flush order-table">
                         {{-- Stages --}}
                         <div class="card-header d-flex flex-wrap align-items-center justify-content-start pt-1">
                             <div class="card-toolbar w-100">

@@ -164,7 +164,7 @@
                                                     <span class="fw-bold"></span>
                                                 </td>
                                                 <td class="text-center" data-order="22">
-                                                    <div class="badge badge-light-primary">
+                                                    <div class="badge badge-light-primary fs-6">
                                                         {{ $product->new_price }}
                                                     </div>
                                                 </td>
@@ -174,11 +174,11 @@
                                                 </td>
                                                 <td class="text-center" data-order="Inactive">
                                                     @if ($product->status == 'inactive')
-                                                        <div class="badge badge-light-danger">
+                                                        <div class="badge badge-light-danger fs-6">
                                                             {{ $product->status }}
                                                         </div>
                                                     @elseif ($product->status == 'active')
-                                                        <div class="badge badge-light-success">
+                                                        <div class="badge badge-light-success fs-6">
                                                             {{ $product->status }}
                                                         </div>
                                                     @endif
