@@ -90,10 +90,19 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="mb-3">
+                                    <button id="delete_selected" class="btn btn-danger btn-sm" disabled>
+                                        <i class="fas fa-trash"></i> Delete Selected
+                                    </button>
+                                </div>
 
                                 <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_wholesaler_list">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="text-center py-5 border-0 align-middle min-w-30px"
+                                                style="background: #0d0e12;color:#fff !important;">
+                                                <input type="checkbox" id="select_all"> Select All
+                                            </th>
                                             <th class="text-center py-5 border-0 align-middle min-w-50px" style="background: #0d0e12;color:#fff !important;">Media</th>
                                             <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Sub Category</th>
                                             <th class="text-center py-5 border-0 align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
@@ -254,6 +263,15 @@
             },
             order: [],
             columns: [
+             {
+                data: 'id',
+                className: 'text-center',
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    return `<input type="checkbox" class="row_checkbox" value="${row.id}">`;
+                }
+            },
             {
                 data: 'sub_category_image',
                 className: 'text-center',
@@ -309,12 +327,12 @@
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "This action cannot be undone.",
+                    text: "This record will be permanently removed.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Yes, removed it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -339,6 +357,76 @@
                     }
                 });
             });
+
+            // <--------Multiple select--------->
+            function toggleDeleteButton() {
+                if ($('.row_checkbox:checked').length > 0) {
+                    $('#delete_selected').prop('disabled', false);
+                } else {
+                    $('#delete_selected').prop('disabled', true);
+                }
+            }
+
+            $(document).on('click', '#select_all', function () {
+                $('.row_checkbox').prop('checked', this.checked);
+                toggleDeleteButton();
+            });
+
+            // Sync select all checkbox if all rows checked
+            $(document).on('click', '.row_checkbox', function () {
+                if ($('.row_checkbox:checked').length === $('.row_checkbox').length) {
+                    $('#select_all').prop('checked', true);
+                } else {
+                    $('#select_all').prop('checked', false);
+                }
+                toggleDeleteButton();
+            });
+
+            // Bulk delete
+            $(document).on('click', '#delete_selected', function () {
+                var ids = [];
+                $('.row_checkbox:checked').each(function () {
+                    ids.push($(this).val());
+                });
+
+                if (ids.length === 0) {
+                    Swal.fire('No selection', 'Please select at least one record.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will removed selected records permanently.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, removed it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('retailer.subscribed-category.bulk-delete') }}", // <-- new route
+                            type: 'POST',
+                            data: {
+                                ids: ids,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire('Deleted!', response.message, 'success');
+                                    dataTable.ajax.reload();
+                                } else {
+                                    Swal.fire('Error!', response.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+            //<---------End Multiple select--------->
 
             $(document).on('click', '.edit-margin-btn', function () {
                 const wholesalerId = $(this).data('wholesaler-id');
