@@ -80,6 +80,8 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
     Route::post('/wholesaler-edit-margin', [RetilerController::class, 'editCategoryMargin'])->name('retailer.edit-category-margin'); // margin edit view page
     Route::delete('/remove-category-margin/{wholesaler_id}/{margin_id}', [RetilerController::class, 'removeCategoryMargin'])->name('retailer.remove-category-margin'); // DELETE method of remove margin
     Route::post('update-category-margin', [RetilerController::class, 'updateCategoryMargin'])->name('retailer.update-category-margin'); // margin edit view page
+    Route::post('/retailer/subscribed-category/bulk-delete', [RetilerController::class, 'bulkDelete'])->name('retailer.subscribed-category.bulk-delete');
+
 
 
     Route::get('/retailer-web-setting', [RetilerWebManagement::class, 'webSetting'])->name('retailer.web.setting');

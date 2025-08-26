@@ -531,6 +531,7 @@ class RetilerController extends Controller
                         </div>';
 
             $data[] = array(
+                "id" => $item->id,
                 "action" => $action,
                 "sub_category_image" => $sub_category_image,
                 "sub_category_name" => $item->sub_category?->sub_category_name ?? 'N/A',
@@ -558,7 +559,7 @@ class RetilerController extends Controller
         $retailer = Auth::user();
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
-        
+
         $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
             ->whereNull('product_id')
@@ -679,6 +680,34 @@ class RetilerController extends Controller
             'subCategories' => $subCategories
         ]);
     }
+
+    //Bulk Delete
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No valid records selected.'
+            ]);
+        }
+
+        try {
+            RetailerProducts::whereIn('id', $ids)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Selected records removed successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to removed records.'
+            ]);
+        }
+    }
+
 
     // remove category margin store
     public function removeCategoryMargin($wholesaler_id, $margin_id)
@@ -2809,7 +2838,7 @@ class RetilerController extends Controller
 
         return redirect()->back()->with('success', 'You can now edit your bank details. Status is reset to pending.');
     }
-    
+
     public function verifyBankDetailsCode(Request $request)
     {
         $request->validate([
