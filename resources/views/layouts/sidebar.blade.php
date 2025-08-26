@@ -133,46 +133,6 @@
                     <!--end:Menu item-->
 
                     <!--begin:Menu item-->
-                    @php
-                        $isAccountingActive = request()->routeIs('retailer.finance-tracking.*');
-                    @endphp
-
-                    <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ $isAccountingActive ? 'show' : '' }}"
-                        title="Accounting" data-bs-toggle="tooltip" data-bs-placement="right">
-
-                        <!--begin:Menu link-->
-                        <span class="menu-link">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-chart-line fs-1 text-white">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">Accounting</span>
-                            <span class="menu-arrow"></span>
-                        </span>
-                        <!--end:Menu link-->
-                        
-                        <!--begin:Menu sub-->
-                        <div class="menu-sub menu-sub-accordion">
-                            <!--begin:Menu item-->
-                            <div class="menu-item">
-                                <a class="menu-link {{ request()->routeIs('retailer.finance-tracking.*') ? 'active' : '' }}"
-                                href="{{ route('retailer.finance-tracking.index') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Finance Tracking</span>
-                                </a>
-                            </div>
-                            <!--end:Menu item-->
-                        </div>
-                        <!--end:Menu sub-->
-                    </div>
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->is(['my-product', 'my-wholesaler-product', 'retailer-edit-product/*', 'retailer-details-product/*', 'retailer-add-product', 'clone-product/*']) ? 'show' : '' }}"
                         title="Product" data-bs-toggle="tooltip" data-bs-placement="right">
@@ -331,6 +291,46 @@
                         </a>
                     </div>
 
+                    <!--begin:Menu item-->
+                    @php
+                        $isAccountingActive = request()->routeIs('retailer.finance-tracking.*');
+                    @endphp
+
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ $isAccountingActive ? 'show' : '' }}"
+                        title="Accounting" data-bs-toggle="tooltip" data-bs-placement="right">
+
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-chart-line fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Accounting</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->routeIs('retailer.finance-tracking.*') ? 'active' : '' }}"
+                                href="{{ route('retailer.finance-tracking.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Finance Tracking</span>
+                                </a>
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+                    
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges', 'pincode-serviceable', 'track-order']) ? 'show' : '' }}"
