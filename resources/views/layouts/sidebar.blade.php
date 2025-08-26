@@ -90,7 +90,7 @@
                             <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
-                                    href="{{ route('retailer.order.list') }}">
+                                    href="{{ route('retailer.order.list', ['type' => 'all']) }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
