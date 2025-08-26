@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CMS;
+use App\Models\WebsiteContent;
 use App\Models\RetailerCategory;
 use App\Http\Controllers\Setting;
 use App\Http\Controllers\VBuilder;
@@ -10,10 +11,11 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AbandonardCard;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\CouponController;
+
+
 use App\Http\Controllers\TicketController;
-
-
 use App\Http\Controllers\RetilerController;
+use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AccountingController;
@@ -296,6 +298,24 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
         Route::get('/finance-tracking', [AccountingController::class, 'financeTracking'])->name('retailer.finance-tracking.index');
         Route::post('/fetch-record', [AccountingController::class, 'getFinanceTracking'])->name('retailer.finance-tracking.fetch-record');
         Route::get('/finance-tracking/export-csv', [AccountingController::class, 'exportCsv'])->name('retailer.finance-tracking.export-csv');
+    });
+
+    Route::prefix('website-content')->group(function (){
+        Route::prefix('/home')->group(function(){
+            Route::get('/create', [WebsiteController::class, 'createHomeContent'])->name('retailer.website-content.create');
+            Route::post('/store', [WebsiteController::class, 'storeHomeContent'])->name('retailer.website-content.store');
+            Route::post('/update/{id}', [WebsiteController::class, 'updateHomeContent'])->name('retailer.website-content.update');
+        });
+        Route::prefix('/about-us')->group(function(){
+            Route::get('/create', [WebsiteController::class, 'createAboutContent'])->name('retailer.website-content.aboutus.create');
+            Route::post('/store', [WebsiteController::class, 'storeAboutContent'])->name('retailer.website-content.aboutus.store');
+            Route::post('/update/{id}', [WebsiteController::class, 'updateAboutContent'])->name('retailer.website-content.aboutus.update');
+        });
+        Route::prefix('/contact-us')->group(function(){
+            Route::get('/create', [WebsiteController::class, 'createContactContent'])->name('retailer.website-content.contactus.create');
+            Route::post('/store', [WebsiteController::class, 'storeContactContent'])->name('retailer.website-content.contactus.store');
+            Route::put('/update/{id}', [WebsiteController::class, 'updateContactContent'])->name('retailer.website-content.contactus.update');
+        });
     });
 });
 // autologin
