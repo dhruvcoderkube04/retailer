@@ -51165,3 +51165,16 @@ table thead th {
   padding-bottom: 1.25rem !important;
   border: 0 !important;
 }
+
+.form-select.form-select-solid + label{
+    display: none;
+}
+tbody.text-gray-600,
+tbody{
+  color: var(--bs-text-gray-700) !important;
+}
+
+table tbody .badge{
+  font-size: 1.075rem !important;
+  font-weight: 500;
+}

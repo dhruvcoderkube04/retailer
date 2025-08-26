@@ -102,7 +102,7 @@ class TicketController extends Controller
                     width="50"
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';">',
                 'status' => '<span class="' . $statusClass . '" data-status="' . $ticket->status . '">' . ucfirst($ticket->status) . '</span>',
-                'created_at' => '<div class="badge badge-light">' . $ticket->created_at->diffForHumans() . '</div>',
+                'created_at' => '<div class="badge badge-light fs-7">' . $ticket->created_at->diffForHumans() . '</div>',
                 'actions' => $dropdown,
             ];
         }
