@@ -87,7 +87,7 @@
 
                             <!-- Buttons -->
                             <div class="d-flex gap-3">
-                                <button type="submit" class="btn btn-dark">Cash on delivery</button>
+                                <button type="submit" id="submitBtn" class="btn btn-dark" disabled>Cash on delivery</button>
                             </div>
                         </form>
                     </div>
@@ -232,6 +232,7 @@
             `<strong>Selected:</strong> ${customer.id} ${customer.firstname} ${customer.lastname}, ${customer.phone_number}`;
         $('#customerModal').modal('hide');
         window.selectedCustomer = customer;
+        document.getElementById('submitBtn').disabled = false;
     }
 
     document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
@@ -275,11 +276,21 @@
     });
 
     document.getElementById("directShippingForm").addEventListener("submit", function (e) {
-        const submitButton = document.getElementById("directShippingForm");
-        submitButton.disabled = true;
         e.preventDefault();
+        const submitButton = document.getElementById("submitBtn");
+
+        submitButton.disabled = true;
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = "Please wait..";
+
         if (!window.selectedCustomer) {
-            Swal.fire({ icon: 'warning', title: 'Select Customer', text: 'Please select a customer before placing the order.' });
+            Swal.fire({
+                icon: 'warning',
+                title: 'Select Customer',
+                text: 'Please select a customer before placing the order.'
+            });
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
             return;
         }
         const formData = new FormData(this);
@@ -297,12 +308,18 @@
                 this.reset();
                 document.getElementById('selectedCustomer').innerHTML = '';
                 window.selectedCustomer = null;
+
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = true;
             } else {
                 Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
         })
-        .catch(err => console.error("Order placement error:", err))
-        .finally(() => {
+        .catch(err => {
+            console.error("Order placement error:", err);
+            submitButton.innerHTML = originalText;
             submitButton.disabled = false;
         });
     });

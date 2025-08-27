@@ -116,7 +116,7 @@
                                         <th class="text-end min-w-70px">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-gray-600 fw-semibold">
+                                <tbody class="text-gray-700 fw-semibold">
                                     @foreach ($tickets as $ticket)
                                         <tr>
                                             <td>
@@ -151,7 +151,7 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="badge badge-light">{{ $ticket->created_at }}</div>
+                                                <div class="badge badge-light fs-6">{{ $ticket->created_at }}</div>
                                             </td>
                                             <td class="text-end">
                                                 <button

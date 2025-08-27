@@ -1201,7 +1201,7 @@ class RetailerOrderController extends Controller
                 }
 
                 $orderDetailHTML .= "<div class='my-2'><strong>Quantity:</strong> <div class='badge badge-light-secondary text-wrap'> {$order->quantity} </div>" . ($order->size ? ' | Size: ' . $order->size : '') . "</div>
-                    <div class='my-2'><strong>Amount:</strong><div class='badge badge-light-primary text-wrap'> ₹ {$order->final_amount} </div></div>
+                    <div class='my-2'><strong>Amount:</strong><div class='badge badge-light-primary text-wrap fs-7'> ₹ {$order->final_amount} </div></div>
                     <div class='my-2'>
                         <strong>Order Status:</strong>
                         <span class='badge badge-" . $typeColorMap[$order->status] . "'>

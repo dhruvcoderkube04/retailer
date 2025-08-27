@@ -193,7 +193,7 @@
                                             <th class="text-center py-5 border-0 align-middle w-100px">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="fw-semibold text-gray-600">
+                                    <tbody class="fw-semibold text-gray-600 fs-6">
 
                                     </tbody>
                                 </table>

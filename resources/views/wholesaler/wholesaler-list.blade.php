@@ -53,8 +53,8 @@
                                             <th class="text-center align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Wholesaler</th>
                                             <th class="text-center align-middle min-w-200px" style="background: #0d0e12;color:#fff !important;">Name</th>
                                             {{-- add new column Subcategories  --}}
-                                            <th class="text-center align-middle min-w-300px" style="background: #0d0e12;color:#fff !important;">Subcategories</th>
-                                            <th class="text-center align-middle min-w-80px" style="background: #0d0e12;color:#fff !important;">Details</th>
+                                            <th class="text-center align-middle min-w-275px" style="background: #0d0e12;color:#fff !important;">Subcategories</th>
+                                            <th class="text-center align-middle min-w-250px" style="background: #0d0e12;color:#fff !important;">Details</th>
                                             <th class="text-center align-middle min-w-100px" style="background: #0d0e12;color:#fff !important;">Action</th>
                                         </tr>
                                     </thead>

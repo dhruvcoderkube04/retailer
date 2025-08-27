@@ -140,7 +140,7 @@
                                                 <th class="text-center align-middle w-120px">Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="fw-semibold text-gray-600">
+                                        <tbody class="fw-semibold text-gray-600 fs-6">
 
                                         </tbody>
                                     </table>
