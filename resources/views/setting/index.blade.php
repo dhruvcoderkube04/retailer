@@ -163,7 +163,7 @@
                                                 </div>
         
                                                 <div class="col-lg-6 fv-row">
-                                                    <label class=col-form-label required fw-semibold fs-6">Web Token</label>
+                                                    <label class="col-form-label required fw-semibold fs-6">Web Token</label>
                                                     <input type="text" value="{{ $store->product_listing_key }}"
                                                         class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
                                                         disabled />
@@ -278,7 +278,7 @@
                                                 <!--begin::Label-->
                                                     <!--end::Label-->
                                                     <!--begin::Col-->
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Offer Text </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip" title="">
@@ -297,7 +297,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Banner Title </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip" title="">
@@ -317,7 +317,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Banner Sub Title </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip" title="">
@@ -337,7 +337,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Banner Button Title</span>
                                                             <span class="ms-1" data-bs-toggle="tooltip" title="">
@@ -357,7 +357,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Facebook URL </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -378,7 +378,7 @@
                                                             @enderror
                                                     </div>
         
-                                                     <div class="col-lg-6 fv-row">
+                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Google Analytics Id</span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -399,7 +399,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Twitter URL</span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -420,7 +420,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Instagram Id </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -441,7 +441,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Google Plus URL </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -462,7 +462,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Facebook Pixel ID </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -483,7 +483,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> App Store URL </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -504,7 +504,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Linkedin URL </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -525,7 +525,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Play Store URL </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -546,7 +546,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Instagram URL </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -567,7 +567,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Meta Title </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -586,7 +586,8 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-                                                    <div class="col-lg-6 fv-row">
+
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Meta Keywords </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -606,7 +607,8 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-                                                    <div class="col-lg-6 fv-row">
+
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required">Meta Description</span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -626,7 +628,8 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-                                                    <div class="col-lg-6 fv-row">
+
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> COD Charge</span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -646,7 +649,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Shipping Charge </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -667,7 +670,7 @@
                                                             @enderror
                                                     </div>
         
-                                                    <div class="col-lg-6 fv-row">
+                                                    <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Cart Limit Value </span>
                                                             <span class="ms-1" data-bs-toggle="tooltip"
@@ -686,108 +689,109 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
-                                                    <div class="col-lg-3 fv-row">
-                                                        <label class="col-form-label fw-semibold fs-6">
-                                                            <span class="required"> SMS Service </span>
-                                                            <span class="ms-1" data-bs-toggle="tooltip"
-                                                                title="Enable or disable SMS service">
-                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                    <span class="path1"></span>
-                                                                    <span class="path2"></span>
-                                                                    <span class="path3"></span>
-                                                                </i>
-                                                            </span>
-                                                        </label>
-                                                        <br>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="sms_service" value="1"
-                                                                class="form-check-input"
-                                                                {{ $store->sms_service == 1 ? 'checked' : '' }}> ON
-                                                        </label>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="sms_service" value="0"
-                                                                class="form-check-input"
-                                                                {{ $store->sms_service == 0 ? 'checked' : '' }}> OFF
-                                                        </label>
-                                                    </div>
-        
-                                                    <div class="col-lg-3 fv-row">
-                                                        <label class="col-form-label fw-semibold fs-6">
-                                                            <span class="required"> Enquiry Whatsapp </span>
-                                                            <span class="ms-1" data-bs-toggle="tooltip"
-                                                                title="Enable or disable WhatsApp Enquiry">
-                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                    <span class="path1"></span>
-                                                                    <span class="path2"></span>
-                                                                    <span class="path3"></span>
-                                                                </i>
-                                                            </span>
-                                                        </label>
-                                                        <br>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="enquiry_whatsapp" value="1"
-                                                                class="form-check-input"
-                                                                {{ $store->enquiry_whatsapp == 1 ? 'checked' : '' }}> Active
-                                                        </label>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="enquiry_whatsapp" value="0"
-                                                                class="form-check-input"
-                                                                {{ $store->enquiry_whatsapp == 0 ? 'checked' : '' }}> Inactive
-                                                        </label>
-                                                    </div>
-        
-                                                    <div class="col-lg-3 fv-row">
-                                                        <label class="col-form-label fw-semibold fs-6">
-                                                            <span class="required"> Hide Pickup Address </span>
-                                                            <span class="ms-1" data-bs-toggle="tooltip"
-                                                                title="Enable or disable pickup address visibility">
-                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                    <span class="path1"></span>
-                                                                    <span class="path2"></span>
-                                                                    <span class="path3"></span>
-                                                                </i>
-                                                            </span>
-                                                        </label>
-                                                        <br>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="hide_pickup_address" value="1"
-                                                                class="form-check-input"
-                                                                {{ $store->hide_pickup_address == 1 ? 'checked' : '' }}> YES
-                                                        </label>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="hide_pickup_address" value="0"
-                                                                class="form-check-input"
-                                                                {{ $store->hide_pickup_address == 0 ? 'checked' : '' }}> NO
-                                                        </label>
-                                                    </div>
-        
-                                                    <div class="col-lg-3 fv-row">
-                                                        <label class="col-form-label fw-semibold fs-6">
-                                                            <span class="required"> Request Offer </span>
-                                                            <span class="ms-1" data-bs-toggle="tooltip"
-                                                                title="Enable or disable request offer">
-                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                    <span class="path1"></span>
-                                                                    <span class="path2"></span>
-                                                                    <span class="path3"></span>
-                                                                </i>
-                                                            </span>
-                                                        </label>
-                                                        <br>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="request_offer" value="1"
-                                                                class="form-check-input"
-                                                                {{ $store->request_offer == 1 ? 'checked' : '' }}> Active
-                                                        </label>
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="radio" name="request_offer" value="0"
-                                                                class="form-check-input"
-                                                                {{ $store->request_offer == 0 ? 'checked' : '' }}> Inactive
-                                                        </label>
-                                                    </div>
-        
+                                            </div>
+                                            
+                                            <div class="row mb-6 g-5">
+                                                <div class="col-lg-3 fv-row">
+                                                    <label class="col-form-label fw-semibold fs-6">
+                                                        <span class="required"> SMS Service </span>
+                                                        <span class="ms-1" data-bs-toggle="tooltip"
+                                                            title="Enable or disable SMS service">
+                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                <span class="path1"></span>
+                                                                <span class="path2"></span>
+                                                                <span class="path3"></span>
+                                                            </i>
+                                                        </span>
+                                                    </label>
+                                                    <br>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="sms_service" value="1"
+                                                            class="form-check-input"
+                                                            {{ $store->sms_service == 1 ? 'checked' : '' }}> ON
+                                                    </label>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="sms_service" value="0"
+                                                            class="form-check-input"
+                                                            {{ $store->sms_service == 0 ? 'checked' : '' }}> OFF
+                                                    </label>
                                                 </div>
+    
+                                                <div class="col-lg-3 fv-row">
+                                                    <label class="col-form-label fw-semibold fs-6">
+                                                        <span class="required"> Enquiry Whatsapp </span>
+                                                        <span class="ms-1" data-bs-toggle="tooltip"
+                                                            title="Enable or disable WhatsApp Enquiry">
+                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                <span class="path1"></span>
+                                                                <span class="path2"></span>
+                                                                <span class="path3"></span>
+                                                            </i>
+                                                        </span>
+                                                    </label>
+                                                    <br>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="enquiry_whatsapp" value="1"
+                                                            class="form-check-input"
+                                                            {{ $store->enquiry_whatsapp == 1 ? 'checked' : '' }}> Active
+                                                    </label>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="enquiry_whatsapp" value="0"
+                                                            class="form-check-input"
+                                                            {{ $store->enquiry_whatsapp == 0 ? 'checked' : '' }}> Inactive
+                                                    </label>
+                                                </div>
+    
+                                                <div class="col-lg-3 fv-row">
+                                                    <label class="col-form-label fw-semibold fs-6">
+                                                        <span class="required"> Hide Pickup Address </span>
+                                                        <span class="ms-1" data-bs-toggle="tooltip"
+                                                            title="Enable or disable pickup address visibility">
+                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                <span class="path1"></span>
+                                                                <span class="path2"></span>
+                                                                <span class="path3"></span>
+                                                            </i>
+                                                        </span>
+                                                    </label>
+                                                    <br>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="hide_pickup_address" value="1"
+                                                            class="form-check-input"
+                                                            {{ $store->hide_pickup_address == 1 ? 'checked' : '' }}> YES
+                                                    </label>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="hide_pickup_address" value="0"
+                                                            class="form-check-input"
+                                                            {{ $store->hide_pickup_address == 0 ? 'checked' : '' }}> NO
+                                                    </label>
+                                                </div>
+    
+                                                <div class="col-lg-3 fv-row">
+                                                    <label class="col-form-label fw-semibold fs-6">
+                                                        <span class="required"> Request Offer </span>
+                                                        <span class="ms-1" data-bs-toggle="tooltip"
+                                                            title="Enable or disable request offer">
+                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                <span class="path1"></span>
+                                                                <span class="path2"></span>
+                                                                <span class="path3"></span>
+                                                            </i>
+                                                        </span>
+                                                    </label>
+                                                    <br>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="request_offer" value="1"
+                                                            class="form-check-input"
+                                                            {{ $store->request_offer == 1 ? 'checked' : '' }}> Active
+                                                    </label>
+                                                    <label class="form-check form-check-inline">
+                                                        <input type="radio" name="request_offer" value="0"
+                                                            class="form-check-input"
+                                                            {{ $store->request_offer == 0 ? 'checked' : '' }}> Inactive
+                                                    </label>
+                                                </div>
+                                            </div>
         
                                         </div>
                                         <!--end::Card body-->
