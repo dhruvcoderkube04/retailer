@@ -1944,7 +1944,7 @@ class RetilerController extends Controller
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'max:100', new NoCodeInjection],
+            'product_name' => ['required', 'max:100','regex:/^[a-zA-Z0-9\s_-]+$/', new NoCodeInjection],
             'slug' => [
                 'required',
                 'string',

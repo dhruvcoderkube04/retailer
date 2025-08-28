@@ -75,7 +75,8 @@
                                                     <label class="required form-label">Product Name</label>
                                                     <input type="text" name="product_name"
                                                         class="form-control mb-2 @error('product_name') is-invalid @enderror"
-                                                        placeholder="Product Name" value="{{ old('product_name') }}" />
+                                                        placeholder="Product Name" value="{{ old('product_name') }}" 
+                                                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '')"/>
                                                     @error('product_name')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
                                                     @enderror

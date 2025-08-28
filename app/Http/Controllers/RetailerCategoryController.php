@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class RetailerCategoryController extends Controller
 {
@@ -423,7 +424,7 @@ class RetailerCategoryController extends Controller
                     'min:2',
                     'max:255',
                     'regex:/^[A-Za-z\s_-]+$/',
-                    new NoCodeInjection
+                    new NoCodeInjection,
                 ],
                 'subCategoryName' => [
                     'required',
@@ -431,8 +432,13 @@ class RetailerCategoryController extends Controller
                     'min:2',
                     'max:255',
                     'regex:/^[A-Za-z\s_-]+$/',
-                    new NoCodeInjection
+                    new NoCodeInjection,
+                    Rule::unique('category_suggestions', 'sub_category_name')->where(function ($query) use ($request) {
+                        return $query->where('category_name', $request->categoryName);
+                    }),
                 ],
+            ], [
+                'subCategoryName.unique' => 'This category and subcategory suggestion already exists.'
             ]);
 
             $user = Auth::user();
