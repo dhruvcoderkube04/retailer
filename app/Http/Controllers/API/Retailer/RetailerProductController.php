@@ -176,7 +176,7 @@ class RetailerProductController extends Controller
             $apiKey = $request->header('API-KEY');
 
             if (!$apiKey) {
-                return ApiResponse::error('API Key is required');
+                return ApiResponse::error('API Key is required', 401);
             }
 
             $retailer = RetailerWebManagement::with([
@@ -190,13 +190,13 @@ class RetailerProductController extends Controller
                 ->where('product_listing_key', $apiKey)
                 ->first();
             if (!$retailer) {
-                return ApiResponse::error('Unauthorized: Invalid API Key');
+                return ApiResponse::error('Unauthorized: Invalid API Key', 403);
             }
 
             $retailerId = $retailer->retailer_id;
             $retailerUser = User::where('id', $retailerId)->where('status', 1)->where('is_delete', 0)->first();
             if (!$retailerUser) {
-                return ApiResponse::error('Retailer user not found');
+                return ApiResponse::error('Retailer user not found', 404);
             }
 
             // <---------------- get product data ---------------------->
@@ -363,7 +363,7 @@ class RetailerProductController extends Controller
             if ($request->has('product_id')) {
                 $single = $products->where('id', $request->product_id)->first();
                 if (!$single) {
-                    return ApiResponse::error('Product not found');
+                    return ApiResponse::error('Product not found', 404);
                 }
                 return ApiResponse::success(['product' => $single], 'Product fetched successfully');
             }
@@ -410,7 +410,7 @@ class RetailerProductController extends Controller
             ]);
 
             // return response()->json(['error' => $e->getMessage(), $e->getLine()], 500);
-            return ApiResponse::error('An unexpected error occurred');
+            return ApiResponse::error('An unexpected error occurred', 500);
         }
     }
 
@@ -421,7 +421,7 @@ class RetailerProductController extends Controller
             $apiKey = $request->header('API-KEY');
 
             if (!$apiKey) {
-                return ApiResponse::error('API Key is required');
+                return ApiResponse::error('API Key is required', 401);
             }
 
             $retailer = RetailerWebManagement::with(['retailer' => function ($query) {
@@ -434,7 +434,7 @@ class RetailerProductController extends Controller
                 ->first();
 
             if (!$retailer) {
-                return ApiResponse::error('Unauthorized: Invalid API Key');
+                return ApiResponse::error('Unauthorized: Invalid API Key', 403);
             }
 
             $retailerId = $retailer->retailer_id;
@@ -526,7 +526,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('An unexpected error occurred');
+            return ApiResponse::error('An unexpected error occurred', 500);
         }
     }
 
@@ -536,7 +536,7 @@ class RetailerProductController extends Controller
             // validate API key
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
-                return ApiResponse::error('API Key is required');
+                return ApiResponse::error('API Key is required', 401);
             }
 
             // validate retailer
@@ -552,7 +552,7 @@ class RetailerProductController extends Controller
                 })->where('product_listing_key', $apiKey)
                 ->first();
             if (!$retailer) {
-                return ApiResponse::error('Unauthorized: Invalid API Key');
+                return ApiResponse::error('Unauthorized: Invalid API Key', 403);
             }
 
             $retailerId = $retailer->retailer_id;
@@ -689,7 +689,7 @@ class RetailerProductController extends Controller
             if ($request->has('product_id')) {
                 $single = $products->where('id', $request->product_id)->first();
                 if (!$single) {
-                    return ApiResponse::error('Product not found');
+                    return ApiResponse::error('Product not found', 404);
                 }
 
                 return ApiResponse::success(['product' => $single], 'Product fetched successfully');
@@ -732,7 +732,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('An unexpected error occurred');
+            return ApiResponse::error('An unexpected error occurred', 500);
         }
     }
 
@@ -743,7 +743,7 @@ class RetailerProductController extends Controller
             //<------------- validate user ---------------->
             $apiKey = $request->header('API-KEY');
             if (!$apiKey) {
-                return ApiResponse::error('API Key is required.');
+                return ApiResponse::error('API Key is required.', 401);
             }
 
             $retailer = RetailerWebManagement::with([
@@ -758,17 +758,17 @@ class RetailerProductController extends Controller
                 })->where('product_listing_key', $apiKey)
                 ->first();
             if (!$retailer) {
-                return ApiResponse::error('Unauthorized: Invalid API Key.');
+                return ApiResponse::error('Unauthorized: Invalid API Key.', 403);
             }
 
             if (!$slug) {
-                return ApiResponse::error('Product slug is required.');
+                return ApiResponse::error('Product slug is required.', 400);
             }
 
             $retailerId = $retailer->retailer_id;
             $retailerUser = User::where('id', $retailerId)->where('status', 1)->where('is_delete', 0)->first();
             if (!$retailerUser) {
-                return ApiResponse::error('Retailer user not found.');
+                return ApiResponse::error('Retailer user not found.', 404);
             }
 
             // <---------------- get product data ---------------------->
@@ -818,7 +818,7 @@ class RetailerProductController extends Controller
             }
 
             if (!$product) {
-                return ApiResponse::error('Product not found.');
+                return ApiResponse::error('Product not found.', 404);
             }
 
             $margin = 0;
@@ -868,7 +868,7 @@ class RetailerProductController extends Controller
                 'file' => $e->getFile(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return ApiResponse::error('An unexpected error occurred');
+            return ApiResponse::error('An unexpected error occurred', 500);
         }
     }
 
@@ -887,7 +887,7 @@ class RetailerProductController extends Controller
                 // Check if this number has been verified
                 if (!Cache::get('otp_verified_' . $request->phone_number)) {
 
-                    return ApiResponse::error('Phone number not verified. Please verify via OTP first.');
+                    return ApiResponse::error('Phone number not verified. Please verify via OTP first.', 403);
                 }
 
                 // Optionally clear verification after use
@@ -922,7 +922,7 @@ class RetailerProductController extends Controller
                 }
 
                 if (!empty($missingFields)) {
-                    return ApiResponse::error("Missing required fields:", $missingFields);
+                    return ApiResponse::error("Missing required fields:", $missingFields, 422);
                 }
 
                 $existCustomer->save();
@@ -967,7 +967,8 @@ class RetailerProductController extends Controller
                 if ($validator->fails()) {
                     return ApiResponse::error(
                         'Validation failed. Please correct the following fields:',
-                        $validator->errors()->all() // or use ->errors() for field-wise array
+                        $validator->errors()->all(), // or use ->errors() for field-wise array
+                        422
                     );
                 }
 
@@ -976,7 +977,7 @@ class RetailerProductController extends Controller
                 $existingCustomer = StoreCustomersDetails::where('email', $request->email)->first();
 
                 if ($existingCustomer) {
-                    return ApiResponse::error('Email already registered. Please log in or use a different email.');
+                    return ApiResponse::error('Email already registered. Please log in or use a different email.', 409);
                 }
 
                 // ✅ Validate user token
@@ -985,7 +986,7 @@ class RetailerProductController extends Controller
                     ->first();
 
                 if (!$retailer) {
-                    return ApiResponse::error('Invalid user token.');
+                    return ApiResponse::error('Invalid user token.', 403);
                 }
 
                 $randomPassword = Str::random(10) . '@' . rand(10, 99);
@@ -1074,7 +1075,8 @@ class RetailerProductController extends Controller
                 if ($validator->fails()) {
                     return ApiResponse::error(
                         'Order not placed. Required address details are missing or invalid.',
-                        $validator->errors()->all()
+                        $validator->errors()->all(),
+                        422
                     );
                 }
 
@@ -1089,7 +1091,7 @@ class RetailerProductController extends Controller
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
-            return ApiResponse::error('API Key is required.');
+            return ApiResponse::error('API Key is required.', 401);
         }
 
         $retailer = RetailerWebManagement::with([
@@ -1101,7 +1103,7 @@ class RetailerProductController extends Controller
         })->where('product_listing_key', $apiKey)->first();
 
         if (!$retailer) {
-            return ApiResponse::error('Unauthorized: Invalid API Key.');
+            return ApiResponse::error('Unauthorized: Invalid API Key.', 403);
         }
 
         DB::beginTransaction();
@@ -1123,10 +1125,10 @@ class RetailerProductController extends Controller
                 $couponid = @$product['coupon_id'];
 
                 if (!$productId && !$cloneId) {
-                    return ApiResponse::error('Either product_id or retailer_product_id must be provided.');
+                    return ApiResponse::error('Either product_id or retailer_product_id must be provided.', 400);
                 }
                 if ($productId && !$wholesalerId) {
-                    return ApiResponse::error('wholesaler_id is required for Product ID ' . $productId);
+                    return ApiResponse::error('wholesaler_id is required for Product ID ' . $productId, 400);
                 }
                 $variation = null;
                 $variationOldPrice = null;
@@ -1140,7 +1142,7 @@ class RetailerProductController extends Controller
                         ->first();
                     if (!$productModel) {
 
-                        return ApiResponse::error('Product ID ' . $productId . ' not found.');
+                        return ApiResponse::error('Product ID ' . $productId . ' not found.', 404);
                     }
 
                     // START : get retailer's margin of this product
@@ -1168,15 +1170,15 @@ class RetailerProductController extends Controller
 
                     if ($productModel->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
-                            return ApiResponse::error('Product variation is required for Product ID ' . $productId);
+                            return ApiResponse::error('Product variation is required for Product ID ' . $productId, 400);
                         }
 
                         $productVariation = ProductVariation::where('product_id', $productId)->where('product_variation', $product['product_variation'])->first();
                         if (!$productVariation) {
-                            return ApiResponse::error('There is no any variation as ' . $product['product_variation'] . ' for Product ID ' . $productId);
+                            return ApiResponse::error('There is no any variation as ' . $product['product_variation'] . ' for Product ID ' . $productId, 404);
                         }
                         if ($productVariation->stock < $quantity) {
-                            return ApiResponse::error('Insufficient variation stock for Product ID ' . $productId);
+                            return ApiResponse::error('Insufficient variation stock for Product ID ' . $productId, 400);
                         }
 
                         $productVariation->stock -= $quantity;
@@ -1188,7 +1190,7 @@ class RetailerProductController extends Controller
                         $variationStock = $productVariation->stock;
                     } else {
                         if ($productModel->quantity < $quantity) {
-                            return ApiResponse::error('Insufficient stock for Product ID ' . $productId);
+                            return ApiResponse::error('Insufficient stock for Product ID ' . $productId, 400);
                         }
                         $productModel->quantity -= $quantity;
                         $productModel->save();
@@ -1233,20 +1235,20 @@ class RetailerProductController extends Controller
                         ->where('status', 'active')
                         ->first();
                     if (!$retailerProduct) {
-                        return ApiResponse::error('Retailer Product ID ' . $cloneId . ' not found.');
+                        return ApiResponse::error('Retailer Product ID ' . $cloneId . ' not found.', 404);
                     }
 
                     if ($retailerProduct->productVariations->isNotEmpty()) {
                         if (empty($product['product_variation'])) {
-                            return ApiResponse::error('Product variation is required for Retailer Product ID ' . $cloneId);
+                            return ApiResponse::error('Product variation is required for Retailer Product ID ' . $cloneId, 400);
                         }
 
                         $productVariation = ProductVariation::where('product_id', $cloneId)->where('product_variation', $product['product_variation'])->first();
                         if (!$productVariation) {
-                            return ApiResponse::error('There is no any variation as ' . $product['product_variation'] . ' for Retailer Product ID ' . $cloneId);
+                            return ApiResponse::error('There is no any variation as ' . $product['product_variation'] . ' for Retailer Product ID ' . $cloneId, 404);
                         }
                         if ($productVariation->stock < $quantity) {
-                            return ApiResponse::error('Insufficient variation stock for Retailer Product ID ' . $cloneId);
+                            return ApiResponse::error('Insufficient variation stock for Retailer Product ID ' . $cloneId, 400);
                         }
 
                         $productVariation->stock -= $quantity;
@@ -1258,7 +1260,7 @@ class RetailerProductController extends Controller
                         $variationStock = $productVariation->stock;
                     } else {
                         if ($retailerProduct->quantity < $quantity) {
-                            return ApiResponse::error('Insufficient stock for Retailer Product ID ' . $cloneId);
+                            return ApiResponse::error('Insufficient stock for Retailer Product ID ' . $cloneId, 400);
                         }
                         $retailerProduct->quantity -= $quantity;
                         $retailerProduct->save();
@@ -1417,7 +1419,7 @@ class RetailerProductController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error:', ['error' => $e->getMessage()]);
-            return ApiResponse::error('Something went wrong!');
+            return ApiResponse::error('Something went wrong!', 500);
         }
     }
 
@@ -1802,12 +1804,12 @@ class RetailerProductController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return ApiResponse::error('Validation failed', $validator->errors());
+            return ApiResponse::error('Validation failed', $validator->errors(), 422);
         }
 
         $apiKey = $request->header('API-KEY');
         if (!$apiKey) {
-            return ApiResponse::error('API Key is required.');
+            return ApiResponse::error('API Key is required.', 401);
         }
 
         // Get retailer by API key
@@ -1820,7 +1822,7 @@ class RetailerProductController extends Controller
         })->where('product_listing_key', $apiKey)->first();
 
         if (!$retailer) {
-            return ApiResponse::error('Unauthorized: Invalid API Key.');
+            return ApiResponse::error('Unauthorized: Invalid API Key.', 403);
         }
 
         // Get coupon by code and retailer
@@ -1829,22 +1831,22 @@ class RetailerProductController extends Controller
             ->first();
 
         if (!$coupon) {
-            return ApiResponse::error('Invlaid Coupon code.');
+            return ApiResponse::error('Invlaid Coupon code.', 404);
         }
 
         // Check status
         if ($coupon->status != 1) {
-            return ApiResponse::error('This coupon is Invalid.');
+            return ApiResponse::error('This coupon is Invalid.', 400);
         }
 
         // Check if coupon is expired
         if ($coupon->valid_until && Carbon::now()->gt($coupon->valid_until)) {
-            return ApiResponse::error('This coupon has expired.');
+            return ApiResponse::error('This coupon has expired.', 400);
         }
 
         // Check usage limit
         if ($coupon->used_count >= $coupon->usage_limit) {
-            return ApiResponse::error('This coupon has been fully used.');
+            return ApiResponse::error('This coupon has been fully used.', 400);
         }
 
         // All good — "apply" the coupon
@@ -2043,7 +2045,7 @@ class RetailerProductController extends Controller
             $orders = CustomerOrders::where('customer_id', $customerDetails->id)->get();
 
             if ($orders->isEmpty()) {
-                return ApiResponse::error('You have not placed any orders yet.');
+                return ApiResponse::error('You have not placed any orders yet.', 404);
             }
 
             $orderList = [];
@@ -2101,7 +2103,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return ApiResponse::error('Something went wrong while fetching orders.');
+            return ApiResponse::error('Something went wrong while fetching orders.', 500);
         }
     }
 
@@ -2121,7 +2123,7 @@ class RetailerProductController extends Controller
 
             if (!$customerDetails) {
 
-                return ApiResponse::error('Customer record not found.');
+                return ApiResponse::error('Customer record not found.', 404);
             }
 
             // ✅ Update address in customer_details
@@ -2147,7 +2149,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('Something went wrong while processing the address.');
+            return ApiResponse::error('Something went wrong while processing the address.', 500);
         }
     }
 
@@ -2165,7 +2167,7 @@ class RetailerProductController extends Controller
             $customerDetails = CustomerDetails::find($customer->id);
 
             if (!$customerDetails) {
-                return ApiResponse::error('Customer record not found.');
+                return ApiResponse::error('Customer record not found.', 404);
             }
 
             $updateData = [
@@ -2186,7 +2188,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('Something went wrong while processing account details.');
+            return ApiResponse::error('Something went wrong while processing account details.', 500);
         }
     }
 
@@ -2205,7 +2207,7 @@ class RetailerProductController extends Controller
             $storeCustomer = StoreCustomersDetails::where('customer_id', $customer->id)->first();
 
             if (!Hash::check($request->old_password, $storeCustomer->password)) {
-                return ApiResponse::error('Your current password is incorrect.');
+                return ApiResponse::error('Your current password is incorrect.', 400);
             }
             $storeCustomer->password = Hash::make($request->new_password);
             $storeCustomer->save();
@@ -2218,7 +2220,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('Something went wrong while resetting the password.');
+            return ApiResponse::error('Something went wrong while resetting the password.', 500);
         }
     }
 
@@ -2240,7 +2242,7 @@ class RetailerProductController extends Controller
 
             // Ensure only one source is provided
             if ((!$wholesalerId && !$retailerId) || ($wholesalerId && $retailerId)) {
-                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.');
+                return ApiResponse::error('Provide either wholesaler_id or retailer_id, but not both.', 422);
             }
 
             // Validate product source
@@ -2250,7 +2252,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return ApiResponse::error('Invalid wholesaler product.');
+                    return ApiResponse::error('Invalid wholesaler product.', 404);
                 }
             }
 
@@ -2260,7 +2262,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return ApiResponse::error('Invalid retailer product.');
+                    return ApiResponse::error('Invalid retailer product.', 404);
                 }
             }
 
@@ -2305,7 +2307,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('Something went wrong.');
+            return ApiResponse::error('Something went wrong.', 500);
         }
     }
 
@@ -2413,7 +2415,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return ApiResponse::error('Something went wrong while fetching your wishlist.');
+            return ApiResponse::error('Something went wrong while fetching your wishlist.', 500);
         }
     }
 
@@ -2438,7 +2440,7 @@ class RetailerProductController extends Controller
             // Ensure only one source is provided
             if ((!$productId && !$retailerProductId) || ($productId && $retailerProductId)) {
 
-                return ApiResponse::error('Provide either product_id or retailer_product_id, but not both.');
+                return ApiResponse::error('Provide either product_id or retailer_product_id, but not both.', 422);
             }
 
             // Build base query
@@ -2451,7 +2453,7 @@ class RetailerProductController extends Controller
                 $exists = Product::where('id', $productId)
                     ->exists();
                 if (!$exists) {
-                    return ApiResponse::error('Invalid wholesaler product.');
+                    return ApiResponse::error('Invalid wholesaler product.', 404);
                 }
 
                 $wishlistQuery->where('product_id', $productId);
@@ -2460,7 +2462,7 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return ApiResponse::error('Invalid retailer product.');
+                    return ApiResponse::error('Invalid retailer product.', 404);
                 }
 
                 $wishlistQuery->where('retailer_product_id', $retailerProductId);
@@ -2470,7 +2472,7 @@ class RetailerProductController extends Controller
             $wishlistItem = $wishlistQuery->first();
 
             if (!$wishlistItem) {
-                return ApiResponse::error('Wishlist item not found.');
+                return ApiResponse::error('Wishlist item not found.', 404);
             }
 
             // Soft delete (set status to inactive)
@@ -2483,7 +2485,7 @@ class RetailerProductController extends Controller
                 'line' => $e->getLine(),
             ]);
 
-            return ApiResponse::error('Something went wrong while removing the wishlist item.');
+            return ApiResponse::error('Something went wrong while removing the wishlist item.', 500);
         }
     }
 
@@ -2572,7 +2574,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return ApiResponse::error('Something went wrong while fetching your cart.');
+            return ApiResponse::error('Something went wrong while fetching your cart.', 500);
         }
     }
 
@@ -2594,7 +2596,7 @@ class RetailerProductController extends Controller
 
             // Ensure only one product source is selected
             if ((!$productId && !$retailerProductId) || ($productId && $retailerProductId)) {
-                return ApiResponse::error('Provide either wholesaler_product_id or retailer_product_id, but not both.');
+                return ApiResponse::error('Provide either wholesaler product or retailer product , but not both.', 400);
             }
 
             // Validate product existence
@@ -2603,14 +2605,14 @@ class RetailerProductController extends Controller
                     ->exists();
 
                 if (!$exists) {
-                    return ApiResponse::error('Invalid wholesaler product.');
+                    return ApiResponse::error('Invalid wholesaler product.', 400);
                 }
             } elseif ($retailerProductId) {
                 $exists = RetailerCloneProduct::where('id', $retailerProductId)
                     ->exists();
 
                 if (!$exists) {
-                    return ApiResponse::error('Invalid retailer product.');
+                    return ApiResponse::error('Invalid retailer product.', 400);
                 }
             }
 
@@ -2628,7 +2630,7 @@ class RetailerProductController extends Controller
             $cartItem = $cartQuery->first();
 
             if (!$cartItem) {
-                return ApiResponse::error('Cart item not found.');
+                return ApiResponse::error('Cart item not found.', 404);
             }
 
             // Soft delete the cart item
@@ -2641,7 +2643,7 @@ class RetailerProductController extends Controller
                 'line' => $e->getLine(),
             ]);
 
-            return ApiResponse::error('Something went wrong while removing the cart item.');
+            return ApiResponse::error('Something went wrong while removing the cart item.', 500);
         }
     }
 
@@ -2702,7 +2704,7 @@ class RetailerProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return ApiResponse::error('Something went wrong while adding to cart.');
+            return ApiResponse::error('Something went wrong while adding to cart.', 500);
         }
     }
 
@@ -2874,7 +2876,7 @@ class RetailerProductController extends Controller
                 ->first();
 
             if (!$retailer) {
-                return ApiResponse::error('Invalid user token.');
+                return ApiResponse::error('Invalid user token.', 404);
             }
 
             // Step 2: Validate input
@@ -2903,7 +2905,8 @@ class RetailerProductController extends Controller
             if ($validator->fails()) {
                 return ApiResponse::error(
                     'Validation failed',
-                    $validator->errors()->toArray()
+                    $validator->errors()->toArray(),
+                    422
                 );
             }
 
@@ -2931,7 +2934,7 @@ class RetailerProductController extends Controller
                 'file' => $e->getFile(),
             ]);
 
-            return ApiResponse::error('Something went wrong. Please try again later.');
+            return ApiResponse::error('Something went wrong. Please try again later.', 500);
         }
     }
 }
