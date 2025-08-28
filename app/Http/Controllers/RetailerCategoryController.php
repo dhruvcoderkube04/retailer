@@ -228,7 +228,7 @@ class RetailerCategoryController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
 
         $retailer = Auth::user();
 
@@ -242,9 +242,6 @@ class RetailerCategoryController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.@#,:]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
             $query->where(function ($q) use ($search) {
                 $q->orWhere('created_at', 'like', '%' . $search . '%')
                     ->orWhereHas('category', function ($q) use ($search) {
@@ -555,7 +552,7 @@ class RetailerCategoryController extends Controller
     {
         $limit = $request->input('length', 10);
         $start = $request->input('start', 0);
-        $search = $request->input('search', '');
+        $search = cleanInput($request->input('search', ''));
         $draw = $request->input('draw');
 
         $retailer = Auth::user();
@@ -567,9 +564,6 @@ class RetailerCategoryController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (!preg_match('/^[a-zA-Z0-9\s_\-\.@#,:]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
 
             $query->where(function ($q) use ($search) {
                 $q->where('firstname', 'like', '%' . $search . '%')

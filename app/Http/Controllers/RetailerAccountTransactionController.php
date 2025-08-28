@@ -37,7 +37,7 @@ class RetailerAccountTransactionController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
         $date_filter = explode(' - ', $request->input('date_filter'));
 
         $from = Carbon::createFromFormat('d/m/Y', $date_filter[0])->format('Y-m-d');
@@ -183,7 +183,7 @@ class RetailerAccountTransactionController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
         $date_filter = explode(' - ', $request->input('date_filter'));
 
         $from = Carbon::createFromFormat('d/m/Y', $date_filter[0])->format('Y-m-d');
@@ -358,7 +358,7 @@ class RetailerAccountTransactionController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
         $date_filter = explode(' - ', $request->input('date_filter'));
 
         $from = Carbon::createFromFormat('d/m/Y', $date_filter[0])->format('Y-m-d');

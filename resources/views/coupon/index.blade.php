@@ -241,6 +241,7 @@ $(document).ready(function () {
             timePicker24Hour: true,
             startDate: moment().startOf("hour"),
             endDate: moment().startOf("hour").add(1, "days"),
+            minDate: moment().startOf("minute"),
             locale: {
                 format: "YYYY-MM-DD HH:mm:ss"
             }
