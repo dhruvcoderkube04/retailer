@@ -2552,6 +2552,7 @@ class RetailerProductController extends Controller
                     'retailer_product_id' => $productType === 'retailer' ? $product->id : null,
                     'product_name' => $product->name ?? null,
                     'quantity' => $item->quantity,
+                    'product_stock' => $product->quantity,
                     'final_price' => $finalPrice,
                     'retailer_id' => $product->retailer_id ?? null,
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
@@ -2664,7 +2665,7 @@ class RetailerProductController extends Controller
                     'cart_items.*.id' => 'nullable|integer',
                     'cart_items.*.wholesaler_id' => 'nullable|integer',
                     'cart_items.*.retailer_id' => 'nullable|integer',
-                    'cart_items.*.quantity' => 'nullable|integer|min:1',
+                    'cart_items.*.quantity' => 'nullable|integer',
                 ]);
                 $rawItems = $request->cart_items;
             } else {
@@ -2674,7 +2675,7 @@ class RetailerProductController extends Controller
                     'wholesaler_id' => 'nullable|integer',
                     'id' => 'nullable|integer',
                     'retailer_id' => 'nullable|integer',
-                    'quantity' => 'nullable|integer|min:1',
+                    'quantity' => 'nullable|integer',
                 ]);
                 $rawItems[] = [
                     'product_id' => $request->product_id,
@@ -2757,6 +2758,10 @@ class RetailerProductController extends Controller
             ];
         }
 
+        $productData = Product::where('id', $productId)->where('wholesaler_id', $wholesalerId)->first();
+        if (!$productData) {
+            $productData = RetailerCloneProduct::where('id', $productId)->where('retailer_id', $retailerId)->first();
+        }
 
         // 🔁 Check if already in cart
         $existingCart = CustomerCart::where('customer_id', $customerDetails->id)
@@ -2778,9 +2783,11 @@ class RetailerProductController extends Controller
             $existingCart->save();
 
             return [
+                'cart_id' => $existingCart->id,
                 'product_id' => $productId,
                 'product_variations_id' => $variantId,
                 'quantity' => $existingCart->quantity,
+                'product_stock' => $productData->quantity,
                 'status' => 'updated',
                 'message' => 'Cart quantity updated.',
                 'wishlist_id' => $existingCart->id,
@@ -2802,8 +2809,10 @@ class RetailerProductController extends Controller
             $inactiveCart->save();
 
             return [
+                'cart_id' => $inactiveCart->id,
                 'product_id' => $productId,
                 'quantity' => $inactiveCart->quantity,
+                'product_stock' => $productData->quantity,
                 'status' => 'reactivated',
                 'message' => 'Add To Cart Successfully.',
                 'wishlist_id' => $inactiveCart->id,
@@ -2828,8 +2837,10 @@ class RetailerProductController extends Controller
         $cart = CustomerCart::create($cartData);
 
         return [
+            'cart_id' => $cart->id,
             'product_id' => $productId,
             'quantity' => $cart->quantity,
+            'product_stock' => $productData->quantity,
             'product_variations_id' => $variantId,
             'status' => 'success',
             'message' => 'Product added to cart.',
@@ -2937,4 +2948,6 @@ class RetailerProductController extends Controller
             return ApiResponse::error('Something went wrong. Please try again later.', 500);
         }
     }
+
+    public function addQuantity(Request $request) {}
 }
