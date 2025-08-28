@@ -142,7 +142,7 @@ class ShippingController extends Controller
     {
         return $request->validate([
             'product_name' => 'required|min:3|max:100',
-            'sub_category_id' => 'required|numeric|exists:sub_categories,id',
+            'sub_category_id' => 'nullable|numeric|exists:sub_categories,id',
             'qty' => 'required|integer|min:1',
             'price' => 'required|numeric|min:1|max:99999999.99',
             'customer_id' => 'required|exists:customer_details,id',
@@ -202,7 +202,11 @@ class ShippingController extends Controller
             $product->images = uploadOrUpdateImageToSpaces($file, 'products/images');
         }
 
-        $subCategory = SubCategory::findOrFail($request->sub_category_id);
+        $categoryId = null;
+        if ($request->filled('sub_category_id')) {
+            $subCategory = SubCategory::findOrFail($request->sub_category_id);
+            $categoryId = $subCategory->category_id;
+        }
 
         $sku = $request->sku ?: $this->generateUniqueSKU();
 
@@ -212,7 +216,7 @@ class ShippingController extends Controller
             'retailer_id' => $retailerId,
             'name' => $request->product_name,
             'slug' => $slug,
-            'category_id' => $subCategory->category_id,
+            'category_id' => $categoryId,
             'sub_category_id' => $request->sub_category_id,
             'status' => 'active',
             'old_price' => 0,
