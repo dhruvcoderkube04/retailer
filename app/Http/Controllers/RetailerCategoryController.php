@@ -9,6 +9,7 @@ use App\Models\RetailerCategory;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
 use App\Models\RetailerWebsiteEnquiry;
+use App\Models\SubCategory;
 use App\Rules\NoCodeInjection;
 use Exception;
 use Illuminate\Http\Request;
@@ -130,6 +131,84 @@ class RetailerCategoryController extends Controller
         }
     }
 
+    public function saveSelectedCategories(Request $request)
+    {
+        $user = Auth::user();
+        $selected = $request->input('selected_sub_categories', []); // array of IDs
+
+        // Fetch all categories user already has
+        $existing = RetailerCategory::where('retailer_id', $user->id)
+            ->pluck('sub_category_id')
+            ->toArray();
+
+        // New selections to add
+        $toAdd = array_diff($selected, $existing);
+
+        // Old ones to remove
+        $toRemove = array_diff($existing, $selected);
+
+        DB::beginTransaction();
+        try {
+            // Add
+            foreach ($toAdd as $subCategoryId) {
+                $subCategory = SubCategory::find($subCategoryId);
+                if ($subCategory) {
+                    RetailerCategory::create([
+                        'retailer_id' => $user->id,
+                        'category_id' => $subCategory->category_id,
+                        'sub_category_id' => $subCategory->id,
+                    ]);
+                }
+            }
+
+            // Remove
+            if (!empty($toRemove)) {
+                RetailerCategory::where('retailer_id', $user->id)
+                    ->whereIn('sub_category_id', $toRemove)
+                    ->delete();
+
+                RetailerProducts::where('retailer_id', $user->id)
+                    ->whereIn('sub_category_id', $toRemove)
+                    ->delete();
+            }
+
+            // Reload lists
+            $categories = Category::with(['subCategory' => function ($q) {
+                $q->where('status', 1);
+            }])
+                ->whereHas('subCategory', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where('status', 1)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $addedCategories = RetailerCategory::where('retailer_id', $user->id)
+                ->pluck('sub_category_id')
+                ->toArray();
+
+            $retailerCateogries = RetailerCategory::with(['retailer', 'category', 'subCategory'])
+                ->where('retailer_id', $user->id)
+                ->get();
+
+            $html_1 = view('category.ajax.reload-categorylist', compact('categories', 'addedCategories'))->render();
+            $html_2 = view('category.ajax.reload-selected-categorylist', compact('retailerCateogries'))->render();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Categories updated successfully',
+                'html_1' => $html_1,
+                'html_2' => $html_2
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Save Categories Error: ".$e->getMessage());
+            return response()->json(['status' => false, 'msg' => 'Something went wrong']);
+        }
+    }
+
+
     // INDEX : my-categories list
     public function myCategoryList()
     {
@@ -207,9 +286,9 @@ class RetailerCategoryController extends Controller
             $sub_category_image = '
                 <img src="' . ($item->category_image
                 ? Storage::disk('spaces')->url($item->category_image)
-                : asset('assets/media/images/no_image.jpg')) . '" 
+                : asset('assets/media/images/no_image.jpg')) . '"
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
-                    class="w-40px me-3" 
+                    class="w-40px me-3"
                     alt="sub-category-image" />
             ';
 

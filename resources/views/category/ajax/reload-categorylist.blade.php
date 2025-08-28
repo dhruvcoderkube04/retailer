@@ -2,27 +2,30 @@
     <h2 class="fs-3 text-dark text-center fw-bold mb-8">Choose Your Category List</h2>
 </div>
 
+{{-- Global Select All --}}
+<div class="form-check mb-3">
+    <input type="checkbox" class="form-check-input" id="select_all_categories" style="width: 17px; height: 17px;" />
+    <label class="form-check-label fw-bold text-gray-800" for="select_all_categories"><h4>Select All Categories</h4></label>
+</div><br>
+
 @foreach ($categories as $a => $category)
     <div class="m-0">
-        <div class="d-flex align-items-center collapsible py-3 toggle mb-0" data-bs-toggle="collapse"
-            data-bs-target="#category{{ $a }}">
-            <div class="btn btn-sm btn-icon mw-20px btn-active-color-primary me-5">
-                <i class="ki-duotone ki-minus-square toggle-on text-primary fs-1">
-                    <span class="path1"></span>
-                    <span class="path2"></span>
-                </i>
-                <i class="ki-duotone ki-plus-square toggle-off fs-1">
-                    <span class="path1"></span>
-                    <span class="path2"></span>
-                    <span class="path3"></span>
-                </i>
-            </div>
-            <h4 class="text-gray-700 fw-bold cursor-pointer mb-0">
-                {{ strtoupper($category->category_name) }}
-            </h4>
+         {{-- Per Category Select All --}}
+        <div class="form-check ps-10 mb-2">
+            @php
+                $allSubChecked = $category->subCategory->pluck('id')->every(fn($id) => in_array($id, $addedCategories ?? []));
+            @endphp
+            <input type="checkbox" class="form-check-input select-category"
+                   id="select_category_{{ $category->id }}"
+                   data-category-id="{{ $category->id }}"
+                   style="width: 17px; height: 17px;"  {{ $allSubChecked ? 'checked' : '' }}/>
+            <label class="form-check-label fw-bold text-gray-700" for="select_category_{{ $category->id }}">
+                <h4>{{ strtoupper($category->category_name) }}</h4>
+            </label>
         </div>
 
-        <div id="category{{ $a }}" class="collapse show fs-6 ms-1">
+        {{-- <div id="category{{ $a }}" class="collapse show fs-6 ms-1"> --}}
+        <div id="category{{ $category->id }}" class="collapse show fs-6 ms-1">
             @foreach ($category->subCategory as $b => $sub_category)
                 <div class="mb-4">
                     <div class="form-check form-check-custom form-check-solid d-flex align-items-center ps-10">
@@ -46,4 +49,4 @@
 
         <div class="separator separator-dashed"></div>
     </div>
-@endforeach
+    @endforeach
