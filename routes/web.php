@@ -254,6 +254,8 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
     Route::post('/my-category-list/fetch-record', [RetailerCategoryController::class, 'myCategoryListFetchRecord'])->name('retailer.my-category-list.fetch-record');
     Route::post('/remove-category', [RetailerCategoryController::class, 'removeCategory'])->name('retailer.remove.category');
     Route::post('/update-category-image', [RetailerCategoryController::class, 'updateCategoryImage'])->name('retailer.category-image.update');
+    Route::post('/retailer/category/save-selected-categories', [RetailerCategoryController::class, 'saveSelectedCategories'])->name('retailer.category.save-selected-categories');
+
 
     // category suggestion maanage
     Route::get('/category-suggestion', [RetailerCategoryController::class, 'categorySuggestion'])->name('retailer.category-suggestion');

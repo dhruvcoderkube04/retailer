@@ -51172,6 +51172,7 @@ table thead th {
 tbody.text-gray-600,
 tbody{
   color: var(--bs-text-gray-700) !important;
+  font-size: 1.075rem !important;
 }
 
 table tbody .badge{
