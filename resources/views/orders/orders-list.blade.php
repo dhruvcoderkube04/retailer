@@ -108,14 +108,6 @@
                                 <ul
                                     class="nav nav-tabs nav-line-tabs nav-stretch fs-5 justify-content-start flex-wrap w-100 gap-4 border-bottom pb-3">
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === null) ? 'active' : '' }}"
-                                            href="{{ route('retailer.order.list', ['type' => 'all']) }}">
-                                            <i class="fas fa-clipboard-list pe-2 text-primary"></i> All
-                                        </a>
-                                    </li>
-
-
-                                    <li class="nav-item my-2">
                                         <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == 'new') ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             <i class="fas fa-sync-alt pe-2 text-primary"></i> New
@@ -192,6 +184,12 @@
                                             href="{{ route('retailer.order.list', ['type' => 'transferred-to-wholesaler']) }}">
                                             <i class="fa-solid fa-right-from-bracket pe-2 text-primary"></i> Transferred To
                                             Wholesaler
+                                        </a>
+                                    </li>
+                                    <li class="nav-item my-2">
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === null) ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'all']) }}">
+                                            <i class="fas fa-clipboard-list pe-2 text-primary"></i> All
                                         </a>
                                     </li>
                                 </ul>
@@ -1228,61 +1226,61 @@
 
         //<------Start cancel modal close---------->
 
-        $(document).ready(function() {
-            $('.cancelRaise').on('click', function(e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelRaise').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Hide the modal
-                        $('#kt_modal_raise_issue').modal('hide');
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 // Hide the modal
+        //                 $('#kt_modal_raise_issue').modal('hide');
 
-                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
-                        $('#raiseIssueForm')[0].reset();
+        //                 // Reset all form fields (text, textarea, select, file, radio, checkbox)
+        //                 $('#raiseIssueForm')[0].reset();
 
-                        // Also clear any validation error messages
-                        $('#raiseIssueForm').find('.invalid-feedback').text('');
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // Keep modal open
-                        $('#kt_modal_raise_issue').modal('show');
-                    }
-                });
-            });
-        });
+        //                 // Also clear any validation error messages
+        //                 $('#raiseIssueForm').find('.invalid-feedback').text('');
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 // Keep modal open
+        //                 $('#kt_modal_raise_issue').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
 
-        $(document).ready(function() {
-            $('.cancelAction').on('click', function(e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelAction').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $('#confirmedOrderForm').closest('.modal').modal('hide');
-                        resetConfirmedOrderForm();
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        $('#confirmedOrderForm').closest('.modal').modal('show');
-                    }
-                });
-            });
-        });
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('hide');
+        //                 resetConfirmedOrderForm();
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
         function resetConfirmedOrderForm() {
             $("#submitButton").prop("disabled", true);
@@ -1310,61 +1308,61 @@
 
         //<------Start cancel modal close---------->
 
-        $(document).ready(function() {
-            $('.cancelRaise').on('click', function(e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelRaise').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Hide the modal
-                        $('#kt_modal_raise_issue').modal('hide');
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 // Hide the modal
+        //                 $('#kt_modal_raise_issue').modal('hide');
 
-                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
-                        $('#raiseIssueForm')[0].reset();
+        //                 // Reset all form fields (text, textarea, select, file, radio, checkbox)
+        //                 $('#raiseIssueForm')[0].reset();
 
-                        // Also clear any validation error messages
-                        $('#raiseIssueForm').find('.invalid-feedback').text('');
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // Keep modal open
-                        $('#kt_modal_raise_issue').modal('show');
-                    }
-                });
-            });
-        });
+        //                 // Also clear any validation error messages
+        //                 $('#raiseIssueForm').find('.invalid-feedback').text('');
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 // Keep modal open
+        //                 $('#kt_modal_raise_issue').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
 
-        $(document).ready(function() {
-            $('.cancelAction').on('click', function(e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelAction').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $('#confirmedOrderForm').closest('.modal').modal('hide');
-                        resetConfirmedOrderForm();
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        $('#confirmedOrderForm').closest('.modal').modal('show');
-                    }
-                });
-            });
-        });
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('hide');
+        //                 resetConfirmedOrderForm();
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
         function resetConfirmedOrderForm() {
             $("#submitButton").prop("disabled", true);
@@ -2792,10 +2790,15 @@
                                 icon: 'success',
                                 title: 'Ticket Raised Successfully!',
                                 text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
                             }).then(() => {
-                                $('#kt_modal_raise_issue').modal('hide');
                                 document.getElementById('raiseIssueForm').reset();
                                 $('#raise_issue_product_id').val('');
+                                $('#kt_modal_raise_issue').modal('hide');
+                                submitButton.prop("disabled", false);
+                                submitButton.find(".indicator-label").show();
+                                submitButton.find(".indicator-progress").hide();
                             });
                         },
                         error: function(xhr) {
@@ -2841,9 +2844,9 @@
                                     }
                                 }
 
-                                submitButton.prop("disabled", false);
-                                submitButton.find(".indicator-label").show();
-                                submitButton.find(".indicator-progress").hide();
+                                // submitButton.prop("disabled", false);
+                                // submitButton.find(".indicator-label").show();
+                                // submitButton.find(".indicator-progress").hide();
                             } else {
                                 Swal.fire({
                                     icon: 'error',
@@ -2851,9 +2854,9 @@
                                     text: 'Something went wrong. Please try again.',
                                 });
 
-                                submitButton.prop("disabled", false);
-                                submitButton.find(".indicator-label").show();
-                                submitButton.find(".indicator-progress").hide();
+                                // submitButton.prop("disabled", false);
+                                // submitButton.find(".indicator-label").show();
+                                // submitButton.find(".indicator-progress").hide();
                             }
                         },
                     });
