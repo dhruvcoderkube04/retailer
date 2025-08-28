@@ -101,7 +101,7 @@
                         </div>
                     @endif
 
-                    <div class="card card-flush">
+                    <div class="card card-flush order-table">
                         {{-- Stages --}}
                         <div class="card-header d-flex flex-wrap align-items-center justify-content-start pt-1">
                             <div class="card-toolbar w-100">
@@ -436,17 +436,14 @@
                                     </h5>
                                     <div class="card shadow-sm border-0">
                                         <div class="card-body p-3">
-                                            {{-- <select name="product_weight" class="form-select form-select-lg"
-                                                id="product_weight" data-control="select2">
-                                                <option value="" disabled selected>-- Select Product Weight --
-                                                </option>
-                                                <option value="0.5">500 GM</option>
-                                                <option value="1">1KG</option> <!-- 1KG -->
-                                                <option value="1.5">1.5KG</option> <!-- 1.5KG -->
-                                                <option value="2">2KG</option> <!-- 2KG -->
-                                                <option value="2.5">2.5KG</option> <!-- 2.5KG -->
-                                            </select> --}}
                                             <select name="product_weight" class="form-select form-select-lg"
+                                                id="product_weight" data-control="select2">
+                                                <option value="0.5">500 GM</option>
+                                                {{-- <option value="1">1KG</option>
+                                                <option value="1.5">1.5KG</option> --}}
+                                                <option value="2">2KG</option>
+                                            </select>
+                                            {{-- <select name="product_weight" class="form-select form-select-lg"
                                                 id="product_weight" data-control="select2">
                                                 <option value="" disabled selected>-- Select Product Weight --
                                                 </option>
@@ -455,7 +452,7 @@
                                                         {{ rtrim(rtrim(number_format($i, 1), '0'), '.') }}{{ $i < 1 ? ' KG' : ' KG' }}
                                                     </option>
                                                 @endfor
-                                            </select>
+                                            </select> --}}
 
                                             {{-- <input type="number" class="form-control" name="product_weight"
                                                 id="product_weight" min="1" placeholder="Enter weight in grams"> --}}
@@ -684,8 +681,9 @@
                             <tr>
                                 <th>Service Mode</th>
                                 <th>Courier Name</th>
-                                <th>Shipping Charge</th>
-                                <th>COD Charge</th>
+                                {{-- <th>Shipping Charge</th>
+                                <th>COD Charge</th> --}}
+                                <th>Total Charge</th>
                                 {{-- <th>RTO Charge</th> --}}
                                 <th>Action</th>
                             </tr>
@@ -1062,6 +1060,25 @@
     <!-- END: Cancel Order Modal -->
 @endsection
 
+
+@php
+    $courierLogos = [
+        'bluedart'   => 'bluedart.png',
+        'xpressbees' => 'xpressbees.png',
+        'ekart'      => 'ekart.png',
+        'ecom'       => 'ecomexpress.png',
+        'delhivery'  => 'delhivery.png',
+        'dtdc'       => 'dtdc.png',
+        'amazon'     => 'amazon.png',
+        'indiapost'  => 'indianpost.png',
+        'velocity'   => 'velocity.png',
+        'zippyy'     => 'zippyy.png',
+    ];
+@endphp
+
+<script>
+    window.courierLogos = @json($courierLogos);
+</script>
 
 @section('script')
     <script>
@@ -1440,7 +1457,7 @@
                     return;
                 }
                 $('#courierDetailsBody').html(
-                    '<tr><td colspan="6">Loading curier partners...</td></tr>')
+                    '<tr><td colspan="6">Loading Courier Partners...</td></tr>')
                 $.ajax({
                     url: "{{ route('retailer.rate.calculation.post') }}",
                     type: 'POST',
@@ -1557,15 +1574,33 @@
                 rates.forEach(function(courier) {
                     const matchingCourier = courierServices.find(cs => cs.courierName === courier
                         .service_name) || {};
+
+                    // Pick logo
+                    let logoUrl = '';
+                    if (matchingCourier.logoUrl) {
+                        // Use API-provided logo if available
+                        logoUrl = matchingCourier.logoUrl;
+                    } else {
+                        // Fallback to Laravel-provided mapping
+                        const name = (courier.service_name || '').toLowerCase().trim();
+                        logoUrl = getCourierLogo(name);
+                    }
+
+                    // <td>
+                    //     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
+                    //     ${courier.service_name}
+                    // </td>
+                    // <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+                    // <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
                     tableBody += `
                         <tr>
-                            <td>${courier.service_mode || 'N/A'}</td>
+                            <td>${courier.service_mode ?? '-'}</td>
                             <td>
-                                ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="" width="30" class="me-2">` : ''}
+                                ${logoUrl ? `<img src="${logoUrl}" alt="" width="40" class="me-2">` : ''}
                                 ${courier.service_name}
                             </td>
-                            <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
-                            <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+
+                            <td>₹${(courier.total_price_wgst || 0).toFixed(2)}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.service_name}"
@@ -1575,6 +1610,7 @@
                                         data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
                                         data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
                                         data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                                        data-total-charge="${(courier.total_price_wgst || 0).toFixed(2)}"
                                         data-service-mode="${courier.service_mode || 'N/A'}"
                                         data-cpartner="${courier.service_mode}"
                                         data-nickname="${courier.nickName}"
@@ -1660,6 +1696,7 @@
                 const codCharge = $(this).data('cod-charge') || '0.00';
                 const rtoCharge = $(this).data('rto-charge') || '0.00';
                 const serviceMode = $(this).data('service-mode') || 'N/A';
+                const totalCharge = $(this).data('total-charge') || '0.00';
                 const cpartner = $(this).data('cpartner');
                 const nickName = $(this).data('nickname');
                 const courier_code = $(this).data('courier_code');
@@ -1681,11 +1718,12 @@
                 $('#courier_code').val(courier_code);
 
                 // Display all courier details below the Select Courier button
+                // <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
+                // <strong>COD Charge:</strong> ₹${codCharge}<br>
+                // <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
                 $('#selected-courier-display').html(`
                                 <strong>Selected Courier:</strong> ${courierName}<br>
-                                <strong>Shipping Charge:</strong> ₹${shippingCharge}<br>
-                                <strong>COD Charge:</strong> ₹${codCharge}<br>
-                                <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
+                                <strong>Total Charge:</strong> ${totalCharge}<br>
                                 <strong>Service Mode:</strong> ${serviceMode}
                             `);
 
@@ -3021,6 +3059,30 @@
             });
 
             //<----------------- END : NDR ---------------->
+
+
+            // logo finder
+            function getCourierLogo(courierName) {
+                if (!courierName) return '/assets/media/courier_partner/new_logo/default.png';
+
+                const name = courierName.toLowerCase().trim();
+                let logoUrl = '';
+
+                for (const key in window.courierLogos) {
+                    if (name.includes(key)) {
+                        logoUrl = `/assets/media/courier_partner/new_logo/${window.courierLogos[key]}`;
+                        break;
+                    }
+                }
+
+                // fallback to default
+                if (!logoUrl) {
+                    logoUrl = `/assets/media/courier_partner/new_logo/default.png`;
+                }
+
+                return logoUrl;
+            }
+
         });
     </script>
 @endsection

@@ -162,12 +162,14 @@ class CourierServiceManager
                         $gstRtoCharge = $rtoCharge ? round($rtoCharge * 0.18, 2) : null;
 
                         $totalPrice = $shippingCharge + $codCharge;
+                        $totalPricewgst =  $totalPrice + $gstShippingCharge + $gstCodCharge;
                         $results[] = [
                             'courier_code'         => $partner->code,
                             'courier_name'         => $partner->name,
                             'zone'                 => $rate['order_zone'] ?? ($rate['zone'] ?? null),
                             'estimated_delivery'   => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
                             'total_price'          => $totalPrice,
+                            'total_price_wgst'     => $totalPricewgst,
                             'shipping_charge'      => round($shippingCharge + $gstShippingCharge, 2),
                             'cod_charge'           => round($codCharge + $gstCodCharge, 2),
                             'rto_charge'           => round($rtoCharge + $gstRtoCharge, 2),
@@ -176,7 +178,10 @@ class CourierServiceManager
                             'g_rto_charge'         => $gstRtoCharge,
                             'weight'               => $payload['shipment_Weight'],
                             'service_name'         => $rate['name'] ?? ($rate['courier_name'] ?? null),
-                            'service_mode'         => $rate['type'] ?? ($rate['service_mode'] ?? null),
+                            'service_mode'         => ($rate['type'] ?? $rate['service_mode'] ?? null)
+                                                        ? ucfirst($rate['type'] ?? $rate['service_mode'])
+                                                        : null,
+                            // 'service_mode'         => $rate['type'] ?? ($rate['service_mode'] ?? null),
                             'courierId'            => $rate['courierId'] ?? null,
                             'nickName'             => $rate['nickName'] ?? null,
                             'carrierID'            => $rate['id'] ?? null,
