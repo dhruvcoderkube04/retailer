@@ -183,14 +183,14 @@
                                     id="kt_datatable_account_transactions">
                                     <thead>
                                         <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle w-80px">Info</th>
+                                            <th class="text-center py-5 border-0 align-middle mw-80px px-3">Info</th>
                                             <th class="text-center py-5 border-0 align-middle"></th>
-                                            <th class="text-center py-5 border-0 align-middle w-250px">Description</th>
-                                            <th class="text-center py-5 border-0 align-middle w-150px">Date & Time</th>
+                                            <th class="text-start py-5 border-0 align-middle mw-250px">Description</th>
+                                            <th class="text-center py-5 border-0 align-middle mw-150px">Date & Time</th>
                                             <th class="text-center py-5 border-0 align-middle">Order ID</th>
-                                            <th class="text-center py-5 border-0 align-middle w-100px">Transaction Amount</th>
-                                            <th class="text-center py-5 border-0 align-middle w-100px">Current Balance</th>
-                                            <th class="text-center py-5 border-0 align-middle w-100px">Status</th>
+                                            <th class="text-center py-5 border-0 align-middle mw-100px">Transaction Amount</th>
+                                            <th class="text-center py-5 border-0 align-middle mw-100px">Current Balance</th>
+                                            <th class="text-center py-5 border-0 align-middle mw-100px px-3">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600 fs-6">
