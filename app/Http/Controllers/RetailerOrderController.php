@@ -238,7 +238,7 @@ class RetailerOrderController extends Controller
     {
         $limit = $request->input('length', 10);
         $page = $request->input('start', 0);
-        $search = $request->input('search.value', '');
+        $search = cleanInput($request->input('search.value', ''));
         $payment_method_filter = $request->input('payment_method_filter');
         $date_filter = explode(' - ', $request->input('date_filter'));
         $type = $request->type;
@@ -364,9 +364,6 @@ class RetailerOrderController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
 
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', "%{$search}%")
@@ -1112,12 +1109,10 @@ class RetailerOrderController extends Controller
 
             // Search filter
             if ($request->has('search') && !empty($request->search) && $request->search !== '') {
-                $search = $request->search;
+                $search = cleanInput($request->search);
                 $search = trim($search);
                 $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-                if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                    abort(400, 'Invalid search input detected.');
-                }
+              
                 $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
                         ->orWhere('product_variation', 'like', '%' . $search . '%')

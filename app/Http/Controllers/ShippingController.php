@@ -53,7 +53,7 @@ class ShippingController extends Controller
     public function getCustomerRecrodAccrodingOrder(Request $request)
     {
         $userId = Auth::id();
-        $search = $request->input('query');
+        $search = cleanInput($request->input('query'));
 
         $customerRecords = CustomerDetails::where('user_id', $userId)
             ->when($search, function ($queryBuilder, $search) {
@@ -71,26 +71,51 @@ class ShippingController extends Controller
 
     public function storeCustomer(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:100',
-            'lastname' => 'required|string|max:100',
-            'email' => 'required|email',
-            'phone_number' => 'required|string|max:10',
-            'pincode' => 'required|string|max:6',
-            'address' => 'required|string|max:255',
-            'city' => 'required|string|max:100',
-            'state' => 'required|string|max:100',
+        // Step 1: Clean all inputs using cleanInput and detect modifications
+        $cleanedData = [];
+        $cleaningErrors = [];
+
+        foreach ($request->all() as $key => $value) {
+            $cleanedValue = cleanInput($value);
+            $cleanedData[$key] = $cleanedValue;
+
+            // Check if the input was modified (indicating potential XSS or malicious input)
+            if ($cleanedValue !== $value) {
+                $cleaningErrors[$key] = "The $key field contained unsafe content and has been sanitized.";
+            }
+        }
+
+        // Step 2: If cleaning errors exist, return them as validation errors
+        if (!empty($cleaningErrors)) {
+            return response()->json([
+                'success' => false,
+                'errors' => $cleaningErrors
+            ], 422);
+        }
+
+        // Step 3: Validate the cleaned input
+        $validator = Validator::make($cleanedData, [
+            'firstname'     => 'required|string|max:100',
+            'lastname'      => 'required|string|max:100',
+            'email'         => 'required|email:rfc,dns|unique:customer_details,email',
+            'phone_number'  => 'required|string|max:10|unique:customer_details,phone_number',
+            'pincode'       => 'required|string|max:6',
+            'address'       => 'required|string|max:255',
+            'city'          => 'required|string|max:100',
+            'state'         => 'required|string|max:100',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
-            ], 422); // Important for catching in JS
+            ], 422);
         }
 
+        // Step 4: Create customer with validated data
         $validated = $validator->validated();
         $validated['user_id'] = auth()->id();
+
 
         $customer = CustomerDetails::create($validated);
 
@@ -101,8 +126,10 @@ class ShippingController extends Controller
         ]);
     }
 
+
     public function directShippingPlaceOrder(Request $request)
     {
+
         DB::beginTransaction();
 
         try {
@@ -260,10 +287,10 @@ class ShippingController extends Controller
     {
         $active_courier_partner = CourierPartner::where('is_active', 1)->first();
         $user = Auth::user();
-        $addresses = PickAddress::select('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
+        $addresses = PickAddress::select('id', 'warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
             ->where('user_id', $user->id)
             ->where('courier_partner_id', $active_courier_partner->id)
-            ->groupBy('warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
+            ->groupBy('id', 'warehouse_name', 'first_name', 'last_name', 'mobile_number', 'pincode', 'address', 'state', 'city')
             ->get();
 
         return view('shipping.pick-up-address-list', ['addresses' => $addresses]);
@@ -536,7 +563,7 @@ class ShippingController extends Controller
 
     public function pickAddressedit($id)
     {
-        $address = PickAddress::findOrFail($id);
+        $address = PickAddress::findOrFail(decrypt($id));
 
         return response()->json($address);
     }
@@ -544,8 +571,8 @@ class ShippingController extends Controller
     // update on updateWarehouse
     public function pickAddressupdate(Request $request, $id)
     {
+
         $request->validate([
-            'warehouse_name' => 'required|string|max:255|unique:pickup_addresses,warehouse_name,' . $id . ',id',
             'first_name' => [
                 'required',
                 'string',
@@ -558,7 +585,7 @@ class ShippingController extends Controller
                 'max:255',
                 'regex:/^[A-Za-z\s]+$/'
             ],
-            'mobile' => 'required|digits:10',
+            'mobile_number' => 'required|digits:10',
             'pincode' => 'required|digits:6',
             'address' => 'required|string',
             'state' => 'required|string',
@@ -568,12 +595,15 @@ class ShippingController extends Controller
             'last_name.regex' => 'Only letters allow as last name',
         ]);
 
+
+
         $user = Auth::user();
         if (!$user) {
             return back()->with('error', 'User not authenticated.');
         }
 
-        $pickAddress = PickAddress::where('warehouse_id', $id)->first();
+        $pickAddress = PickAddress::where('id', $id)->first();
+
         if (!$pickAddress) {
             return back()->with('error', 'Warehouse not found.');
         }
@@ -631,6 +661,7 @@ class ShippingController extends Controller
                     'city'          => $request->city,
                     'user_id'       => $user->id,
                 ]);
+
 
                 // Return success message
                 return back()->with('success', 'Warehouse updated successfully!');
