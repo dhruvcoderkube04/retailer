@@ -1215,8 +1215,8 @@ class RetailerOrderController extends Controller
                 // $statusBadge = $order->status == 'approved' ? 'badge-success' : 'badge-danger';
 
                 $orderDetailHTML = "
-                    <div class='my-2'><strong>Order Id:</strong> {$order->order_id}</div>
-                    <div class='my-2'><strong>Name:</strong> " . ($product->name ?? 'N/A') . "</div>";
+                    <div class='my-2'><strong>Order Id:</strong> <span class='text-start text-dark fw-bold'>{$order->order_id}</span></div>
+                    <div class='my-2'><strong>Name:</strong> <span class='text-start text-dark fw-bold'>" . ($product->name ?? 'N/A') . "</span></div>";
 
                 if ($order->product_variation) {
                     $orderDetailHTML .= '<div class="col-12 my-2"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . ($order->product_variation ?? 'N/A') . '</div></div>';
@@ -1232,19 +1232,19 @@ class RetailerOrderController extends Controller
                     </div>
                     <div class='my-2'>
                         <strong>Reason:</strong>
-                        <span>
+                        <span class='text-start text-dark fw-bold'>
                             " . ($orderStatus[$order->status] ?? 'Unknown') . "
                         </span>
                     </div>
                     ";
 
                 if ($order->status == 'cancel') {
-                    $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
+                    $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger fw-bold'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
                 }
 
                 $orderDetailHTML .= "
-                    <div class='my-2'><strong>Tracking Id:</strong> " . ($order->tracking_number ?? 'N/A') . "</div>
-                    <div class='my-2'><strong>API Order Id:</strong> " . ($order->api_order_id ?? 'N/A') . "</div>";
+                    <div class='my-2'><strong>Tracking Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->tracking_number ?? 'N/A') . "</span></div>
+                    <div class='my-2'><strong>API Order Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->api_order_id ?? 'N/A') . "</span></div>";
 
                 if ($order->status == 'pickup' && $order->shipping_label_url) {
                     $orderDetailHTML .= "
@@ -1262,9 +1262,9 @@ class RetailerOrderController extends Controller
                         onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";'
                         width='100' style='border-radius: 5px;'>",
                     'wholesaler_detail' => $wholesaler ? "
-                        <div class='my-2'><strong>Name:</strong> {$wholesaler->company_name}</div>
-                        <div class='my-2'><strong>Email:</strong> {$order->wholesaler->email}</div>
-                        <div class='my-2'><strong>Mobile:</strong> {$order->wholesaler->phone_number}</div>
+                        <div class='my-2'><strong>Name:</strong> <span class='text-start text-dark fw-bold'>{$wholesaler->company_name}</span></div>
+                        <div class='my-2'><strong>Email:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->email}</span></div>
+                        <div class='my-2'><strong>Mobile:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->phone_number}</span></div>
                     " : 'N/A',
                 ];
             }
