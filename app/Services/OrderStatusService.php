@@ -89,77 +89,106 @@ class OrderStatusService
 
         $user = Auth::user();
 
-        // calculate base and profit
-        $finalShipping = (float) $request->shipping_charge;
-        $finalCod = (float) $request->cod_charge;
-        $finalRto = (float) $request->rto_charge;
+        $response = $this->rateCalculationOrder($request, $customerOrder, $pickup_address);
+        $data = $response->getData(true)['data'];
+        if (!empty($data)) {
 
+            // Apply filter
+            $courier_service = $request->courier_service ?? '';
+            $courier_code    = $request->courier_code ?? '';
+
+            $courier = collect($data)->first(function ($item) use ($courier_service, $courier_code) {
+                return $item['service_name'] === $courier_service
+                    && $item['courier_code'] === $courier_code;
+            });
+        }
+        else
+        {
+            return response()->json(['error' => 'No rate data found'], 404);
+        }
+
+        // calculate base and profit
+        $finalShipping = (float) $courier['shipping_charge'] ?? 0;
+        $finalCod = (float) $courier['cod_charge'] ?? 0;
+        $finalRto = (float) $courier['rto_charge'] ?? 0;
+
+
+        // Margin Calculation
+        $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
+        $marginTagName = $user->userDetail?->margin_tag_name;
+
+        $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+
+        if ($getMargin) {
+            $marginType = $getMargin->type; // 'percentage' or 'flat'
+            $flatAmount = (float) ($getMargin->flat_percentage ?? 0);
+
+            if ($marginType === 'percentage' && $marginPercentage > 0) {
+
+                $shippingMarginProfit = $finalShipping * ($marginPercentage / 100);
+                $codMarginProfit      = $finalCod * ($marginPercentage / 100);
+                $rtoMarginProfit      = $finalRto * ($marginPercentage / 100);
+
+            } elseif ($marginType === 'flat') {
+
+                $shippingMarginProfit = $finalShipping - $flatAmount;
+                $codMarginProfit = $finalCod - $flatAmount;
+                $rtoMarginProfit = $finalRto - $flatAmount;
+            }
+        } else {
+
+            $shippingMarginProfit = 0.0;
+            $codMarginProfit = 0.0;
+            $rtoMarginProfit = 0.0;
+        }
+
+        // GST Calculation
         $gst_config = GstConfiguration::where('status', true)->first();
         if ($gst_config) {
             if ($gst_config->gst_mode == 'same') {
                 // Use only GST field, default to 0 if null
                 $gstRate = floatval($gst_config->gst ?? 0);
 
-                $shippingChargeGstAmount = round(($finalShipping * $gstRate) / 100, 2);
-                $codChargeGstAmount      = round(($finalCod * $gstRate) / 100, 2);
-                $rtoChargeGstAmount      = round(($finalRto * $gstRate) / 100, 2);
+                // input gst
+                $shippingInputGst = ($finalShipping + $shippingMarginProfit) * $gstRate / 100;
+                $codInputGst      = ($finalCod + $codMarginProfit) * $gstRate / 100;
+                $rtoInputGst      = ($finalRto + $rtoMarginProfit) * $gstRate / 100;
+
+                // output gst
+                $shippingOutputGst = $finalShipping * ($gstRate / 100);
+                $codOutputGst      = $finalCod * ($gstRate / 100);
+                $rtoOutputGst      = $finalRto * ($gstRate / 100);
+
             } else {
                 // Sum IGST + CGST + SGST, default to 0 if null
                 $igstRate = floatval($gst_config->igst ?? 0);
                 $cgstRate = floatval($gst_config->cgst ?? 0);
                 $sgstRate = floatval($gst_config->sgst ?? 0);
 
-                $totalGstRate = $igstRate + $cgstRate + $sgstRate;
+                $gstRate = $igstRate + $cgstRate + $sgstRate;
 
-                $shippingChargeGstAmount = round(($finalShipping * $totalGstRate) / 100, 2);
-                $codChargeGstAmount      = round(($finalCod * $totalGstRate) / 100, 2);
-                $rtoChargeGstAmount      = round(($finalRto * $totalGstRate) / 100, 2);
+                // set input and output as per above
+                // input gst
+                $shippingInputGst = ($finalShipping + $shippingMarginProfit) * $gstRate / 100;
+                $codInputGst      = ($finalCod + $codMarginProfit) * $gstRate / 100;
+                $rtoInputGst      = ($finalRto + $rtoMarginProfit) * $gstRate / 100;
+                // output gst
+                $shippingOutputGst = $finalShipping * ($gstRate / 100);
+                $codOutputGst      = $finalCod * ($gstRate / 100);
+                $rtoOutputGst      = $finalRto * ($gstRate / 100);
+
             }
         } else {
-            $shippingChargeGstAmount = 0;
-            $codChargeGstAmount      = 0;
-            $rtoChargeGstAmount      = 0;
-        }
-
-        $shippingBase = $codBase = $rtoBase = 0;
-        $shippingProfit = $codProfit = $rtoProfit = 0;
-
-        $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
-        $marginTagName = $user->userDetail?->margin_tag_name;
-        $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-        if ($getMargin) {
-            $marginType = $getMargin->type; // 'percentage' or 'flat'
-            $flatAmount = (float) ($getMargin->flat_percentage ?? 0);
-
-            if ($marginType === 'percentage' && $marginPercentage > 0) {
-                $divider = 1 + ($marginPercentage / 100);
-
-                $shippingBase = round($finalShipping / $divider, 2);
-                $shippingProfit = round($finalShipping - $shippingBase, 2);
-
-                $codBase = round($finalCod / $divider, 2);
-                $codProfit = round($finalCod - $codBase, 2);
-
-                $rtoBase = round($finalRto / $divider, 2);
-                $rtoProfit = round($finalRto - $rtoBase, 2);
-            } elseif ($marginType === 'flat') {
-                $shippingBase = $finalShipping - $flatAmount;
-                $codBase = $finalCod - $flatAmount;
-                $rtoBase = $finalRto - $flatAmount;
-
-                $shippingProfit = round($flatAmount, 2);
-                $codProfit = round($flatAmount, 2);
-                $rtoProfit = round($flatAmount, 2);
-            }
-        } else {
-            // No margin and percentage calculation applied, use request values as is
-            $shippingBase = $finalShipping;
-            $codBase = $finalCod;
-            $rtoBase = $finalRto;
-
-            $shippingProfit = 0.0;
-            $codProfit = 0.0;
-            $rtoProfit = 0.0;
+            // default 18 % set if not found
+            $gstRate = 18.0;
+            // input gst
+            $shippingInputGst = ($finalShipping + $shippingMarginProfit) * $gstRate / 100;
+            $codInputGst      = ($finalCod + $codMarginProfit) * $gstRate / 100;
+            $rtoInputGst      = ($finalRto + $rtoMarginProfit) * $gstRate / 100;
+            // output gst
+            $shippingOutputGst = $finalShipping * ($gstRate / 100);
+            $codOutputGst      = $finalCod * ($gstRate / 100);
+            $rtoOutputGst      = $finalRto * ($gstRate / 100);
         }
 
         $get_pickup = PickAddress::where('id', $request->pickup_address_id)
@@ -169,7 +198,7 @@ class OrderStatusService
         if ($get_pickup) {
             $warehouseName = $get_pickup->warehouse_name;
 
-            $get_pickup_address = PickAddress::where('id', $get_pickup->id)
+            $get_pickup_address = PickAddress::where('warehouse_name', $get_pickup->warehouse_name)->where('courier_code',$request->courier_code)
                 ->first();
 
             $active_courier_partners = CourierPartner::where('is_active', 1)->where('code', !empty($get_pickup_address->courier_code) ? $get_pickup_address->courier_code : "lorrigolive")->first();
@@ -179,16 +208,24 @@ class OrderStatusService
                 'pickup_at' => now(),
                 'pickup_address_id' => $get_pickup_address->id,
                 'product_weight' => $request->product_weight,
-                'service_mode' => $request->service_mode,
-                'shipping_charge' => $shippingBase,
-                'cod_charge' => $codBase,
-                'rto_charge' => $rtoBase,
-                'shipping_charge_profit' => $shippingProfit,
-                'cod_charge_profit' => $codProfit,
-                'rto_charge_profit' => $rtoProfit,
-                'shipping_charge_gst_amount' => $shippingChargeGstAmount,
-                'cod_charge_gst_amount' => $codChargeGstAmount,
-                'rto_charge_gst_amount' => $rtoChargeGstAmount,
+                'service_mode' => $request->service_mode ?? $courier['service_mode'],
+
+                'shipping_charge' => $finalShipping,
+                'cod_charge' => $finalCod,
+                'rto_charge' => $finalRto,
+
+                'shipping_charge_profit' => $shippingMarginProfit,
+                'cod_charge_profit' => $codMarginProfit,
+                'rto_charge_profit' => $rtoMarginProfit,
+
+                'shipping_input_gst' => $shippingInputGst,
+                'cod_input_gst' => $codInputGst,
+                'rto_input_gst' => $rtoInputGst,
+
+                'shipping_output_gst' => $shippingOutputGst,
+                'cod_output_gst' => $codOutputGst,
+                'rto_output_gst' => $rtoOutputGst,
+
                 'gst_config_id' => $gst_config->id ?? null,
             ];
 
@@ -212,8 +249,8 @@ class OrderStatusService
                     "extra_Charges" => 0,
                     "total_Amount" => $customerOrder->final_amount,
                     "cod_Amount" => $customerOrder->final_amount ?? 0,
-                    // "shipment_Weight" => (float) preg_replace('/[^0-9.]/', '', $request->product_weight),
-                    "shipment_Weight" => 0.5,
+                    "shipment_Weight" => (float) preg_replace('/[^0-9.]/', '', $request->product_weight),
+                    // "shipment_Weight" => 0.5,
                     "shipment_Length" => 12,
                     "shipment_Width" => 12,
                     "shipment_Height" => 12,
@@ -338,20 +375,21 @@ class OrderStatusService
                     }
 
                     $create_shipment_payload = [
-                        "carrierId" => $request->carrier_id,
+                        "carrierId" => $courier['carrierID'],
                         "orderId" => $apiOrderId,
-                        "carrierNickName" => $request->nickName,
+                        "carrierNickName" => $courier['nickName'],
                         "charge" => $request->shipping_charge,
                         "orderType" => 0,
-                        "type" => $request->service_mode
+                        "type" => $courier['service_mode']
                     ];
                     Log::info("create shipment payload");
                     Log::info(json_encode($create_shipment_payload));
                     $createshipment = $courierService->createShipment($create_shipment_payload);
+
                     if ($createshipment['valid']  && $createshipment['order']) {
                         $updateData['tracking_number'] = $createshipment['order']['awb'];
                         $updateData['api_order_id'] = $createshipment['order']['_id']; // Main order _id
-                        $updateData['courier_service'] = $request->courier_service;
+                        $updateData['courier_service'] = @$request->courier_service;
                         $updateData['courier_partner_id'] = $active_courier_partners->id;
                         $updateData['courier_partner_code'] = $active_courier_partners->code;
 
@@ -876,5 +914,42 @@ class OrderStatusService
         ]);
 
         return [true, 'Order has been RTO By Courier Partner', 'cancel'];
+    }
+
+    public function rateCalculationOrder($request, $customerOrder, $pickup_address)
+    {
+        $data = [
+            'source_Pincode' => $pickup_address->pincode,
+            'destination_Pincode' => $request->customer_pincode,
+            'amount' => $request->product_amount,
+            'shipment_Weight' => $request->product_weight,
+            'payment_Mode' => 'cod',
+        ];
+        // Remove any keys with null values (e.g., null dimensions)
+        $data = array_filter($data, fn($value) => !is_null($value));
+
+        try {
+            $rates = \App\Services\CourierServiceManager::calculateRatesFromAllCouriers($data);
+
+            if (empty($rates)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No courier rates available.',
+                    'data' => [],
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Rate comparison successful',
+                'data' => $rates, // already formatted in the manager
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error fetching courier rates',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

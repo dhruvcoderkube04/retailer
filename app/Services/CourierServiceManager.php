@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Models\CourierPartner;
+use App\Models\GstConfiguration;
+use App\Models\MarginManagement;
 use App\Services\Courier\FShipService;
 use App\Services\Courier\LorrigoService;  //for test
 use App\Services\Courier\LorrigoServiceLive; // for live
 use App\Services\Courier\CourierInterface;
+use Illuminate\Support\Facades\Auth;
 
 class CourierServiceManager
 {
@@ -72,59 +75,43 @@ class CourierServiceManager
         return $services;
     }
 
-    // public static function calculateRatesFromAllCouriers(array $payload): array
-    // {
-    //     $partners = CourierPartner::where('is_active', true)->get();
-    //     $results = [];
-
-    //     foreach ($partners as $partner) {
-    //         $service = match ($partner->code) {
-    //             'lorrigotest'  => new LorrigoService($partner->toArray()),
-    //             'fship'        => new FShipService($partner->toArray()),
-    //             'lorrigolive'  => new LorrigoServiceLive($partner->toArray()),
-    //             default        => null,
-    //         };
-
-    //         \Log::info("Trying partner: {$partner->code}");
-
-    //         if (!$service) continue;
-
-    //         try {
-    //             $response = $service->calculateRate($payload);
-
-    //             if (!empty($response['status']) && !empty($response['rates'])) {
-    //                 foreach ($response['rates'] as $rate) {
-    //                     $results[] = [
-    //                         'courier_code'        => $partner->code,
-    //                         'courier_name'        => $partner->name,
-    //                         'zone'                => $rate['order_zone'] ?? ($rate['zone'] ?? null),
-    //                         'estimated_delivery'  => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
-    //                         'total_price'         => $rate['charge'] ?? ($rate['shipping_charge'] ?? null),
-    //                         'shipping_charge'     => $rate['charge'] ?? ($rate['shipping_charge'] ?? null),
-    //                         'cod_charge'          => $rate['cod'] ?? ($rate['cod_charge'] ?? null),
-    //                         'rto_charge'          => $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null),
-    //                         'weight'              => $payload['shipment_Weight'],
-    //                         'service_name'        => $rate['name'] ?? ($rate['courier_name'] ?? null),
-    //                         'service_mode'        => $rate['type'] ?? ($rate['service_mode'] ?? null),
-    //                     ];
-    //                 }
-    //             } else {
-    //                 \Log::warning("Empty or invalid response for: {$partner->code}", $response);
-    //             }
-
-    //         } catch (\Throwable $e) {
-    //             \Log::error("Rate fetch failed for {$partner->code}: {$e->getMessage()}");
-    //         }
-    //     }
-
-    //     // Optional: sort by cheapest rate
-    //     // usort($results, fn($a, $b) => $a['total_price'] <=> $b['total_price']);
-    //     // dd($results);
-    //     return $results;
-    // }
-
     public static function calculateRatesFromAllCouriers(array $payload): array
     {
+
+        // Margin Calculation
+        $user = Auth::user();
+        $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
+        $marginTagName = $user->userDetail?->margin_tag_name;
+
+        $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+
+        if ($getMargin) {
+            $marginType = $getMargin->type; // 'percentage' or 'flat'
+            $flatAmount = (float) ($getMargin->flat_percentage ?? 0);
+        } else {
+            $marginType = 'percentage';
+            $flatAmount = 18;
+        }
+
+        // GST Calculation
+        $gst_config = GstConfiguration::where('status', true)->first();
+        if ($gst_config) {
+            if ($gst_config->gst_mode == 'same') {
+                // Use only GST field, default to 0 if null
+                $gstRate = floatval($gst_config->gst ?? 0);
+            } else {
+                // Sum IGST + CGST + SGST, default to 0 if null
+                $igstRate = floatval($gst_config->igst ?? 0);
+                $cgstRate = floatval($gst_config->cgst ?? 0);
+                $sgstRate = floatval($gst_config->sgst ?? 0);
+
+                $gstRate = $igstRate + $cgstRate + $sgstRate;
+            }
+        } else {
+            // default 18 % set if not found
+            $gstRate = 18.0;
+        }
+
         $partners = CourierPartner::where('is_active', true)->get();
         $results = [];
 
@@ -142,40 +129,43 @@ class CourierServiceManager
 
             try {
                 $response = $service->calculateRate($payload);
+                \Log::info("Response from partner {$partner->code}: " . json_encode($response));
                 if (!empty($response['status']) && !empty($response['rates'])) {
                     foreach ($response['rates'] as $rate) {
-                        // fship come differnt rto,shipping, cod charge (shiiping + cod)
-                        // lorrigo come shipping not comming so charge - rto  charge after get shipping charge
-                        // $shippingCharge = null;
-                        // if (isset($rate['charge'], $rate['rtoCharges'])) {
-                        // } elseif (isset($rate['shipping_charge'])) {
-                        //     $shippingCharge = $rate['shipping_charge'];
-                        // }
 
                         $shippingCharge = $rate['fwCharge'] ?? ($rate['shipping_charge'] ?? null);
                         $codCharge = $rate['cod'] ?? ($rate['cod_charge'] ?? null);
                         $rtoCharge = $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null);
 
-                        // GST amounts only (18%)
-                        $gstShippingCharge = $shippingCharge ? round($shippingCharge * 0.18, 2) : null;
-                        $gstCodCharge = $codCharge ? round($codCharge * 0.18, 2) : null;
-                        $gstRtoCharge = $rtoCharge ? round($rtoCharge * 0.18, 2) : null;
+                        if ($marginType === 'percentage' && $marginPercentage > 0) {
+                            $shippingCharge = $shippingCharge +  ($shippingCharge * $marginPercentage) / 100;
+                            $codCharge = $codCharge +  ($codCharge * $marginPercentage) / 100;
+                            $rtoCharge = $rtoCharge +  ($rtoCharge * $marginPercentage) / 100;
+                        } elseif ($marginType === 'flat' && $flatAmount > 0) {
+                            $shippingCharge = $shippingCharge + $flatAmount;
+                            $codCharge = $codCharge + $flatAmount;
+                            $rtoCharge = $rtoCharge + $flatAmount;
+                        }
 
-                        $totalPrice = $shippingCharge + $codCharge;
-                        $totalPricewgst =  $totalPrice + $gstShippingCharge + $gstCodCharge;
+                        $finalShippingCharge = round($shippingCharge + ($shippingCharge * $gstRate) / 100, 2);
+                        $finalCodCharge = round($codCharge + ($codCharge * $gstRate) / 100, 2);
+                        $finalRtoCharge = round($rtoCharge + ($rtoCharge * $gstRate) / 100, 2);
+
+                        $totalPrice = $finalShippingCharge + $finalCodCharge;
+
                         $results[] = [
                             'courier_code'         => $partner->code,
                             'courier_name'         => $partner->name,
                             'zone'                 => $rate['order_zone'] ?? ($rate['zone'] ?? null),
                             'estimated_delivery'   => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
                             'total_price'          => $totalPrice,
-                            'total_price_wgst'     => $totalPricewgst,
-                            'shipping_charge'      => round($shippingCharge + $gstShippingCharge, 2),
-                            'cod_charge'           => round($codCharge + $gstCodCharge, 2),
-                            'rto_charge'           => round($rtoCharge + $gstRtoCharge, 2),
-                            'g_shipping_charge'    => $gstShippingCharge,
-                            'g_cod_charge'         => $gstCodCharge,
-                            'g_rto_charge'         => $gstRtoCharge,
+                            // 'total_price_wgst'     => $totalPricewgst,
+                            // 'shipping_charge'      => $shippingCharge,
+                            // 'cod_charge'           => $codCharge,
+                            // 'rto_charge'           => $rtoCharge,
+                            // 'g_shipping_charge'    => $gstShippingCharge,
+                            // 'g_cod_charge'         => $gstCodCharge,
+                            // 'g_rto_charge'         => $gstRtoCharge,
                             'weight'               => $payload['shipment_Weight'],
                             'service_name'         => $rate['name'] ?? ($rate['courier_name'] ?? null),
                             'service_mode'         => ($rate['type'] ?? $rate['service_mode'] ?? null)
