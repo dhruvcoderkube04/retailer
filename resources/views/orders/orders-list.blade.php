@@ -1171,10 +1171,10 @@
             lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
-            fixedHeader: {
-                header: true,
-                headerOffset: document.querySelector("#kt_app_header_wrapper")?.offsetHeight || 0
-            },
+            // fixedHeader: {
+            //     header: true,
+            //     headerOffset: document.querySelector("#kt_app_header_wrapper")?.offsetHeight || 0
+            // },
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
                 type: "POST",

@@ -148,10 +148,10 @@
             lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
-            fixedHeader: {
-                header: true,
-                headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-            },
+            // fixedHeader: {
+            //     header: true,
+            //     headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+            // },
             ajax: {
                 url: "{{ route('retailer.wholesaler.fetch-record') }}",
                 type: "POST",
