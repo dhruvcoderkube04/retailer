@@ -90,7 +90,7 @@
                             <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
-                                    href="{{ route('retailer.order.list') }}">
+                                    href="{{ route('retailer.order.list', ['type' => 'all']) }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -127,6 +127,46 @@
                             </div>
                             <!--end:Menu item-->
 
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+
+                    <!--begin:Menu item-->
+                    @php
+                        $isAccountingActive = request()->routeIs('retailer.finance-tracking.*');
+                    @endphp
+
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ $isAccountingActive ? 'show' : '' }}" title="Accounting"
+                        data-bs-toggle="tooltip" data-bs-placement="right">
+
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-chart-line fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Accounting</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->routeIs('retailer.finance-tracking.*') ? 'active' : '' }}"
+                                    href="{{ route('retailer.finance-tracking.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Finance Tracking</span>
+                                </a>
+                            </div>
+                            <!--end:Menu item-->
                         </div>
                         <!--end:Menu sub-->
                     </div>
@@ -312,7 +352,7 @@
                             <span class="menu-arrow"></span>
                         </span>
                         <!--end:Menu link-->
-                        
+
                         <!--begin:Menu sub-->
                         <div class="menu-sub menu-sub-accordion">
                             <!--begin:Menu item-->
@@ -330,7 +370,7 @@
                         <!--end:Menu sub-->
                     </div>
                     <!--end:Menu item-->
-                    
+
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->is(['shipping-page', 'direct-shipping', 'create-own-order', 'ndr', 'label-setting', 'pick-address-list', 'rto-address', 'report-page', 'shipping-charges', 'pincode-serviceable', 'track-order']) ? 'show' : '' }}"
@@ -487,6 +527,64 @@
                     </div>
                     <!--end:Menu item-->
 
+                    <!--begin:Menu item-->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is('website-content*') ? 'show' : '' }}"
+                        title="Website Content" data-bs-toggle="tooltip" data-bs-placement="right">
+
+                        <!--begin:Menu link-->
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-basket fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Website Content</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+
+                            <!--begin:Home-->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->routeIs('retailer.website-content.create') ? 'active' : '' }}"
+                                    href="{{ route('retailer.website-content.create') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Home</span>
+                                </a>
+                            </div>
+                            <!--end:Home-->
+
+                            <!--begin:About Us-->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->routeIs('retailer.website-content.aboutus.create') ? 'active' : '' }}"
+                                    href="{{ route('retailer.website-content.aboutus.create') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">About Us</span>
+                                </a>
+                            </div>
+                            <!--end:About Us-->
+
+                            <!--begin:Contact Us-->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->routeIs('retailer.website-content.contactus.create') ? 'active' : '' }}"
+                                    href="{{ route('retailer.website-content.contactus.create') }}">
+                                    <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                    <span class="menu-title">Contact Us</span>
+                                </a>
+                            </div>
+                            <!--end:Contact Us-->
+
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+
 
                     <!--begin:Menu item-->
                     <div data-kt-menu-trigger="click"
@@ -519,8 +617,8 @@
                         </div>
 
 
-                          <!--begin:Menu sub-->
-                          <div class="menu-sub menu-sub-accordion">
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
                             <!--begin:Menu item-->
                             <div class="menu-item">
                                 <!--begin:Menu link-->

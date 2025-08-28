@@ -56,7 +56,7 @@ class OtpController extends Controller
             $customer = CustomerDetails::where('phone_number', $validated['mobile'])->first();
 
             if (!$customer) {
-                return ApiResponse::error("Your number is not registered. Please sign up first.");
+                return ApiResponse::error("Your number is not registered. Please sign up first.", 404);
             }
 
             $token = $customer->createToken('customer-token')->plainTextToken;
@@ -144,7 +144,7 @@ class OtpController extends Controller
             ], 'OTP verified successfully.');
         }
 
-        return ApiResponse::error('Invalid or expired OTP. Please try again.');
+        return ApiResponse::error('Invalid or expired OTP. Please try again.', 400);
     }
 
     public function verifyOtpCheckout(Request $request)
@@ -265,6 +265,6 @@ class OtpController extends Controller
             ], 'OTP verified successfully.');
         }
 
-        return ApiResponse::error('Invalid or expired OTP. Please try again.');
+        return ApiResponse::error('Invalid or expired OTP. Please try again.', 400);
     }
 }

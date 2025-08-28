@@ -89,7 +89,7 @@ class CustomerRegisterController extends Controller
                 'password' => 'required|string|min:6',
             ]);
         } catch (ValidationException $e) {
-            return ApiResponse::error('Validation failed', $e->errors());
+            return ApiResponse::error('Validation failed', $e->errors(), 422);
         }
 
         // Step 2: Validate retailer token
@@ -98,7 +98,7 @@ class CustomerRegisterController extends Controller
             ->first();
 
         if (!$retailer) {
-            return ApiResponse::error('Invalid user token.');
+            return ApiResponse::error('Invalid user token.', 400);
         }
 
         // Step 3: Start DB transaction
@@ -124,20 +124,21 @@ class CustomerRegisterController extends Controller
 
             DB::commit();
 
-            return ApiResponse::success([], 'Customer registered. Please verify your email.');
+            return ApiResponse::success($customer, 'Customer registered. Please verify your email.');
         } catch (\Illuminate\Database\QueryException $e) {
             DB::rollBack();
 
             if ($e->getCode() === '23000') {
-                return ApiResponse::error('This email is already registered.');
+                return ApiResponse::error('This email is already registered.', 409);
             }
 
-            return ApiResponse::error('Database error.');
+            return ApiResponse::error('Database error.', 500);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return ApiResponse::error(
-                config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.'
+                config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.',
+                500
             );
         }
     }
@@ -210,7 +211,7 @@ class CustomerRegisterController extends Controller
                 'password.string' => 'Password must be a valid string.',
             ]);
         } catch (ValidationException $e) {
-            return ApiResponse::error('Validation failed', $e->errors());
+            return ApiResponse::error('Validation failed', $e->errors(), 422);
         }
 
         DB::beginTransaction();
@@ -222,7 +223,7 @@ class CustomerRegisterController extends Controller
                 ->first();
 
             if (!$retailer) {
-                return ApiResponse::error('Invalid user token.');
+                return ApiResponse::error('Invalid user token.', 400);
             }
 
             // Step 3: Check customer
@@ -231,19 +232,19 @@ class CustomerRegisterController extends Controller
                 ->first();
 
             if (!$customer) {
-                return ApiResponse::error('No account found with this email under this retailer.');
+                return ApiResponse::error('No account found with this email under this retailer.', 404);
             }
 
             if (is_null($customer->email_verified_at)) {
-                return ApiResponse::error('Please verify your email before logging in.');
+                return ApiResponse::error('Please verify your email before logging in.', 403);
             }
 
             if (!$customer->is_active) {
-                return ApiResponse::error('Your account is not active. Please contact support.');
+                return ApiResponse::error('Your account is not active. Please contact support.', 403);
             }
 
             if (!Hash::check($request->password, $customer->password)) {
-                return ApiResponse::error('Invalid credentials.');
+                return ApiResponse::error('Invalid credentials.', 401);
             }
 
             // Step 4: Get customer details
@@ -280,7 +281,7 @@ class CustomerRegisterController extends Controller
             $customerDetails = CustomerDetails::where('id', $customer->customer_id)->first();
 
             if (!$customerDetails) {
-                return ApiResponse::error('Customer details not found.');
+                return ApiResponse::error('Customer details not found.', 404);
             }
 
             $token = $customerDetails->createToken('customer-token')->plainTextToken;
@@ -300,7 +301,8 @@ class CustomerRegisterController extends Controller
             DB::rollBack();
 
             return ApiResponse::error(
-                config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.'
+                config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.',
+                500
             );
         }
     }
@@ -316,7 +318,7 @@ class CustomerRegisterController extends Controller
             return ApiResponse::success([], 'Logout successful');
         }
 
-        return ApiResponse::error('User not authenticated');
+        return ApiResponse::error('User not authenticated', 401);
     }
 
     //forgot password API via Email
@@ -327,13 +329,13 @@ class CustomerRegisterController extends Controller
                 'email' => 'required|email',
             ]);
         } catch (ValidationException $e) {
-            return ApiResponse::error('Validation failed', $e->errors());
+            return ApiResponse::error('Validation failed', $e->errors(), 422);
         }
 
         $customer = StoreCustomersDetails::where('email', $request->email)->first();
 
         if (!$customer) {
-            return ApiResponse::error('No account found with this email.');
+            return ApiResponse::error('No account found with this email.', 404);
         }
 
         $payload = [
@@ -362,27 +364,27 @@ class CustomerRegisterController extends Controller
                 'password' => 'required|string|min:6|confirmed',
             ]);
         } catch (ValidationException $e) {
-            return ApiResponse::error('Validation failed', $e->errors());
+            return ApiResponse::error('Validation failed', $e->errors(), 422);
         }
 
         try {
             $payload = Crypt::decrypt($request->token);
         } catch (\Exception $e) {
-            return ApiResponse::error('Invalid or tampered token.');
+            return ApiResponse::error('Invalid or tampered token.', 400);
         }
 
         if (Carbon::now()->timestamp > $payload['expires_at']) {
-            return ApiResponse::error('Token has expired.');
+            return ApiResponse::error('Token has expired.', 400);
         }
 
         $customer = StoreCustomersDetails::where('email', $payload['email'])->first();
 
         if (!$customer) {
-            return ApiResponse::error('Customer not found.');
+            return ApiResponse::error('Customer not found.', 404);
         }
 
         if ($customer->updated_at->timestamp != $payload['password_updated_at']) {
-            return ApiResponse::error('This reset link is no longer valid. Please request a new one.');
+            return ApiResponse::error('This reset link is no longer valid. Please request a new one.', 400);
         }
 
         $customer->update([
