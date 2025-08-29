@@ -208,7 +208,12 @@ class TicketController extends Controller
             $ticket->ref_image = implode(',', $filenames);
             $ticket->save();
 
-            return $this->handleSuccess($request, 'Ticket created successfully.');
+            // return $this->handleSuccess($request, 'Ticket created successfully.');
+            if ($request->ajax()) {
+                return $this->handleSuccess($request, 'Ticket created successfully.');
+            }
+
+            return redirect()->route('retailer.ticket.list')->with('success', 'Ticket created successfully.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->handleError($request, $e->errors(), 422);

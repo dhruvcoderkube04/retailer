@@ -306,40 +306,40 @@ class FShipService implements CourierInterface
 
         $data = $response->json();
 
-        if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
+        // if (isset($data['shipment_rates']) && is_array($data['shipment_rates'])) {
 
-            $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name :null;
-            if(!empty($marginTagName)){
-                $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-            }else{
-                $getMargin = MarginManagement::where('default', 1)->first();
-            }
+        //     $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name :null;
+        //     if(!empty($marginTagName)){
+        //         $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+        //     }else{
+        //         $getMargin = MarginManagement::where('default', 1)->first();
+        //     }
 
-            if ($getMargin) {
-                $marginType = $getMargin->type; // either 'percentage' or 'flat'
-                $flatAmount = (float)($getMargin->flat_percentage ?? 0);
+        //     if ($getMargin) {
+        //         $marginType = $getMargin->type; // either 'percentage' or 'flat'
+        //         $flatAmount = (float)($getMargin->flat_percentage ?? 0);
 
-                foreach ($data['shipment_rates'] as &$rate) {
-                    foreach ($rate as $key => $value) {
-                        if ($key !== 'courier_name' && is_numeric($value)) {
-                            if ($marginType === 'percentage') {
-                                $rate[$key] = round($value + ($value * $flatAmount / 100), 2);
-                            } elseif ($marginType === 'flat') {
-                                $rate[$key] = round($value + $flatAmount, 2);
-                            }
-                        }
-                    }
-                }
-                unset($rate); // break reference
-            }
-        }
+        //         foreach ($data['shipment_rates'] as &$rate) {
+        //             foreach ($rate as $key => $value) {
+        //                 if ($key !== 'courier_name' && is_numeric($value)) {
+        //                     if ($marginType === 'percentage') {
+        //                         $rate[$key] = round($value + ($value * $flatAmount / 100), 2);
+        //                     } elseif ($marginType === 'flat') {
+        //                         $rate[$key] = round($value + $flatAmount, 2);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //         unset($rate); // break reference
+        //     }
+        // }
 
-        // Log properly using decoded response
-        Log::info('calculateRate In Fship (Retailer side)', [
-            'status' => $response->status(),
-            'body' => $response->body(),
-            'modified_rates' => $data['shipment_rates'] ?? [],
-        ]);
+        // // Log properly using decoded response
+        // Log::info('calculateRate In Fship (Retailer side)', [
+        //     'status' => $response->status(),
+        //     'body' => $response->body(),
+        //     'modified_rates' => $data['shipment_rates'] ?? [],
+        // ]);
 
         //  Return modified data array
         return [

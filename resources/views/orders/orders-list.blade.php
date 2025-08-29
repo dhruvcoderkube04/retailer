@@ -108,7 +108,7 @@
                                 <ul
                                     class="nav nav-tabs nav-line-tabs nav-stretch fs-5 justify-content-start flex-wrap w-100 gap-3 border-bottom pb-3">
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == 'new') ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             <i class="fas fa-sync-alt pe-2 text-primary"></i> New
                                         </a>
@@ -187,7 +187,7 @@
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === null) ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === 'all') ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'all']) }}">
                                             <i class="fas fa-clipboard-list pe-2 text-primary"></i> All
                                         </a>
@@ -1598,29 +1598,31 @@
                                 ${courier.service_name}
                             </td>
 
-                            <td>₹${(courier.total_price_wgst || 0).toFixed(2)}</td>
+                            <td>₹${(courier.total_price ?? 0).toFixed(2)}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.service_name}"
-                                        data-courier-id="${matchingCourier.courierId || ''}"
-                                        data-carrier-id="${courier.carrierID || ''}"
-                                        data-courier-logo="${matchingCourier.logoUrl || null}"
-                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-                                        data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-                                        data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-                                        data-total-charge="${(courier.total_price_wgst || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || 'N/A'}"
-                                        data-cpartner="${courier.service_mode}"
-                                        data-nickname="${courier.nickName}"
-                                        data-courier_code="${courier.courier_code}">
-                                    Select
-                                </button>
+                                        data-courier_code="${courier.courier_code}"
+                                        data-total-charge="${(courier.total_price ?? 0).toFixed(2)}"
+                                        data-shipping-charge="${(courier.shipping_charge ?? 0).toFixed(2)}"
+                                        data-service-mode="${courier.service_mode ?? '-'}"
+                                        data-courierid="${courier.carrierID ?? '-'}">
+                                        Select
+                                 </button>
                             </td>
                         </tr>`;
-                });
+                    });
 
-                $('#courierDetailsBody').html(tableBody);
-            }
+                    $('#courierDetailsBody').html(tableBody);
+                }
+
+                // data-courier-id="${matchingCourier.courierId || ''}"
+                // data-carrier-id="${courier.carrierID || ''}"
+                // data-courier-logo="${matchingCourier.logoUrl || null}"
+                // data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+                // data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                // data-cpartner="${courier.service_mode}"
+                // data-nickname="${courier.nickName}"
 
             // Function to toggle Select Courier button visibility
             function toggleSelectCourierButton() {
@@ -1686,19 +1688,19 @@
 
             // Handle courier selection from modal
             $(document).on('click', '.select-courier', function() {
-                const courierName = $(this).data('courier') || 'Unknown';
-                const courierId = $(this).data('courier-id') || '';
-                const carrierId = $(this).data('carrier-id') || '';
-                const courierLogo = $(this).data('courier-logo') || null;
-                const shippingCharge = $(this).data('shipping-charge') || '0.00';
-                const codCharge = $(this).data('cod-charge') || '0.00';
-                const rtoCharge = $(this).data('rto-charge') || '0.00';
-                const serviceMode = $(this).data('service-mode') || 'N/A';
-                const totalCharge = $(this).data('total-charge') || '0.00';
+                const courierName = $(this).data('courier') ?? 'Unknown';
+                const courierid = $(this).data('courier-id') ?? '';
+                const carrierId = $(this).data('courierid') ?? '';
+                const courierLogo = $(this).data('courier-logo') ?? null;
+                const shippingCharge = $(this).data('shipping-charge') ?? '0.00';
+                const codCharge = $(this).data('cod-charge') ?? '0.00';
+                const rtoCharge = $(this).data('rto-charge') ?? '0.00';
+                const serviceMode = $(this).data('service-mode') ?? 'N/A';
+                const totalCharge = $(this).data('total-charge') ?? '0.00';
                 const cpartner = $(this).data('cpartner');
                 const nickName = $(this).data('nickname');
                 const courier_code = $(this).data('courier_code');
-                console.log(courierId, courierName, "courier Info");
+                console.log(courierid, courierName, "courier Info");
 
                 // Store selected courier in hidden inputs
                 $('#rto_charge').val(rtoCharge);
@@ -1707,7 +1709,7 @@
                 $('#service_mode').val(serviceMode);
 
                 $('#courier_service').val(courierName);
-                $('#courier_service_id').val(courierId);
+                $('#courier_service_id').val(courierid);
                 $('#carrier_id').val(carrierId);
                 $('#nickName').val(nickName);
 

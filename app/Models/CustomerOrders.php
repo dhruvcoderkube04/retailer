@@ -65,9 +65,12 @@ class CustomerOrders extends Model
         'coupon_applied_id',
         'ndr_at',
         'shipment_activity',
-        'shipping_charge_gst_amount',
-        'cod_charge_gst_amount',
-        'rto_charge_gst_amount',
+        'shipping_input_gst',
+        'cod_input_gst',
+        'rto_input_gst',
+        'shipping_output_gst',
+        'cod_output_gst',
+        'rto_output_gst',
     ];
 
     protected $casts = [

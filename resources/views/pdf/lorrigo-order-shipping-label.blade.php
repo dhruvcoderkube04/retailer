@@ -103,7 +103,7 @@
                 <!-- Buyer -->
                 <td style="width:70%; vertical-align:top; padding:15px 20px;">
                     <b>Buyer Details:</b><br>
-                    {{ @$customerOrder->firstname }} <br>
+                    {{ @$customerOrder->customer->firstname }} {{ @$customerOrder->customer->lastname }} <br>
                     {{ @$customerOrder->customer->address }},
                     {{ @$customerOrder->customer->state }},
                     {{ @$customerOrder->customer->city }} <br>
