@@ -2,48 +2,49 @@
 
 namespace App\Http\Controllers\API\Retailer;
 
-use App\Http\Controllers\Controller;
-use App\Mail\RetailerOrderMail;
-use App\Mail\WelcomeCustomerMail;
-use App\Models\Category;
+use Auth;
+use Exception;
+use Carbon\Carbon;
+use App\Models\Otp;
+use App\Models\User;
 use App\Models\Coupon;
+use Dotenv\Util\Regex;
+use App\Models\Product;
+use App\Models\Category;
 use App\Models\Customer;
+use App\Models\UserDetail;
+use App\Models\SubCategory;
+use Illuminate\Support\Str;
+use App\Helpers\ApiResponse;
 use App\Models\CustomerCart;
-use App\Models\CustomerDetails;
+use App\Services\OtpService;
+use Illuminate\Http\Request;
 use App\Models\CustomerOrders;
-use App\Models\OrderProductDetails;
+use App\Mail\RetailerOrderMail;
+use App\Models\CustomerDetails;
+use App\Models\ProductVariation;
+use App\Models\RetailerCategory;
 use App\Models\RetailerProducts;
+use App\Mail\WelcomeCustomerMail;
+use App\Models\OrderNotification;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use App\Models\OrderProductDetails;
+use function Laravel\Prompts\error;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use App\Models\RetailerCloneProduct;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use App\Models\RetailerWebManagement;
 use App\Models\StoreCustomersDetails;
-use App\Models\UserDetail;
-use App\Models\Otp;
-use App\Models\Product;
-use App\Models\ProductVariation;
-use App\Models\User;
-use App\Models\RetailerCategory;
-use App\Models\SubCategory;
-use App\Models\OrderNotification;
-use Auth;
-use Dotenv\Util\Regex;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use App\Models\RetailerWebsiteEnquiry;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
-use App\Services\OtpService;
-use Illuminate\Support\Facades\Cache;
-use App\Helpers\ApiResponse;
-use App\Models\RetailerWebsiteEnquiry;
-
-use function Laravel\Prompts\error;
 
 class RetailerProductController extends Controller
 {
@@ -1380,7 +1381,6 @@ class RetailerProductController extends Controller
 
                 // Get all cart/wishlist entries
                 $customerCartItems = CustomerCart::where('customer_id', $customerDetails->id)->get();
-
                 $wishlistItems = [];
                 $cartItems = [];
 
@@ -2067,20 +2067,20 @@ class RetailerProductController extends Controller
                     continue;
                 }
 
-                $productUrl = url('/api/singal-product-details/' . $product_link->slug);
+                $productUrl = url('/api/singal-product-details/' . $product->slug);
 
                 $imageString = $product->images ?? '';
                 $imageArray = explode(',', $imageString);
-
 
 
                 $orderList[] = [
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'product_variation' => $product->product_variation,
-                    'product_name' => $product_link->name ?? null,
+                    'product_name' => $product->name ?? null,
                     'image' => $imageArray,
-                    'price' => $product_link->new_price ?? null,
+                    'quantity' => $order->quantity,
+                    'price' => ($order->final_amount) ? $order->final_amount : null,
                     'order_date' => $order->created_at->format('d F Y'),
                     'product_link' => $productUrl,
                     'checkout_type' => $order->checkout_type,
@@ -2119,10 +2119,13 @@ class RetailerProductController extends Controller
                 'pincode' => 'required|digits_between:4,10',
             ]);
 
+            if (!isValidPincode($request->pincode)) {
+                return ApiResponse::error('Invalid or unreachable pincode.', 422);
+            }
+
             $customerDetails = CustomerDetails::find($customer->id);
 
             if (!$customerDetails) {
-
                 return ApiResponse::error('Customer record not found.', 404);
             }
 
