@@ -51169,9 +51169,11 @@ table thead th {
 .form-select.form-select-solid + label{
     display: none;
 }
+
 tbody.text-gray-600,
-tbody{
-  color: var(--bs-text-gray-700) !important;
+tbody,
+tbody.text-gray-700{
+  color: var(--bs-text-gray-800) !important;
   font-size: 1.075rem !important;
 }
 
