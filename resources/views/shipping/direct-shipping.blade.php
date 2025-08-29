@@ -35,7 +35,7 @@ Direct Shipping | TechtrendMart
                                 <div class="col-md-6">
                                     <label class="form-label d-flex justify-content-between align-items-center fs-6">
                                         Price (₹)
-                                        <span class="fw-bold text-primary">Price per piece</span>
+                                        <span class="fw-bold text-primary">Price per quantity</span>
                                     </label>
                                     <input type="number" class="form-control" name="price" id="price"
                                         required pattern="^[1-9][0-9]*$" max="10000" min="1"
@@ -218,6 +218,12 @@ Direct Shipping | TechtrendMart
                 console.error("Search error:", err);
                 document.getElementById('customerList').innerHTML = `<p class="text-danger">Search failed.</p>`;
             });
+    });
+
+    document.getElementById('customerSearch').addEventListener('input', function () {
+        if (this.value.trim() === '') {
+            document.getElementById('customerList').innerHTML = '';
+        }
     });
 
     function renderCustomerList(customers) {
