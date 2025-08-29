@@ -2,48 +2,51 @@
 
 namespace App\Http\Controllers\API\Retailer;
 
-use App\Http\Controllers\Controller;
-use App\Mail\RetailerOrderMail;
-use App\Mail\WelcomeCustomerMail;
-use App\Models\Category;
+use Auth;
+use Exception;
+use Carbon\Carbon;
+use App\Models\Otp;
+use App\Models\User;
 use App\Models\Coupon;
+use Dotenv\Util\Regex;
+use App\Models\Product;
+use App\Models\Category;
 use App\Models\Customer;
+use App\Models\UserDetail;
+use App\Models\SubCategory;
+use Illuminate\Support\Str;
+use App\Helpers\ApiResponse;
 use App\Models\CustomerCart;
-use App\Models\CustomerDetails;
+use App\Services\OtpService;
+use Illuminate\Http\Request;
 use App\Models\CustomerOrders;
-use App\Models\OrderProductDetails;
+use App\Mail\RetailerOrderMail;
+use App\Models\CustomerDetails;
+use App\Models\ProductVariation;
+use App\Models\RetailerCategory;
 use App\Models\RetailerProducts;
+use App\Mail\RetailerEnquiryMail;
+use App\Mail\WelcomeCustomerMail;
+use App\Models\OrderNotification;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use App\Models\OrderProductDetails;
+use function Laravel\Prompts\error;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use App\Models\RetailerCloneProduct;
+use App\Services\OrderStatusService;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use App\Models\RetailerWebManagement;
 use App\Models\StoreCustomersDetails;
-use App\Models\UserDetail;
-use App\Models\Otp;
-use App\Models\Product;
-use App\Models\ProductVariation;
-use App\Models\User;
-use App\Models\RetailerCategory;
-use App\Models\SubCategory;
-use App\Models\OrderNotification;
-use Auth;
-use Dotenv\Util\Regex;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use App\Models\RetailerWebsiteEnquiry;
+use App\Mail\CancelOrderMailToCustomer;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
-use App\Services\OtpService;
-use Illuminate\Support\Facades\Cache;
-use App\Helpers\ApiResponse;
-use App\Models\RetailerWebsiteEnquiry;
-
-use function Laravel\Prompts\error;
 
 class RetailerProductController extends Controller
 {
@@ -1380,7 +1383,6 @@ class RetailerProductController extends Controller
 
                 // Get all cart/wishlist entries
                 $customerCartItems = CustomerCart::where('customer_id', $customerDetails->id)->get();
-
                 $wishlistItems = [];
                 $cartItems = [];
 
@@ -2067,20 +2069,20 @@ class RetailerProductController extends Controller
                     continue;
                 }
 
-                $productUrl = url('/api/singal-product-details/' . $product_link->slug);
+                $productUrl = url('/api/singal-product-details/' . $product->slug);
 
                 $imageString = $product->images ?? '';
                 $imageArray = explode(',', $imageString);
-
 
 
                 $orderList[] = [
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'product_variation' => $product->product_variation,
-                    'product_name' => $product_link->name ?? null,
+                    'product_name' => $product->name ?? null,
                     'image' => $imageArray,
-                    'price' => $product_link->new_price ?? null,
+                    'quantity' => $order->quantity,
+                    'price' => ($order->final_amount) ? $order->final_amount : null,
                     'order_date' => $order->created_at->format('d F Y'),
                     'product_link' => $productUrl,
                     'checkout_type' => $order->checkout_type,
@@ -2119,10 +2121,13 @@ class RetailerProductController extends Controller
                 'pincode' => 'required|digits_between:4,10',
             ]);
 
+            if (!isValidPincode($request->pincode)) {
+                return ApiResponse::error('Invalid or unreachable pincode.', 422);
+            }
+
             $customerDetails = CustomerDetails::find($customer->id);
 
             if (!$customerDetails) {
-
                 return ApiResponse::error('Customer record not found.', 404);
             }
 
@@ -2552,6 +2557,7 @@ class RetailerProductController extends Controller
                     'retailer_product_id' => $productType === 'retailer' ? $product->id : null,
                     'product_name' => $product->name ?? null,
                     'quantity' => $item->quantity,
+                    'product_stock' => $product->quantity,
                     'final_price' => $finalPrice,
                     'retailer_id' => $product->retailer_id ?? null,
                     'product_link' => url('/api/singal-product-details/' . $product->slug),
@@ -2664,7 +2670,7 @@ class RetailerProductController extends Controller
                     'cart_items.*.id' => 'nullable|integer',
                     'cart_items.*.wholesaler_id' => 'nullable|integer',
                     'cart_items.*.retailer_id' => 'nullable|integer',
-                    'cart_items.*.quantity' => 'nullable|integer|min:1',
+                    'cart_items.*.quantity' => 'nullable|integer',
                 ]);
                 $rawItems = $request->cart_items;
             } else {
@@ -2674,7 +2680,7 @@ class RetailerProductController extends Controller
                     'wholesaler_id' => 'nullable|integer',
                     'id' => 'nullable|integer',
                     'retailer_id' => 'nullable|integer',
-                    'quantity' => 'nullable|integer|min:1',
+                    'quantity' => 'nullable|integer',
                 ]);
                 $rawItems[] = [
                     'product_id' => $request->product_id,
@@ -2757,6 +2763,10 @@ class RetailerProductController extends Controller
             ];
         }
 
+        $productData = Product::where('id', $productId)->where('wholesaler_id', $wholesalerId)->first();
+        if (!$productData) {
+            $productData = RetailerCloneProduct::where('id', $productId)->where('retailer_id', $retailerId)->first();
+        }
 
         // 🔁 Check if already in cart
         $existingCart = CustomerCart::where('customer_id', $customerDetails->id)
@@ -2778,9 +2788,11 @@ class RetailerProductController extends Controller
             $existingCart->save();
 
             return [
+                'cart_id' => $existingCart->id,
                 'product_id' => $productId,
                 'product_variations_id' => $variantId,
                 'quantity' => $existingCart->quantity,
+                'product_stock' => $productData->quantity,
                 'status' => 'updated',
                 'message' => 'Cart quantity updated.',
                 'wishlist_id' => $existingCart->id,
@@ -2802,8 +2814,10 @@ class RetailerProductController extends Controller
             $inactiveCart->save();
 
             return [
+                'cart_id' => $inactiveCart->id,
                 'product_id' => $productId,
                 'quantity' => $inactiveCart->quantity,
+                'product_stock' => $productData->quantity,
                 'status' => 'reactivated',
                 'message' => 'Add To Cart Successfully.',
                 'wishlist_id' => $inactiveCart->id,
@@ -2828,8 +2842,10 @@ class RetailerProductController extends Controller
         $cart = CustomerCart::create($cartData);
 
         return [
+            'cart_id' => $cart->id,
             'product_id' => $productId,
             'quantity' => $cart->quantity,
+            'product_stock' => $productData->quantity,
             'product_variations_id' => $variantId,
             'status' => 'success',
             'message' => 'Product added to cart.',
@@ -2922,6 +2938,10 @@ class RetailerProductController extends Controller
                 'subscribe'     => $request->has('subscribe') ? true : false,
             ]);
 
+            if ($retailer->email) {
+                Mail::to('akashpatel.coderkube@gmail.com')->send(new RetailerEnquiryMail($enquiry));
+            }
+
             // Step 4: Return success response
             return ApiResponse::success(
                 ['data' => $enquiry],
@@ -2935,6 +2955,98 @@ class RetailerProductController extends Controller
             ]);
 
             return ApiResponse::error('Something went wrong. Please try again later.', 500);
+        }
+    }
+
+    public function cancelOrder(Request $request)
+    {
+        $validator = validator($request->all(), [
+            'order_id' => 'required|integer|exists:customer_orders,id',
+            'reject_reason_select' => 'required|string',
+            'reject_reason_input' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $retailer = Auth::user();
+
+            $customerOrder = CustomerOrders::with(['order_product_detail', 'customer'])
+                ->find($request->order_id);
+
+            if (!$customerOrder) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Invalid Order ID'
+                ], 404);
+            }
+
+            $allowedStatuses = [
+                'pending',
+                'approved_by_retailer',
+                'transfered_retailer_to_wholesaler',
+                'approved_by_wholesaler',
+                'pickup'
+            ];
+
+            if (!in_array($customerOrder->status, $allowedStatuses)) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Order cannot be cancelled at this stage.'
+                ], 400);
+            }
+            $statusService = new OrderStatusService();
+            $reject_reason_select = $request->reject_reason_select;
+            $reject_reason_input = $request->reject_reason_input;
+
+            [$success, $message, $type] = $statusService->handleCancelledOrder(
+                $retailer,
+                $customerOrder,
+                $reject_reason_select,
+                $reject_reason_input
+            );
+
+            if ($success) {
+                DB::commit();
+
+                $cancelled_reason = ($reject_reason_select === 'Other')
+                    ? $reject_reason_input
+                    : $reject_reason_select;
+
+                $customer = [
+                    'name' => $customerOrder->customer->firstname,
+                    'email' => $customerOrder->customer->email,
+                ];
+
+                Mail::to($customer['email'])->send(
+                    new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason)
+                );
+
+                return response()->json([
+                    'status' => true,
+                    'msg' => $message,
+                    'type' => $type
+                ], 200);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'msg' => $message ?? 'Invalid Order Status'
+                ], 400);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'msg' => 'Something went wrong, please try later!',
+                'error' => $e->getMessage() // uncomment for debugging
+            ], 500);
         }
     }
 }

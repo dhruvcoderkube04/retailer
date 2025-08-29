@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ShippingController extends Controller
 {
@@ -55,6 +56,9 @@ class ShippingController extends Controller
         $userId = Auth::id();
         $search = cleanInput($request->input('query'));
 
+        // dd($userId);
+
+
         $customerRecords = CustomerDetails::where('user_id', $userId)
             ->when($search, function ($queryBuilder, $search) {
                 $queryBuilder->where(function ($q) use ($search) {
@@ -65,6 +69,8 @@ class ShippingController extends Controller
                 });
             })
             ->get();
+
+        //  dd( $customerRecords);   
 
         return response()->json($customerRecords);
     }
@@ -93,17 +99,28 @@ class ShippingController extends Controller
             ], 422);
         }
 
-        // Step 3: Validate the cleaned input
+        $userId = auth()->id(); 
+
         $validator = Validator::make($cleanedData, [
             'firstname'     => 'required|string|max:100',
             'lastname'      => 'required|string|max:100',
-            'email'         => 'required|email:rfc,dns|unique:customer_details,email',
-            'phone_number'  => 'required|string|max:10|unique:customer_details,phone_number',
+            'email'         => [
+                'required',
+                'email:rfc,dns',
+                Rule::unique('customer_details')->where(fn($query) => $query->where('user_id', $userId)),
+            ],
+            'phone_number'  => [
+                'required',
+                'string',
+                'max:10',
+                Rule::unique('customer_details')->where(fn($query) => $query->where('user_id', $userId)),
+            ],
             'pincode'       => 'required|string|max:6',
             'address'       => 'required|string|max:255',
             'city'          => 'required|string|max:100',
             'state'         => 'required|string|max:100',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([

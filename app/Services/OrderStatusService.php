@@ -676,11 +676,11 @@ class OrderStatusService
         $customerOrder->update([
             'status' => 'cancel',
             'cancel_at' => Carbon::now(),
-            'cancelled_by' => $retailer->id,
+            'cancelled_by' => $customerOrder->customer_id,
             'cancelled_reason' => $cancelled_reason
         ]);
 
-        return [true, 'Order has been cancelled by retailer', 'cancel'];
+        return [true, 'Order has been cancelled by customer', 'cancel'];
     }
 
     // Rto
