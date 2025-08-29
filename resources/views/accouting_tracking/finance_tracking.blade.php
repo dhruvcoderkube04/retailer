@@ -185,7 +185,7 @@
                     { data: 'no', className: 'text-center' },
                     { data: 'date', className: 'text-center' },
                     { data: 'tracking_id', className: 'text-center' },
-                    { data: 'remark', className: 'text-start' },
+                    { data: 'remark', className: 'text-center' },
                     { data: 'weight', className: 'text-center' },
                     { data: 'order_amount', className: 'text-center' },
                     { data: 'courier', className: 'text-center' },
