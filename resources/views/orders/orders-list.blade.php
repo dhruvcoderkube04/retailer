@@ -1603,9 +1603,10 @@
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.service_name}"
                                         data-courier_code="${courier.courier_code}"
-                                        data-total-charge="${(courier.total_price_wgst || 0).toFixed(2)}"
-                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || '-'}">
+                                        data-total-charge="${(courier.total_price ?? 0).toFixed(2)}"
+                                        data-shipping-charge="${(courier.shipping_charge ?? 0).toFixed(2)}"
+                                        data-service-mode="${courier.service_mode ?? '-'}"
+                                        data-courierid="${courier.carrierID ?? '-'}">
                                         Select
                                  </button>
                             </td>
@@ -1687,19 +1688,19 @@
 
             // Handle courier selection from modal
             $(document).on('click', '.select-courier', function() {
-                const courierName = $(this).data('courier') || 'Unknown';
-                const courierId = $(this).data('courier-id') || '';
-                const carrierId = $(this).data('carrier-id') || '';
-                const courierLogo = $(this).data('courier-logo') || null;
-                const shippingCharge = $(this).data('shipping-charge') || '0.00';
-                const codCharge = $(this).data('cod-charge') || '0.00';
-                const rtoCharge = $(this).data('rto-charge') || '0.00';
-                const serviceMode = $(this).data('service-mode') || 'N/A';
-                const totalCharge = $(this).data('total-charge') || '0.00';
+                const courierName = $(this).data('courier') ?? 'Unknown';
+                const courierid = $(this).data('courier-id') ?? '';
+                const carrierId = $(this).data('courierid') ?? '';
+                const courierLogo = $(this).data('courier-logo') ?? null;
+                const shippingCharge = $(this).data('shipping-charge') ?? '0.00';
+                const codCharge = $(this).data('cod-charge') ?? '0.00';
+                const rtoCharge = $(this).data('rto-charge') ?? '0.00';
+                const serviceMode = $(this).data('service-mode') ?? 'N/A';
+                const totalCharge = $(this).data('total-charge') ?? '0.00';
                 const cpartner = $(this).data('cpartner');
                 const nickName = $(this).data('nickname');
                 const courier_code = $(this).data('courier_code');
-                console.log(courierId, courierName, "courier Info");
+                console.log(courierid, courierName, "courier Info");
 
                 // Store selected courier in hidden inputs
                 $('#rto_charge').val(rtoCharge);
@@ -1708,7 +1709,7 @@
                 $('#service_mode').val(serviceMode);
 
                 $('#courier_service').val(courierName);
-                $('#courier_service_id').val(courierId);
+                $('#courier_service_id').val(courierid);
                 $('#carrier_id').val(carrierId);
                 $('#nickName').val(nickName);
 
