@@ -3098,42 +3098,6 @@ class RetilerController extends Controller
         return view('rateccalculation');
     }
 
-    // use couire service manager
-    // public function ratecCalculationPost(Request $request)
-    // {
-    //     $data = $request->validate([
-    //         'source_Pincode' => 'required|digits:6',
-    //         'destination_Pincode' => 'required|digits:6',
-    //         'payment_Mode' => 'required|string',
-    //         'amount' => 'required|numeric',
-    //         'shipment_Weight' => 'required|numeric',
-    //         'shipment_Length' => 'nullable|numeric',
-    //         'shipment_Width' => 'nullable|numeric',
-    //         'shipment_Height' => 'nullable|numeric',
-    //         'volumetric_Weight' => 'nullable|numeric',
-    //     ]);
-
-    //     try {
-    //         $courierService = \App\Services\CourierServiceManager::getService();
-    //         $response = $courierService->calculateRate($data);
-
-    //         if (!empty($response['status']) && $response['status'] === true) {
-    //             return response()->json($response);
-    //         }
-
-    //         if (!empty($response['valid']) && $response['valid'] === true) {
-    //             return response()->json($response);
-    //         }
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'Error communicating with courier service.',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-
     public function ratecCalculationPost(Request $request)
     {
         $data = $request->validate([
@@ -3153,6 +3117,7 @@ class RetilerController extends Controller
 
         try {
             $rates = \App\Services\CourierServiceManager::calculateRatesFromAllCouriers($data);
+
             if (empty($rates)) {
                 return response()->json([
                     'status' => false,

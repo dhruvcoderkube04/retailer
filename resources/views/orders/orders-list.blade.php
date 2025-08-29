@@ -1598,29 +1598,30 @@
                                 ${courier.service_name}
                             </td>
 
-                            <td>₹${(courier.total_price_wgst || 0).toFixed(2)}</td>
+                            <td>₹${(courier.total_price || 0).toFixed(2)}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.service_name}"
-                                        data-courier-id="${matchingCourier.courierId || ''}"
-                                        data-carrier-id="${courier.carrierID || ''}"
-                                        data-courier-logo="${matchingCourier.logoUrl || null}"
-                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-                                        data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-                                        data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                                        data-courier_code="${courier.courier_code}"
                                         data-total-charge="${(courier.total_price_wgst || 0).toFixed(2)}"
-                                        data-service-mode="${courier.service_mode || 'N/A'}"
-                                        data-cpartner="${courier.service_mode}"
-                                        data-nickname="${courier.nickName}"
-                                        data-courier_code="${courier.courier_code}">
-                                    Select
-                                </button>
+                                        data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+                                        data-service-mode="${courier.service_mode || '-'}">
+                                        Select
+                                 </button>
                             </td>
                         </tr>`;
-                });
+                    });
 
-                $('#courierDetailsBody').html(tableBody);
-            }
+                    $('#courierDetailsBody').html(tableBody);
+                }
+
+                // data-courier-id="${matchingCourier.courierId || ''}"
+                // data-carrier-id="${courier.carrierID || ''}"
+                // data-courier-logo="${matchingCourier.logoUrl || null}"
+                // data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+                // data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+                // data-cpartner="${courier.service_mode}"
+                // data-nickname="${courier.nickName}"
 
             // Function to toggle Select Courier button visibility
             function toggleSelectCourierButton() {

@@ -326,7 +326,7 @@ class LorrigoService implements CourierInterface
             'weight' => (string) $data['shipment_Weight'],
             'weightUnit' => 'kg',
         ];
-        // dd( $payload);
+
         // Step 3: Call Lorrigo API
         try {
             // dd($payload);
@@ -345,33 +345,33 @@ class LorrigoService implements CourierInterface
 
                 $responseData = $response->json();
                 $rates = collect($responseData['rates'])->where('nickName', 'BDS')->where('minWeight', (float) $data['shipment_Weight']);
-                // dd($rates,(float) $data['shipment_Weight']);
-                // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
-                $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name : null;
-                if (!empty($marginTagName)) {
-                    $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
-                } else {
-                    $getMargin = MarginManagement::where('default', 1)->first();
-                }
-                // dd($getMargin,Auth::user()->userDetail->margin_tag_name,$rates);
-                if (!empty($rates) && $getMargin) {
-                    $marginType = $getMargin->type; // 'percentage' or 'flat'
-                    $flatAmount = (float)($getMargin->flat_percentage ?? 0);
+                // // dd($rates,(float) $data['shipment_Weight']);
+                // // $marginPercentage = (float)(Auth::user()->userDetail->margin_percentage_tag ?? 0);
+                // $marginTagName = Auth::check() ? Auth::user()->userDetail->margin_tag_name : null;
+                // if (!empty($marginTagName)) {
+                //     $getMargin = MarginManagement::where('margin_name', $marginTagName)->first();
+                // } else {
+                //     $getMargin = MarginManagement::where('default', 1)->first();
+                // }
+                // // dd($getMargin,Auth::user()->userDetail->margin_tag_name,$rates);
+                // if (!empty($rates) && $getMargin) {
+                //     $marginType = $getMargin->type; // 'percentage' or 'flat'
+                //     $flatAmount = (float)($getMargin->flat_percentage ?? 0);
 
-                    foreach ($rates as $index => $rate) {
-                        foreach ($rate as $key => $value) {
-                            if ($key !== 'name' && is_numeric($value)) {
-                                if ($marginType === 'percentage') {
-                                    $rate[$key] = round($value + ($value *  $flatAmount / 100), 2);
-                                } elseif ($marginType === 'flat') {
-                                    $rate[$key] = round($value + $flatAmount, 2);
-                                }
-                            }
-                        }
-                        $rates[$index] = $rate;
-                    }
-                    // unset($rate); // good practice
-                }
+                //     foreach ($rates as $index => $rate) {
+                //         foreach ($rate as $key => $value) {
+                //             if ($key !== 'name' && is_numeric($value)) {
+                //                 if ($marginType === 'percentage') {
+                //                     $rate[$key] = round($value + ($value *  $flatAmount / 100), 2);
+                //                 } elseif ($marginType === 'flat') {
+                //                     $rate[$key] = round($value + $flatAmount, 2);
+                //                 }
+                //             }
+                //         }
+                //         $rates[$index] = $rate;
+                //     }
+                //     // unset($rate); // good practice
+                // }
                 return [
                     'status' => true,
                     'rates' => $rates->toArray(),
@@ -474,6 +474,7 @@ class LorrigoService implements CourierInterface
     public function createShipment(array $payload): array|bool
     {
         Log::info('Payload being sent Lorrigo Test', $payload);
+
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
