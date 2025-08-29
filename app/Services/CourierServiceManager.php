@@ -141,7 +141,6 @@ class CourierServiceManager
             \Log::info("Trying partner: {$partner->code}");
 
             if (!$service) continue;
-
             try {
                 $response = $service->calculateRate($payload);
                 \Log::info("Response from partner {$partner->code}: " . json_encode($response));
@@ -161,12 +160,8 @@ class CourierServiceManager
                             $codCharge = $codCharge + $flatAmount;
                             $rtoCharge = $rtoCharge + $flatAmount;
                         }
-
-                        $finalShippingCharge = round($shippingCharge + ($shippingCharge * $gstRate) / 100, 2);
-                        $finalCodCharge = round($codCharge + ($codCharge * $gstRate) / 100, 2);
-                        $finalRtoCharge = round($rtoCharge + ($rtoCharge * $gstRate) / 100, 2);
-
-                        $totalPrice = $finalShippingCharge + $finalCodCharge;
+                        
+                        $totalPrice = $shippingCharge + $codCharge;
 
                         $results[] = [
                             'courier_code'         => $partner->code,
