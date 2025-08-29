@@ -35,7 +35,7 @@ Direct Shipping | TechtrendMart
                                 <div class="col-md-6">
                                     <label class="form-label d-flex justify-content-between align-items-center fs-6">
                                         Price (₹)
-                                        <span class="fw-bold text-primary">Price per piece</span>
+                                        <span class="fw-bold text-primary">Price per quantity</span>
                                     </label>
                                     <input type="number" class="form-control" name="price" id="price"
                                         required pattern="^[1-9][0-9]*$" max="10000" min="1"
@@ -129,41 +129,49 @@ Direct Shipping | TechtrendMart
                         @csrf
 
                         <div class="mb-2">
+                            <label class="form-label">First name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="firstname" placeholder="First name">
                             <div class="invalid-feedback error-firstname"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="lastname" placeholder="Last name">
                             <div class="invalid-feedback error-lastname"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" name="email" placeholder="Email">
                             <div class="invalid-feedback error-email"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="phone_number" placeholder="Mobile number">
                             <div class="invalid-feedback error-phone_number"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Pincode <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="pincode" placeholder="Pincode">
                             <div class="invalid-feedback error-pincode"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Address <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="address" placeholder="Address">
                             <div class="invalid-feedback error-address"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">City <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="city" placeholder="City">
                             <div class="invalid-feedback error-city"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">State <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="state" placeholder="State">
                             <div class="invalid-feedback error-state"></div>
                         </div>
@@ -210,6 +218,12 @@ Direct Shipping | TechtrendMart
                 console.error("Search error:", err);
                 document.getElementById('customerList').innerHTML = `<p class="text-danger">Search failed.</p>`;
             });
+    });
+
+    document.getElementById('customerSearch').addEventListener('input', function () {
+        if (this.value.trim() === '') {
+            document.getElementById('customerList').innerHTML = '';
+        }
     });
 
     function renderCustomerList(customers) {

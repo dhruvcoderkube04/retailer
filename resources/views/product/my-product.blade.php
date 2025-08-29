@@ -570,6 +570,18 @@
                     });
                 });
 
+                // Reset form on close time
+                $('#kt_modal_add_product').on('hidden.bs.modal', function () {
+                    $('#productUploadForm')[0].reset();
+
+                    $('#sub_category').val(null).trigger('change');
+
+                    $('#product_file_error').text('');
+                    $('#sub_category_error').text('');
+
+                    $('#productUploadForm').find('.is-invalid').removeClass('is-invalid');
+                });
+
                 $(document).on('submit', '#productUploadForm', function (e) {
                     e.preventDefault();
 
