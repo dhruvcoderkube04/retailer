@@ -25,6 +25,7 @@ use App\Models\CustomerDetails;
 use App\Models\ProductVariation;
 use App\Models\RetailerCategory;
 use App\Models\RetailerProducts;
+use App\Mail\RetailerEnquiryMail;
 use App\Mail\WelcomeCustomerMail;
 use App\Models\OrderNotification;
 use Illuminate\Support\Collection;
@@ -34,6 +35,7 @@ use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\RetailerCloneProduct;
+use App\Services\OrderStatusService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -41,8 +43,8 @@ use App\Models\RetailerWebManagement;
 use App\Models\StoreCustomersDetails;
 use Illuminate\Support\Facades\Cache;
 use App\Models\RetailerWebsiteEnquiry;
+use App\Mail\CancelOrderMailToCustomer;
 use Illuminate\Support\Facades\Storage;
-
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -2936,6 +2938,10 @@ class RetailerProductController extends Controller
                 'subscribe'     => $request->has('subscribe') ? true : false,
             ]);
 
+            if ($retailer->email) {
+                Mail::to('akashpatel.coderkube@gmail.com')->send(new RetailerEnquiryMail($enquiry));
+            }
+
             // Step 4: Return success response
             return ApiResponse::success(
                 ['data' => $enquiry],
@@ -2952,5 +2958,95 @@ class RetailerProductController extends Controller
         }
     }
 
-    public function addQuantity(Request $request) {}
+    public function cancelOrder(Request $request)
+    {
+        $validator = validator($request->all(), [
+            'order_id' => 'required|integer|exists:customer_orders,id',
+            'reject_reason_select' => 'required|string',
+            'reject_reason_input' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $retailer = Auth::user();
+
+            $customerOrder = CustomerOrders::with(['order_product_detail', 'customer'])
+                ->find($request->order_id);
+
+            if (!$customerOrder) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Invalid Order ID'
+                ], 404);
+            }
+
+            $allowedStatuses = [
+                'pending',
+                'approved_by_retailer',
+                'transfered_retailer_to_wholesaler',
+                'approved_by_wholesaler',
+                'pickup'
+            ];
+
+            if (!in_array($customerOrder->status, $allowedStatuses)) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Order cannot be cancelled at this stage.'
+                ], 400);
+            }
+            $statusService = new OrderStatusService();
+            $reject_reason_select = $request->reject_reason_select;
+            $reject_reason_input = $request->reject_reason_input;
+
+            [$success, $message, $type] = $statusService->handleCancelledOrder(
+                $retailer,
+                $customerOrder,
+                $reject_reason_select,
+                $reject_reason_input
+            );
+
+            if ($success) {
+                DB::commit();
+
+                $cancelled_reason = ($reject_reason_select === 'Other')
+                    ? $reject_reason_input
+                    : $reject_reason_select;
+
+                $customer = [
+                    'name' => $customerOrder->customer->firstname,
+                    'email' => $customerOrder->customer->email,
+                ];
+
+                Mail::to($customer['email'])->send(
+                    new CancelOrderMailToCustomer($customerOrder, $customer, $cancelled_reason)
+                );
+
+                return response()->json([
+                    'status' => true,
+                    'msg' => $message,
+                    'type' => $type
+                ], 200);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'msg' => $message ?? 'Invalid Order Status'
+                ], 400);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'msg' => 'Something went wrong, please try later!',
+                'error' => $e->getMessage() // uncomment for debugging
+            ], 500);
+        }
+    }
 }

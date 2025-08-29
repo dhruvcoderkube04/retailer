@@ -53,6 +53,7 @@ Route::prefix('customer')->group(function () {
         Route::get('/cart', [RetailerProductController::class, 'cart']);
         Route::post('/remove-to-wishlist', [RetailerProductController::class, 'removeToWishlist']);
         Route::post('/remove-to-cart', [RetailerProductController::class, 'removeToCart']);
+        Route::post('/cancel-order', [RetailerProductController::class, 'cancelOrder']);
     });
 
 });
