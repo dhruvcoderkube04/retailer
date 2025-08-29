@@ -57,7 +57,7 @@ Direct Shipping | TechtrendMart
 
                             <!-- Category -->
                             <div class="col-md-12 mb-5">
-                                <label class="form-label fs-6">Sub Category</label>
+                                <label class="form-label fs-6">Select Subcategory</label>
                                 <select
                                     class="form-select mb-2 @error('sub_category_id') is-invalid @enderror"
                                     data-control="select2" name="sub_category_id"
