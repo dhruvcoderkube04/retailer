@@ -1112,7 +1112,7 @@ class RetailerOrderController extends Controller
                 $search = cleanInput($request->search);
                 $search = trim($search);
                 $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-              
+
                 $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
                         ->orWhere('product_variation', 'like', '%' . $search . '%')

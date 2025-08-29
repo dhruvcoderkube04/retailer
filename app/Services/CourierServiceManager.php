@@ -160,7 +160,7 @@ class CourierServiceManager
                             $codCharge = $codCharge + $flatAmount;
                             $rtoCharge = $rtoCharge + $flatAmount;
                         }
-                        
+
                         $totalPrice = $shippingCharge + $codCharge;
 
                         $results[] = [

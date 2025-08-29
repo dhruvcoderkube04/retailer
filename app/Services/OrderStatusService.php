@@ -91,7 +91,6 @@ class OrderStatusService
 
         $response = $this->rateCalculationOrder($request, $customerOrder, $pickup_address);
         $data = $response->getData(true)['data'];
-        // dd($data,$request->all());
         if (!empty($data)) {
             $courier = collect($data)->where('carrierID',$request->carrier_id)->first();
         }
@@ -103,7 +102,6 @@ class OrderStatusService
         $finalShipping = (float) $courier['shipping_charge'] ?? 0;
         $finalCod = (float) $courier['cod_charge'] ?? 0;
         $finalRto = (float) $courier['rto_charge'] ?? 0;
-
 
         // Margin Calculation
         $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
