@@ -108,7 +108,7 @@
                                 <ul
                                     class="nav nav-tabs nav-line-tabs nav-stretch fs-5 justify-content-start flex-wrap w-100 gap-3 border-bottom pb-3">
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == 'new') ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             <i class="fas fa-sync-alt pe-2 text-primary"></i> New
                                         </a>
@@ -187,7 +187,7 @@
                                         </a>
                                     </li>
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === null) ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === 'all') ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'all']) }}">
                                             <i class="fas fa-clipboard-list pe-2 text-primary"></i> All
                                         </a>
