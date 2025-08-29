@@ -53,7 +53,7 @@ class AccountingController extends Controller
 
         $start = $request->input('start', 0);
         $length = $request->input('length', 10);
-        $search = $request->input('search.value');
+        $search = cleanInput($request->input('search.value'));
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

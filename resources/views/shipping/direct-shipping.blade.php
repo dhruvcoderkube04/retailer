@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    Direct Shipping | TechtrendMart
+Direct Shipping | TechtrendMart
 @endsection
 
 @section('content')
@@ -27,8 +27,9 @@
                             <div class="col-md-12 mb-5">
                                 <label class="form-label fs-6">Product Name</label>
                                 <input type="text" class="form-control" name="product_name" id="product_name"
-                                       required pattern="^[A-Za-z0-9 ]+$"
-                                       title="Only letters, numbers, and spaces allowed." />
+                                    required
+                                    pattern="^[A-Za-z0-9\s\-\_\@\#\.\,\&\(\)\[\]\:\+]+$"
+                                    title="Only letters, numbers, and spaces allowed." />
                             </div>
                             <div class="row g-3 mb-5">
                                 <div class="col-md-6">
@@ -37,14 +38,14 @@
                                         <span class="fw-bold text-primary">Price per piece</span>
                                     </label>
                                     <input type="number" class="form-control" name="price" id="price"
-                                           required pattern="^[1-9][0-9]*$" max="5000" min="1"
-                                           title="Only positive whole numbers allowed." />
+                                        required pattern="^[1-9][0-9]*$" max="10000" min="1"
+                                        title="Only positive whole numbers allowed." />
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fs-6">Quantity</label>
                                     <input type="number" class="form-control" name="qty" id="qty" min="1" max="5"
-                                           required pattern="^[1-5]$"
-                                           title="Only numbers 1 to 5 allowed." />
+                                        required pattern="^[1-5]$"
+                                        title="Only numbers 1 to 5 allowed." />
                                 </div>
                             </div>
 
@@ -63,15 +64,15 @@
                                     data-placeholder="Select an option" id="subCategory">
                                     <option></option>
                                     @foreach ($sub_category_list ?? [] as $sub_category)
-                                        <option data-category-id="{{ $sub_category->category_id }}"
-                                            value="{{ $sub_category->id }}"
-                                            {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
-                                            {{ Str::upper($sub_category->sub_category_name) }}
-                                        </option>
+                                    <option data-category-id="{{ $sub_category->category_id }}"
+                                        value="{{ $sub_category->id }}"
+                                        {{ old('sub_category_id') == $sub_category->id ? 'selected' : '' }}>
+                                        {{ Str::upper($sub_category->sub_category_name) }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error('sub_category_id')
-                                    <div class="invalid-feedback fs-7">{{ $message }}</div>
+                                <div class="invalid-feedback fs-7">{{ $message }}</div>
                                 @enderror
                                 <small class="text-warning d-block mt-1">Note: It’s optional to select a category in direct shipping.</small>
                             </div>
@@ -187,26 +188,28 @@
         document.getElementById('customerList').innerHTML = '';
     }
 
-    document.getElementById('customerSearchBtn').addEventListener('click', function () {
+    document.getElementById('customerSearchBtn').addEventListener('click', function() {
         const query = document.getElementById('customerSearch').value.trim();
         if (query === '') {
             document.getElementById('customerList').innerHTML = '';
             return;
         }
         fetch("{{ route('retailer.getcustomer.data') }}", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ query: query })
-        })
-        .then(res => res.json())
-        .then(customers => renderCustomerList(customers))
-        .catch(err => {
-            console.error("Search error:", err);
-            document.getElementById('customerList').innerHTML = `<p class="text-danger">Search failed.</p>`;
-        });
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    query: query
+                })
+            })
+            .then(res => res.json())
+            .then(customers => renderCustomerList(customers))
+            .catch(err => {
+                console.error("Search error:", err);
+                document.getElementById('customerList').innerHTML = `<p class="text-danger">Search failed.</p>`;
+            });
     });
 
     function renderCustomerList(customers) {
@@ -228,8 +231,18 @@
     }
 
     function selectCustomer(customer) {
-        document.getElementById('selectedCustomer').innerHTML =
-            `<strong>Selected:</strong> ${customer.id} ${customer.firstname} ${customer.lastname}, ${customer.phone_number}`;
+        document.getElementById('selectedCustomer').innerHTML = `
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">${customer.firstname} ${customer.lastname}</h5>
+                <p class="card-text">
+                    <strong>Phone:</strong> ${customer.phone_number}<br>
+                    <strong>Email:</strong> ${customer.email}<br>
+                    <strong>Address:</strong> ${customer.address}, ${customer.city}, ${customer.state}, ${customer.pincode}
+                </p>
+            </div>
+        </div>
+    `;
         $('#customerModal').modal('hide');
         window.selectedCustomer = customer;
         document.getElementById('submitBtn').disabled = false;
@@ -243,39 +256,50 @@
         form.querySelectorAll('.invalid-feedback').forEach(div => div.innerText = '');
 
         fetch("{{ route('retailer.customerdata.store') }}", {
-            method: "POST",
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                form.reset();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Customer Added',
-                    text: data.message || 'Customer added successfully!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } else if (data.errors) {
-                for (const field in data.errors) {
-                    const input = form.querySelector(`[name="${field}"]`);
-                    const errorDiv = form.querySelector(`.error-${field}`);
-                    if (input) input.classList.add('is-invalid');
-                    if (errorDiv) errorDiv.innerText = data.errors[field][0];
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    form.reset();
+                    selectCustomer(data.customer);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Customer Added',
+                        text: data.message || 'Customer added successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else if (data.errors) {
+                    for (const field in data.errors) {
+                        const input = form.querySelector(`[name="${field}"]`);
+                        const errorDiv = form.querySelector(`.error-${field}`);
+                        if (input) input.classList.add('is-invalid');
+                        if (errorDiv) errorDiv.innerText = data.errors[field];
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Something went wrong'
+                    });
                 }
-            } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Something went wrong' });
-            }
-        })
-        .catch(err => {
-            console.error("Error adding customer:", err);
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong while adding the customer.' });
-        });
+            })
+            .catch(err => {
+                console.error("Error adding customer:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong while adding the customer.'
+                });
+            });
     });
 
-    document.getElementById("directShippingForm").addEventListener("submit", function (e) {
+    document.getElementById("directShippingForm").addEventListener("submit", function(e) {
         e.preventDefault();
         const submitButton = document.getElementById("submitBtn");
 
@@ -297,38 +321,48 @@
         formData.append('customer_id', window.selectedCustomer.id);
 
         fetch("{{ route('retailer.directshipping.place.order') }}", {
-            method: "POST",
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({ icon: 'success', title: 'Order Placed', text: data.message });
-                this.reset();
-                document.getElementById('selectedCustomer').innerHTML = '';
-                window.selectedCustomer = null;
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed',
+                        text: data.message
+                    });
+                    this.reset();
+                    document.getElementById('selectedCustomer').innerHTML = '';
+                    window.selectedCustomer = null;
 
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = true;
-            } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = true;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error("Order placement error:", err);
                 submitButton.innerHTML = originalText;
                 submitButton.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error("Order placement error:", err);
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-        });
+            });
     });
 
-    document.getElementById('price').addEventListener('input', function () {
+    document.getElementById('price').addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
         calculateTotal();
     });
-    document.getElementById('qty').addEventListener('input', function () {
+    document.getElementById('qty').addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
         calculateTotal();
     });
@@ -340,7 +374,7 @@
         document.getElementById('total_price').value = total > 0 ? '₹ ' + total.toLocaleString() : '₹ 0.00';
     }
 
-    document.getElementById("directShippingForm").addEventListener("submit", function (e) {
+    document.getElementById("directShippingForm").addEventListener("submit", function(e) {
         const name = document.getElementById('product_name').value.trim();
         const price = document.getElementById('price').value.trim();
         const qty = document.getElementById('qty').value.trim();
@@ -366,6 +400,53 @@
             Swal.fire('Invalid Quantity', 'Quantity must be a number between 1 and 5.', 'warning');
             return;
         }
+    });
+
+
+    document.getElementById('product_image').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+        // Check MIME type
+        if (!validTypes.includes(file.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Only JPEG and PNG images are allowed.'
+            });
+            event.target.value = '';
+            return;
+        }
+
+        // Optional: check file size (e.g., max 5MB)
+        const maxSizeMB = 2;
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'File Too Large',
+                text: `Image size must be less than ${maxSizeMB}MB.`
+            });
+            event.target.value = '';
+            return;
+        }
+
+        // Check if image is corrupted
+        const img = new Image();
+        img.onload = function() {
+            // Image loaded successfully — it's valid
+            console.log('Valid image file.');
+        };
+        img.onerror = function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Corrupted Image',
+                text: 'The selected file is not a valid image or is corrupted.'
+            });
+            event.target.value = '';
+        };
+        img.src = URL.createObjectURL(file);
     });
 </script>
 @endsection

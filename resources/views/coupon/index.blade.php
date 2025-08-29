@@ -241,6 +241,7 @@ $(document).ready(function () {
             timePicker24Hour: true,
             startDate: moment().startOf("hour"),
             endDate: moment().startOf("hour").add(1, "days"),
+            minDate: moment().startOf("minute"),
             locale: {
                 format: "YYYY-MM-DD HH:mm:ss"
             }
@@ -261,10 +262,10 @@ $(document).ready(function () {
         lengthMenu: [10, 20, 50, 100],
         processing: true,
         serverSide: true,
-        fixedHeader: {
-        header: true,
-            headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-        },
+        // fixedHeader: {
+        // header: true,
+        //     headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+        // },
         ajax: {
             url: "{{ route('coupons.fetch') }}",
             type: "POST",

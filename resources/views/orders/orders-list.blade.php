@@ -101,14 +101,14 @@
                         </div>
                     @endif
 
-                    <div class="card card-flush order-table">
+                    <div class="card card-flush">
                         {{-- Stages --}}
                         <div class="card-header d-flex flex-wrap align-items-center justify-content-start pt-1">
                             <div class="card-toolbar w-100">
                                 <ul
-                                    class="nav nav-tabs nav-line-tabs nav-stretch fs-5 justify-content-start flex-wrap w-100 gap-4 border-bottom pb-3">
+                                    class="nav nav-tabs nav-line-tabs nav-stretch fs-5 justify-content-start flex-wrap w-100 gap-3 border-bottom pb-3">
                                     <li class="nav-item my-2">
-                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == null) ? 'active' : '' }}"
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') == 'new' || request('type') == 'new') ? 'active' : '' }}"
                                             href="{{ route('retailer.order.list', ['type' => 'new']) }}">
                                             <i class="fas fa-sync-alt pe-2 text-primary"></i> New
                                         </a>
@@ -186,6 +186,12 @@
                                             Wholesaler
                                         </a>
                                     </li>
+                                    <li class="nav-item my-2">
+                                        <a class="nav-link px-3 py-2 {{ request()->routeIs('retailer.order.list') && (request('type') === 'all' || request('type') === null) ? 'active' : '' }}"
+                                            href="{{ route('retailer.order.list', ['type' => 'all']) }}">
+                                            <i class="fas fa-clipboard-list pe-2 text-primary"></i> All
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -199,8 +205,8 @@
                                         <th class="text-center min-w-110px">MEDIA</th>
                                         <th class="text-center min-w-275px">ORDER DETAIL</th>
                                         <th class="text-center min-w-275px">CUSTOMER DETAIL</th>
-                                        @if($type != 'new' && $type != 'approved-by-retailer')
-                                        <th class="text-center min-w-200px">TRACKING</th>
+                                        @if ($type != 'new' && $type != 'approved-by-retailer')
+                                            <th class="text-center min-w-200px">TRACKING</th>
                                         @endif
                                         <th class="text-center min-w-75px py-5">ACTION</th>
                                     </tr>
@@ -299,7 +305,8 @@
                                         name="reject_reason_input" id="rejectReasonInputNew" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -343,7 +350,8 @@
                         </span>
                         <span>Order Action</span>
                     </h5>
-                    <button type="button" class="btn-close cancelAction" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close cancelAction" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
 
                 <form id="confirmedOrderForm" method="POST">
@@ -390,7 +398,8 @@
                                                     <option value="" disabled selected>-- Select Pickup Location --
                                                     </option>
                                                     @foreach ($pickupAddress as $address)
-                                                        <option value="{{ $address->id }}" data-pincode="{{ $address->pincode }}"
+                                                        <option value="{{ $address->id }}"
+                                                            data-pincode="{{ $address->pincode }}"
                                                             data-warehouse-id="{{ $address->warehouse_id }}">
                                                             📍 {{ $address->first_name }} {{ $address->last_name }} -
                                                             {{ $address->address }}, {{ $address->state }},
@@ -472,7 +481,8 @@
                                             <!-- Display selected courier -->
                                             <div id="selected-courier-display" class="mt-2 text-info"></div>
                                             <!-- Hidden input to store selected courier -->
-                                            <input type="hidden" name="courier_service" id="courier_service" value="">
+                                            <input type="hidden" name="courier_service" id="courier_service"
+                                                value="">
                                             <input type="hidden" name="courier_service_id" id="courier_service_id">
                                             <input type="hidden" name="carrier_id" id="carrier_id">
                                             <input type="hidden" name="nickName" id="nickName">
@@ -591,13 +601,15 @@
     </div>
 
     {{-- Raise Issue Modal --}}
-    <div class="modal fade" id="kt_modal_raise_issue" data-bs-backdrop="static" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal fade" id="kt_modal_raise_issue" data-bs-backdrop="static" tabindex="-1" style="display: none;"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="fw-bold">Raise Your Issue</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1 cancelRaise"><span class="path1"></span><span class="path2"></span></i>
+                        <i class="ki-duotone ki-cross fs-1 cancelRaise"><span class="path1"></span><span
+                                class="path2"></span></i>
                     </div>
                 </div>
                 <div class="modal-body scroll-y mx-5 mx-xl-7 my-3">
@@ -631,13 +643,15 @@
                         </div>
                         <div class="fv-row mb-7 fv-plugins-icon-container">
                             <label class="fs-6 fw-semibold form-label mb-2">Upload Screenshots (optional)</label>
-                            <input type="file" class="form-control" name="ticket_image_ref[]" id="screenshots" multiple>
+                            <input type="file" class="form-control" name="ticket_image_ref[]" id="screenshots"
+                                multiple>
                             <small class="text-muted">Max 3 images. Allowed types: jpg, jpeg, png. Max size 2MB
                                 each</small>
                             <span class="invalid-feedback d-block" id="screenshots_error"></span>
                         </div>
                         <div class="text-center">
-                            <button type="reset" class="btn btn-light me-3 cancelRaise" data-bs-dismiss="modal">Cancel</button>
+                            <button type="reset" class="btn btn-light me-3 cancelRaise"
+                                data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary"
                                 style="background-color: #ff3d60; border-color: #ff3d60;">
                                 <span class="indicator-label">Raise Issue</span>
@@ -686,8 +700,8 @@
     <!-- END: Confirmed Order Modal -->
 
     <!-- START: Pickup Order Modal -->
-    <div class="modal fade" id="pickup-order-action-modal" tabindex="-1" aria-labelledby="pickup-order-action-modal-label"
-        aria-hidden="true">
+    <div class="modal fade" id="pickup-order-action-modal" tabindex="-1"
+        aria-labelledby="pickup-order-action-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -762,13 +776,15 @@
                         <div class="mt-1 mx-7 rejectReasonInputContainer" style="display: none;">
                             <div class="card shadow-sm border-0">
                                 <div class="card-body p-3">
-                                    <label for="rejectReasonInputPickup" class="form-label fw-semibold text-gray-700">Enter
+                                    <label for="rejectReasonInputPickup"
+                                        class="form-label fw-semibold text-gray-700">Enter
                                         Reason Here:</label>
                                     <input type="text" class="form-control reject_reason_input_pickup"
                                         name="reject_reason_input" id="rejectReasonInputPickup" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -794,8 +810,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="upload-pickup-image-modal" tabindex="-1" aria-labelledby="upload-pickup-image-modal-label"
-        aria-hidden="true">
+    <div class="modal fade" id="upload-pickup-image-modal" tabindex="-1"
+        aria-labelledby="upload-pickup-image-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
@@ -816,7 +832,8 @@
                                     <input type="file" class="form-control" name="pickup_image" id="pickup_image"
                                         accept=".jpg,.jpeg,.webp,.png,.svg,image/jpeg,image/jpg,image/webp,image/png,image/svg+xml">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -921,7 +938,8 @@
                                         name="reject_reason_input" id="rejectReasonInputInTransit" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -950,8 +968,8 @@
     <!-- END: In Transit Order Modal -->
 
     <!-- START: Cancel Order Modal -->
-    <div class="modal fade" id="cancel-order-action-modal" tabindex="-1" aria-labelledby="cancel-order-action-modal-label"
-        aria-hidden="true">
+    <div class="modal fade" id="cancel-order-action-modal" tabindex="-1"
+        aria-labelledby="cancel-order-action-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1013,7 +1031,8 @@
                                         name="reject_reason_input" id="rejectReasonInputCancelOrder" min="1"
                                         placeholder="Enter reject reason">
 
-                                    <span class="text-danger mt-5 reject-reason-input-error-section" style="display: none;">
+                                    <span class="text-danger mt-5 reject-reason-input-error-section"
+                                        style="display: none;">
                                         <i class="bi bi-exclamation-triangle"></i>
                                         <span class="reject-reason-input-error"></span>
                                     </span>
@@ -1091,22 +1110,45 @@
         cb(start, end);
         //<------------- END : date pickert ------------->
 
-        $(document).on('click', '.ki-calendar-8', function () {
+        $(document).on('click', '.ki-calendar-8', function() {
             $('#kt_daterangepicker_order_list').trigger('click');
         });
 
         //<------------- START : server-side transaction datatable ------------->
         const type = @json($type);
-        let columns = [
-            { data: 'sr_no', className: 'text-center', orderable: false },
-            { data: 'order_date', className: 'text-center', orderable: true },
-            { data: 'media', className: 'text-center', orderable: false },
-            { data: 'order_detail', className: 'text-start', orderable: false },
-            { data: 'customer_detail', className: 'text-start', orderable: false },
+        let columns = [{
+                data: 'sr_no',
+                className: 'text-center',
+                orderable: false
+            },
+            {
+                data: 'order_date',
+                className: 'text-center',
+                orderable: true
+            },
+            {
+                data: 'media',
+                className: 'text-center',
+                orderable: false
+            },
+            {
+                data: 'order_detail',
+                className: 'text-start',
+                orderable: false
+            },
+            {
+                data: 'customer_detail',
+                className: 'text-start',
+                orderable: false
+            },
         ];
 
         if (type !== 'new' && type !== 'approved-by-retailer') {
-            columns.push({ data: 'tracking_id', className: 'text-start', orderable: false });
+            columns.push({
+                data: 'tracking_id',
+                className: 'text-start',
+                orderable: false
+            });
         }
 
         columns.push({
@@ -1120,28 +1162,28 @@
             dom: "<'row mb-5'>" +
                 "<'table-responsive'tr>" +
                 "<'row d-flex align-items-center justify-content-between' \
-                    <'col d-flex align-items-center gap-3'l i> \
-                    <'col-auto'p> \
-                >",
+                            <'col d-flex align-items-center gap-3'l i> \
+                            <'col-auto'p> \
+                        >",
             pageLength: 20,
             lengthMenu: [10, 20, 50, 100],
             processing: true,
             serverSide: true,
-            fixedHeader: {
-                header: true,
-                headerOffset: document.querySelector("#kt_app_header_wrapper")?.offsetHeight || 0
-            },
+            // fixedHeader: {
+            //     header: true,
+            //     headerOffset: document.querySelector("#kt_app_header_wrapper")?.offsetHeight || 0
+            // },
             ajax: {
                 url: "{{ route('retailer.order-list.fetch-record') }}",
                 type: "POST",
-                data: function (d) {
+                data: function(d) {
                     d._token = '{{ csrf_token() }}';
                     d.date_filter = $('#kt_daterangepicker_order_list').val();
                     d.payment_method_filter = $('#payment_method_filter').val();
                     d.type = type;
                 },
                 dataSrc: "data",
-                error: function (xhr) {
+                error: function(xhr) {
                     if (xhr.status === 400) {
                         let message = 'An error occurred.';
                         try {
@@ -1163,10 +1205,10 @@
             },
             order: [],
             columns: columns,
-            createdRow: function (row) {
+            createdRow: function(row) {
                 $(row).find('td').css('border', '1px solid rgb(0, 0, 0)');
             },
-            drawCallback: function () {
+            drawCallback: function() {
                 $('#kt_datatable_order_list thead th').css({
                     'border': '1px solid rgb(222, 226, 230)',
                     'text-transform': 'uppercase'
@@ -1184,63 +1226,61 @@
 
         //<------Start cancel modal close---------->
 
-        $(document).ready(function () {
-            $('.cancelRaise').on('click', function (e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelRaise').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Hide the modal
-                        $('#kt_modal_raise_issue').modal('hide');
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 // Hide the modal
+        //                 $('#kt_modal_raise_issue').modal('hide');
 
-                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
-                        $('#raiseIssueForm')[0].reset();
+        //                 // Reset all form fields (text, textarea, select, file, radio, checkbox)
+        //                 $('#raiseIssueForm')[0].reset();
 
-                        // Also clear any validation error messages
-                        $('#raiseIssueForm').find('.invalid-feedback').text('');
-                    }
-                    else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // Keep modal open
-                        $('#kt_modal_raise_issue').modal('show');
-                    }
-                });
-            });
-        });
+        //                 // Also clear any validation error messages
+        //                 $('#raiseIssueForm').find('.invalid-feedback').text('');
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 // Keep modal open
+        //                 $('#kt_modal_raise_issue').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
 
-        $(document).ready(function () {
-            $('.cancelAction').on('click', function (e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelAction').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $('#confirmedOrderForm').closest('.modal').modal('hide');
-                        resetConfirmedOrderForm();
-                    }
-                    else if (result.dismiss === Swal.DismissReason.cancel) {
-                        $('#confirmedOrderForm').closest('.modal').modal('show');
-                    }
-                });
-            });
-        });
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('hide');
+        //                 resetConfirmedOrderForm();
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
         function resetConfirmedOrderForm() {
             $("#submitButton").prop("disabled", true);
@@ -1253,7 +1293,7 @@
             $form.find('input[type="radio"]').prop('checked', false);
 
             // Clear Select2 dropdowns
-            $form.find('select').each(function () {
+            $form.find('select').each(function() {
                 $(this).val(null).trigger('change');
             });
 
@@ -1268,63 +1308,61 @@
 
         //<------Start cancel modal close---------->
 
-        $(document).ready(function () {
-            $('.cancelRaise').on('click', function (e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelRaise').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Hide the modal
-                        $('#kt_modal_raise_issue').modal('hide');
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 // Hide the modal
+        //                 $('#kt_modal_raise_issue').modal('hide');
 
-                        // Reset all form fields (text, textarea, select, file, radio, checkbox)
-                        $('#raiseIssueForm')[0].reset();
+        //                 // Reset all form fields (text, textarea, select, file, radio, checkbox)
+        //                 $('#raiseIssueForm')[0].reset();
 
-                        // Also clear any validation error messages
-                        $('#raiseIssueForm').find('.invalid-feedback').text('');
-                    }
-                    else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // Keep modal open
-                        $('#kt_modal_raise_issue').modal('show');
-                    }
-                });
-            });
-        });
+        //                 // Also clear any validation error messages
+        //                 $('#raiseIssueForm').find('.invalid-feedback').text('');
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 // Keep modal open
+        //                 $('#kt_modal_raise_issue').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
 
-        $(document).ready(function () {
-            $('.cancelAction').on('click', function (e) {
-                e.preventDefault();
+        // $(document).ready(function() {
+        //     $('.cancelAction').on('click', function(e) {
+        //         e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Any unsaved changes will be lost.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, close it',
-                    cancelButtonText: 'No, keep editing',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $('#confirmedOrderForm').closest('.modal').modal('hide');
-                        resetConfirmedOrderForm();
-                    }
-                    else if (result.dismiss === Swal.DismissReason.cancel) {
-                        $('#confirmedOrderForm').closest('.modal').modal('show');
-                    }
-                });
-            });
-        });
+        //         Swal.fire({
+        //             title: 'Are you sure?',
+        //             text: 'Any unsaved changes will be lost.',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Yes, close it',
+        //             cancelButtonText: 'No, keep editing',
+        //             allowOutsideClick: false,
+        //             allowEscapeKey: false,
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('hide');
+        //                 resetConfirmedOrderForm();
+        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+        //                 $('#confirmedOrderForm').closest('.modal').modal('show');
+        //             }
+        //         });
+        //     });
+        // });
 
         function resetConfirmedOrderForm() {
             $("#submitButton").prop("disabled", true);
@@ -1337,7 +1375,7 @@
             $form.find('input[type="radio"]').prop('checked', false);
 
             // Clear Select2 dropdowns
-            $form.find('select').each(function () {
+            $form.find('select').each(function() {
                 $(this).val(null).trigger('change');
             });
 
@@ -1350,24 +1388,24 @@
         }
         //<--------------End cancel modal close----------->
 
-        $(document).ready(function () {
-            $("#kt_daterangepicker_order_list").on('apply.daterangepicker', function (ev, picker) {
+        $(document).ready(function() {
+            $("#kt_daterangepicker_order_list").on('apply.daterangepicker', function(ev, picker) {
                 dataTable.draw();
             });
 
-            $("#payment_method_filter").on('change', function () {
+            $("#payment_method_filter").on('change', function() {
                 dataTable.draw();
             });
         });
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             // for search inside select option on modal show
-            $('#new-order-action-modal').on('shown.bs.modal', function () {
+            $('#new-order-action-modal').on('shown.bs.modal', function() {
                 $('.reject_reason_select_new').select2({
                     dropdownParent: $('#new-order-action-modal')
                 });
             });
-            $('#confirmed-order-action-modal').on('shown.bs.modal', function () {
+            $('#confirmed-order-action-modal').on('shown.bs.modal', function() {
                 $('#pickup_address_id, #rto_address_id, #courier_service, #product_weight, .reject_reason_select_confirmed')
                     .select2({
                         dropdownParent: $('#confirmed-order-action-modal')
@@ -1426,8 +1464,9 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: JSON.stringify(payload),
-                    success: function (response) {
-                        if (response.status && Array.isArray(response.data) && response.data.length > 0) {
+                    success: function(response) {
+                        if (response.status && Array.isArray(response.data) && response.data.length >
+                            0) {
                             populateMergedCourierRates(response.data);
                         } else {
                             $('#courierDetailsBody').html(
@@ -1447,7 +1486,7 @@
                     //             '<tr><td colspan="6">No courier services available</td></tr>');
                     //     }
                     // },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         console.error('Error fetching courier rates:', xhr.responseText);
                         let errorMessage = 'Error fetching courier rates';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -1466,29 +1505,29 @@
             //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
             //             .courier_name) || {};
             //         tableBody += `
-            //             <tr>
-            //                 <td>${courier.service_mode || 'N/A'}</td>
-            //                 <td>
-            //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
-            //                     ${courier.courier_name}
-            //                 </td>
-            //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
-            //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
+        //             <tr>
+        //                 <td>${courier.service_mode || 'N/A'}</td>
+        //                 <td>
+        //                     ${matchingCourier.logoUrl ? `<img src="${matchingCourier.logoUrl}" alt="${courier.courier_name}" width="30" class="me-2">` : ''}
+        //                     ${courier.courier_name}
+        //                 </td>
+        //                 <td>₹${(courier.shipping_charge || 0).toFixed(2)}</td>
+        //                 <td>₹${(courier.cod_charge || 0).toFixed(2)}</td>
 
-            //                 <td>
-            //                     <button class="btn btn-sm btn-primary select-courier"
-            //                             data-courier="${courier.courier_name}"
-            //                             data-courier-id="${matchingCourier.courierId || ''}"
-            //                             data-courier-logo="${matchingCourier.logoUrl || null}"
-            //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
-            //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
-            //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
-            //                             data-service-mode="${courier.service_mode || 'N/A'}
-            //                             data-cpartner="fship">
-            //                         Select
-            //                     </button>
-            //                 </td>
-            //             </tr>`;
+        //                 <td>
+        //                     <button class="btn btn-sm btn-primary select-courier"
+        //                             data-courier="${courier.courier_name}"
+        //                             data-courier-id="${matchingCourier.courierId || ''}"
+        //                             data-courier-logo="${matchingCourier.logoUrl || null}"
+        //                             data-shipping-charge="${(courier.shipping_charge || 0).toFixed(2)}"
+        //                             data-cod-charge="${(courier.cod_charge || 0).toFixed(2)}"
+        //                             data-rto-charge="${(courier.rto_charge || 0).toFixed(2)}"
+        //                             data-service-mode="${courier.service_mode || 'N/A'}
+        //                             data-cpartner="fship">
+        //                         Select
+        //                     </button>
+        //                 </td>
+        //             </tr>`;
             //     });
             //     $('#courierDetailsBody').html(tableBody);
             // }
@@ -1502,35 +1541,35 @@
             //         const matchingCourier = courierServices.find(cs => cs.courierName === courier
             //             .courier_name) || {};
             //         tableBody += `
-            //             <tr>
-            //                 <td>${courier.type || 'N/A'}</td>
-            //                 <td>
-            //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
-            //                     ${courier.name}
-            //                 </td>
-            //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
-            //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
-            //                 <td>
-            //                     <button class="btn btn-sm btn-primary select-courier"
-            //                             data-courier="${courier.name}"
-            //                             data-courier-id="${courier.carrierID || ''}"
-            //                             data-courier-logo="${courier.name || null}"
-            //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
-            //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
-            //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
-            //                             data-service-mode="${courier.type || 'N/A'}"
-            //                             data-cpartner="lorrigo">
-            //                         Select
-            //                     </button>
-            //                 </td>
-            //             </tr>`;
+        //             <tr>
+        //                 <td>${courier.type || 'N/A'}</td>
+        //                 <td>
+        //                     ${courier.logoUrl ? `<img src="${courier.logoUrl}" alt="${courier.name}" width="30" class="me-2">` : ''}
+        //                     ${courier.name}
+        //                 </td>
+        //                 <td>₹${(courier.charge || 0).toFixed(2)}</td>
+        //                 <td>₹${(courier.cod || 0).toFixed(2)}</td>
+        //                 <td>
+        //                     <button class="btn btn-sm btn-primary select-courier"
+        //                             data-courier="${courier.name}"
+        //                             data-courier-id="${courier.carrierID || ''}"
+        //                             data-courier-logo="${courier.name || null}"
+        //                             data-shipping-charge="${(courier.charge || 0).toFixed(2)}"
+        //                             data-cod-charge="${(courier.cod || 0).toFixed(2)}"
+        //                             data-rto-charge="${(courier.rtoCharges || 0).toFixed(2)}"
+        //                             data-service-mode="${courier.type || 'N/A'}"
+        //                             data-cpartner="lorrigo">
+        //                         Select
+        //                     </button>
+        //                 </td>
+        //             </tr>`;
             //     });
             //     $('#courierDetailsBody').html(tableBody);
             // }
 
             function populateMergedCourierRates(rates) {
                 let tableBody = '';
-                rates.forEach(function (courier) {
+                rates.forEach(function(courier) {
                     const matchingCourier = courierServices.find(cs => cs.courierName === courier
                         .service_name) || {};
 
@@ -1597,7 +1636,7 @@
             }
 
             // Handle "Select Courier" button click
-            $(document).on('click', '#selectCourierBtn', function () {
+            $(document).on('click', '#selectCourierBtn', function() {
                 // Hide the previous modal to prevent overlap
                 $('#confirmed-order-action-modal').modal('hide');
 
@@ -1647,7 +1686,7 @@
             }
 
             // Handle courier selection from modal
-            $(document).on('click', '.select-courier', function () {
+            $(document).on('click', '.select-courier', function() {
                 const courierName = $(this).data('courier') || 'Unknown';
                 const courierId = $(this).data('courier-id') || '';
                 const carrierId = $(this).data('carrier-id') || '';
@@ -1707,7 +1746,7 @@
             });
 
             // Handle close button to restore previous modal and clear selection if no courier selected
-            $('#courierDetailsModal').on('hidden.bs.modal', function () {
+            $('#courierDetailsModal').on('hidden.bs.modal', function() {
                 // Show the previous modal when courier modal closes
                 $('#confirmed-order-action-modal').modal('show');
                 // Clear selected courier display if no courier is selected
@@ -1717,13 +1756,13 @@
             });
 
             // Handle changes to product weight and pickup address to toggle Select Courier button
-            $(document).on('change', '#product_weight, #pickup_address_id', function () {
+            $(document).on('change', '#product_weight, #pickup_address_id', function() {
                 toggleSelectCourierButton();
                 clearSelectedCurier();
             });
 
             //<-------------- START: New Order --------------->
-            $('.reject_reason_select_new').change(function () {
+            $('.reject_reason_select_new').change(function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -1732,7 +1771,7 @@
                 }
             });
 
-            $(document).on('change', '#new-order-action-modal input[name="status"]', function () {
+            $(document).on('change', '#new-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -1744,7 +1783,7 @@
                 }
             });
 
-            $(document).on('click', '.newOrderAction', function () {
+            $(document).on('click', '.newOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -1764,7 +1803,7 @@
                 $('#new-order-action-modal').modal('show');
             });
 
-            $(document).on('submit', '#newOrderForm', function (e) {
+            $(document).on('submit', '#newOrderForm', function(e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -1844,7 +1883,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -1854,7 +1893,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                                .replace(":type", response.type);
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -1866,7 +1905,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -1883,7 +1922,7 @@
 
 
             //<-------------- START: Confirmed Order --------------->
-            $(document).on('change', '.reject_reason_select_confirmed', function () {
+            $(document).on('change', '.reject_reason_select_confirmed', function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -1892,7 +1931,7 @@
                 }
             });
 
-            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function () {
+            $(document).on('change', '#confirmed-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
 
                 $('#pickupLocationContainer, #rtoAddressContainer, #productWeightContainer, #courierServicesContainer, .rejectReasonSelectContainer, .rejectReasonInputContainer')
@@ -1921,7 +1960,7 @@
                 }
             });
 
-            $(document).on('click', '.confirmedOrderAction', function () {
+            $(document).on('click', '.confirmedOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -1947,7 +1986,7 @@
                 $('#confirmed-order-action-modal').modal('show');
             });
 
-            $('#courier_service').on('change', function () {
+            $('#courier_service').on('change', function() {
                 const selectedOption = $('#courier_service option:selected');
                 const courierName = selectedOption.val();
                 const courierId = selectedOption.data('id');
@@ -1955,7 +1994,7 @@
                 $('#courier_service_id').val(courierId);
             });
 
-            $(document).on('submit', '#confirmedOrderForm', function (e) {
+            $(document).on('submit', '#confirmedOrderForm', function(e) {
                 e.preventDefault();
 
                 let form = new FormData(this);
@@ -2078,7 +2117,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 Swal.close();
                                 if (response.status) {
                                     Swal.fire({
@@ -2089,7 +2128,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                                .replace(":type", response.type);
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2100,7 +2139,7 @@
                                     });
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.close();
                                 Swal.fire({
                                     title: "Error!",
@@ -2117,7 +2156,7 @@
 
             //<-------------- START: Pickup Order --------------->
             // pickup image fetch
-            $(document).on('click', '#uploadPickupImage', function () {
+            $(document).on('click', '#uploadPickupImage', function() {
                 $('.reject-reason-input-error').text('');
                 $('.reject-reason-input-error-section').hide();
 
@@ -2131,13 +2170,13 @@
                         _token: '{{ csrf_token() }}',
                         order_id: order_id
                     },
-                    success: function (response) {
+                    success: function(response) {
                         var defaultImage = "/assets/media/images/no_image.jpg";
 
                         if (response.status) {
                             $("#pickup_image_preview")
                                 .off("error")
-                                .on("error", function () {
+                                .on("error", function() {
                                     $(this).off("error");
                                     $(this).attr("src", defaultImage);
                                 })
@@ -2147,7 +2186,7 @@
                             $('#pickup_image_preview').attr('src', defaultImage);
                         }
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         $('#pickup_image_preview').attr('src', defaultImage);
                     }
                 });
@@ -2156,7 +2195,7 @@
             });
 
             // pickup image upload
-            $(document).on('submit', '#uploadPickupImageForm', function (e) {
+            $(document).on('submit', '#uploadPickupImageForm', function(e) {
                 e.preventDefault();
 
                 let form = $(this)[0];
@@ -2168,7 +2207,7 @@
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status) {
                             $('#uploadPickupImageForm')[0].reset();
                             $('#pickup_image_preview').attr('src', '');
@@ -2186,7 +2225,7 @@
                             $('.reject-reason-input-error-section').show();
                         }
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         let error = xhr.responseJSON?.message || 'Something went wrong.';
                         $('.reject-reason-input-error').text(error);
                         $('.reject-reason-input-error-section').show();
@@ -2194,7 +2233,7 @@
                 });
             });
 
-            $(document).on('click', '.pickupOrderAction', function () {
+            $(document).on('click', '.pickupOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -2210,7 +2249,7 @@
                 $('#pickup-order-action-modal').modal('show');
             });
 
-            $(document).on('change', '#pickup-order-action-modal input[name="status"]', function () {
+            $(document).on('change', '#pickup-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -2222,7 +2261,7 @@
                 }
             });
 
-            $('.reject_reason_select_pickup').change(function () {
+            $('.reject_reason_select_pickup').change(function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -2231,7 +2270,7 @@
                 }
             });
 
-            $(document).on('submit', '#pickupOrderForm', function (e) {
+            $(document).on('submit', '#pickupOrderForm', function(e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -2311,7 +2350,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -2321,7 +2360,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                                .replace(":type", response.type);
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2333,7 +2372,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -2349,7 +2388,7 @@
             //<-------------- END: Pickup Order --------------->
 
             //<-------------- START: In Transit Order --------------->
-            $(document).on('click', '.inTransitOrderAction', function () {
+            $(document).on('click', '.inTransitOrderAction', function() {
                 let product_id = $(this).attr('data-product-id');
                 let retailer_clone_product_id = $(this).attr('data-retailer-clone-product-id');
                 let order_product_id = $(this).attr('data-order-product-id');
@@ -2365,7 +2404,7 @@
                 $('#in-transit-order-action-modal').modal('show');
             });
 
-            $(document).on('change', '#in-transit-order-action-modal input[name="status"]', function () {
+            $(document).on('change', '#in-transit-order-action-modal input[name="status"]', function() {
                 const status = $(this).val();
                 $('.rejectReasonSelectContainer, .rejectReasonInputContainer').hide();
 
@@ -2377,7 +2416,7 @@
                 }
             });
 
-            $('.reject_reason_select_in_transit').change(function () {
+            $('.reject_reason_select_in_transit').change(function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -2386,7 +2425,7 @@
                 }
             });
 
-            $(document).on('submit', '#inTransitOrderForm', function (e) {
+            $(document).on('submit', '#inTransitOrderForm', function(e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -2467,7 +2506,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -2477,7 +2516,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                                .replace(":type", response.type);
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2489,7 +2528,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -2505,14 +2544,14 @@
             //<-------------- END: In Transit Order --------------->
 
             //<----------------- START : Cancel order while in shipping ---------------->
-            $(document).on('click', '.cancelOrder', function () {
+            $(document).on('click', '.cancelOrder', function() {
                 let order_id = $(this).attr('data-order-id');
                 $('.order_id').val(order_id);
 
                 $('#cancel-order-action-modal').modal('show');
             });
 
-            $('.reject_reason_select_cancel_order').change(function () {
+            $('.reject_reason_select_cancel_order').change(function() {
                 let selectedReason = $(this).val();
                 if (selectedReason == "Other") {
                     $('.rejectReasonInputContainer').show();
@@ -2521,7 +2560,7 @@
                 }
             });
 
-            $(document).on('submit', '#cancelOrderForm', function (e) {
+            $(document).on('submit', '#cancelOrderForm', function(e) {
                 e.preventDefault();
                 let form = new FormData(this);
 
@@ -2582,7 +2621,7 @@
                             data: form,
                             processData: false,
                             contentType: false,
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status) {
                                     Swal.fire({
                                         title: "Success!",
@@ -2592,7 +2631,7 @@
                                     }).then(() => {
                                         window.location.href =
                                             `{{ route('retailer.order.list', ':type') }}`
-                                                .replace(":type", response.type);
+                                            .replace(":type", response.type);
                                     });
                                 } else {
                                     Swal.fire({
@@ -2604,7 +2643,7 @@
                                     if (submitBtn) submitBtn.disabled = false;
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: "Error!",
                                     text: "Something went wrong, Please try later!",
@@ -2620,13 +2659,13 @@
             //<----------------- END : Cancel order while in shipping ---------------->
 
             //<----------------- START : raise issue ---------------->
-            $(document).on('click', '.raise-issue', function () {
+            $(document).on('click', '.raise-issue', function() {
                 let productId = $(this).data('id');
                 $('#raise_issue_product_id').val(productId);
                 $('#kt_modal_raise_issue').modal('show');
             });
 
-            $('#kt_modal_raise_issue').on('hidden.bs.modal', function () {
+            $('#kt_modal_raise_issue').on('hidden.bs.modal', function() {
                 const form = $('#raiseIssueForm');
                 form[0].reset();
 
@@ -2648,7 +2687,7 @@
 
 
 
-            $(document).on('submit', '#raiseIssueForm', function (e) {
+            $(document).on('submit', '#raiseIssueForm', function(e) {
                 e.preventDefault();
 
                 let formData = new FormData(this);
@@ -2720,13 +2759,14 @@
                     for (let i = 0; i < files.length; i++) {
                         let file = files[i];
                         let img = new Image();
-                        img.onload = function () {
+                        img.onload = function() {
                             filesChecked++;
                             if (filesChecked === files.length) proceedAfterValidation();
                         };
-                        img.onerror = function () {
+                        img.onerror = function() {
                             corruptedFound = true;
-                            $('#screenshots_error').text('One or more images are corrupted or invalid.');
+                            $('#screenshots_error').text(
+                                'One or more images are corrupted or invalid.');
                             $('#screenshots').addClass('is-invalid');
                         };
                         img.src = URL.createObjectURL(file);
@@ -2746,18 +2786,23 @@
                         data: formData,
                         contentType: false,
                         processData: false,
-                        success: function (response) {
+                        success: function(response) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Ticket Raised Successfully!',
                                 text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
                             }).then(() => {
-                                $('#kt_modal_raise_issue').modal('hide');
                                 document.getElementById('raiseIssueForm').reset();
                                 $('#raise_issue_product_id').val('');
+                                $('#kt_modal_raise_issue').modal('hide');
+                                submitButton.prop("disabled", false);
+                                submitButton.find(".indicator-label").show();
+                                submitButton.find(".indicator-progress").hide();
                             });
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             if (xhr.status === 422) {
                                 let response = xhr.responseJSON;
 
@@ -2773,14 +2818,16 @@
                                     }
 
                                     if (response.errors.ticket_description) {
-                                        $('#description_error').text(response.errors.ticket_description[0]);
+                                        $('#description_error').text(response.errors
+                                            .ticket_description[0]);
                                         $('#ticket_description').addClass('is-invalid');
                                     }
 
                                     let imageErrorShown = false;
 
                                     if (response.errors['ticket_image_ref']) {
-                                        $('#screenshots_error').text(response.errors['ticket_image_ref'][0]);
+                                        $('#screenshots_error').text(response.errors[
+                                            'ticket_image_ref'][0]);
                                         $('#screenshots').addClass('is-invalid');
                                         imageErrorShown = true;
                                     }
@@ -2789,7 +2836,8 @@
                                     if (!imageErrorShown) {
                                         for (const key in response.errors) {
                                             if (key.startsWith('ticket_image_ref.')) {
-                                                $('#screenshots_error').text(response.errors[key][0]);
+                                                $('#screenshots_error').text(response.errors[
+                                                    key][0]);
                                                 $('#screenshots').addClass('is-invalid');
                                                 break;
                                             }
@@ -2797,9 +2845,9 @@
                                     }
                                 }
 
-                                submitButton.prop("disabled", false);
-                                submitButton.find(".indicator-label").show();
-                                submitButton.find(".indicator-progress").hide();
+                                // submitButton.prop("disabled", false);
+                                // submitButton.find(".indicator-label").show();
+                                // submitButton.find(".indicator-progress").hide();
                             } else {
                                 Swal.fire({
                                     icon: 'error',
@@ -2807,9 +2855,9 @@
                                     text: 'Something went wrong. Please try again.',
                                 });
 
-                                submitButton.prop("disabled", false);
-                                submitButton.find(".indicator-label").show();
-                                submitButton.find(".indicator-progress").hide();
+                                // submitButton.prop("disabled", false);
+                                // submitButton.find(".indicator-label").show();
+                                // submitButton.find(".indicator-progress").hide();
                             }
                         },
                     });
@@ -2835,9 +2883,9 @@
             //             Swal.fire({
             //                 title: 'Reschedule Delivery',
             //                 html: `
-            //                     <label>Select Reschedule Date & Time</label>
-            //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
-            //                 `,
+        //                     <label>Select Reschedule Date & Time</label>
+        //                     <input type="datetime-local" id="rescheduleDate" class="swal2-input">
+        //                 `,
             //                 confirmButtonText: 'Submit',
             //                 focusConfirm: false,
             //                 preConfirm: () => {
@@ -2893,7 +2941,7 @@
             //<----------------- END : NDR ---------------->
 
             //<----------------- START : NDR ---------------->
-            $(document).on('click', '.ndr-reattempt', function () {
+            $(document).on('click', '.ndr-reattempt', function() {
                 let orderId = $(this).data('api-order_id');
 
                 Swal.fire({
@@ -2952,7 +3000,7 @@
                             reschedule_date: rescheduleDate,
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
-                        success: function (response) {
+                        success: function(response) {
                             Swal.fire({
                                 title: "Success!",
                                 text: response.message,
@@ -2962,10 +3010,10 @@
                                 // 🔁 Redirect to updated order list
                                 window.location.href =
                                     `{{ route('retailer.order.list', ':type') }}`
-                                        .replace(":type", response.type);
+                                    .replace(":type", response.type);
                             });
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.fire('Error!', xhr.responseJSON?.message ||
                                 'Something went wrong.', 'error');
                         }
@@ -2974,7 +3022,7 @@
             });
 
             // Custom search
-            $('#order_search').on('keyup change', function () {
+            $('#order_search').on('keyup change', function() {
                 let value = $(this).val();
                 dataTable.search(value).draw();
                 if (value.length > 0) {
@@ -2984,16 +3032,16 @@
                 }
             });
             // Clear search button
-            $('#clear_search').on('click', function () {
+            $('#clear_search').on('click', function() {
                 $('#order_search').val('');
                 dataTable.search('').draw();
                 $(this).addClass('d-none');
             });
 
-            $(document).ready(function () {
+            $(document).ready(function() {
                 $("#submitButton").prop("disabled", true);
 
-                $("input[name='status']").on("change", function () {
+                $("input[name='status']").on("change", function() {
                     $("#submitButton").prop("disabled", !$("input[name='status']:checked").length);
                 });
 
@@ -3004,12 +3052,12 @@
                     $(".reject_reason_input_confirmed").val("");
                 }
 
-                $(document).on("click", "#confirmDiscardYes", function () {
+                $(document).on("click", "#confirmDiscardYes", function() {
                     resetConfirmedOrderModal();
                     $("#confirmed-order-action-modal").modal("hide");
                 });
 
-                $(document).on("click", "#confirmDiscardNo", function () {
+                $(document).on("click", "#confirmDiscardNo", function() {
 
                 });
             });

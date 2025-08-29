@@ -13,12 +13,12 @@ class ApiResponse
         ], 200);
     }
 
-    public static function error($message = 'Something went wrong', $errors = [])
+    public static function error($message = 'Something went wrong', $errors = [], $code = 200)
     {
         return response()->json([
             'success' => false,
             'message' => $message,
             'errors'  => $errors,
-        ], 200); // Always HTTP 200
+        ], $code); // Always HTTP 200
     }
 }

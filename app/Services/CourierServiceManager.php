@@ -54,6 +54,21 @@ class CourierServiceManager
         return $services;
     }
 
+    public static function getService(): CourierInterface
+    {
+        // Get the active courier partner from the database
+        $partner = CourierPartner::where('is_active', true)->firstOrFail();
+
+        // Choose the appropriate courier service based on the code
+        return match ($partner->code) {
+            'fship' => new FShipService($partner->toArray()),
+            'lorrigotest' => new LorrigoService($partner->toArray()),
+            'lorrigolive' => new LorrigoServiceLive($partner->toArray()),
+            default => throw new \Exception("Unsupported courier: {$partner->code}")
+        };
+    }
+
+
     public static function getAllServicesForTracking(): array
     {
         $partners = CourierPartner::all(); // Fetch all, active and inactive

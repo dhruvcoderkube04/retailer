@@ -98,8 +98,8 @@
                                             @csrf
                                             <div class="card-body pt-8 p-5">
                                                 <div class="row mb-6">
-                                                    <label class="col-lg-4 col-form-label fw-semibold fs-6">Avatar</label>
                                                     <div class="col-lg-8">
+                                                        <label class="col-form-label fw-semibold fs-6">Avatar</label> <br>
                                                         <div class="image-input image-input-outline"
                                                             data-kt-image-input="true"
                                                             style="background-image: url('assets/media/svg/avatars/blank.svg')">
@@ -150,10 +150,9 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="row mb-6">
-                                                    <label class="col-lg-4 col-form-label required fw-semibold fs-6">Full
-                                                        Name</label>
-                                                    <div class="col-lg-8">
+                                                <div class="row mb-6 g-5">
+                                                    <div class="col-lg-12">
+                                                        <label class="col-form-label required fw-semibold fs-6">Full Name</label>
                                                         <div class="row">
                                                             <div class="col-lg-6 fv-row">
                                                                 <input type="text" name="firstname"
@@ -175,12 +174,9 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label
-                                                        class="col-lg-4 col-form-label required fw-semibold fs-6">Company</label>
-                                                    <div class="col-lg-8 fv-row">
+                                                
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label required fw-semibold fs-6">Company</label>
                                                         <input type="text" name="company"
                                                             class="form-control form-control-lg form-control-solid @error('company') is-invalid @enderror"
                                                             placeholder="Company name"
@@ -189,12 +185,9 @@
                                                             <div class="invalid-feedback">{{ $message }} </div>
                                                         @enderror
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label
-                                                        class="col-lg-4 col-form-label required fw-semibold fs-6">Email</label>
-                                                    <div class="col-lg-8 fv-row">
+                                                
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label required fw-semibold fs-6">Email</label>
                                                         <input type="email"
                                                             class="form-control form-control-lg form-control-solid 	@error('email') is-invalid @enderror"
                                                             placeholder="Email" value="{{ $userprofile->email }}"
@@ -203,21 +196,19 @@
                                                             <div class="invalid-feedback">{{ $message }} </div>
                                                         @enderror
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label class="col-lg-4 col-form-label fw-semibold fs-6">
-                                                        <span class="required">Contact Phone</span>
-                                                        <span class="ms-1" data-bs-toggle="tooltip"
-                                                            title="Phone number must be active">
-                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                                <span class="path3"></span>
-                                                            </i>
-                                                        </span>
-                                                    </label>
-                                                    <div class="col-lg-8 fv-row">
+                                               
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label fw-semibold fs-6">
+                                                            <span class="required">Contact Phone</span>
+                                                            <span class="ms-1" data-bs-toggle="tooltip"
+                                                                title="Phone number must be active">
+                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                </i>
+                                                            </span>
+                                                        </label>
                                                         <input type="tel" name="phone"
                                                             class="form-control form-control-lg form-control-solid 	@error('phone') is-invalid @enderror"
                                                             placeholder="Phone number"
@@ -226,21 +217,19 @@
                                                             <div class="invalid-feedback">{{ $message }} </div>
                                                         @enderror
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label class="col-lg-4 col-form-label fw-semibold fs-6">
-                                                        <span class="required">Country</span>
-                                                        <span class="ms-1" data-bs-toggle="tooltip"
-                                                            title="Country of origination">
-                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                                <span class="path3"></span>
-                                                            </i>
-                                                        </span>
-                                                    </label>
-                                                    <div class="col-lg-8 fv-row">
+                                                
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label fw-semibold fs-6">
+                                                            <span class="required">Country</span>
+                                                            <span class="ms-1" data-bs-toggle="tooltip"
+                                                                title="Country of origination">
+                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                </i>
+                                                            </span>
+                                                        </label>
                                                         <select name="country" id="countySel"
                                                             aria-label="Select a Country" data-control="select2"
                                                             data-placeholder="Select a country..."
@@ -251,21 +240,19 @@
                                                             </option>
                                                         </select>
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label class="col-lg-4 col-form-label fw-semibold fs-6">
-                                                        <span class="required">State</span>
-                                                        <span class="ms-1" data-bs-toggle="tooltip"
-                                                            title="Country of origination">
-                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                                <span class="path3"></span>
-                                                            </i>
-                                                        </span>
-                                                    </label>
-                                                    <div class="col-lg-8 fv-row">
+                                                
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label fw-semibold fs-6">
+                                                            <span class="required">State</span>
+                                                            <span class="ms-1" data-bs-toggle="tooltip"
+                                                                title="Country of origination">
+                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                </i>
+                                                            </span>
+                                                        </label>
                                                         <select name="state" id="stateSel" aria-label="Select a State"
                                                             data-control="select2" data-placeholder="Select a state..."
                                                             class="form-select form-select-solid form-select-lg fw-semibold">
@@ -275,21 +262,19 @@
                                                             </option>
                                                         </select>
                                                     </div>
-                                                </div>
 
-                                                <div class="row mb-6">
-                                                    <label class="col-lg-4 col-form-label fw-semibold fs-6">
-                                                        <span class="required">City</span>
-                                                        <span class="ms-1" data-bs-toggle="tooltip"
-                                                            title="Country of origination">
-                                                            <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
-                                                                <span class="path1"></span>
-                                                                <span class="path2"></span>
-                                                                <span class="path3"></span>
-                                                            </i>
-                                                        </span>
-                                                    </label>
-                                                    <div class="col-lg-8 fv-row">
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label fw-semibold fs-6">
+                                                            <span class="required">City</span>
+                                                            <span class="ms-1" data-bs-toggle="tooltip"
+                                                                title="Country of origination">
+                                                                <i class="ki-duotone ki-information-5 text-gray-500 fs-6">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                </i>
+                                                            </span>
+                                                        </label>
                                                         <select name="city" id="districtSel"
                                                             aria-label="Select a City" data-control="select2"
                                                             data-placeholder="Select a city..."
@@ -300,30 +285,23 @@
                                                             </option>
                                                         </select>
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label
-                                                        class="col-lg-4 col-form-label required fw-semibold fs-6">Address</label>
-                                                    <div class="col-lg-8 fv-row">
+                                                
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label required fw-semibold fs-6">Address</label>
                                                         <input type="text" name="address"
                                                             class="form-control form-control-lg form-control-solid"
                                                             placeholder="Address"
                                                             value="{{ @$userprofile->userDetail->address }}" />
                                                     </div>
-                                                </div>
-
-                                                <div class="row mb-6">
-                                                    <label
-                                                        class="col-lg-4 col-form-label required fw-semibold fs-6">Pincode</label>
-                                                    <div class="col-lg-8 fv-row">
+                                                
+                                                    <div class="col-lg-6 fv-row">
+                                                        <label class="col-form-label required fw-semibold fs-6">Pincode</label>
                                                         <input type="text" name="pincode"
                                                             class="form-control form-control-lg form-control-solid"
                                                             placeholder="Pin code"
                                                             value="{{ @$userprofile->userDetail->postal_code }}" />
                                                     </div>
                                                 </div>
-                                            </div>
 
                                             <div class="card-footer d-flex justify-content-end py-6 px-9">
                                                 <button type="reset"

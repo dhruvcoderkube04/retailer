@@ -20,7 +20,7 @@ class CoupanController extends Controller
     public function fetchCouponsRecord(Request $request)
     {
         $user_id = Auth::id();
-        $search = $request->input('search');
+        $search = cleanInput($request->input('search'));
         $start = $request->input('start', 0);
         $length = $request->input('length', 10);
         $draw = $request->input('draw');

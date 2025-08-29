@@ -196,6 +196,7 @@ class RetailerOrderController extends Controller
 
         // Payment status
         $statusMap = [
+            'all' => 'all',
             'new' => 'pending',
             'approved-by-retailer' => 'approved_by_retailer',
             'transferred-to-wholesaler' => 'transfered_retailer_to_wholesaler',
@@ -210,14 +211,18 @@ class RetailerOrderController extends Controller
             'cancel' => 'cancel',
             'lost' => 'lost'
         ];
-        if (!array_key_exists($type, $statusMap)) {
+        if ($type !== 'all' && !array_key_exists($type, $statusMap)) {
             return redirect()->route('retailer.order.list');
         }
-        $payment_method_list = CustomerOrders::select('payment_method')
-            ->where('retailer_id', $retailer->id)
-            ->where('status', $statusMap[$type])
-            ->distinct()
-            ->get();
+
+        $payment_method_query = CustomerOrders::select('payment_method')
+            ->where('retailer_id', $retailer->id);
+
+        if ($type !== 'all') {
+            $payment_method_query->where('status', $statusMap[$type]);
+        }
+
+        $payment_method_list = $payment_method_query->distinct()->get();
 
         return view('orders.orders-list', compact(
             'count',
@@ -231,19 +236,19 @@ class RetailerOrderController extends Controller
     // AJAX : server-side data-table for order list
     public function fetchRecordOrderList(Request $request)
     {
-        $limit = ($request->has('length') ? $request->input('length') : 10);
-        $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $limit = $request->input('length', 10);
+        $page = $request->input('start', 0);
+        $search = cleanInput($request->input('search.value', ''));
         $payment_method_filter = $request->input('payment_method_filter');
         $date_filter = explode(' - ', $request->input('date_filter'));
         $type = $request->type;
 
         $from = Carbon::createFromFormat('d/m/Y', $date_filter[0])->format('Y-m-d');
-        $to = Carbon::createFromFormat('d/m/Y', $date_filter[1])->format('Y-m-d');
+        $to   = Carbon::createFromFormat('d/m/Y', $date_filter[1])->format('Y-m-d');
 
         $retailer = Auth::user();
 
-        // Filter by type to stage
+        // Type to status mapping
         $statusMap = [
             'new' => 'pending',
             'approved-by-retailer' => 'approved_by_retailer',
@@ -260,7 +265,7 @@ class RetailerOrderController extends Controller
             'lost' => 'lost',
         ];
 
-        // Filter by type to date_at
+        // Type to stage date column
         $stageDateMap = [
             'new' => 'created_at',
             'approved-by-retailer' => 'approved_by_retailer_at',
@@ -277,7 +282,7 @@ class RetailerOrderController extends Controller
             'lost' => 'lost_at',
         ];
 
-        // Filter by type to name
+        // Type to display name
         $typeNameMap = [
             'new' => 'New',
             'approved-by-retailer' => 'Approved',
@@ -294,7 +299,7 @@ class RetailerOrderController extends Controller
             'lost' => 'Lost',
         ];
 
-        // Filter by type to color
+        // Type to badge color
         $typeColorMap = [
             'new' => 'primary',
             'approved-by-retailer' => 'info',
@@ -311,7 +316,7 @@ class RetailerOrderController extends Controller
             'lost' => 'muted',
         ];
 
-        // Filter by status to color
+        // Status to badge color
         $statusColorMap = [
             'pending' => 'light-primary',
             'approved_by_retailer' => 'info',
@@ -334,104 +339,118 @@ class RetailerOrderController extends Controller
             'customer',
             'order_product_detail',
             'wholesaler.userDetail',
-            'appliedCoupon'
-        ])
-            ->where('retailer_id', $retailer->id)
-            ->whereDate($stageDateMap[$type], '>=', $from) // filter : date
-            ->whereDate($stageDateMap[$type], '<=', $to); // filter : date
+        ])->where('retailer_id', $retailer->id);
 
-        if ($type == 'transferred-to-wholesaler') {
-            $query->whereNotNull('transfered_retailer_to_wholesaler_at')
-                ->where('order_process_by', 'wholesaler');
+        // Filters based on type
+        if ($type !== 'all') {
+            $query->whereDate($stageDateMap[$type], '>=', $from)
+                ->whereDate($stageDateMap[$type], '<=', $to);
+
+            if ($type == 'transferred-to-wholesaler') {
+                $query->whereNotNull('transfered_retailer_to_wholesaler_at')
+                    ->where('order_process_by', 'wholesaler');
+            } else {
+                $query->where('status', $statusMap[$type])
+                    ->where('order_process_by', 'retailer')
+                    ->where('checkout_type', 'normal');
+            }
         } else {
-            $query->where('status', $statusMap[$type])
-                ->where('order_process_by', 'retailer')
-                ->where('checkout_type', 'normal');
+            $query->whereDate('created_at', '>=', $from)
+                ->whereDate('created_at', '<=', $to);
         }
 
-        // search
+        // 🔍 Search
         if (!empty($search)) {
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
 
             $query->where(function ($q) use ($search) {
-                $q->where('order_id', 'like', '%' . $search . '%')
-                    ->orWhere('product_variation', 'like', '%' . $search . '%')
-                    ->orWhere('quantity', 'like', '%' . $search . '%')
-                    ->orWhere('final_amount', 'like', '%' . $search . '%')
-                    ->orWhere('shipment_status', 'like', '%' . $search . '%')
-                    ->orWhere('courier_partner_code', 'like', '%' . $search . '%')
-                    ->orWhere('cancelled_reason', 'like', '%' . $search . '%')
-                    ->orWhere('product_weight', 'like', '%' . $search . '%')
-                    ->orWhere('tracking_number', 'like', '%' . $search . '%')
-                    ->orWhere('courier_service', 'like', '%' . $search . '%')
-                    ->orWhere('service_mode', 'like', '%' . $search . '%')
-                    ->orWhere('shipping_charge', 'like', '%' . $search . '%')
-                    ->orWhere('cod_charge', 'like', '%' . $search . '%')
-                    ->orWhere('rto_charge', 'like', '%' . $search . '%')
-                    // ->orWhere('charges', 'like', '%' . $search . '%')
-                    ->orWhere('payment_method', 'like', '%' . $search . '%')
+                $q->where('order_id', 'like', "%{$search}%")
+                    ->orWhere('product_variation', 'like', "%{$search}%")
+                    ->orWhere('quantity', 'like', "%{$search}%")
+                    ->orWhere('final_amount', 'like', "%{$search}%")
+                    ->orWhere('shipment_status', 'like', "%{$search}%")
+                    ->orWhere('courier_partner_code', 'like', "%{$search}%")
+                    ->orWhere('cancelled_reason', 'like', "%{$search}%")
+                    ->orWhere('product_weight', 'like', "%{$search}%")
+                    ->orWhere('tracking_number', 'like', "%{$search}%")
+                    ->orWhere('courier_service', 'like', "%{$search}%")
+                    ->orWhere('service_mode', 'like', "%{$search}%")
+                    ->orWhere('shipping_charge', 'like', "%{$search}%")
+                    ->orWhere('cod_charge', 'like', "%{$search}%")
+                    ->orWhere('rto_charge', 'like', "%{$search}%")
+                    ->orWhere('payment_method', 'like', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where(function ($q) use ($search) {
-                            $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
-                                ->orWhere('firstname', 'like', '%' . $search . '%')
-                                ->orWhere('lastname', 'like', '%' . $search . '%')
-                                ->orWhere('phone_number', 'like', '%' . $search . '%')
-                                ->orWhere('email', 'like', '%' . $search . '%')
-                                ->orWhere('address', 'like', '%' . $search . '%')
-                                ->orWhere('state', 'like', '%' . $search . '%')
-                                ->orWhere('city', 'like', '%' . $search . '%')
-                                ->orWhere('pincode', 'like', '%' . $search . '%');
-                        });
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
+                            ->orWhere('firstname', 'like', "%{$search}%")
+                            ->orWhere('lastname', 'like', "%{$search}%")
+                            ->orWhere('phone_number', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('address', 'like', "%{$search}%")
+                            ->orWhere('state', 'like', "%{$search}%")
+                            ->orWhere('city', 'like', "%{$search}%")
+                            ->orWhere('pincode', 'like', "%{$search}%");
                     })
                     ->orWhereHas('order_product_detail', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('slug', 'like', '%' . $search . '%');
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('slug', 'like', "%{$search}%");
                     });
             });
         }
 
-        // filter : payment_method
+        // 💳 Payment filter
         if (!empty($payment_method_filter) && $payment_method_filter != 'all') {
             $query->where('payment_method', $payment_method_filter);
         }
+
+        // 📑 Sorting
+        $columnMap = [
+            'order_id' => 'order_id',
+            'final_amount' => 'final_amount',
+            'created_at' => 'created_at',
+            // add more if needed
+        ];
 
         if ($request->has('order') && isset($request->order[0])) {
             $columnIndex = $request->order[0]['column'];
             $columnName = $request->columns[$columnIndex]['data'];
             $direction = $request->order[0]['dir'];
 
-            // use map instead of raw column
             if (isset($columnMap[$columnName])) {
                 $query->orderBy($columnMap[$columnName], $direction);
             }
         } else {
-            $query->orderBy($stageDateMap[$type], 'desc');
+            if ($type !== 'all') {
+                $query->orderBy($stageDateMap[$type], 'desc');
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
         }
 
-
+        // 📊 Count before pagination
         $cntFilter = clone $query;
-        $query->offset($page)->limit($limit);
-        $orders = $query->get();
-        $queryTotalSql = CustomerOrders::with([
-            'customer',
-            'order_product_detail',
-            'wholesaler.userDetail',
-        ])
-            ->where('retailer_id', $retailer->id)
-            ->whereDate($stageDateMap[$type], '>=', $from) // filter : date
-            ->whereDate($stageDateMap[$type], '<=', $to); // filter : date
-        if ($type == 'transferred-to-wholesaler') {
-            $queryTotalSql->whereNotNull('transfered_retailer_to_wholesaler_at')
-                ->where('order_process_by', 'wholesaler');
+
+        // 🔄 Pagination
+        $orders = $query->offset($page)->limit($limit)->get();
+
+        // 🔢 Total count
+        $queryTotalSql = CustomerOrders::where('retailer_id', $retailer->id);
+        if ($type !== 'all') {
+            $queryTotalSql->whereDate($stageDateMap[$type], '>=', $from)
+                ->whereDate($stageDateMap[$type], '<=', $to);
+
+            if ($type == 'transferred-to-wholesaler') {
+                $queryTotalSql->whereNotNull('transfered_retailer_to_wholesaler_at')
+                    ->where('order_process_by', 'wholesaler');
+            } else {
+                $queryTotalSql->where('status', $statusMap[$type])
+                    ->where('order_process_by', 'retailer')
+                    ->where('checkout_type', 'normal');
+            }
         } else {
-            $queryTotalSql->where('status', $statusMap[$type])
-                ->where('order_process_by', 'retailer')
-                ->where('checkout_type', 'normal');
+            $queryTotalSql->whereDate('created_at', '>=', $from)
+                ->whereDate('created_at', '<=', $to);
         }
         $queryTotal = $queryTotalSql->count('id');
 
@@ -440,14 +459,14 @@ class RetailerOrderController extends Controller
         foreach ($orders as $item) {
             $i++;
 
-            $stageDateField = $stageDateMap[$type];
+            $stageDateField = $stageDateMap[$type] ?? 'created_at';
             $order_date = '<div class="row">
                     <div class="col-12 mb-2 fs-6">
                         <strong>Order Date:</strong><br>
                         <span class="text-dark fw-bold">' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
                     </div>';
 
-            if ($type !== 'new') {
+            if ($type !== 'new' && $type !== 'all') {
                 $order_date .= '
                     <div class="col-12">
                         <strong>' . $typeNameMap[$type] . ' At:</strong><br>
@@ -552,8 +571,8 @@ class RetailerOrderController extends Controller
                                   <span class="badge badge-light-success text-wrap fs-6">' . (strtoupper($item->payment_method) ?? 'N/A') . '</span>
                                   <span class="badge fs-6 badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
                         </div>';
-                        if ($item->wholesaler) {
-                            $order_detail .= '
+            if ($item->wholesaler) {
+                $order_detail .= '
                             <div class="d-flex mb-2 gap-2">
                                 <span ><strong>Wholesaler:</strong></span>
                                 <span class="badge badge-light-info text-wrap fs-6">' . ($item->wholesaler->firstname ?? '') . ' ' . ($item->wholesaler->lastname ?? '') . '</span>
@@ -562,7 +581,7 @@ class RetailerOrderController extends Controller
                                 <span><strong>Wholesaler Phone:</strong></span>
                                 <span class="badge badge-light-success text-wrap fs-6">' . ($item->wholesaler->phone_number ?? '') . '</span>
                             </div>';
-                        }
+            }
 
             $order_detail .= '</div>';
 
@@ -609,7 +628,7 @@ class RetailerOrderController extends Controller
                     </div>
                     </div>';
             }
-            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd'||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
+            if (($item->status == 'pickup' || $item->status == 'in_transit' || $item->status == 'ofd' ||  $item->status == 'ndr') && $item->shipping_label_url && $type !== 'transferred-to-wholesaler') {
                 $tracking_info .= '
                     <div class="mt-2">
                         <a href="' . $item->shipping_label_url . '" target="_blank">
@@ -660,7 +679,7 @@ class RetailerOrderController extends Controller
                 $action .= '<button type="button" class="btn btn-primary btn-icon h-30px px-4 w-auto " style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' >Action</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
-             }elseif ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
+            } elseif ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
                 $action .= '<button type="button" style="white-space: nowrap;" class="btn btn-primary btn-sm ndr-reattempt"' . $common_attrs . ' >Re-Attempet Order</button><div class="d-block w-100"></div> <br> ';
                 // $action .= '<button type="button" class="btn btn-primary btn-sm" style="white-space: nowrap; opacity: 0.4" ' . $common_attrs . ' disabled>Action</button>';
                 // $action .= '<button type="button" class="btn btn-danger btn-sm cancelOrder"' . $common_attrs . ' >Cancel</button>';
@@ -707,7 +726,12 @@ class RetailerOrderController extends Controller
             );
         }
 
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+        return response()->json([
+            "draw" => $request->input('draw'),
+            "recordsTotal" => $queryTotal,
+            "recordsFiltered" => $cntFilter->count(),
+            "data" => $data,
+        ]);
     }
 
     // ACTION : New
@@ -779,7 +803,7 @@ class RetailerOrderController extends Controller
         DB::beginTransaction();
         try {
             $retailer = Auth::user();
-            $customerOrder = CustomerOrders::with(['customer', 'order_product_detail','retailer','wholesaler'])->find($request->order_id);
+            $customerOrder = CustomerOrders::with(['customer', 'order_product_detail', 'retailer', 'wholesaler'])->find($request->order_id);
 
             if (!$customerOrder) {
                 return response()->json(['status' => false, 'msg' => 'Invalid Order ID']);
@@ -1085,12 +1109,10 @@ class RetailerOrderController extends Controller
 
             // Search filter
             if ($request->has('search') && !empty($request->search) && $request->search !== '') {
-                $search = $request->search;
+                $search = cleanInput($request->search);
                 $search = trim($search);
                 $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-                if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                    abort(400, 'Invalid search input detected.');
-                }
+              
                 $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
                         ->orWhere('product_variation', 'like', '%' . $search . '%')
@@ -1137,9 +1159,9 @@ class RetailerOrderController extends Controller
             }
 
             $records = $query->orderBy($orderColumn, $orderDir)
-            ->skip($request->start)
-            ->take($request->length)
-            ->get();
+                ->skip($request->start)
+                ->take($request->length)
+                ->get();
 
             $totalRecords = CustomerOrders::where('order_process_by', 'wholesaler')
                 ->where('checkout_type', 'punch')
@@ -1193,8 +1215,8 @@ class RetailerOrderController extends Controller
                 // $statusBadge = $order->status == 'approved' ? 'badge-success' : 'badge-danger';
 
                 $orderDetailHTML = "
-                    <div class='my-2'><strong>Order Id:</strong> {$order->order_id}</div>
-                    <div class='my-2'><strong>Name:</strong> " . ($product->name ?? 'N/A') . "</div>";
+                    <div class='my-2'><strong>Order Id:</strong> <span class='text-start text-dark fw-bold'>{$order->order_id}</span></div>
+                    <div class='my-2'><strong>Name:</strong> <span class='text-start text-dark fw-bold'>" . ($product->name ?? 'N/A') . "</span></div>";
 
                 if ($order->product_variation) {
                     $orderDetailHTML .= '<div class="col-12 my-2"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . ($order->product_variation ?? 'N/A') . '</div></div>';
@@ -1210,19 +1232,19 @@ class RetailerOrderController extends Controller
                     </div>
                     <div class='my-2'>
                         <strong>Reason:</strong>
-                        <span>
+                        <span class='text-start text-dark fw-bold'>
                             " . ($orderStatus[$order->status] ?? 'Unknown') . "
                         </span>
                     </div>
                     ";
 
                 if ($order->status == 'cancel') {
-                    $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
+                    $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger fw-bold'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
                 }
 
                 $orderDetailHTML .= "
-                    <div class='my-2'><strong>Tracking Id:</strong> " . ($order->tracking_number ?? 'N/A') . "</div>
-                    <div class='my-2'><strong>API Order Id:</strong> " . ($order->api_order_id ?? 'N/A') . "</div>";
+                    <div class='my-2'><strong>Tracking Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->tracking_number ?? 'N/A') . "</span></div>
+                    <div class='my-2'><strong>API Order Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->api_order_id ?? 'N/A') . "</span></div>";
 
                 if ($order->status == 'pickup' && $order->shipping_label_url) {
                     $orderDetailHTML .= "
@@ -1240,9 +1262,9 @@ class RetailerOrderController extends Controller
                         onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";'
                         width='100' style='border-radius: 5px;'>",
                     'wholesaler_detail' => $wholesaler ? "
-                        <div class='my-2'><strong>Name:</strong> {$wholesaler->company_name}</div>
-                        <div class='my-2'><strong>Email:</strong> {$order->wholesaler->email}</div>
-                        <div class='my-2'><strong>Mobile:</strong> {$order->wholesaler->phone_number}</div>
+                        <div class='my-2'><strong>Name:</strong> <span class='text-start text-dark fw-bold'>{$wholesaler->company_name}</span></div>
+                        <div class='my-2'><strong>Email:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->email}</span></div>
+                        <div class='my-2'><strong>Mobile:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->phone_number}</span></div>
                     " : 'N/A',
                 ];
             }
@@ -1322,9 +1344,8 @@ class RetailerOrderController extends Controller
                 return response()->json([
                     // 'message' => 'Order reattempted successfully.',
                     'api_response' => $response,
-                    'type'=>'in-transit'
+                    'type' => 'in-transit'
                 ]);
-
             } elseif ($request->type == 2) {
                 // RTO logic
                 $retailer = Auth::user();
@@ -1365,7 +1386,6 @@ class RetailerOrderController extends Controller
 
             DB::rollBack();
             return response()->json(['message' => 'Invalid action'], 400);
-
         } catch (\Throwable $e) {
             DB::rollBack();
             \Log::error('ReattemptNdr error: ' . $e->getMessage());

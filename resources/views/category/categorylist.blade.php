@@ -54,28 +54,30 @@
                                             <h2 class="fs-3 text-dark text-center fw-bold mb-8">Choose Your Category List
                                             </h2>
                                         </div>
+                                        {{-- Global Select All --}}
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" id="select_all_categories" style="width: 17px; height: 17px;" />
+                                            <label class="form-check-label fw-bold text-gray-800" for="select_all_categories"><h4>Select All Categories</h4></label>
+                                        </div><br>
 
                                         @foreach ($categories as $a => $category)
                                             <div class="m-0">
-                                                <div class="d-flex align-items-center collapsible py-3 toggle mb-0"
-                                                    data-bs-toggle="collapse" data-bs-target="#category{{ $a }}">
-                                                    <div class="btn btn-sm btn-icon mw-20px btn-active-color-primary me-5">
-                                                        <i class="ki-duotone ki-minus-square toggle-on text-primary fs-1">
-                                                            <span class="path1"></span>
-                                                            <span class="path2"></span>
-                                                        </i>
-                                                        <i class="ki-duotone ki-plus-square toggle-off fs-1">
-                                                            <span class="path1"></span>
-                                                            <span class="path2"></span>
-                                                            <span class="path3"></span>
-                                                        </i>
-                                                    </div>
-                                                    <h4 class="text-gray-700 fw-bold cursor-pointer mb-0">
-                                                        {{ strtoupper($category->category_name) }}
-                                                    </h4>
+                                                {{-- Per Category Select All --}}
+                                                @php
+                                                    $allSubChecked = $category->subCategory->pluck('id')->every(fn($id) => in_array($id, $addedCategories ?? []));
+                                                @endphp
+                                                <div class="form-check ps-10 mb-2">
+                                                    <input type="checkbox" class="form-check-input select-category"
+                                                        id="select_category_{{ $category->id }}"
+                                                        data-category-id="{{ $category->id }}"
+                                                        style="width: 17px; height: 17px;" {{ $allSubChecked ? 'checked' : '' }}/>
+                                                    <label class="form-check-label fw-bold text-gray-700" for="select_category_{{ $category->id }}">
+                                                        <h4>{{ strtoupper($category->category_name) }}</h4>
+                                                    </label>
                                                 </div>
 
-                                                <div id="category{{ $a }}" class="collapse show fs-6 ms-1">
+                                                {{-- <div id="category{{ $a }}" class="collapse show fs-6 ms-1"> --}}
+                                                <div id="category{{ $category->id }}" class="collapse show fs-6 ms-1">
                                                     @foreach ($category->subCategory as $b => $sub_category)
                                                         <div class="mb-4">
                                                             {{-- <div class="d-flex align-items-center ps-10 mb-n1">
@@ -120,8 +122,9 @@
 
                                                 <div class="separator separator-dashed"></div>
                                             </div>
-                                        @endforeach
-                                    </div>
+                                            @endforeach
+                                        </div>
+                                        <button type="button" class="btn btn-primary mt-3 btn-save-categories">Save Selected Categories</button>
                                 </div>
 
                                 <div class="flex-lg-row-auto w-100 w-lg-375px w-xxl-450px">
@@ -188,30 +191,7 @@
                 }
             });
 
-            $(document).on('change', '.sub-category-checkbox', function() {
-                const checkbox = $(this);
-                const subCategoryId = $(this).attr('data-sub-category-id');
-                const categoryId = $(this).attr('data-category-id');
-                const actionType = $(this).attr('data-type');
 
-                if (actionType == 'remove') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Are You sure to Remove it !',
-                        showCancelButton: true,
-                        confirmButtonColor: '#000',
-                        confirmButtonText: 'Yes, remove it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox);
-                        } else {
-                            $(this).prop('checked', true);
-                        }
-                    });
-                } else {
-                    sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox);
-                }
-            })
 
             function sendAjaxRequest(subCategoryId, categoryId, actionType, checkbox) {
                 $('.sub-category-checkbox, .remove-sub-category').prop('disabled', true);
@@ -262,6 +242,79 @@
                     }
                 });
             }
+        });
+
+
+        // Global select all
+        $(document).on("change", "#select_all_categories", function () {
+            $(".sub-category-checkbox").prop("checked", this.checked);
+            $(".select-category").prop("checked", this.checked);
+        });
+
+        // Per-category select all
+        $(document).on("change", ".select-category", function () {
+            let categoryIndex = $(this).closest(".m-0").find("[id^=category]").attr("id").replace("category", "");
+            let isChecked = this.checked;
+            $(`#category${categoryIndex} .sub-category-checkbox`).prop("checked", isChecked);
+        });
+
+        // Sync parent checkboxes
+        $(document).on("change", ".sub-category-checkbox", function () {
+            let categoryId = $(this).data("category-id");
+
+            // If all sub-categories checked -> check category select
+            let allChecked = $(`#category${categoryId} .sub-category-checkbox`).length ===
+                            $(`#category${categoryId} .sub-category-checkbox:checked`).length;
+            $(`#select_category_${categoryId}`).prop("checked", allChecked);
+
+            // If all categories checked -> check global select
+            let allGlobalChecked = $(".sub-category-checkbox").length === $(".sub-category-checkbox:checked").length;
+            $("#select_all_categories").prop("checked", allGlobalChecked);
+        });
+
+
+        $(document).on("click", ".btn-save-categories", function () {
+                // Get all checked sub-category IDs
+            let selected = $(".sub-category-checkbox:checked").map(function () {
+                return $(this).val();
+            }).get();
+
+            $.ajax({
+                url: "{{ route('retailer.category.save-selected-categories') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    selected_sub_categories: selected
+                },
+                success: function (response) {
+                    if (response.status) {
+                        $('#reload-categorylist').html(response.html_1);
+                        $('#reload-selected-categorylist').html(response.html_2);
+
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.msg,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.msg,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
         });
     </script>
 @endsection

@@ -180,3 +180,28 @@ if (!function_exists('isMaliciousSearch')) {
       }
    }
 
+   if (!function_exists('cleanInput')) {
+      function cleanInput($input)
+      {
+         // 1. Remove script tags
+         $input = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $input);
+
+         // 2. Remove all event handlers like onclick, onerror, onload
+         $input = preg_replace('/on\w+="[^"]*"/i', '', $input); // double quotes
+         $input = preg_replace("/on\w+='[^']*'/i", '', $input); // single quotes
+
+         // 3. Remove javascript:, data: and vbscript: protocols
+         $input = preg_replace('/(javascript:|data:|vbscript:)/i', '', $input);
+
+         // 4. Remove iframe, embed, object, and other dangerous tags
+         $input = preg_replace('#<(iframe|embed|object|applet|meta|link|style|base)[^>]*>.*?</\1>#is', '', $input);
+         $input = preg_replace('#<(iframe|embed|object|applet|meta|link|style|base)[^>]*>#is', '', $input);
+
+         // 5. Remove remaining HTML tags (optional — keep if you want plain text)
+         $input = strip_tags($input);
+
+         // 6. Trim spaces
+         return trim($input);
+      }
+   }
+
