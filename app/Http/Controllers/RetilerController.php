@@ -247,6 +247,9 @@ class RetilerController extends Controller
         $subCategoryFilter = $request->input('sub_category_filter', ''); //add subCategories
         $retailer = Auth::user();
 
+        dd($search);
+
+
         $query = User::with('userDetail')
             ->where('user_type', 2)
             ->where('status', 1);
