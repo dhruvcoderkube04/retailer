@@ -832,7 +832,7 @@ class ShippingController extends Controller
     public function trackOrderStatus(Request $request)
     {
         $request->validate([
-            'track_no' => 'required|string',
+            'track_no' => 'required|string|max:25',
         ]);
 
         try {
@@ -974,7 +974,7 @@ class ShippingController extends Controller
                         Log::error("🚫 Failed : In Transit processed for order #{$order->order_id}: {$msg}");
                     }
                 }
-                // Out for delivery 
+                // Out for delivery
                 if ($status === 'ofd') {
 
                     [$success, $msg, $finalStatus] = $statusService->handleOutForDeliveryStatus($order);
