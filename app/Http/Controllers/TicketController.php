@@ -26,7 +26,7 @@ class TicketController extends Controller
     public function FetchticketList(Request $request)
     {
         $user_id = Auth::id();
-        $search = $request->input('search');
+        $search = cleanInput($request->input('search'));
         $start = $request->input('start', 0);
         $length = $request->input('length', 10);
         $draw = $request->input('draw');
@@ -40,9 +40,6 @@ class TicketController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
 
             $query->where(function ($q) use ($search) {
                 $q->where('ticket_id', 'like', "%{$search}%")

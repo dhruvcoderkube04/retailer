@@ -9,6 +9,7 @@ use App\Models\RetailerCategory;
 use App\Models\RetailerCloneProduct;
 use App\Models\RetailerProducts;
 use App\Models\RetailerWebsiteEnquiry;
+use App\Models\SubCategory;
 use App\Rules\NoCodeInjection;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class RetailerCategoryController extends Controller
 {
@@ -130,6 +132,84 @@ class RetailerCategoryController extends Controller
         }
     }
 
+    public function saveSelectedCategories(Request $request)
+    {
+        $user = Auth::user();
+        $selected = $request->input('selected_sub_categories', []); // array of IDs
+
+        // Fetch all categories user already has
+        $existing = RetailerCategory::where('retailer_id', $user->id)
+            ->pluck('sub_category_id')
+            ->toArray();
+
+        // New selections to add
+        $toAdd = array_diff($selected, $existing);
+
+        // Old ones to remove
+        $toRemove = array_diff($existing, $selected);
+
+        DB::beginTransaction();
+        try {
+            // Add
+            foreach ($toAdd as $subCategoryId) {
+                $subCategory = SubCategory::find($subCategoryId);
+                if ($subCategory) {
+                    RetailerCategory::create([
+                        'retailer_id' => $user->id,
+                        'category_id' => $subCategory->category_id,
+                        'sub_category_id' => $subCategory->id,
+                    ]);
+                }
+            }
+
+            // Remove
+            if (!empty($toRemove)) {
+                RetailerCategory::where('retailer_id', $user->id)
+                    ->whereIn('sub_category_id', $toRemove)
+                    ->delete();
+
+                RetailerProducts::where('retailer_id', $user->id)
+                    ->whereIn('sub_category_id', $toRemove)
+                    ->delete();
+            }
+
+            // Reload lists
+            $categories = Category::with(['subCategory' => function ($q) {
+                $q->where('status', 1);
+            }])
+                ->whereHas('subCategory', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where('status', 1)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $addedCategories = RetailerCategory::where('retailer_id', $user->id)
+                ->pluck('sub_category_id')
+                ->toArray();
+
+            $retailerCateogries = RetailerCategory::with(['retailer', 'category', 'subCategory'])
+                ->where('retailer_id', $user->id)
+                ->get();
+
+            $html_1 = view('category.ajax.reload-categorylist', compact('categories', 'addedCategories'))->render();
+            $html_2 = view('category.ajax.reload-selected-categorylist', compact('retailerCateogries'))->render();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'msg' => 'Categories updated successfully',
+                'html_1' => $html_1,
+                'html_2' => $html_2
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Save Categories Error: ".$e->getMessage());
+            return response()->json(['status' => false, 'msg' => 'Something went wrong']);
+        }
+    }
+
+
     // INDEX : my-categories list
     public function myCategoryList()
     {
@@ -149,7 +229,7 @@ class RetailerCategoryController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
 
         $retailer = Auth::user();
 
@@ -163,9 +243,6 @@ class RetailerCategoryController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.@#,:]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
             $query->where(function ($q) use ($search) {
                 $q->orWhere('created_at', 'like', '%' . $search . '%')
                     ->orWhereHas('category', function ($q) use ($search) {
@@ -207,9 +284,9 @@ class RetailerCategoryController extends Controller
             $sub_category_image = '
                 <img src="' . ($item->category_image
                 ? Storage::disk('spaces')->url($item->category_image)
-                : asset('assets/media/images/no_image.jpg')) . '" 
+                : asset('assets/media/images/no_image.jpg')) . '"
                     onerror="this.onerror=null;this.src=\'' . asset('assets/media/images/no_image.jpg') . '\';"
-                    class="w-40px me-3" 
+                    class="w-40px me-3"
                     alt="sub-category-image" />
             ';
 
@@ -347,7 +424,7 @@ class RetailerCategoryController extends Controller
                     'min:2',
                     'max:255',
                     'regex:/^[A-Za-z\s_-]+$/',
-                    new NoCodeInjection
+                    new NoCodeInjection,
                 ],
                 'subCategoryName' => [
                     'required',
@@ -355,8 +432,13 @@ class RetailerCategoryController extends Controller
                     'min:2',
                     'max:255',
                     'regex:/^[A-Za-z\s_-]+$/',
-                    new NoCodeInjection
+                    new NoCodeInjection,
+                    Rule::unique('category_suggestions', 'sub_category_name')->where(function ($query) use ($request) {
+                        return $query->where('category_name', $request->categoryName);
+                    }),
                 ],
+            ], [
+                'subCategoryName.unique' => 'This category and subcategory suggestion already exists.'
             ]);
 
             $user = Auth::user();
@@ -476,7 +558,7 @@ class RetailerCategoryController extends Controller
     {
         $limit = $request->input('length', 10);
         $start = $request->input('start', 0);
-        $search = $request->input('search', '');
+        $search = cleanInput($request->input('search', ''));
         $draw = $request->input('draw');
 
         $retailer = Auth::user();
@@ -488,9 +570,6 @@ class RetailerCategoryController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (!preg_match('/^[a-zA-Z0-9\s_\-\.@#,:]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
 
             $query->where(function ($q) use ($search) {
                 $q->where('firstname', 'like', '%' . $search . '%')

@@ -243,7 +243,7 @@ class RetilerController extends Controller
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
         $page = ($request->has('start') ? $request->input('start') : 0);
-        $search = ($request->has('search') ? $request->input('search')['value'] : '');
+        $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
         $subCategoryFilter = $request->input('sub_category_filter', ''); //add subCategories
         $retailer = Auth::user();
 
@@ -254,10 +254,6 @@ class RetilerController extends Controller
         if (!empty($search)) {
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
 
             $query->where(function ($q) use ($search) {
                 $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
@@ -428,13 +424,10 @@ class RetilerController extends Controller
             ->whereNull('product_id');
 
         if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
+            $search = cleanInput($request->search);
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
             $query->where(function ($q) use ($search) {
                 $q->orWhere('payment_method', 'like', '%' . $search . '%')
                     ->orWhere('margin', 'like', '%' . $search . '%')
@@ -883,13 +876,10 @@ class RetilerController extends Controller
 
         // Filters
         if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
+            $search = cleanInput($request->search);
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
             $singleProductFetchQuery->where(function ($q) use ($search) {
                 $q->where('retailer_products.product_name', 'like', "%{$search}%")
                     ->orWhere('products.sku', 'like', "%{$search}%")
@@ -980,7 +970,7 @@ class RetilerController extends Controller
 
         // Filters
         if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
+            $search = cleanInput($request->search);
             $wholesalerProductFetchQuery->where(function ($q) use ($search) {
                 $q->where('products.name', 'like', "%{$search}%")
                     ->orWhere('products.sku', 'like', "%{$search}%")
@@ -1090,7 +1080,7 @@ class RetilerController extends Controller
             //     : '';
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
-                    class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px remove-wholesaler-product"
+                    class="btn btn-icon btn-danger btn-light-danger w-30px h-30px remove-wholesaler-product"
                     data-id="' . $product->id . '"
                     data-wholesaler-id="' . $product->wholesaler_id . '"
                     data-sub-category-id="' . $product->sub_category_id . '"
@@ -1101,7 +1091,7 @@ class RetilerController extends Controller
                     </i>
                 </button>
                 <a href="' . route('retailer.my.wholesaler.product.edit', encryptId($product->id)) . '" title="Edit"
-                    class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
+                    class="btn btn-icon btn-primary btn-light-primary w-30px h-30px">
                     <i class="ki-duotone ki-pencil fs-4">
                         <span class="path1"></span><span class="path2"></span><span class="path3"></span>
                         <span class="path4"></span><span class="path5"></span>
@@ -1490,13 +1480,8 @@ class RetilerController extends Controller
 
         // Clean and validate search input
         if ($request->filled('search')) {
-            $search = trim($request->search);
+            $search = cleanInput($request->search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s\-\_\.\@\#\:\,\!\$\%\^\&\*\(\)\+]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
-
 
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
@@ -1635,7 +1620,7 @@ class RetilerController extends Controller
 
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
-                    class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
+                    class="btn btn-icon btn-danger btn-light-danger w-30px h-30px delete-product"
                     data-id="' . $product->id . '"
                     data-bs-toggle="tooltip" title="Delete">
                     <i class="ki-duotone ki-trash fs-3">
@@ -1645,14 +1630,14 @@ class RetilerController extends Controller
                 </button>
 
                 <a href="' . route('retailer.edit.product', encryptId($product->id)) . '" title="Edit"
-                    class="btn btn-icon btn-primary btn-active-light-primary w-30px h-30px">
+                    class="btn btn-icon btn-primary btn-light-primary w-30px h-30px">
                     <i class="ki-duotone ki-pencil fs-4">
                         <span class="path1"></span><span class="path2"></span><span class="path3"></span>
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </a>
                 <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
-                    class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                    class="btn btn-icon btn-success btn-light-success w-30px h-30px">
                     <i class="ki-duotone ki-eye fs-4">
                         <span class="path1"></span><span class="path2"></span><span class="path3"></span>
                         <span class="path4"></span><span class="path5"></span>
@@ -1721,13 +1706,9 @@ class RetilerController extends Controller
             });
 
         if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
+            $search = cleanInput($request->search);
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
                     ->orWhere('new_price', 'like', "%$search%")
@@ -1963,7 +1944,7 @@ class RetilerController extends Controller
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'max:100', new NoCodeInjection],
+            'product_name' => ['required', 'max:100','regex:/^[a-zA-Z0-9\s_-]+$/', new NoCodeInjection],
             'slug' => [
                 'required',
                 'string',
@@ -3206,7 +3187,7 @@ class RetilerController extends Controller
     {
         $limit = $request->input('length', 10);
         $start = $request->input('start', 0);
-        $search = $request->input('search.value', '');
+        $search = cleanInput($request->input('search.value', ''));
         $retailer = Auth::user();
 
         $baseQuery = CustomerOrders::select('customer_id')
@@ -3222,9 +3203,6 @@ class RetilerController extends Controller
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
 
-            if (isMaliciousSearch($search) || !preg_match('/^[a-zA-Z0-9\s_\-\.]+$/', $search)) {
-                abort(400, 'Invalid search input detected.');
-            }
             $baseQuery->whereHas('customer', function ($q) use ($search) {
                 $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'like', "%$search%")
                     ->orWhere('phone_number', 'like', "%$search%")

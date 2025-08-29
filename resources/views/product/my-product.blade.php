@@ -29,7 +29,7 @@
 
                     <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-3">
                         <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                            <button type="button" class="btn btn-flex btn-light-primary me-5" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-flex btn-light-primary me-2" data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_add_product">
                                 <i class="ki-duotone ki-plus-square fs-3"><span class="path1"></span><span
                                         class="path2"></span><span class="path3"></span></i>
@@ -62,7 +62,7 @@
                                     <a class="nav-link fw-bold pb-4 active" data-bs-toggle="tab"
                                         href="#available_products_tab" data-tab="1">
                                         Available Products
-                                        <span class="badge badge-sm badge-circle badge-light-success fs-6 p-2 ms-2"
+                                        <span class="badge badge-light-success ms-2"
                                             id="available_products_count">0</span>
                                     </a>
                                 </li>
@@ -70,7 +70,7 @@
                                     <a class="nav-link fw-bold pb-4" data-bs-toggle="tab" href="#unavailable_products_tab"
                                         data-tab="2">
                                         Unavailable Products
-                                        <span class="badge badge-sm badge-circle badge-light-danger fs-6 p-2 ms-2"
+                                        <span class="badge badge-light-danger ms-2"
                                             id="unavailable_products_count">0</span>
                                     </a>
                                 </li>
@@ -325,10 +325,10 @@
                 lengthMenu: [10, 20, 50, 100],
                 processing: true,
                 serverSide: true,
-                fixedHeader: {
-                    header: true,
-                    headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-                },
+                // fixedHeader: {
+                //     header: true,
+                //     headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
+                // },
                 ajax: {
                     url: "{{ route('retailer.retailer-clone-available-product.fetch-record') }}",
                     type: "POST",

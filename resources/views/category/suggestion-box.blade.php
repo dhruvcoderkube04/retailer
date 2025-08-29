@@ -63,13 +63,13 @@
                             </div>
                             <!--end::Header-->
                             <!--begin::Body-->
-                            <div class="card-body p-0">
+                            <div class="card-body px-7">
                                 <!--begin::Table wrapper-->
                                 <div class="table-responsive">
                                     <!--begin::Table-->
                                     <table class="table align-middle table-row-bordered table-row-solid fs-7" id="kt_categroy_table">
                                         <!--begin::Thead-->
-                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="card-header d-flex justify-content-between align-items-center px-0">
                                             <div>
                                                 <button type="button" id="delete-selected" class="btn btn-danger btn-sm me-2" disabled>
                                                     <i class="fas fa-trash"></i>Delete Selected
@@ -100,7 +100,7 @@
                                                         </td>
                                                         <td  class="ps-9">{{ strtoupper($category->category_name)}}</td>
                                                         <td data-bs-target="license" class="ps-0">{{ strtoupper($category->sub_category_name)}}</td>
-                                                        <td>{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
+                                                        <td class="px-0">{{ (!empty($category->is_approve) && $category->is_approve == 1) ? "Accepted":"Not Accepted" }}</td>
                                                         <td>{{$category->created_at}}</td>
                                                         <td class="ps-9">
                                                             <button class="btn btn-icon btn-light-danger w-30px h-30px me-3" id="remove-btn" data-id="{{$category->id}}"   data-bs-toggle="tooltip"  aria-label="Delete">

@@ -66,7 +66,7 @@
                                     </div>
                                     <!--end::Info-->
                                     <!--begin::Actions-->
-                                    {{-- <div class="d-flex align-items-center py-2">
+                                  <div class="d-flex align-items-center py-2">
                                         <button class="btn btn-sm btn-light btn-active-light-primary me-3 delete-address"
                                             data-id="{{ $address->id }}">
                                             <span class="indicator-label">Delete</span>
@@ -75,12 +75,13 @@
                                                     class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                                         </button>
 
+
                                         <button class="btn btn-sm btn-light btn-active-light-primary edit-address"
-                                            data-id="{{ $address->id }}" data-bs-toggle="modal"
+                                            data-id="{{ encrypt($address->id) }}" data-bs-toggle="modal"
                                             data-bs-target="#editAddressModal">
                                             Edit
                                         </button>
-                                    </div> --}}
+                                    </div>
                                     <!--end::Actions-->
                                 </div>
                                 <!--end::Card-->
@@ -247,10 +248,9 @@
                 </div>
 
                 <div class="modal-body">
-                    <form id="editAddressForm" action="{{ url('/pick-address/update') }}" method="POST">
+                    <form id="editAddressForm"  method="POST">
                         @csrf
                         @method('PUT')
-
                         <!-- Hidden Field for Address ID -->
                         <input type="hidden" name="id" id="edit_id">
 
@@ -400,13 +400,12 @@
         $(document).ready(function() {
             $('.edit-address').on('click', function() {
                 var addressId = $(this).data('id');
-                // console.log('addressId' , addressId);
                 $.ajax({
                     url: '/pick-address/edit/' +
                         addressId, // Backend route to fetch address details
                     type: 'GET',
                     success: function(response) {
-                        $('#edit_id').val(response.warehouse_id);
+                        $('#edit_id').val(response.id);
                         $('#edit_warehouse_name').val(response.warehouse_name);
                         $('#edit_first_name').val(response.first_name);
                         $('#edit_last_name').val(response.last_name);
