@@ -129,41 +129,49 @@ Direct Shipping | TechtrendMart
                         @csrf
 
                         <div class="mb-2">
+                            <label class="form-label">First name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="firstname" placeholder="First name">
                             <div class="invalid-feedback error-firstname"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="lastname" placeholder="Last name">
                             <div class="invalid-feedback error-lastname"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" name="email" placeholder="Email">
                             <div class="invalid-feedback error-email"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="phone_number" placeholder="Mobile number">
                             <div class="invalid-feedback error-phone_number"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Pincode <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="pincode" placeholder="Pincode">
                             <div class="invalid-feedback error-pincode"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">Address <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="address" placeholder="Address">
                             <div class="invalid-feedback error-address"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">City <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="city" placeholder="City">
                             <div class="invalid-feedback error-city"></div>
                         </div>
 
                         <div class="mb-2">
+                            <label class="form-label">State <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="state" placeholder="State">
                             <div class="invalid-feedback error-state"></div>
                         </div>
