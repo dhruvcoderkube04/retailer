@@ -16,22 +16,24 @@
                             </div>
                         </div>
                         <!--end::Card header-->
-        
+
                         <!--begin::Card body-->
                         <div class="card-body">
                             <form id="orderTrackForm">
                                 <div class="row gy-5 gx-5">
                                     <div class="col-md-12">
                                         <label class="form-label">Tracking No. <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="track_no" id="track_no" required />
+                                        <input type="text" class="form-control" name="track_no" id="track_no" required/>
+                                        <div id="track_no_error" class="text-danger mt-2" style="display:none;"></div>
                                     </div>
                                 </div>
-        
-                                <div class="mt-5">
+
+                                <div class="mt-5 d-flex gap-9">
                                     <button type="submit" class="btn btn-primary">Track</button>
+                                    <button type="reset" class="btn btn-primary" id="cancelBtn">Discard</button>
                                 </div>
                             </form>
-        
+
                             <!-- Response Box -->
                             <div id="availabilityResult" class="mt-5" style="display: none;">
                                 <div class="card shadow-sm border-0 bg-light">
@@ -48,7 +50,7 @@
                         <!--end::Card body-->
                     </div>
                     <!--end::Check Delivery Availability-->
-        
+
                 </div>
             </div>
         </div>
@@ -192,5 +194,52 @@
 
         });
     });
+
+    $("#cancelBtn").on("click", function () {
+        // Reset form fields
+        $("#orderTrackForm")[0].reset();
+
+        // Clear validation messages
+        $("#track_no_error").hide().text("");
+
+        // Hide results box
+        $("#availabilityResult").hide();
+
+        // Reload the page (if you want a hard reset)
+        location.reload();
+    });
+
+    //validation error
+    $(document).ready(function () {
+        let maxLength = 25;
+
+        // Live validation on typing
+        $("#track_no").on("input", function () {
+            let track_no = $(this).val().trim();
+            let errorBox = $("#track_no_error");
+
+            if (track_no.length > maxLength) {
+                errorBox.text("Tracking number cannot exceed " + maxLength + " characters.")
+                        .show();
+            } else {
+                errorBox.hide().text("");
+            }
+        });
+
+        // On form submit
+        $("#orderTrackForm").on("submit", function (e) {
+            e.preventDefault();
+            let track_no = $("#track_no").val().trim();
+            let errorBox = $("#track_no_error");
+
+            if (track_no.length > maxLength) {
+                errorBox.text("Tracking number cannot exceed " + maxLength + " characters.")
+                        .show();
+                return false;
+            }
+
+        });
+    });
+
 </script>
 @endsection
