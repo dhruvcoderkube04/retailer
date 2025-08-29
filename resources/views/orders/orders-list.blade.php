@@ -1598,7 +1598,7 @@
                                 ${courier.service_name}
                             </td>
 
-                            <td>₹${(courier.total_price || 0).toFixed(2)}</td>
+                            <td>₹${(courier.total_price ?? 0).toFixed(2)}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary select-courier"
                                         data-courier="${courier.service_name}"
