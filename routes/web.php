@@ -26,6 +26,8 @@ use App\Http\Controllers\RetailerOrderController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\OrderNotificationController;
 use App\Http\Controllers\RetailerAccountTransactionController;
+use App\Http\Controllers\ShareStoreController;
+use App\Http\Controllers\RequestWholesalerController;
 
 Route::get('/', function () {
     return redirect()->to('login');
@@ -319,6 +321,11 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
             Route::put('/update/{id}', [WebsiteController::class, 'updateContactContent'])->name('retailer.website-content.contactus.update');
         });
     });
+
+    Route::get('/store-access/{wholesaler}/{token}', [ShareStoreController::class, 'accessStore'])->name('access.store');
+    Route::get('/request-for-category/{wholesaler_id}', [RequestWholesalerController::class, 'fetchWholesalerCategory'])->name('wholesaler.request.category');
+    Route::post('/wholesaler/request-access', [RequestWholesalerController::class, 'store'])->name('wholesaler.request.access');
+
 });
 // autologin
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);

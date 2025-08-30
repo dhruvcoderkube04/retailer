@@ -299,6 +299,12 @@ class RetailerAuthController extends Controller
         // Successful login
         Auth::login($user, $remember);
         $user->update(['login_attempt' => 0, 'locked_until' => null]); // Reset login attempts
+        
+        if (session()->has('redirect_after_login')) {
+            $redirectUrl = session()->pull('redirect_after_login');
+            return redirect()->to($redirectUrl);
+        }
+
         return redirect()->route('retailer.dashboard');
     }
 
