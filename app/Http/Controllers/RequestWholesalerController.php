@@ -7,6 +7,7 @@ use App\Models\UserDetail;
 use Illuminate\Support\Facades\Auth;
 use App\Models\WholesalerCategory;
 use App\Models\RetailerWholesalerCategoryRequest;
+use App\Models\RetailerCategory;
 
 class RequestWholesalerController extends Controller
 {
@@ -24,7 +25,12 @@ class RequestWholesalerController extends Controller
             ->where('user_id', $wholesalerId)
             ->first();
 
-       $subCategories = WholesalerCategory::where('wholesaler_id', $wholesalerId)
+        $retailerSubCategoryIds = RetailerCategory::where('retailer_id', $retailer->id)
+            ->pluck('sub_category_id')
+            ->toArray();
+
+        $subCategories = WholesalerCategory::where('wholesaler_id', $wholesalerId)
+        ->whereIn('sub_category_id', $retailerSubCategoryIds)
         ->join('sub_categories', 'wholesaler_categories.sub_category_id', '=', 'sub_categories.id')
         ->select(
             'sub_categories.id as sub_category_id',

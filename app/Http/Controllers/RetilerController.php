@@ -716,6 +716,50 @@ class RetilerController extends Controller
 
     // <--------------------- START : Add category margin ---------------------->
     // add category margin view page
+    // public function viewCategoryMargin(string $id)
+    // {
+    //     // Attempt decryption, will throw if tampered
+    //     $wholesaler_id = decryptId($id);
+
+    //     // Optional: validate format after decryption
+    //     if (!is_numeric($wholesaler_id)) {
+    //         abort(404, 'Invalid ID format after decryption.');
+    //     }
+    //     $retailer = Auth::user();
+
+    //     $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
+
+    //     $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
+    //         ->where('retailer_id', $retailer->id)
+    //         ->whereNull('product_id')
+    //         ->distinct('sub_category_id')
+    //         ->pluck('sub_category_id');
+
+    //     $subCategories = Product::select(
+    //         'sub_categories.id',
+    //         'sub_categories.sub_category_name'
+    //     )
+    //         ->join('sub_categories', 'sub_categories.id', 'products.sub_category_id')
+    //         ->join('retailer_categories', 'retailer_categories.sub_category_id', 'products.sub_category_id')
+    //         ->where('retailer_categories.retailer_id', $retailer->id)
+    //         ->where('products.wholesaler_id', $wholesaler_id)
+    //         ->whereNotIn('sub_categories.id', $addedSubCategories)
+    //         ->distinct('products.sub_category_id')
+    //         ->get();
+
+    //     $addedMarginDetails = RetailerProducts::with(['sub_category'])
+    //         ->where('wholesaler_id', $wholesaler_id)
+    //         ->where('retailer_id', $retailer->id)
+    //         ->whereNull('product_id')
+    //         ->get();
+
+    //     return view('wholesaler.retailer-product-list', [
+    //         'wholesaler' => $wholesaler,
+    //         'subCategories' => $subCategories,
+    //         'addedMarginDetails' => $addedMarginDetails
+    //     ]);
+    // }
+
     public function viewCategoryMargin(string $id)
     {
         // Attempt decryption, will throw if tampered
@@ -729,24 +773,22 @@ class RetilerController extends Controller
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
 
-        $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
-            ->where('retailer_id', $retailer->id)
-            ->whereNull('product_id')
-            ->distinct('sub_category_id')
-            ->pluck('sub_category_id');
+        // Get latest approved request
+        $requestRecord = RetailerWholesalerCategoryRequest::where('retailer_id', $retailer->id)
+            ->where('wholesaler_id', $wholesaler_id)
+            ->where('status', 1)
+            ->latest('created_at')
+            ->first();
 
-        $subCategories = Product::select(
-            'sub_categories.id',
-            'sub_categories.sub_category_name'
-        )
-            ->join('sub_categories', 'sub_categories.id', 'products.sub_category_id')
-            ->join('retailer_categories', 'retailer_categories.sub_category_id', 'products.sub_category_id')
-            ->where('retailer_categories.retailer_id', $retailer->id)
-            ->where('products.wholesaler_id', $wholesaler_id)
-            ->whereNotIn('sub_categories.id', $addedSubCategories)
-            ->distinct('products.sub_category_id')
+        // If sub_category_ids is already cast to array, no need for json_decode
+        $subCategoryIds = $requestRecord ? $requestRecord->sub_category_ids : [];
+
+        // Fetch subcategory details
+        $subCategories = DB::table('sub_categories')
+            ->whereIn('id', $subCategoryIds)
             ->get();
 
+        // Fetch already added margin details
         $addedMarginDetails = RetailerProducts::with(['sub_category'])
             ->where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
