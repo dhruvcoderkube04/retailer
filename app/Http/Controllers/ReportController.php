@@ -27,7 +27,7 @@ class ReportController extends Controller
         $to = Carbon::createFromFormat('d/m/Y', $date_filter[1])->format('Y-m-d');
 
         $user_id = Auth::user()->id;
-        $order = CustomerOrders::with(['customer', 'retailer', 'wholesaler', 'order_product_detail'])->where('retailer_id', $user_id)->where('status', 'delivered')
+        $order = CustomerOrders::with(['customer', 'retailer', 'wholesaler', 'order_product_detail','paymentsettlement'])->where('retailer_id', $user_id)->where('status', 'delivered')
           ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
             ->when($to, fn($q) => $q->whereDate('created_at', '<=', $to))
             ->when($searchValue, function ($q) use ($searchValue) {
@@ -35,7 +35,6 @@ class ReportController extends Controller
                     $query->where('order_id', 'like', "%{$searchValue}%");
                 });
             })->get();
-
         $total = CustomerOrders::where('retailer_id', $user_id)->count();
         $filtered = $order->count();
 
@@ -54,7 +53,7 @@ class ReportController extends Controller
                 'shipping_charges' => round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
                 'platform_margin' => round(($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
                 'net_cash_in_hand' => round(($item->final_amount ?? 0) - ($item->shipping_charge ?? 0) - ($item->cod_charge ?? 0) - ($item->shipping_charge_profit ?? 0) - ($item->cod_charge_profit ?? 0), 2),
-                'settlement_status' => '<span class="badge badge-danger">Pending</span>',
+                'settlement_status' => $item->paymentsettlement ? '<span class="badge badge-success">Settled</span>' : '<span class="badge badge-danger">Pending</span>',
             ];
         }
 
@@ -80,11 +79,12 @@ class ReportController extends Controller
         $to = Carbon::createFromFormat('d/m/Y', $date_filter[1])->format('Y-m-d');
 
         $user_id = Auth::user()->id;
-        $order = CustomerOrders::with(['order_product_detail', 'retailer.userDetail'])
+        $order = CustomerOrders::with(['order_product_detail', 'retailer.userDetail','wholesaler.userDetail','punchOrder'])
             ->whereIn('order_process_by', ['wholesaler','retailer'])
             ->where('checkout_type', 'punch')
             ->orWhereIn('status',['approved_by_retailer','delivered','cancel','pending'])
             ->where('retailer_id', $user_id)
+            ->whereNotNull('wholesaler_id')
             ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
             ->when($to, fn($q) => $q->whereDate('created_at', '<=', $to))
             ->when($searchValue, function ($q) use ($searchValue) {
@@ -93,16 +93,20 @@ class ReportController extends Controller
                 });
             })->get();
 
+        // dd($order);
+
         $total = CustomerOrders::where('retailer_id', $user_id)->count();
         $filtered = $order->count();
 
         $data = [];
         foreach ($order as $item) {
+
+
             $data[] = [
                 'punch_order_id' => $item->order_id,
-                'wholesaler_name' => @$item->wholesaler->name,
+                'wholesaler_name' => @$item->wholesaler->userDetail->company_name ?? '-',
                 'product_amount' => $item->final_amount,
-                'payment_mode' => $item->payment_method,
+                'payment_mode' => !empty($item->punchOrder->payment_type) ?  Str::upper($item->punchOrder->payment_type) : (!empty($item->payment_method) ? Str::upper($item->payment_method) : '-'),
                 'wallet_debit' => $item->wallet_debit,
                 'status' => $item->status,
             ];
@@ -214,36 +218,11 @@ class ReportController extends Controller
         ]);
     }
 
-    // private function shippingChargeCalculation($order)
-    // {
-    //     $user = Auth::user();
-    //     $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
-    //     $marginTagName = $user->userDetail?->margin_tag_name;
-
-
-
-    //     $finalShippingCharge = round($shippingCharge + ($shippingCharge * $gstRate) / 100, 2);
-    //     $finalCodCharge = round($codCharge + ($codCharge * $gstRate) / 100, 2);
-    //     $finalRtoCharge = round($rtoCharge + ($rtoCharge * $gstRate) / 100, 2);
-
-    //     $totalPrice = $finalShippingCharge + $finalCodCharge;
-    //     return $totalPrice;
-    // }
-
-    private function platformMarginCalculation($order)
-    {
-        // Implement your platform margin calculation logic here
-    }
-
-    private function cashInHandCalculation($order)
-    {
-        // Implement your cash in hand calculation logic here
-    }
 
     private function  walletImpactCheck($item)
     {
-        $check_account_history = AccountTransaction::where('tracking_number', $item->tracking_number)->first();
+        $check_account_history = AccountTransaction::where('tracking_number', $item->tracking_number)->where('order_type','cancelled')->first();
 
-        return $check_account_history->description ?? 'No';
+        return $check_account_history ? ($check_account_history->final_transaction_amount < 0 ? '<span class=" badge badge-danger text-white">' . $check_account_history->final_transaction_amount . '</span>' : '<span class=" badge badge-success text-white">' . $check_account_history->final_transaction_amount . '</span>') : '-';
     }
 }
