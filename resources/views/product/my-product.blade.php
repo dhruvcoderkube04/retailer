@@ -44,12 +44,12 @@
             <div id="kt_app_content" class="app-content flex-column-fluid">
                 <div id="kt_app_content_container" class="app-container ">
                     @if (session('success'))
-                        <div class="alert alert-success text-green-600 p-2">
+                        <div class="alert alert-success text-green-600 p-2 flash-message">
                             {{ session('success') }}
                         </div>
                     @endif
                     @if (session('error'))
-                        <div class="alert alert-danger text-red-600 p-2">
+                        <div class="alert alert-danger text-red-600 p-2 flash-message">
                             {{ session('error') }}
                         </div>
                     @endif
@@ -559,6 +559,15 @@
                 }
             });
             // <--------------------- END : Unavailable Product ---------------------->
+
+            // Message Hide after 2 seconds
+            $(document).ready(function () {
+                setTimeout(function () {
+                    $(".flash-message").fadeOut("slow", function () {
+                        $(this).remove();
+                    });
+                }, 2000);
+            });
 
             $(document).ready(function () {
                 //<----------------- START : product upload form submit ---------------->

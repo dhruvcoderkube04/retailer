@@ -2351,7 +2351,7 @@ class RetilerController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Product added successfully!');
+            return redirect()->route('retailer.my.product')->with('success', 'Product added successfully!');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());

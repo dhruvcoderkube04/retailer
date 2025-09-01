@@ -54,6 +54,7 @@
                                     id="kt_datatable_punch_order">
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0 align-middle border-0">
+                                            <th class="text-center min-w-100px">Info</th>
                                             <th class="text-center min-w-100px">Punch Order ID</th>
                                             <th class="text-center min-w-150px">Wholesaler Name</th>
                                             <th class="text-center min-w-100px">Product Amount</th>
@@ -73,6 +74,111 @@
                 </div>
             </div>
             @include('layouts.footer')
+        </div>
+    </div>
+
+    <div class="modal fade" id="OrderSummaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90%; margin: auto;">
+            <div class="modal-content" style="max-height: 90vh;">
+                <div class="modal-header bg-white border-bottom">
+                    <h2 class="fw-bold mb-0">Order Detail</h2>
+                    <button type="button" class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-2">
+                            <span class="path1"></span>
+                            <span class="path2 text-dark"></span>
+                        </i>
+                    </button>
+                </div>
+
+                <div class="modal-body p-5" style="overflow-y: auto;" id="weight-report-info-section">
+                    <div class="row">
+
+                        {{-- Left Column --}}
+                        <div class="col-md-6">
+                            {{-- Order Summary --}}
+                            <div class="card mb-4">
+                                <div class="card-header px-7" style="min-height: 53px;">
+                                    <h3 class="card-title">Order Summary</h3>
+                                </div>
+                                <div class="card-body p-7">
+                                    <p><strong>Order ID:</strong> - </p>
+                                    <p><strong>Amount:</strong> - </p>
+                                    <p><strong>Order Type:</strong> - </p>
+                                    <p><strong>AWB Number:</strong> - </p>
+                                    <p><strong>Quantity:</strong> - </p>
+                                    <p><strong>Status:</strong>
+                                        <span class="badge badge-light">
+                                            -
+                                        </span>
+                                    </p>
+                                    <p><strong>Order Date:</strong>
+                                        -
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Product Details --}}
+                            <div class="card mb-4">
+                                <div class="card-header px-7" style="min-height: 53px;">
+                                    <h3 class="card-title">Product Details</h3>
+                                </div>
+                                <div class="card-body p-7">
+                                    <p><strong>Name:</strong> - </p>
+                                    <p><strong>Variation:</strong>
+                                        <span class="badge badge-light-success"> - </span>
+                                    </p>
+                                    <p><strong>SKU:</strong> - </p>
+                                    <p><strong>Category:</strong> - </p>
+                                </div>
+                            </div>
+
+                            {{-- Customer Info --}}
+                            <div class="card mb-4">
+                                <div class="card-header px-7" style="min-height: 53px;">
+                                    <h3 class="card-title">Customer Information</h3>
+                                </div>
+                                <div class="card-body p-7">
+                                    <p><strong>Name:</strong> - </p>
+                                    <p><strong>Email:</strong> - </p>
+                                    <p><strong>Phone:</strong> - </p>
+                                    <p><strong>Address:</strong> - </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Right Column --}}
+                        <div class="col-md-6">
+                            {{-- Courier Charge --}}
+                                <div class="card mb-4">
+                                    <div class="card-header px-7" style="min-height: 53px;">
+                                        <h3 class="card-title">Courier Charge</h3>
+                                    </div>
+                                    <div class="card-body p-7">
+                                        <p><strong>Courier Partner:</strong> - </p>
+                                        <p><strong>Courier Service:</strong> - </p>
+                                        <p><strong>Shipping Charges:</strong> - </p>
+                                        <p><strong>COD Charges:</strong> - </p>
+                                        <p><strong>Total Charges:</strong> - </p>
+                                    </div>
+                                </div>
+                                {{-- Timeline --}}
+                                <div class="card mb-5">
+                                    <div class="card-header px-7" style="min-height: 53px;">
+                                        <h3 class="card-title">Order Status Timeline</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="timeline">
+                                                <div class="d-flex flex-column align-items-start mb-6 position-relative ps-4 border-start border-2 ">
+                                                    <p class="mb-1"><strong>Process By:</strong>  - </p>
+                                                    <p class="mb-1"><strong>Reason:</strong> - </p>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
@@ -147,8 +253,13 @@
             order: [],
             columns: [
                 {
+                    data: 'info',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
                     data: 'punch_order_id',
-                    className: 'text-end',
+                    className: 'text-center',
                     orderable: true,
                 },
                 {
@@ -235,6 +346,41 @@
 
             $("#kt_daterangepicker_gst").on('apply.daterangepicker', function(ev, picker) {
                 dataTable.draw();
+            });
+        });
+
+        $(document).on('click', '.order-info', function() {
+            let order_id = $(this).attr('data-id');
+
+            $.ajax({
+                url: '{{ route('report.oder.info') }}',
+                type: 'POST',
+                data: {
+                    orderId : order_id,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status) {
+                        $('#weight-report-info-section').html(response.html);
+
+                        $('#OrderSummaryModal').modal('show');
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.msg,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             });
         });
     </script>
