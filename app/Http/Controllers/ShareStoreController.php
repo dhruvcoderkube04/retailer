@@ -18,28 +18,35 @@ class ShareStoreController extends Controller
         // if ($tokenRecord->expires_at && $tokenRecord->expires_at < now()) { 
         //     abort(403, 'This link has expired.'); 
         // } 
-        $shareLink = ShareLink::where('token_id', $tokenRecord->id) ->where('wholesaler_id', $wholesalerId) ->first(); 
-        
+        $shareLink = ShareLink::where('token_id', $tokenRecord->id)->where('wholesaler_id', $wholesalerId)->first(); 
         if (!$shareLink) { 
             abort(404, 'Invalid share link'); 
         } 
-        
         if (!auth()->check()) { 
-            session(['redirect_after_login' => route('access.store', [ 'wholesalerId' => $wholesalerId, 'token' => $token ])]); 
+            session([
+                'redirect_after_login' => route('access.store', [ 
+                    'wholesalerId' => $wholesalerId, 
+                    'token' => $token 
+                ])
+            ]); 
             return redirect()->route('retailer.login'); 
         } 
-        
-        // $shareLink->update([ 'status' => 1, 'retailer_id' => auth()->id(), ]); 
-        ShareLink::create([
-            'wholesaler_id' => $wholesalerId,
-            'token_id'     => $tokenRecord->id,
-            'retailer_id'  => auth()->id(),
-            'status'       => 1,
-        ]);
+
+        $retailerId = auth()->id();
+
+        ShareLink::updateOrCreate(
+            [
+                'wholesaler_id' => $wholesalerId,
+                'retailer_id'   => $retailerId,
+            ],
+            [
+                'token_id'      => $tokenRecord->id,
+                'status'        => 1,
+            ]
+        );
+
         $tokenRecord->update(['status' => 1]); 
 
         return redirect()->route('wholesaler.request.category', encryptId($wholesalerId));
-
-        // return redirect()->route('retailer.wholesaler.list', encryptId($wholesalerId));
     }
 }
