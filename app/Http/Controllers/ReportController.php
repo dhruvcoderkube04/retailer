@@ -48,6 +48,14 @@ class ReportController extends Controller
             $profit_loss = !empty($item->wholesaler) ? $item->retailer_margin_amount - $shipping_charge : 0;
 
             $data[] = [
+                 'info' => '<a href="javascript:void(0)" class="order-info"
+                        data-id="' . $item->order_id . '">
+                        <i class="ki-duotone ki-information-2 fs-2 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                        </i>
+                    </a>',
                 'order_id' => $item->order_id,
                 'customer_name' => @$item->customer->firstname . ' ' . @$item->customer->lastname,
                 'product_name' => $item->order_product_detail->name,
@@ -111,6 +119,14 @@ class ReportController extends Controller
 
 
             $data[] = [
+                'info' => '<a href="javascript:void(0)" class="order-info"
+                        data-id="' . $item->order_id . '">
+                        <i class="ki-duotone ki-information-2 fs-2 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                        </i>
+                    </a>',
                 'punch_order_id' => $item->order_id,
                 'wholesaler_name' => @$item->wholesaler->userDetail->company_name ?? '-',
                 'product_amount' => $item->final_amount,
@@ -159,6 +175,14 @@ class ReportController extends Controller
         $data = [];
         foreach ($order as $item) {
             $data[] = [
+                'info' => '<a href="javascript:void(0)" class="order-info"
+                        data-id="' . $item->order_id . '">
+                        <i class="ki-duotone ki-information-2 fs-2 text-primary">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                        </i>
+                    </a>',
                 'order_id' => $item->order_id,
                 'product_weight' => $item->product_weight,
                 'courier_partner' => $item->courier_service,
@@ -211,6 +235,14 @@ class ReportController extends Controller
         $data = [];
         foreach ($order as $item) {
             $data[] = [
+                'info' => '<a href="javascript:void(0)" class="order-info"
+                    data-id="' . $item->order_id . '">
+                    <i class="ki-duotone ki-information-2 fs-2 text-primary">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                    </i>
+                </a>',
                 'order_id' => $item->order_id,
                 'customer' => @$item->customer->firstname ?? '-',
                 'rto_date' => (!empty($item->in_transit_at) && !empty($item->cancel_at))
@@ -238,5 +270,31 @@ class ReportController extends Controller
         $check_account_history = AccountTransaction::where('tracking_number', $item->tracking_number)->where('order_type','cancelled')->first();
 
         return $check_account_history ? ($check_account_history->final_transaction_amount < 0 ? '<span class=" badge badge-danger text-white">' . $check_account_history->final_transaction_amount . '</span>' : '<span class=" badge badge-success text-white">' . $check_account_history->final_transaction_amount . '</span>') : '-';
+    }
+
+    public function orderInfo(Request $request)
+    {
+        $orderId = $request->orderId;
+        $trackingNumber = $request->tracking_no;
+
+        $query = CustomerOrders::with([
+                'customer',
+                'order_product_detail',
+                'retailer',
+                'wholesaler'
+            ]);
+
+        if (!empty($orderId)) {
+            $order = $query->where('order_id', $orderId)->first();
+        } elseif (!empty($trackingNumber)) {
+            $order = $query->where('tracking_number', $trackingNumber)->first();
+        } else {
+            $order = null; // nothing passed
+        }
+        // dd($order);
+        return response()->json([
+            'status' => true,
+            'html' => view('reports.weight-report-with-order-info', compact('order'))->render()
+        ]);
     }
 }
