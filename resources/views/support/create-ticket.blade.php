@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('title')
-    Create Ticket | TechtrendMart
+Create Ticket | TechtrendMart
 @endsection
 
 @section('content')
@@ -40,28 +40,28 @@
                     <div class="card-body">
                         {{-- Flash Messages --}}
                         @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                         @endif
 
                         @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                         @endif
 
                         @if($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <ul class="mb-0">
-                                    @foreach($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                         @endif
                         <form action="{{ route('retailer.generate.ticket') }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -89,6 +89,7 @@
                             <!-- Submit -->
                             <div class="text-end">
                                 <button type="submit" class="btn btn-danger">Raise Issue</button>
+                                <button type="reset" class="btn btn-primary">Discard</button>
                             </div>
                         </form>
                     </div>
@@ -104,7 +105,7 @@
 
 @section('script')
 <script>
-    document.getElementById('ticket_image_ref').addEventListener('change', function (e) {
+    document.getElementById('ticket_image_ref').addEventListener('change', function(e) {
         const files = e.target.files;
         const errorDiv = document.getElementById('image-error');
         errorDiv.style.display = 'none';

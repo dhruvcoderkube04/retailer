@@ -220,6 +220,18 @@ Track Your Order Stauts | TechtrendMart
                     statusEl.innerText = "";
                     detailsEl.innerHTML = "";
 
+                    // If server says success: true but no data or empty data, show message or error
+                    if (response.success && (!response.data || Object.keys(response.data).length === 0)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Tracking Not Found',
+                            text: response.message || 'No tracking information found for this number.',
+                        });
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = "Track";
+                        return;
+                    }
+
                     // Success format: Check which structure we got
                     const data = response.data;
 
@@ -242,9 +254,9 @@ Track Your Order Stauts | TechtrendMart
                                                     <strong>Location:</strong> ${track.location || 'N/A'}<br>
                                                     <strong>Date & Time:</strong> ${track.dateandTime || 'N/A'}<br>
                                                 </div>`;
-                                                        });
+                        });
 
-                                                        detailsEl.innerHTML = `
+                        detailsEl.innerHTML = `
                                             <strong>Order ID:</strong> ${summary.orderid || 'N/A'}<br>
                                             <strong>Waybill:</strong> ${summary.waybill || 'N/A'}<br>
                                             <strong>Fulfilled By:</strong> ${summary.fulfilledby || 'N/A'}<br>
@@ -280,30 +292,33 @@ Track Your Order Stauts | TechtrendMart
 
                     } else {
                         // Unknown response
-                        resultBox.classList.add("alert-danger");
-                        statusEl.innerText = "Tracking failed";
-                        detailsEl.innerHTML = "<strong>Error:</strong> Invalid tracking number or no data found.";
-                        resultBox.classList.remove("d-none");
+                        // resultBox.classList.add("alert-danger");
+                        // statusEl.innerText = "Tracking failed";
+                        // detailsEl.innerHTML = "<strong>Error:</strong> Invalid tracking number or no data found.";
+                        // resultBox.classList.remove("d-none");
+
+                        // Unknown or empty data, show error alert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Tracking Failed',
+                            text: 'Invalid tracking number or no data found.'
+                        });
                     }
 
                     submitButton.disabled = false;
                     submitButton.innerHTML = "Track";
                 })
                 .catch(error => {
-                    console.error(error);
-                    const resultBox = document.getElementById("availabilityResult");
-                    const statusEl = document.getElementById("result_status");
-                    const detailsEl = document.getElementById("result_details");
-
-                    resultBox.className = "alert alert-danger mt-4";
-                    statusEl.innerText = "Error";
-                    detailsEl.innerHTML = `<strong>Error:</strong> Server error or network issue occurred.`;
-                    resultBox.classList.remove("d-none");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Request Failed',
+                        text: 'Unable to complete the tracking request. Please check your internet or try again later.',
+                        footer: `<pre>${error.message}</pre>`
+                    });
 
                     submitButton.disabled = false;
                     submitButton.innerHTML = "Track";
                 });
-
         });
     });
 

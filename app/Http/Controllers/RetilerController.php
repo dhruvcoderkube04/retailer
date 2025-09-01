@@ -250,8 +250,8 @@ class RetilerController extends Controller
         $allSubCategories = SubCategory::orderBy('sub_category_name')->get();
 
         $requestedSubCategories = RetailerWholesalerCategoryRequest::with([
-                'wholesaler:id,firstname,lastname',
-            ])
+            'wholesaler:id,firstname,lastname',
+        ])
             ->where('retailer_id', $retailer->id)
             ->where('status', 1)
             ->get();
@@ -452,7 +452,7 @@ class RetilerController extends Controller
 
         $data = [];
         $i = $page;
-       foreach ($wholesaler as $key => $item) {
+        foreach ($wholesaler as $key => $item) {
             $i++;
 
             $subCategoryIds = Product::where('wholesaler_id', $item->id)
@@ -533,7 +533,7 @@ class RetilerController extends Controller
                 "action" => $action
             ];
         }
-        return response()->json(["draw" => $_POST['draw'],"recordsTotal" => $queryTotal,"recordsFiltered" => $cntFilter->count(),'data' => $data]);
+        return response()->json(["draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data]);
     }
 
     //for wholesaler request accesss
@@ -671,9 +671,9 @@ class RetilerController extends Controller
                     type="button"
                     class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-margin-btn"
                     data-url="' . route('retailer.remove-category-margin', [
-                    'wholesaler_id' => $item->wholesaler_id,
-                    'margin_id' => $item->id
-                ]) . '"
+                'wholesaler_id' => $item->wholesaler_id,
+                'margin_id' => $item->id
+            ]) . '"
                     title="Delete"
                 >
                     <i class="ki-duotone ki-trash">
@@ -1274,7 +1274,7 @@ class RetilerController extends Controller
             $columnMap = [
                 'product'     => 'product_name',            // alias inside unified
                 'wholesaler'  => 'company_name',
-                'sub_category'=> 'sub_category_name',
+                'sub_category' => 'sub_category_name',
                 'new_price'   => 'new_price',
                 'margin'      => 'margin',
                 'status'      => 'product_status'
@@ -1685,7 +1685,7 @@ class RetilerController extends Controller
     {
         $retailer = Auth::user();
 
-        $query = RetailerCloneProduct::with(['sub_category', 'productVariations'])
+        $query = RetailerCloneProduct::with(['sub_category', 'productVariations', 'retailer_web_management'])
             ->where('retailer_id', $retailer->id)
             ->where(function ($q) {
                 $q->whereHas('productVariations', function ($q) {
@@ -1740,7 +1740,7 @@ class RetilerController extends Controller
 
         // $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
 
-                // Pagination params
+        // Pagination params
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
 
@@ -1767,9 +1767,9 @@ class RetilerController extends Controller
 
         // Apply sorting + pagination
         $products = $query->orderBy($orderColumn, $orderDir)
-                        ->skip($start)
-                        ->take($length)
-                        ->get();
+            ->skip($start)
+            ->take($length)
+            ->get();
 
 
         $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
@@ -1816,6 +1816,28 @@ class RetilerController extends Controller
                 . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
                 . '</div>';
 
+            $baseStoreUrl = optional($product->retailer_web_management)->subdomain;
+
+            $storeProductLink = $baseStoreUrl
+                ? rtrim($baseStoreUrl, '/') . '/products/' . $product->slug
+                : null;
+
+            $viewButton = $storeProductLink
+                ? '<a href="' . $storeProductLink . '" title="View" target="_blank"
+                        class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                        <i class="ki-duotone ki-eye fs-4">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </a>'
+                : '<button class="btn btn-icon btn-secondary w-30px h-30px" title="No Store Link Available" disabled>
+                        <i class="ki-duotone ki-eye fs-4 opacity-50">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </button>';
+
+
             $status = $product->status === 'active'
                 ? '<div class="text-center">
                         <div class="badge badge-light-success px-4 py-2 mb-1">Active</div>
@@ -1854,13 +1876,7 @@ class RetilerController extends Controller
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </a>
-                <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
-                    class="btn btn-icon btn-success btn-light-success w-30px h-30px">
-                    <i class="ki-duotone ki-eye fs-4">
-                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                        <span class="path4"></span><span class="path5"></span>
-                    </i>
-                </a>
+                ' . $viewButton . '
             </div>';
 
             $product_image = '<img src="' . $imageUrl . '"
@@ -1988,9 +2004,9 @@ class RetilerController extends Controller
 
         // Apply sorting + pagination
         $products = $query->orderBy($orderColumn, $orderDir)
-                        ->skip($start)
-                        ->take($length)
-                        ->get();
+            ->skip($start)
+            ->take($length)
+            ->get();
 
 
         $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
@@ -2060,6 +2076,28 @@ class RetilerController extends Controller
                         </label>
                     </div>';
 
+
+            $baseStoreUrl = optional($product->retailer_web_management)->subdomain;
+
+            $storeProductLink = $baseStoreUrl
+                ? rtrim($baseStoreUrl, '/') . '/products/' . $product->slug
+                : null;
+
+            $viewButton = $storeProductLink
+                ? '<a href="' . $storeProductLink . '" title="View" target="_blank"
+                        class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                        <i class="ki-duotone ki-eye fs-4">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </a>'
+                : '<button class="btn btn-icon btn-secondary w-30px h-30px" title="No Store Link Available" disabled>
+                        <i class="ki-duotone ki-eye fs-4 opacity-50">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </button>';
+
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
                     class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
@@ -2077,13 +2115,7 @@ class RetilerController extends Controller
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </a>
-                <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
-                    class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
-                    <i class="ki-duotone ki-eye fs-4">
-                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                        <span class="path4"></span><span class="path5"></span>
-                    </i>
-                </a>
+                ' . $viewButton . '
             </div>';
 
             $product_image = '<img src="' . $imageUrl . '"
@@ -2162,7 +2194,7 @@ class RetilerController extends Controller
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'max:100','regex:/^[a-zA-Z0-9\s_-]+$/', new NoCodeInjection],
+            'product_name' => ['required', 'max:100', 'regex:/^[a-zA-Z0-9\s_-]+$/', new NoCodeInjection],
             'slug' => [
                 'required',
                 'string',
@@ -2435,7 +2467,7 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-               'quantity' => [
+                'quantity' => [
                     'required',
                     'regex:/^[0-9]{1,6}$/'
                 ]
