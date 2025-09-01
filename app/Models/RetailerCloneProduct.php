@@ -67,4 +67,8 @@ class RetailerCloneProduct extends Model
     {
         return $this->hasMany(ProductVariation::class, 'product_id');
     }
+    public function retailer_web_management()
+    {
+        return $this->hasOne(\App\Models\RetailerWebManagement::class, 'retailer_id', 'retailer_id');
+    }
 }
