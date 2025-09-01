@@ -53,6 +53,8 @@
                                     <thead>
                                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0 align-middle border-0">
                                             <th class="text-center min-w-100px">Order ID</th>
+                                            <th class="text-center min-w-100px">Product Weight</th>
+                                            <th class="text-center min-w-100px">Courier Partner</th>
                                             <th class="text-center min-w-100px">Base Charge</th>
                                             <th class="text-center min-w-100px">GST Amount</th>
                                             <th class="text-center min-w-100px">RTO Charge</th>
@@ -143,8 +145,18 @@
             columns: [
                 {
                     data: 'order_id',
-                    className: 'text-end',
+                    className: 'text-center',
                     orderable: true,
+                },
+                {
+                    data: 'product_weight',
+                    className: 'text-center',
+                    orderable: false,
+                },
+                {
+                    data: 'courier_partner',
+                    className: 'text-center',
+                    orderable: false,
                 },
                 {
                     data: 'base_charge',
