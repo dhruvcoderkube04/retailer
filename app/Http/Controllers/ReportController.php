@@ -160,12 +160,14 @@ class ReportController extends Controller
         foreach ($order as $item) {
             $data[] = [
                 'order_id' => $item->order_id,
-                'base_charge' => round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0) + ($item->shipping_output_gst ?? 0) + ($item->cod_output_gst ?? 0), 2),
+                'product_weight' => $item->product_weight,
+                'courier_partner' => $item->courier_service,
+                'base_charge' => round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
                 'gst_amount' => round(($item->shipping_output_gst ?? 0) + ($item->cod_output_gst ?? 0), 2),
                 'rto_charges' => in_array($item->status, ['rto', 'rtn_to_seller','can'])
                                 ? round((($item->rto_charge ?? 0) + ($item->rto_charge_profit ?? 0)), 2)
                                 : '-',
-                'total_shipping_charges' => round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
+                'total_shipping_charges' => round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0) + ($item->shipping_output_gst ?? 0) + ($item->cod_output_gst ?? 0), 2),
                 'status' => !empty($item->courier_partner_code) ? Str::title($item->status) : '-',
             ];
         }
