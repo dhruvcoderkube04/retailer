@@ -62,7 +62,7 @@
                                             <th class="text-center min-w-100px">Wholesaler Base Amount</th>
                                             <th class="text-center min-w-125px">Retailer Margin</th>
                                             <th class="text-center min-w-90px">Shipping Charges</th>
-                                            <th class="text-center min-w-90px">Platform Margin</th>
+                                            <th class="text-center min-w-90px">P/L</th>
                                             <th class="text-center min-w-125px">Net Cash in Hand</th>
                                             <th class="text-center min-w-125px">Settlement Status</th>
                                         </tr>
@@ -192,7 +192,7 @@
                     orderable: false,
                 },
                 {
-                    data: 'platform_margin',
+                    data: 'profit_loss',
                     className: 'text-center',
                     orderable: false,
                 },

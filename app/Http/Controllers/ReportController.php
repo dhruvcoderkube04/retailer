@@ -34,7 +34,9 @@ class ReportController extends Controller
                 $q->where(function ($query) use ($searchValue) {
                     $query->where('order_id', 'like', "%{$searchValue}%");
                 });
-            })->get();
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
         $total = CustomerOrders::where('retailer_id', $user_id)->count();
         $filtered = $order->count();
 
@@ -42,6 +44,9 @@ class ReportController extends Controller
 
         $data = [];
         foreach ($order as $item) {
+            $shipping_charge = round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2);
+            $profit_loss = !empty($item->wholesaler) ? $item->retailer_margin_amount - $shipping_charge : 0;
+
             $data[] = [
                 'order_id' => $item->order_id,
                 'customer_name' => @$item->customer->firstname . ' ' . @$item->customer->lastname,
@@ -50,8 +55,9 @@ class ReportController extends Controller
                 'order_amount' => $item->final_amount,
                 'wholesaler_base_amount' => !empty($item->wholesaler) ? $item->final_amount - $item->retailer_margin_amount : '-',
                 'retailer_margin' => !empty($item->wholesaler) ? $item->retailer_margin_amount : '-',
-                'shipping_charges' => round(($item->shipping_charge ?? 0) + ($item->cod_charge ?? 0) + ($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
-                'platform_margin' => round(($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
+                'shipping_charges' => $shipping_charge,
+                'profit_loss' =>  $profit_loss > 0 ? '<span class="badge badge-success">'.$profit_loss.'</span>' : '<span class="badge badge-danger">'.$profit_loss.'</span>',
+                // 'platform_margin' => round(($item->shipping_charge_profit ?? 0) + ($item->cod_charge_profit ?? 0), 2),
                 'net_cash_in_hand' => round(($item->final_amount ?? 0) - ($item->shipping_charge ?? 0) - ($item->cod_charge ?? 0) - ($item->shipping_charge_profit ?? 0) - ($item->cod_charge_profit ?? 0), 2),
                 'settlement_status' => $item->paymentsettlement ? '<span class="badge badge-success">Settled</span>' : '<span class="badge badge-danger">Pending</span>',
             ];
@@ -91,7 +97,9 @@ class ReportController extends Controller
                 $q->where(function ($query) use ($searchValue) {
                     $query->where('order_id', 'like', "%{$searchValue}%");
                 });
-            })->get();
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // dd($order);
 
@@ -141,7 +149,9 @@ class ReportController extends Controller
             $q->where(function ($query) use ($searchValue) {
                 $query->where('order_id', 'like', "%{$searchValue}%");
             });
-        })->get();
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         $total = CustomerOrders::where('retailer_id', $user_id)->where('retailer_id', $user_id)->where('status', 'delivered')->whereNotNull('tracking_number')->count();
         $filtered = $order->count();
@@ -189,7 +199,9 @@ class ReportController extends Controller
                     $q->where(function ($query) use ($searchValue) {
                         $query->where('order_id', 'like', "%{$searchValue}%");
                     });
-                })->get();
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
 
         $total = CustomerOrders::where('retailer_id', $user_id)->count();
         $filtered = $order->count();
