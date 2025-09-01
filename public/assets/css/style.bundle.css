@@ -51252,3 +51252,37 @@ table tbody .badge{
   background-color: #ccc;
   border-radius: 1px;
 }
+
+
+
+
+/* //for track order */
+
+.track-tab .nav.nav-tabs{
+  border: 0;
+}
+.tab-content .row:nth-child(odd){
+  background: #f1f1f1;
+  padding: 10px;
+}
+.tab-content .row:nth-child(even){
+  background: #ffffff;padding: 10px;
+}
+
+.track-tab .nav.nav-tabs .nav-item .nav-link{
+  background: transparent;
+  border: 0;
+  font-size: 14px;
+  color: #1e2129;
+  padding: 0;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 5px;
+}
+.track-tab .nav.nav-tabs .nav-item .nav-link button{
+  padding: 0;
+}
+
+.track-tab .nav.nav-tabs .nav-item .nav-link.active{
+  color: #1f86ff;
+  border-bottom: 2px solid #1f86ff;
+}
