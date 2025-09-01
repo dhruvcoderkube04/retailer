@@ -276,9 +276,9 @@ $(document).ready(function () {
         },
         columns: [
             { data: 'coupon_name', orderable: false, className: 'text-center' },
-            { data: 'status', orderable: false, className: 'text-center' },
+            { data: 'status', orderable: true, className: 'text-center' },
             { data: 'coupon_code', orderable: false, className: 'text-center' },
-            { data: 'used_count', orderable: false, className: 'text-center' },
+            { data: 'used_count', orderable: true, className: 'text-center' },
             { data: 'valid_from', orderable: false, className: 'text-center' },
             { data: 'valid_until', orderable: false, className: 'text-center' },
             { data: 'quantity', orderable: false, className: 'text-center' },

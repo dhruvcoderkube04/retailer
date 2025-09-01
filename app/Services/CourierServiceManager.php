@@ -141,7 +141,6 @@ class CourierServiceManager
             \Log::info("Trying partner: {$partner->code}");
 
             if (!$service) continue;
-
             try {
                 $response = $service->calculateRate($payload);
                 \Log::info("Response from partner {$partner->code}: " . json_encode($response));
@@ -162,11 +161,7 @@ class CourierServiceManager
                             $rtoCharge = $rtoCharge + $flatAmount;
                         }
 
-                        $finalShippingCharge = round($shippingCharge + ($shippingCharge * $gstRate) / 100, 2);
-                        $finalCodCharge = round($codCharge + ($codCharge * $gstRate) / 100, 2);
-                        $finalRtoCharge = round($rtoCharge + ($rtoCharge * $gstRate) / 100, 2);
-
-                        $totalPrice = $finalShippingCharge + $finalCodCharge;
+                        $totalPrice = $shippingCharge + $codCharge;
 
                         $results[] = [
                             'courier_code'         => $partner->code,
@@ -175,9 +170,9 @@ class CourierServiceManager
                             'estimated_delivery'   => $rate['expectedPickup'] ?? ($rate['estimated_delivery'] ?? null),
                             'total_price'          => $totalPrice,
                             // 'total_price_wgst'     => $totalPricewgst,
-                            // 'shipping_charge'      => $shippingCharge,
-                            // 'cod_charge'           => $codCharge,
-                            // 'rto_charge'           => $rtoCharge,
+                            'shipping_charge'      => $rate['fwCharge'] ?? ($rate['shipping_charge'] ?? null),
+                            'cod_charge'           => $rate['cod'] ?? ($rate['cod_charge'] ?? null),
+                            'rto_charge'           => $rate['rtoCharges'] ?? ($rate['rto_charge'] ?? null),
                             // 'g_shipping_charge'    => $gstShippingCharge,
                             // 'g_cod_charge'         => $gstCodCharge,
                             // 'g_rto_charge'         => $gstRtoCharge,

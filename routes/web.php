@@ -25,6 +25,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\RetailerOrderController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\OrderNotificationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RetailerAccountTransactionController;
 use App\Http\Controllers\ShareStoreController;
 use App\Http\Controllers\RequestWholesalerController;
@@ -280,6 +281,21 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
         Route::post('/withdrawal-request', [RetailerAccountTransactionController::class, 'withdrawalRequestStore'])->name('retailer.accounts.withdrawal-request-post'); // ajax
         Route::POST('/withdrawal-transactions/fetch-record', [RetailerAccountTransactionController::class, 'fetchRecordWithdrawalTransactions'])->name('retailer.accounts.withdrawal-transactions.fetch-record'); // ajax - datatable
         Route::post('/withdrawal-transactions/verify-wholesaler-email', [RetailerAccountTransactionController::class, 'verifyWholesalerEmail'])->name('retailer.accounts.withdrawal-transactions.verify-wholesaler-email'); // ajax - datatable
+    });
+
+    // Report
+    Route::prefix('report')->group(function () {
+        Route::get('/sales-report', [ReportController::class, 'saleReport'])->name('sale.report.index');
+        Route::post('/sales-report/fetch-record', [ReportController::class, 'fetchSaleReport'])->name('sale.report.fetch-record');
+
+        Route::get('/punch-order-report', [ReportController::class, 'punchOrderReport'])->name('punch.order.report.index');
+        Route::post('/punch-order-report/fetch-record', [ReportController::class, 'fetchPunchOrderReport'])->name('punch.order.report.fetch-record');
+
+        Route::get('/shipping-charges-report', [ReportController::class, 'shippingChargesReport'])->name('shipping.charges.report.index');
+        Route::post('/shipping-charges-report/fetch-record', [ReportController::class, 'fetchShippingChargesReport'])->name('shipping.charges.report.fetch-record');
+
+        Route::get('/rto-report', [ReportController::class, 'rtoReport'])->name('rto.report.index');
+        Route::post('/rto-report/fetch-record', [ReportController::class, 'fetchRtoReport'])->name('rto.report.fetch-record');
     });
 
     // themes

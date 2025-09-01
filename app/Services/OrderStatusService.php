@@ -92,26 +92,16 @@ class OrderStatusService
         $response = $this->rateCalculationOrder($request, $customerOrder, $pickup_address);
         $data = $response->getData(true)['data'];
         if (!empty($data)) {
-
-            // Apply filter
-            $courier_service = $request->courier_service ?? '';
-            $courier_code    = $request->courier_code ?? '';
-
-            $courier = collect($data)->first(function ($item) use ($courier_service, $courier_code) {
-                return $item['service_name'] === $courier_service
-                    && $item['courier_code'] === $courier_code;
-            });
+            $courier = collect($data)->where('carrierID',$request->carrier_id)->first();
         }
         else
         {
             return response()->json(['error' => 'No rate data found'], 404);
         }
-
         // calculate base and profit
         $finalShipping = (float) $courier['shipping_charge'] ?? 0;
         $finalCod = (float) $courier['cod_charge'] ?? 0;
         $finalRto = (float) $courier['rto_charge'] ?? 0;
-
 
         // Margin Calculation
         $marginPercentage = (float) ($user->userDetail?->margin_percentage_tag ?? 0);
@@ -196,7 +186,6 @@ class OrderStatusService
 
 
         if ($get_pickup) {
-            $warehouseName = $get_pickup->warehouse_name;
 
             $get_pickup_address = PickAddress::where('warehouse_name', $get_pickup->warehouse_name)->where('courier_code',$request->courier_code)
                 ->first();
@@ -687,11 +676,11 @@ class OrderStatusService
         $customerOrder->update([
             'status' => 'cancel',
             'cancel_at' => Carbon::now(),
-            'cancelled_by' => $retailer->id,
+            'cancelled_by' => $customerOrder->customer_id,
             'cancelled_reason' => $cancelled_reason
         ]);
 
-        return [true, 'Order has been cancelled by retailer', 'cancel'];
+        return [true, 'Order has been cancelled by customer', 'cancel'];
     }
 
     // Rto
