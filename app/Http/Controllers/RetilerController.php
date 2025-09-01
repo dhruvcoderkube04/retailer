@@ -253,7 +253,7 @@ class RetilerController extends Controller
                 'wholesaler:id,firstname,lastname',
             ])
             ->where('retailer_id', $retailer->id)
-            ->where('status', 1) 
+            ->where('status', 1)
             ->get();
 
         // dd($requestedSubCategories);
@@ -447,7 +447,7 @@ class RetilerController extends Controller
 
         $queryTotal = User::where('user_type', 2)
             ->where('status', 1)
-            ->whereIn('id', $allowedWholesalerIds) 
+            ->whereIn('id', $allowedWholesalerIds)
             ->count('id');
 
         $data = [];
@@ -2319,7 +2319,7 @@ class RetilerController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Product added successfully!');
+            return redirect()->route('retailer.my.product')->with('success', 'Product added successfully!');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());
