@@ -19,6 +19,31 @@ if (!function_exists('decryptId')) {
     }
 }
 
+
+if (!function_exists('order_badge_color')) {
+   function order_badge_color($value)
+   {
+      $statuses = [
+         'pending' => 'primary',
+         'approved_by_retailer' => 'success',
+         'transfered_retailer_to_wholesaler' => 'primary',
+         'approved_by_wholesaler' => 'success',
+         'pickup' => 'warning',
+         'in_transit' => 'primary',
+         'ofd' => 'warning',
+         'delivered' => 'success',
+         'rto' => 'warning',
+         'rtn_to_seller' => 'danger',
+         'close' => 'success',
+         'cancel' => 'danger',
+         'lost' => 'danger',
+         'received' => 'success',
+      ];
+
+      return $statuses[$value] ?? 'Unknown Status';
+   }
+}
+
 //<-------------------- START : For Order List ------------------->
 if (!function_exists('order_status')) {
     function order_status($value)
@@ -185,17 +210,17 @@ if (!function_exists('sanitize_input')) {
       {
           // 1. Strip all HTML and PHP tags — keep only raw text
           $input = strip_tags($input);
-  
+
           // 2. Remove any dangerous protocols (just in case)
           $input = preg_replace('/(javascript:|data:|vbscript:)/i', '', $input);
-  
+
           // 3. Convert multiple spaces/newlines to single space
           $input = preg_replace('/\s+/', ' ', $input);
-  
+
           // 4. Trim leading/trailing spaces
           return trim($input);
       }
-  
+
    }
 
 if (!function_exists('isValidPincode')) {

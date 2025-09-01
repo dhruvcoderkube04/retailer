@@ -296,6 +296,8 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
 
         Route::get('/rto-report', [ReportController::class, 'rtoReport'])->name('rto.report.index');
         Route::post('/rto-report/fetch-record', [ReportController::class, 'fetchRtoReport'])->name('rto.report.fetch-record');
+        Route::post('/order-info', [ReportController::class, 'orderInfo'])->name('report.oder.info');
+
     });
 
     // themes
