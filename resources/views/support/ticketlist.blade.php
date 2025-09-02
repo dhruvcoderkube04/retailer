@@ -23,7 +23,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -40,6 +40,18 @@
                     <!--end::Page title-->
                     <!--begin::Actions-->
                     <div class="d-flex align-items-center gap-2 gap-lg-3">
+                        {{-- Flash Messages --}}
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                     </div>
                     <!--end::Actions-->
                 </div>
@@ -424,5 +436,14 @@
                 });
             });
         });
+
+        setTimeout(function() {
+            let alert = document.querySelector('.alert');
+            if (alert) {
+                // Bootstrap fade-out
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 500); // remove from DOM after fade
+            }
+        }, 2000); // 2 seconds
     </script>
 @endsection

@@ -35,6 +35,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Validators\ValidationException;
+use App\Models\RetailerWholesalerCategoryRequest;
 
 class RetilerController extends Controller
 {
@@ -218,6 +219,26 @@ class RetilerController extends Controller
 
     //<------------------------- START : wholesaler list --------------------------->
     // wholesaler list
+    // public function wholesalerList()
+    // {
+    //     $retailer = Auth::user();
+    //     $isAllWholesalerVisibleCheck = $retailer->is_all_wholesaler_visible;
+    //     $retailer_sub_category_count = RetailerCategory::where('retailer_id', $retailer->id)
+    //         ->distinct()
+    //         ->count('sub_category_id');
+
+    //     $allSubCategories = SubCategory::orderBy('sub_category_name')->get();
+    //     $retailerId = $retailer->id;
+
+
+    //     return view('wholesaler.wholesaler-list', [
+    //         'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
+    //         'retailer_sub_category_count' => $retailer_sub_category_count,
+    //         'allSubCategories' => $allSubCategories,
+    //         'retailer_id' => $retailerId
+    //     ]);
+    // }
+
     public function wholesalerList()
     {
         $retailer = Auth::user();
@@ -227,18 +248,147 @@ class RetilerController extends Controller
             ->count('sub_category_id');
 
         $allSubCategories = SubCategory::orderBy('sub_category_name')->get();
-        $retailerId = $retailer->id;
 
+        $requestedSubCategories = RetailerWholesalerCategoryRequest::with([
+            'wholesaler:id,firstname,lastname',
+        ])
+            ->where('retailer_id', $retailer->id)
+            ->where('status', 1)
+            ->get();
+
+        // dd($requestedSubCategories);
 
         return view('wholesaler.wholesaler-list', [
             'is_all_wholesaler_visible' => $isAllWholesalerVisibleCheck,
             'retailer_sub_category_count' => $retailer_sub_category_count,
             'allSubCategories' => $allSubCategories,
-            'retailer_id' => $retailerId
+            'requestedSubCategories' => $requestedSubCategories,
+            'retailer_id' => $retailer->id,
         ]);
     }
 
     // AJAX : server-side data-table to fetch record of wholesaler list
+    // public function wholesalerFetchRecord(Request $request)
+    // {
+    //     $limit = ($request->has('length') ? $request->input('length') : 10);
+    //     $page = ($request->has('start') ? $request->input('start') : 0);
+    //     $search = cleanInput($request->has('search') ? $request->input('search')['value'] : '');
+    //     $subCategoryFilter = $request->input('sub_category_filter', ''); //add subCategories
+    //     $retailer = Auth::user();
+
+    //     $query = User::with('userDetail')
+    //         ->where('user_type', 2)
+    //         ->where('status', 1);
+
+    //     if (!empty($search)) {
+    //         $search = trim($search);
+    //         $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+
+    //         $query->where(function ($q) use ($search) {
+    //             $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%$search%"])
+    //                 ->orWhere('firstname', 'like', '%' . $search . '%')
+    //                 ->orWhere('lastname', 'like', '%' . $search . '%')
+    //                 ->orWhereHas('userDetail', function ($q) use ($search) {
+    //                     $q->where('company_name', 'like', '%' . $search . '%');
+    //                 })
+    //                 ->orWhereHas('wholesalerCategories.subCategory', function ($q) use ($search) {
+    //                     $q->where('sub_category_name', 'like', '%' . $search . '%'); //add subCategories
+    //                 });
+    //         });
+    //     }
+
+    //     //add subCategories
+    //     if (!empty($subCategoryFilter) && $subCategoryFilter !== 'all') {
+    //         $query->whereHas('wholesalerCategories', function ($q) use ($subCategoryFilter) {
+    //             $q->where('sub_category_id', $subCategoryFilter);
+    //         });
+    //     }
+
+    //     if ($request->has('order') && isset($request->order[0])) {
+    //         $columnIndex = $request->order[0]['column'];  // get column index
+    //         $columnName = $request->columns[$columnIndex]['data'];  // get column name
+    //         $direction = $request->order[0]['dir'];  // get sort direction (asc or desc)
+
+    //         $query->orderBy($columnName, $direction);
+    //     } else {
+    //         $query->orderBy('id', 'desc');
+    //     }
+
+    //     $cntFilter = clone $query;
+    //     $query->offset($page)->limit($limit);
+    //     $wholesaler = $query->get();
+
+    //     $queryTotal = User::where('user_type', 2)
+    //         ->where('status', 1)
+    //         ->count('id');
+
+    //     $data = [];
+    //     $i = $page;
+    //     foreach ($wholesaler as $key => $item) {
+    //         $i++;
+
+    //         $subCategoryIds = Product::where('wholesaler_id', $item->id)
+    //             ->where('status', 'active')
+    //             ->pluck('sub_category_id')
+    //             ->unique()
+    //             ->filter();
+    //         $sub_category_count_fetch = RetailerCategory::whereIn('sub_category_id', $subCategoryIds)
+    //             ->where('retailer_id', $retailer->id)
+    //             ->distinct()
+    //             ->count('sub_category_id');
+
+    //         $product_count_fetch = Product::where('wholesaler_id', $item->id)
+    //             ->where('status', 'active')
+    //             ->count('id');
+
+    //         //add subCategories
+    //         $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
+    //             ->pluck('sub_category_id');
+
+
+    //         //add subCategories
+    //         $subCategories = SubCategory::whereIn('id', $subcategory_ids)
+    //             ->get()->pluck('sub_category_name')
+    //             ->implode(',');
+
+
+    //         $details = '
+    //             <div class="mb-2">
+    //                 <span>Total Sub Category : </span>
+    //                 <div class="badge ' . ($sub_category_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
+    //                                 ' . $sub_category_count_fetch . '
+    //                 </div>
+    //             </div>
+    //             <div class="mb-2">
+    //                 <span>Total Products : </span>
+    //                 <div class="badge ' . ($product_count_fetch > 0 ? 'badge-light-success' : 'badge-light-danger') . ' fs-6">
+    //                                 ' . $product_count_fetch . '
+    //                 </div>
+    //             </div>';
+
+    //         $company_logo = '<div>
+    //             <img src="' . ($item->userDetail?->company_logo
+    //             ? Storage::disk('spaces')->url($item->userDetail->company_logo)
+    //             : asset('/assets/media/avatars/no-profile.png')) . '"
+    //                 onerror="this.onerror=null;this.src=\'' . asset('/assets/media/avatars/no-profile.png') . '\';"
+    //                 style="height: 75px; width: 75px;" />
+    //         </div>';
+
+    //         $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($sub_category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add/Update Margin</a>';
+
+    //         $data[] = array(
+    //             "sr_no" => $i,
+    //             "company_logo" => @$company_logo,
+    //             "company_name" => @$item->userDetail->company_name,
+    //             "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
+    //             "subcategory_names" => $subCategories ? $subCategories : "-", //add subCategories
+    //             "details" => $details,
+    //             "action" => $action
+    //         );
+    //     }
+    //     return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+    // }
+
     public function wholesalerFetchRecord(Request $request)
     {
         $limit = ($request->has('length') ? $request->input('length') : 10);
@@ -247,9 +397,15 @@ class RetilerController extends Controller
         $subCategoryFilter = $request->input('sub_category_filter', ''); //add subCategories
         $retailer = Auth::user();
 
+        $allowedWholesalerIds = RetailerWholesalerCategoryRequest::where('retailer_id', $retailer->id)
+            ->where('status', 1)
+            ->pluck('wholesaler_id')
+            ->toArray();
+
         $query = User::with('userDetail')
             ->where('user_type', 2)
-            ->where('status', 1);
+            ->where('status', 1)
+            ->whereIn('id', $allowedWholesalerIds);
 
         if (!empty($search)) {
             $search = trim($search);
@@ -263,7 +419,7 @@ class RetilerController extends Controller
                         $q->where('company_name', 'like', '%' . $search . '%');
                     })
                     ->orWhereHas('wholesalerCategories.subCategory', function ($q) use ($search) {
-                        $q->where('sub_category_name', 'like', '%' . $search . '%'); //add subCategories
+                        $q->where('sub_category_name', 'like', '%' . $search . '%');
                     });
             });
         }
@@ -291,6 +447,7 @@ class RetilerController extends Controller
 
         $queryTotal = User::where('user_type', 2)
             ->where('status', 1)
+            ->whereIn('id', $allowedWholesalerIds)
             ->count('id');
 
         $data = [];
@@ -303,24 +460,43 @@ class RetilerController extends Controller
                 ->pluck('sub_category_id')
                 ->unique()
                 ->filter();
-            $sub_category_count_fetch = RetailerCategory::whereIn('sub_category_id', $subCategoryIds)
-                ->where('retailer_id', $retailer->id)
-                ->distinct()
-                ->count('sub_category_id');
+            // $sub_category_count_fetch = RetailerCategory::whereIn('sub_category_id', $subCategoryIds)
+            //     ->where('retailer_id', $retailer->id)
+            //     ->distinct()
+            //     ->count('sub_category_id');
+
+            // $product_count_fetch = Product::where('wholesaler_id', $item->id)
+            //     ->where('status', 'active')
+            //     ->count('id');
+
+            $requestedSubcategoryJson = RetailerWholesalerCategoryRequest::where('retailer_id', $retailer->id)
+                ->where('wholesaler_id', $item->id)
+                ->where('status', 1)
+                ->pluck('sub_category_ids')
+                ->toArray();
+
+            $requestedSubcategoryIds = collect($requestedSubcategoryJson)
+                ->flatMap(function ($ids) {
+                    if (is_array($ids)) {
+                        return $ids;
+                    }
+                    if (is_string($ids)) {
+                        return json_decode($ids, true) ?: [];
+                    }
+                    return [];
+                })
+                ->unique()
+                ->toArray();
+
+            $subCategories = SubCategory::whereIn('id', $requestedSubcategoryIds)
+                ->pluck('sub_category_name')
+                ->implode(', ');
+
+            $sub_category_count_fetch = count($requestedSubcategoryIds);
 
             $product_count_fetch = Product::where('wholesaler_id', $item->id)
                 ->where('status', 'active')
                 ->count('id');
-
-            //add subCategories
-            $subcategory_ids = WholesalerCategory::where('wholesaler_id', $item->id)->get()
-                ->pluck('sub_category_id');
-
-
-            //add subCategories
-            $subCategories = SubCategory::whereIn('id', $subcategory_ids)
-                ->get()->pluck('sub_category_name')
-                ->implode(',');
 
 
             $details = '
@@ -347,17 +523,17 @@ class RetilerController extends Controller
 
             $action = '<a href="' . route('retailer.view-category-margin', encryptId($item->id)) . '" class="btn btn-primary" style="' . ($sub_category_count_fetch > 0 ? '' : 'pointer-events: none; opacity: 0.6; cursor: not-allowed;') . '">Add/Update Margin</a>';
 
-            $data[] = array(
+            $data[] = [
                 "sr_no" => $i,
                 "company_logo" => @$company_logo,
                 "company_name" => @$item->userDetail->company_name,
                 "wholesaler_name" => $item->firstname . ' ' . $item->lastname,
-                "subcategory_names" => $subCategories ? $subCategories : "-", //add subCategories
+                "subcategory_names" => $subCategories ?: "-",
                 "details" => $details,
                 "action" => $action
-            );
+            ];
         }
-        return response()->json(array("draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data));
+        return response()->json(["draw" => $_POST['draw'], "recordsTotal" => $queryTotal, "recordsFiltered" => $cntFilter->count(), 'data' => $data]);
     }
 
     //for wholesaler request accesss
@@ -495,9 +671,9 @@ class RetilerController extends Controller
                     type="button"
                     class="btn btn-icon btn-danger btn-light-danger w-30px h-30px me-3 delete-margin-btn"
                     data-url="' . route('retailer.remove-category-margin', [
-                    'wholesaler_id' => $item->wholesaler_id,
-                    'margin_id' => $item->id
-                ]) . '"
+                'wholesaler_id' => $item->wholesaler_id,
+                'margin_id' => $item->id
+            ]) . '"
                     title="Delete"
                 >
                     <i class="ki-duotone ki-trash">
@@ -540,6 +716,50 @@ class RetilerController extends Controller
 
     // <--------------------- START : Add category margin ---------------------->
     // add category margin view page
+    // public function viewCategoryMargin(string $id)
+    // {
+    //     // Attempt decryption, will throw if tampered
+    //     $wholesaler_id = decryptId($id);
+
+    //     // Optional: validate format after decryption
+    //     if (!is_numeric($wholesaler_id)) {
+    //         abort(404, 'Invalid ID format after decryption.');
+    //     }
+    //     $retailer = Auth::user();
+
+    //     $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
+
+    //     $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
+    //         ->where('retailer_id', $retailer->id)
+    //         ->whereNull('product_id')
+    //         ->distinct('sub_category_id')
+    //         ->pluck('sub_category_id');
+
+    //     $subCategories = Product::select(
+    //         'sub_categories.id',
+    //         'sub_categories.sub_category_name'
+    //     )
+    //         ->join('sub_categories', 'sub_categories.id', 'products.sub_category_id')
+    //         ->join('retailer_categories', 'retailer_categories.sub_category_id', 'products.sub_category_id')
+    //         ->where('retailer_categories.retailer_id', $retailer->id)
+    //         ->where('products.wholesaler_id', $wholesaler_id)
+    //         ->whereNotIn('sub_categories.id', $addedSubCategories)
+    //         ->distinct('products.sub_category_id')
+    //         ->get();
+
+    //     $addedMarginDetails = RetailerProducts::with(['sub_category'])
+    //         ->where('wholesaler_id', $wholesaler_id)
+    //         ->where('retailer_id', $retailer->id)
+    //         ->whereNull('product_id')
+    //         ->get();
+
+    //     return view('wholesaler.retailer-product-list', [
+    //         'wholesaler' => $wholesaler,
+    //         'subCategories' => $subCategories,
+    //         'addedMarginDetails' => $addedMarginDetails
+    //     ]);
+    // }
+
     public function viewCategoryMargin(string $id)
     {
         // Attempt decryption, will throw if tampered
@@ -553,24 +773,22 @@ class RetilerController extends Controller
 
         $wholesaler = UserDetail::select('user_id', 'company_name')->where('user_id', $wholesaler_id)->first();
 
-        $addedSubCategories = RetailerProducts::where('wholesaler_id', $wholesaler_id)
-            ->where('retailer_id', $retailer->id)
-            ->whereNull('product_id')
-            ->distinct('sub_category_id')
-            ->pluck('sub_category_id');
+        // Get latest approved request
+        $requestRecord = RetailerWholesalerCategoryRequest::where('retailer_id', $retailer->id)
+            ->where('wholesaler_id', $wholesaler_id)
+            ->where('status', 1)
+            ->latest('created_at')
+            ->first();
 
-        $subCategories = Product::select(
-            'sub_categories.id',
-            'sub_categories.sub_category_name'
-        )
-            ->join('sub_categories', 'sub_categories.id', 'products.sub_category_id')
-            ->join('retailer_categories', 'retailer_categories.sub_category_id', 'products.sub_category_id')
-            ->where('retailer_categories.retailer_id', $retailer->id)
-            ->where('products.wholesaler_id', $wholesaler_id)
-            ->whereNotIn('sub_categories.id', $addedSubCategories)
-            ->distinct('products.sub_category_id')
+        // If sub_category_ids is already cast to array, no need for json_decode
+        $subCategoryIds = $requestRecord ? $requestRecord->sub_category_ids : [];
+
+        // Fetch subcategory details
+        $subCategories = DB::table('sub_categories')
+            ->whereIn('id', $subCategoryIds)
             ->get();
 
+        // Fetch already added margin details
         $addedMarginDetails = RetailerProducts::with(['sub_category'])
             ->where('wholesaler_id', $wholesaler_id)
             ->where('retailer_id', $retailer->id)
@@ -1056,7 +1274,7 @@ class RetilerController extends Controller
             $columnMap = [
                 'product'     => 'product_name',            // alias inside unified
                 'wholesaler'  => 'company_name',
-                'sub_category'=> 'sub_category_name',
+                'sub_category' => 'sub_category_name',
                 'new_price'   => 'new_price',
                 'margin'      => 'margin',
                 'status'      => 'product_status'
@@ -1467,7 +1685,7 @@ class RetilerController extends Controller
     {
         $retailer = Auth::user();
 
-        $query = RetailerCloneProduct::with(['sub_category', 'productVariations'])
+        $query = RetailerCloneProduct::with(['sub_category', 'productVariations', 'retailer_web_management'])
             ->where('retailer_id', $retailer->id)
             ->where(function ($q) {
                 $q->whereHas('productVariations', function ($q) {
@@ -1522,7 +1740,7 @@ class RetilerController extends Controller
 
         // $products = $query->orderBy('id', 'DESC')->skip($start)->take($length)->get();
 
-                // Pagination params
+        // Pagination params
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
 
@@ -1549,9 +1767,9 @@ class RetilerController extends Controller
 
         // Apply sorting + pagination
         $products = $query->orderBy($orderColumn, $orderDir)
-                        ->skip($start)
-                        ->take($length)
-                        ->get();
+            ->skip($start)
+            ->take($length)
+            ->get();
 
 
         $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
@@ -1598,6 +1816,28 @@ class RetilerController extends Controller
                 . ($newPrice ? '₹ ' . $newPrice : ($product->new_price ? '₹ ' . number_format($product->new_price, 2) : 'N/A'))
                 . '</div>';
 
+            $baseStoreUrl = optional($product->retailer_web_management)->subdomain;
+
+            $storeProductLink = $baseStoreUrl
+                ? rtrim($baseStoreUrl, '/') . '/products/' . $product->slug
+                : null;
+
+            $viewButton = $storeProductLink
+                ? '<a href="' . $storeProductLink . '" title="View" target="_blank"
+                        class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                        <i class="ki-duotone ki-eye fs-4">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </a>'
+                : '<button class="btn btn-icon btn-secondary w-30px h-30px" title="No Store Link Available" disabled>
+                        <i class="ki-duotone ki-eye fs-4 opacity-50">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </button>';
+
+
             $status = $product->status === 'active'
                 ? '<div class="text-center">
                         <div class="badge badge-light-success px-4 py-2 mb-1">Active</div>
@@ -1636,13 +1876,7 @@ class RetilerController extends Controller
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </a>
-                <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
-                    class="btn btn-icon btn-success btn-light-success w-30px h-30px">
-                    <i class="ki-duotone ki-eye fs-4">
-                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                        <span class="path4"></span><span class="path5"></span>
-                    </i>
-                </a>
+                ' . $viewButton . '
             </div>';
 
             $product_image = '<img src="' . $imageUrl . '"
@@ -1770,9 +2004,9 @@ class RetilerController extends Controller
 
         // Apply sorting + pagination
         $products = $query->orderBy($orderColumn, $orderDir)
-                        ->skip($start)
-                        ->take($length)
-                        ->get();
+            ->skip($start)
+            ->take($length)
+            ->get();
 
 
         $recordsTotal = RetailerCloneProduct::with('sub_category', 'productVariations')
@@ -1842,6 +2076,28 @@ class RetilerController extends Controller
                         </label>
                     </div>';
 
+
+            $baseStoreUrl = optional($product->retailer_web_management)->subdomain;
+
+            $storeProductLink = $baseStoreUrl
+                ? rtrim($baseStoreUrl, '/') . '/products/' . $product->slug
+                : null;
+
+            $viewButton = $storeProductLink
+                ? '<a href="' . $storeProductLink . '" title="View" target="_blank"
+                        class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
+                        <i class="ki-duotone ki-eye fs-4">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </a>'
+                : '<button class="btn btn-icon btn-secondary w-30px h-30px" title="No Store Link Available" disabled>
+                        <i class="ki-duotone ki-eye fs-4 opacity-50">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            <span class="path4"></span><span class="path5"></span>
+                        </i>
+                    </button>';
+
             $action = '<div class="text-center d-flex justify-content-center align-items-center gap-2">
                 <button type="button"
                     class="btn btn-icon btn-danger btn-active-light-danger w-30px h-30px delete-product"
@@ -1859,13 +2115,7 @@ class RetilerController extends Controller
                         <span class="path4"></span><span class="path5"></span>
                     </i>
                 </a>
-                <a href="' . route('retailer.details.product', encryptId($product->id)) . '" title="View"
-                    class="btn btn-icon btn-success btn-active-light-success w-30px h-30px">
-                    <i class="ki-duotone ki-eye fs-4">
-                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                        <span class="path4"></span><span class="path5"></span>
-                    </i>
-                </a>
+                ' . $viewButton . '
             </div>';
 
             $product_image = '<img src="' . $imageUrl . '"
@@ -1944,7 +2194,7 @@ class RetilerController extends Controller
     public function retailerPostProduct(Request $request)
     {
         $request->validate([
-            'product_name' => ['required', 'max:100','regex:/^[a-zA-Z0-9\s_-]+$/', new NoCodeInjection],
+            'product_name' => ['required', 'max:100', 'regex:/^[a-zA-Z0-9\s_-]+$/', new NoCodeInjection],
             'slug' => [
                 'required',
                 'string',
@@ -2101,7 +2351,7 @@ class RetilerController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Product added successfully!');
+            return redirect()->route('retailer.my.product')->with('success', 'Product added successfully!');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error in retailerPostProduct: ' . $e->getMessage());
@@ -2217,7 +2467,7 @@ class RetilerController extends Controller
             $request->validate([
                 'old_price' => 'required|numeric|min:1|max:99999999.99',
                 'new_price' => 'required|numeric|min:1|max:99999999.99',
-               'quantity' => [
+                'quantity' => [
                     'required',
                     'regex:/^[0-9]{1,6}$/'
                 ]

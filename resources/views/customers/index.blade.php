@@ -3,14 +3,18 @@
     <title>Shipping Label</title>
 </head>
 
-<body style="margin:0; padding:0; font-family: Arial, Helvetica, sans-serif; font-size:14px; color:#000;">
-    <table style="width:100%; border-collapse:collapse; table-layout:fixed; border-bottom:px solid #000;">
-        <tbody><tr>
-            <td style="height:150px; text-align:center; vertical-align:middle; padding:10px;">
-            </td>
-        </tr>
-    </tbody></table>
-    <div style="width:288px; margin:0 auto; border:2px solid #000;">
+                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                            <li class="breadcrumb-item text-muted">
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <span class="bullet bg-gray-500 w-5px h-2px"></span>
+                            </li>
+                            <li class="breadcrumb-item text-muted">Customer List</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
 
         <!-- Header (3 equal cells for logos or text) -->

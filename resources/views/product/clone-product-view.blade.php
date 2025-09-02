@@ -14,7 +14,7 @@
                         <!-- <h3 class="page-heading d-flex text-gray-900 fw-bold fs-7 mt-2 flex-column justify-content-center my-0"></h3> -->
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-1 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>

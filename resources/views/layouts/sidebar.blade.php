@@ -90,7 +90,7 @@
                             <div class="menu-item">
                                 <!--begin:Menu link-->
                                 <a class="menu-link {{ request()->is(['orders-list/*', 'orders-list', 'orders-list/action']) ? 'active' : '' }}"
-                                    href="{{ route('retailer.order.list', ['type' => 'all']) }}">
+                                    href="{{ route('retailer.order.list' ) }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
@@ -535,7 +535,7 @@
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-basket fs-1 text-white">
+                                <i class="ki-duotone ki-file fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -668,12 +668,101 @@
                     </div>
                     <!--end:Menu item-->
 
+                    {{-- -------------- Sales & Report ----------- --}}
+                    <div class="menu-item pt-5">
+                        <div class="menu-content">
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Sales & Report</span>
+                        </div>
+                    </div>
+
+                        <!-- Sales & Report -->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is('report/sales-report','report/punch-order-report') ? 'show' : '' }}"
+                        title="Reports" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-bill fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Retailer Reports</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion">
+                            <!-- My Sales Report  -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('report/sales-report') ? 'active' : '' }}"
+                                    href="{{ route('sale.report.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">My Sales Report</span>
+                                </a>
+                            </div>
+
+                            <!-- Punch Order Report -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('report/punch-order-report') ? 'active' : '' }}"
+                                    href="{{ route('punch.order.report.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Punch Order Report</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Courier/Logistics Reports Main Menu -->
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item menu-accordion {{ request()->is('report/shipping-charges-report', 'report/rto-report') ? 'show' : '' }}"
+                        title="Bank Details" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-exit-up fs-1 text-white">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">Courier/Logistics Reports</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion">
+                             <!-- Shipping Charges Report -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('report/shipping-charges-report') ? 'active' : '' }}"
+                                    href="{{ route('shipping.charges.report.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Shipping Charges Report</span>
+                                </a>
+                            </div>
+                            <!-- RTO Report -->
+                            <div class="menu-item">
+                                <a class="menu-link {{ request()->is('report/rto-report') ? 'active' : '' }}"
+                                    href="{{ route('rto.report.index') }}">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">RTO Report</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                     {{-- -------------- START : Banking & Wallet section ----------- --}}
                     <div class="menu-item pt-5">
                         <div class="menu-content">
                             <span class="menu-heading fw-bold text-uppercase fs-7">Banking & Wallet</span>
                         </div>
                     </div>
+
                     <!-- Transactions Main Menu -->
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->is('accounts/transactions', 'accounts/transactions/*') ? 'show' : '' }}"

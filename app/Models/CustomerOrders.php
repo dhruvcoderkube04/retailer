@@ -121,4 +121,14 @@ class CustomerOrders extends Model
     {
         return $this->belongsTo(CourierPartner::class, 'courier_partner_id', 'id');
     }
+
+    public function punchOrder()
+    {
+        return $this->belongsTo(PunchOrderPayment::class, 'order_id', 'order_id');
+    }
+
+    public function paymentsettlement()
+    {
+        return $this->hasOne(AccountTransaction::class, 'tracking_number', 'tracking_number')->where('status',1);
+    }
 }

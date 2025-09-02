@@ -25,7 +25,10 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\RetailerOrderController;
 use App\Http\Controllers\RetailerCategoryController;
 use App\Http\Controllers\OrderNotificationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RetailerAccountTransactionController;
+use App\Http\Controllers\ShareStoreController;
+use App\Http\Controllers\RequestWholesalerController;
 
 Route::get('/', function () {
     return redirect()->to('login');
@@ -280,6 +283,23 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
         Route::post('/withdrawal-transactions/verify-wholesaler-email', [RetailerAccountTransactionController::class, 'verifyWholesalerEmail'])->name('retailer.accounts.withdrawal-transactions.verify-wholesaler-email'); // ajax - datatable
     });
 
+    // Report
+    Route::prefix('report')->group(function () {
+        Route::get('/sales-report', [ReportController::class, 'saleReport'])->name('sale.report.index');
+        Route::post('/sales-report/fetch-record', [ReportController::class, 'fetchSaleReport'])->name('sale.report.fetch-record');
+
+        Route::get('/punch-order-report', [ReportController::class, 'punchOrderReport'])->name('punch.order.report.index');
+        Route::post('/punch-order-report/fetch-record', [ReportController::class, 'fetchPunchOrderReport'])->name('punch.order.report.fetch-record');
+
+        Route::get('/shipping-charges-report', [ReportController::class, 'shippingChargesReport'])->name('shipping.charges.report.index');
+        Route::post('/shipping-charges-report/fetch-record', [ReportController::class, 'fetchShippingChargesReport'])->name('shipping.charges.report.fetch-record');
+
+        Route::get('/rto-report', [ReportController::class, 'rtoReport'])->name('rto.report.index');
+        Route::post('/rto-report/fetch-record', [ReportController::class, 'fetchRtoReport'])->name('rto.report.fetch-record');
+        Route::post('/order-info', [ReportController::class, 'orderInfo'])->name('report.oder.info');
+
+    });
+
     // themes
     Route::prefix('themes')->group(function () {
         Route::get('/', [ThemeController::class, 'indexThemes'])->name('retailer.themes.index');
@@ -319,6 +339,11 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
             Route::put('/update/{id}', [WebsiteController::class, 'updateContactContent'])->name('retailer.website-content.contactus.update');
         });
     });
+
+    Route::get('/store-access/{wholesaler}/{token}', [ShareStoreController::class, 'accessStore'])->name('access.store');
+    Route::get('/request-for-category/{wholesaler_id}', [RequestWholesalerController::class, 'fetchWholesalerCategory'])->name('wholesaler.request.category');
+    Route::post('/wholesaler/request-access', [RequestWholesalerController::class, 'store'])->name('wholesaler.request.access');
+
 });
 // autologin
 Route::get('/auto-login/{token}', [AdminAuthController::class, 'loginWithToken']);

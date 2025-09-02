@@ -36,12 +36,12 @@
                 <div id="kt_app_content_container" class="app-container ">
                     {{-- success/error message --}}
                     @if (session('success'))
-                        <div class="alert alert-success text-green-600 p-2">
+                        <div class="alert alert-success text-green-600 p-2 flash-message">
                             {{ session('success') }}
                         </div>
                     @endif
                     @if (session('error'))
-                        <div class="alert alert-danger text-red-600 p-2">
+                        <div class="alert alert-danger text-red-600 p-2 flash-message">
                             {{ session('error') }}
                         </div>
                     @endif
@@ -75,7 +75,7 @@
                                                     <label class="required form-label">Product Name</label>
                                                     <input type="text" name="product_name"
                                                         class="form-control mb-2 @error('product_name') is-invalid @enderror"
-                                                        placeholder="Product Name" value="{{ old('product_name') }}" 
+                                                        placeholder="Product Name" value="{{ old('product_name') }}"
                                                         oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '')"/>
                                                     @error('product_name')
                                                         <div class="invalid-feedback fs-7">{{ $message }}</div>
@@ -704,6 +704,15 @@
             $(document).on('change', '[name="images[]"]', function() {
                 validateField($(this));
             });
+        });
+
+        // Message Hide after 2 seconds
+        $(document).ready(function () {
+            setTimeout(function () {
+                $(".flash-message").fadeOut("slow", function () {
+                    $(this).remove();
+                });
+            }, 2000);
         });
     </script>
 

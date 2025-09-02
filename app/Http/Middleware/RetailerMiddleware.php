@@ -19,6 +19,9 @@ class RetailerMiddleware
         if (Auth::check() && Auth::user()->user_type == 3 && Auth::user()->status == 1 && Auth::user()->is_delete == 0) {
             return $next($request);
         }
-        return redirect()->route('retailer.login')->with('error', 'Unauthorized Access.'); // Corrected line
+         
+        session(['redirect_after_login' => $request->fullUrl()]);
+        
+        return redirect()->route('retailer.login',['uri' => $request->fullUrl()])->with('error', 'Unauthorized Access.'); // Corrected line
     }
 }

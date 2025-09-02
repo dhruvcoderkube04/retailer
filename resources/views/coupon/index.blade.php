@@ -16,7 +16,7 @@
                         <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Coupon List</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -276,9 +276,9 @@ $(document).ready(function () {
         },
         columns: [
             { data: 'coupon_name', orderable: false, className: 'text-center' },
-            { data: 'status', orderable: false, className: 'text-center' },
+            { data: 'status', orderable: true, className: 'text-center' },
             { data: 'coupon_code', orderable: false, className: 'text-center' },
-            { data: 'used_count', orderable: false, className: 'text-center' },
+            { data: 'used_count', orderable: true, className: 'text-center' },
             { data: 'valid_from', orderable: false, className: 'text-center' },
             { data: 'valid_until', orderable: false, className: 'text-center' },
             { data: 'quantity', orderable: false, className: 'text-center' },

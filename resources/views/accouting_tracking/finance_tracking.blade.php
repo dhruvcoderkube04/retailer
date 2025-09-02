@@ -16,7 +16,7 @@
                         </h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -185,7 +185,7 @@
                     { data: 'no', className: 'text-center' },
                     { data: 'date', className: 'text-center' },
                     { data: 'tracking_id', className: 'text-center' },
-                    { data: 'remark', className: 'text-start' },
+                    { data: 'remark', className: 'text-center' },
                     { data: 'weight', className: 'text-center' },
                     { data: 'order_amount', className: 'text-center' },
                     { data: 'courier', className: 'text-center' },

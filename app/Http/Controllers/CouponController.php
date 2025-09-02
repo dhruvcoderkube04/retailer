@@ -42,6 +42,28 @@ class CouponController extends Controller
             });
         }
 
+        $order = $request->input('order')[0] ?? null;
+        $columns = $request->input('columns');
+
+        if ($order) {
+            $orderColumnIndex = $order['column']; // e.g. 1 = status
+            $orderDir = $order['dir'];            // 'asc' or 'desc'
+            $orderColumnName = $columns[$orderColumnIndex]['data'];
+
+            if ($orderColumnName === 'status') {
+                $query->orderBy('status', $orderDir);
+            } elseif (in_array($orderColumnName, [
+                'coupon_name','coupon_code','discount','used_count',
+                'valid_from','valid_until','usage_limit','created_at'
+            ])) {
+                $query->orderBy($orderColumnName, $orderDir);
+            } else {
+                $query->orderBy('created_at','desc');
+            }
+        } else {
+            $query->orderBy('created_at','desc');
+        }
+
         $total = CouponModel::where('retailer_id', $user_id)->count();
         $filtered = $query->count();
 

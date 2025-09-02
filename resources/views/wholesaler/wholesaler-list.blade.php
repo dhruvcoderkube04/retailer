@@ -3,8 +3,6 @@
     Wholesaler List | TechtrendMart
 @endsection
 @section('content')
-    @if ($is_all_wholesaler_visible === 1)
-        {{-- Full Access: Show Wholesalers --}}
         <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
             <div class="d-flex flex-column flex-column-fluid">
                 <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
@@ -13,7 +11,7 @@
                             <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">Wholesalers</h1>
                             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                                 <li class="breadcrumb-item text-muted">
-                                    <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                    <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                                 </li>
                                 <li class="breadcrumb-item">
                                     <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -70,66 +68,6 @@
                 @include('layouts.footer')
             </div>
         </div>
-
-    @elseif ($is_all_wholesaler_visible === 0)
-        {{-- Restricted Access: Show Request Access --}}
-        <div class="app-main flex-column flex-row-fluid mt-5" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container">
-                        <div
-                            class="alert alert-info d-flex flex-column flex-md-row align-items-center justify-content-between p-4 mb-10 rounded-3 shadow-sm">
-                            <div class="d-flex align-items-center mb-3 mb-md-0">
-                                <i class="bi bi-exclamation-circle-fill text-info fs-1 me-3"></i>
-                                <div>
-                                    <h4 class="alert-heading fw-bold mb-1">Access Needed</h4>
-                                    <p class="mb-0">You currently do not have permission to access this feature. If you believe
-                                        this is a mistake, please submit an access request for approval.</p>
-                                </div>
-                            </div>
-                            <input type="hidden" name="user_id" value="{{ $retailer_id }}">
-                            <button id="requestAccessBtn" type="button" class="btn btn-outline-info btn-lg fw-semibold">
-                                Request Access
-                            </button>
-                        </div>
-
-                        <div id="accessMessage" class="alert alert-success d-none" role="alert">
-                            <strong>Request Submitted!</strong> Your request has been sent to the administrator.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    @elseif($is_all_wholesaler_visible === 2)
-        <div class="app-main flex-column flex-row-fluid mt-5" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container">
-                        <div class="alert alert-success" role="alert">
-                            <strong>Request Submitted!</strong> Your request has been sent to the administrator.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    @else
-        {{-- Unknown Access: Fallback --}}
-        <div class="app-main flex-column flex-row-fluid mt-5" id="kt_app_main">
-            <div class="d-flex flex-column flex-column-fluid">
-                <div id="kt_app_content" class="app-content flex-column-fluid">
-                    <div id="kt_app_content_container" class="app-container">
-                        <div class="alert alert-warning p-4">
-                            <h4 class="fw-semibold">No Access</h4>
-                            <p>Unfortunately, you do not have the required access to use this feature.</p>
-                            <p>If you believe this is a mistake, please contact your administrator for further assistance.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection
 
 @section('script')

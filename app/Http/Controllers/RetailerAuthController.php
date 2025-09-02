@@ -40,7 +40,7 @@ class RetailerAuthController extends Controller
                     $exists = \App\Models\User::where('phone_number', $value)
                         ->where('user_type', 3)
                         ->exists();
-    
+
                     if ($exists) {
                         $fail('The phone number is already in use.');
                     }
@@ -58,16 +58,16 @@ class RetailerAuthController extends Controller
             'password_confirmation' => 'required',
             'toc' => 'required|accepted',
         ]);
-    
+
         if ($validator->fails()) {
             return redirect('register')
                 ->withErrors($validator)
                 ->withInput();
         }
-    
+
         try {
             DB::beginTransaction(); // 🔁 Start transaction
-    
+
             // Create User
             $user = User::create([
                 'firstname' => $request->firstname,
@@ -79,9 +79,9 @@ class RetailerAuthController extends Controller
                 'password' => Hash::make($request->password),
                 'ip_address' => $request->ip(),
             ]);
-    
+
             $margin = MarginManagement::where('default', 1)->where('status', 1)->first();
-    
+
             // Create User Details
             UserDetail::create([
                 'user_id' => $user->id,
@@ -89,50 +89,48 @@ class RetailerAuthController extends Controller
                 'margin_percentage_tag' => $margin->flat_percentage,
                 'margin_tag_name' => $margin->margin_name
             ]);
-    
+
             DB::commit(); // ✅ Commit transaction
-    
+
             // Send email notifications (not in transaction)
             try {
                 $user->notify(new VerifyEmail);
-    
+
                 Mail::send('emails.admin_retailer_registered', ['user' => $user], function ($message) {
                     $message->to('info@techtrendmart.in')
                         ->subject('New Retailer Registration Notification');
                 });
             } catch (Exception $e) {
                 \Log::error('Failed to send verification email: ' . $e->getMessage());
-    
+
                 return redirect()->route('retailer.login')
                     ->with('success', 'Registration successful! However, we could not send the verification email. Please try resending it from your account.');
             }
-    
+
             return redirect()->route('retailer.login')->with('success', 'Registration successful! Please check your email to verify your account.');
-    
         } catch (QueryException $e) {
             DB::rollBack(); // ❌ Rollback on DB error
-    
+
             if ($e->errorInfo[1] === 1062) {
                 return redirect('register')
                     ->withErrors(['email' => 'This email address is already registered.'])
                     ->withInput();
             }
-    
+
             \Log::error('Database error during registration: ' . $e->getMessage());
             return redirect('register')
                 ->withErrors(['error' => 'An error occurred during registration. Please try again later.'])
                 ->withInput();
-    
         } catch (Exception $e) {
             DB::rollBack(); // ❌ Rollback on general error
-    
+
             \Log::error('Unexpected error during registration: ' . $e->getMessage());
             return redirect('register')
                 ->withErrors(['error' => 'An unexpected error occurred. Please try again later.'])
                 ->withInput();
         }
     }
-    
+
 
     public function forgetPassword()
     {
@@ -177,7 +175,6 @@ class RetailerAuthController extends Controller
             });
 
             return back()->with('success', 'A password reset link has been sent to your email.');
-
         } catch (Exception $e) {
             Log::error('Password reset email failed: ' . $e->getMessage());
             return back()->with('error', 'An unexpected error occurred. Please try again later.');
@@ -248,8 +245,8 @@ class RetailerAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|max:255',
-            'password' => 'required|min:8|max:20',
+            'email' => 'required|string|email|max:50',
+            'password' => 'required|string|max:30',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -259,8 +256,8 @@ class RetailerAuthController extends Controller
             return redirect()->route('retailer.login');
         }
 
-         // First: Check if user exists and password is correct
-         if (!$user || !Hash::check($request->password, $user->password)) {
+        // First: Check if user exists and password is correct
+        if (!$user || !Hash::check($request->password, $user->password)) {
             session()->flash('error', 'Invalid credentials');
             return redirect()->route('retailer.login');
         }
@@ -299,6 +296,12 @@ class RetailerAuthController extends Controller
         // Successful login
         Auth::login($user, $remember);
         $user->update(['login_attempt' => 0, 'locked_until' => null]); // Reset login attempts
+        
+        if (session()->has('redirect_after_login')) {
+            $redirectUrl = session()->pull('redirect_after_login');
+            return redirect()->to($redirectUrl);
+        }
+
         return redirect()->route('retailer.dashboard');
     }
 

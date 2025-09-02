@@ -18,7 +18,7 @@
                         </h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -44,12 +44,12 @@
             <div id="kt_app_content" class="app-content flex-column-fluid">
                 <div id="kt_app_content_container" class="app-container ">
                     @if (session('success'))
-                        <div class="alert alert-success text-green-600 p-2">
+                        <div class="alert alert-success text-green-600 p-2 flash-message">
                             {{ session('success') }}
                         </div>
                     @endif
                     @if (session('error'))
-                        <div class="alert alert-danger text-red-600 p-2">
+                        <div class="alert alert-danger text-red-600 p-2 flash-message">
                             {{ session('error') }}
                         </div>
                     @endif
@@ -559,6 +559,15 @@
                 }
             });
             // <--------------------- END : Unavailable Product ---------------------->
+
+            // Message Hide after 2 seconds
+            $(document).ready(function () {
+                setTimeout(function () {
+                    $(".flash-message").fadeOut("slow", function () {
+                        $(this).remove();
+                    });
+                }, 2000);
+            });
 
             $(document).ready(function () {
                 //<----------------- START : product upload form submit ---------------->

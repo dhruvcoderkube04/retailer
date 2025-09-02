@@ -19,6 +19,10 @@ Route::post('/otp/send', [OtpController::class, 'sendOtp']);
 Route::post('/otp/verify/login', [OtpController::class, 'verifyOtpLogin']);
 Route::post('/otp/verify/checkout', [OtpController::class, 'verifyOtpCheckout']);
 Route::post('/apply-coupon', [RetailerProductController::class, 'applyCoupon']);
+Route::get('/home-page-sections', [RetailerProductController::class, 'getHomePageSections']);
+Route::get('/about-us-page', [RetailerProductController::class, 'getAboutUsPage']);
+Route::get('/contact-us-page', [RetailerProductController::class, 'getContactUsPage']);
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -45,6 +49,7 @@ Route::prefix('customer')->group(function () {
         Route::get('/details', [CustomerRegisterController::class, 'getCustomerDetails']);
         Route::get('/orders', [RetailerProductController::class, 'customerOrders']);
         Route::post('/shipping-address', [RetailerProductController::class, 'shippingAddress']);
+        Route::get('/get-shipping-address', [RetailerProductController::class, 'getShippingAddress']);
         Route::post('/account-details', [RetailerProductController::class, 'accountDetails']);
         Route::post('/reset-password', [RetailerProductController::class, 'resetPassword']);
         Route::post('/add-to-wishlist', [RetailerProductController::class, 'addToWishlist']);
@@ -53,6 +58,7 @@ Route::prefix('customer')->group(function () {
         Route::get('/cart', [RetailerProductController::class, 'cart']);
         Route::post('/remove-to-wishlist', [RetailerProductController::class, 'removeToWishlist']);
         Route::post('/remove-to-cart', [RetailerProductController::class, 'removeToCart']);
+        Route::post('/cancel-order', [RetailerProductController::class, 'cancelOrder']);
     });
 
 });

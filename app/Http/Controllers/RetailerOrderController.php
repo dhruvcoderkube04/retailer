@@ -462,14 +462,14 @@ class RetailerOrderController extends Controller
             $stageDateField = $stageDateMap[$type] ?? 'created_at';
             $order_date = '<div class="row">
                     <div class="col-12 mb-2 fs-6">
-                        <strong>Order Date:</strong><br>
+                        <strong class="fw-bold text-gray-700">Order Date:</strong><br>
                         <span class="text-dark fw-bold">' . date('F d, Y, h:i a', strtotime($item->created_at)) . '</span>
                     </div>';
 
             if ($type !== 'new' && $type !== 'all') {
                 $order_date .= '
                     <div class="col-12">
-                        <strong>' . $typeNameMap[$type] . ' At:</strong><br>
+                        <strong class="fw-bold text-gray-700">' . $typeNameMap[$type] . ' At:</strong><br>
                         <span class="text-dark fw-bold">' . date('F d, Y, h:i a', strtotime($item->$stageDateField)) . '</span>
                     </div>';
             }
@@ -478,17 +478,17 @@ class RetailerOrderController extends Controller
             $order_detail = '<div class="p-3">
                     <table class="table table-sm mb-0 fs-6">
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Order Id:</strong></span>
+                            <span"><strong class="fw-bold text-gray-700">Order Id:</strong></span>
                             <span class="text-start text-dark fw-bold">' . $item->order_id . '</span>
                         </div>
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Product:</strong></span>
+                            <span"><strong class="fw-bold text-gray-700">Product:</strong></span>
                             <span class="text-start text-dark fw-bold">' . ($item?->order_product_detail?->name ?? '') . '</span>
                         </div>';
             if ($item->product_variation) {
                 $order_detail .= '
                         <div class="d-flex mb-2 gap-2">
-                            <span><strong>Variation:</strong></span>
+                            <span><strong class="fw-bold text-gray-700">Variation:</strong></span>
                             <span class="text-start">
                                 <span class="badge badge-light-success">' . $item->product_variation . '</span>
                             </span>
@@ -507,13 +507,13 @@ class RetailerOrderController extends Controller
             if (!empty($item->appliedCoupon)) {
                 $order_detail .= '
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Coupon Code:</strong></span>
+                            <span"><strong class="fw-bold text-gray-700">Coupon Code:</strong></span>
                             <span class="text-start">
                                 <span class="badge badge-light-danger">' . $item->appliedCoupon->coupon_code . '</span>
                             </span>
                         </div>
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Discount Amount:</strong></span>
+                            <span"><strong class="fw-bold text-gray-700">Discount Amount:</strong></span>
                             <span class="text-start">
                                 <span class="badge badge-light-success">₹' . $item->appliedCoupon->discount . '</span>
                             </span>
@@ -522,7 +522,7 @@ class RetailerOrderController extends Controller
 
             $order_detail .= '
                         <div class="d-flex mb-2 gap-2">
-                            <span"><strong>Amount:</strong></span>
+                            <span"><strong class="fw-bold text-gray-700">Amount:</strong></span>
                             <span class="text-start">
                                 <span class="badge badge-light-primary fs-6">₹' . $item->final_amount . '</span>
                             </span>
@@ -531,13 +531,13 @@ class RetailerOrderController extends Controller
             if ($type == 'transferred-to-wholesaler') {
                 $order_detail .= '
                         <div class="d-flex mb-2 gap-2">
-                            <span><strong>Order Status:</strong></span>
+                            <span><strong class="fw-bold text-gray-700">Order Status:</strong></span>
                             <span>
                                 <span class="badge badge-' . $typeColorMap[$type] . '">Transferred to Wholesaler</span>
                             </span>
                         </div>
                         <div class="d-flex mb-2 gap-2">
-                            <span><strong>Current Status:</strong></span>
+                            <span><strong class="fw-bold text-gray-700">Current Status:</strong></span>
                             <span>
                                 <span class="badge badge-' . $statusColorMap[$item->status] . '">' . order_status($item->status) . '</span>
                             </span>
@@ -545,7 +545,7 @@ class RetailerOrderController extends Controller
                 if ($item->status == 'cancel') {
                     $order_detail .= '
                         <div class="d-flex mb-2 gap-2">
-                            <span><strong>Cancel Reason:</strong></span>
+                            <span><strong class="fw-bold text-gray-700">Cancel Reason:</strong></span>
                             <span class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</span>
                         </div>';
                 }
@@ -560,7 +560,7 @@ class RetailerOrderController extends Controller
                 if ($item->status == 'cancel') {
                     $order_detail .= '
                         <div class="d-flex mb-2 gap-2">
-                            <span><strong>Cancel Reason:</strong></span>
+                            <span><strong class="fw-bold text-gray-700">Cancel Reason:</strong></span>
                             <span class="text-danger">' . ($item->cancelled_reason ?? 'N/A') . '</span>
                         </div>';
                 }
@@ -574,11 +574,11 @@ class RetailerOrderController extends Controller
             if ($item->wholesaler) {
                 $order_detail .= '
                             <div class="d-flex mb-2 gap-2">
-                                <span ><strong>Wholesaler:</strong></span>
+                                <span ><strong class="fw-bold text-gray-700">Wholesaler:</strong></span>
                                 <span class="badge badge-light-info text-wrap fs-6">' . ($item->wholesaler->firstname ?? '') . ' ' . ($item->wholesaler->lastname ?? '') . '</span>
                             </div>
                             <div class="d-flex mb-2 gap-2">
-                                <span><strong>Wholesaler Phone:</strong></span>
+                                <span><strong class="fw-bold text-gray-700">Wholesaler Phone:</strong></span>
                                 <span class="badge badge-light-success text-wrap fs-6">' . ($item->wholesaler->phone_number ?? '') . '</span>
                             </div>';
             }
@@ -595,12 +595,12 @@ class RetailerOrderController extends Controller
 
             $customer_detail = '<div class="p-3">';
             $customer_detail .= '
-                    <div class="d-flex mb-2 gap-2"><span><strong>Name:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</span></div>
-                    <div class="d-flex mb-2 gap-2"><span><strong>Email:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->email . '</span></div>
-                    <div class="d-flex mb-2 gap-2"><span><strong>Address:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->address . '</span></div>
-                    <div class="d-flex mb-2 gap-2"><span><strong>Pin Code:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->pincode . '</span></div>
-                    <div class="d-flex mb-2 gap-2"><span><strong>City:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->city . '</span></div>
-                    <div class="d-flex mb-2 gap-2"><span><strong>Mobile no:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->phone_number . '</span></div>';
+                    <div class="d-flex mb-2 gap-2"><span><strong class="fw-bold text-gray-700">Name:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->firstname . ' ' . $item->customer->lastname . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong class="fw-bold text-gray-700">Email:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->email . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong class="fw-bold text-gray-700">Address:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->address . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong class="fw-bold text-gray-700">Pin Code:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->pincode . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong class="fw-bold text-gray-700">City:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->city . '</span></div>
+                    <div class="d-flex mb-2 gap-2"><span><strong class="fw-bold text-gray-700">Mobile no:</strong></span><span class="text-start text-dark fw-bold">' . $item->customer->phone_number . '</span></div>';
             $customer_detail .= '</div>';
 
             $wholesaler_detail = '';
@@ -608,12 +608,12 @@ class RetailerOrderController extends Controller
                 $wholesaler = $item->wholesaler;
                 $wholesaler_detail = '<div class="p-3">';
                 $wholesaler_detail .= '
-                        <div><span><strong>Wholesaler Name:</strong></span><span>' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</span></div>
-                        <div><span><strong>Email:</strong></span><span>' . ($wholesaler->email ?? '') . '</span></div>
-                        <div><span><strong>Address:</strong></span><span>' . ($wholesaler->userDetail->address ?? '') . '</span></div>
-                        <div><span><strong>Pin Code:</strong></span><span>' . ($wholesaler->userDetail->postal_code ?? '') . '</span></div>
-                        <div><span><strong>City:</strong></span><span>' . ($wholesaler->userDetail->city ?? '') . '</span></div>
-                        <div><span><strong>Mobile no:</strong></span><span>' . ($wholesaler->phone_number ?? '') . '</span></div>';
+                        <div><span><strong class="fw-bold text-gray-700">Wholesaler Name:</strong></span><span>' . ($wholesaler->firstname ?? '') . ' ' . ($wholesaler->lastname ?? '') . '</span></div>
+                        <div><span><strong class="fw-bold text-gray-700">Email:</strong></span><span>' . ($wholesaler->email ?? '') . '</span></div>
+                        <div><span><strong class="fw-bold text-gray-700">Address:</strong></span><span>' . ($wholesaler->userDetail->address ?? '') . '</span></div>
+                        <div><span><strong class="fw-bold text-gray-700">Pin Code:</strong></span><span>' . ($wholesaler->userDetail->postal_code ?? '') . '</span></div>
+                        <div><span><strong class="fw-bold text-gray-700">City:</strong></span><span>' . ($wholesaler->userDetail->city ?? '') . '</span></div>
+                        <div><span><strong class="fw-bold text-gray-700">Mobile no:</strong></span><span>' . ($wholesaler->phone_number ?? '') . '</span></div>';
                 $wholesaler_detail .= '</div>';
             }
 
@@ -646,7 +646,7 @@ class RetailerOrderController extends Controller
             if ($item->status == 'ndr' && $type !== 'transferred-to-wholesaler') {
                 $tracking_info .= '<div class="mt-1">
                         <div class="d-flex align-items-center">
-                            <span><strong>Reason:</strong></span>
+                            <span><strong class="fw-bold text-gray-700">Reason:</strong></span>
                             <span>' . ($item->shipment_activity ?? '') . '</span>
                         </div>
                     </div>';
@@ -1112,7 +1112,7 @@ class RetailerOrderController extends Controller
                 $search = cleanInput($request->search);
                 $search = trim($search);
                 $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
-              
+
                 $query->where(function ($q) use ($search) {
                     $q->where('order_id', 'like', "%{$search}%")
                         ->orWhere('product_variation', 'like', '%' . $search . '%')
@@ -1215,23 +1215,23 @@ class RetailerOrderController extends Controller
                 // $statusBadge = $order->status == 'approved' ? 'badge-success' : 'badge-danger';
 
                 $orderDetailHTML = "
-                    <div class='my-2'><strong>Order Id:</strong> <span class='text-start text-dark fw-bold'>{$order->order_id}</span></div>
-                    <div class='my-2'><strong>Name:</strong> <span class='text-start text-dark fw-bold'>" . ($product->name ?? 'N/A') . "</span></div>";
+                    <div class='my-2'><strong class='fw-bold text-gray-700'>Order Id:</strong> <span class='text-start text-dark fw-bold'>{$order->order_id}</span></div>
+                    <div class='my-2'><strong class='fw-bold text-gray-700'>Name:</strong> <span class='text-start text-dark fw-bold'>" . ($product->name ?? 'N/A') . "</span></div>";
 
                 if ($order->product_variation) {
                     $orderDetailHTML .= '<div class="col-12 my-2"><strong>Variation:</strong> <div class="badge badge-light-success text-wrap">' . ($order->product_variation ?? 'N/A') . '</div></div>';
                 }
 
-                $orderDetailHTML .= "<div class='my-2'><strong>Quantity:</strong> <div class='badge badge-light-secondary text-wrap'> {$order->quantity} </div>" . ($order->size ? ' | Size: ' . $order->size : '') . "</div>
-                    <div class='my-2'><strong>Amount:</strong><div class='badge badge-light-primary text-wrap fs-7'> ₹ {$order->final_amount} </div></div>
+                $orderDetailHTML .= "<div class='my-2'><strong class='fw-bold text-gray-700'>Quantity:</strong> <div class='badge badge-light-secondary text-wrap'> {$order->quantity} </div>" . ($order->size ? ' | Size: ' . $order->size : '') . "</div>
+                    <div class='my-2'><strong class='fw-bold text-gray-700'>Amount:</strong><div class='badge badge-light-primary text-wrap fs-7'> ₹ {$order->final_amount} </div></div>
                     <div class='my-2'>
-                        <strong>Order Status:</strong>
+                        <strong class='fw-bold text-gray-700'>Order Status:</strong>
                         <span class='badge badge-" . $typeColorMap[$order->status] . "'>
                             " . ($orderStatus[$order->status] ?? 'Unknown') . "
                         </span>
                     </div>
                     <div class='my-2'>
-                        <strong>Reason:</strong>
+                        <strong class='fw-bold text-gray-700'>Reason:</strong>
                         <span class='text-start text-dark fw-bold'>
                             " . ($orderStatus[$order->status] ?? 'Unknown') . "
                         </span>
@@ -1239,12 +1239,12 @@ class RetailerOrderController extends Controller
                     ";
 
                 if ($order->status == 'cancel') {
-                    $orderDetailHTML .= "<div class='my-2'><strong>Reject Reason:</strong> <span class='text-danger fw-bold'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
+                    $orderDetailHTML .= "<div class='my-2'><strong class='fw-bold text-gray-700'>Reject Reason:</strong> <span class='text-danger fw-bold'>" . ($order->cancelled_reason ?? 'N/A') . "</span></div>";
                 }
 
                 $orderDetailHTML .= "
-                    <div class='my-2'><strong>Tracking Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->tracking_number ?? 'N/A') . "</span></div>
-                    <div class='my-2'><strong>API Order Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->api_order_id ?? 'N/A') . "</span></div>";
+                    <div class='my-2'><strong class='fw-bold text-gray-700'>Tracking Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->tracking_number ?? 'N/A') . "</span></div>
+                    <div class='my-2'><strong class='fw-bold text-gray-700'>API Order Id:</strong> <span class='text-start text-dark fw-bold'>" . ($order->api_order_id ?? 'N/A') . "</span></div>";
 
                 if ($order->status == 'pickup' && $order->shipping_label_url) {
                     $orderDetailHTML .= "
@@ -1262,9 +1262,9 @@ class RetailerOrderController extends Controller
                         onerror='this.onerror=null;this.src=\"" . asset('assets/media/images/no_image.jpg') . "\";'
                         width='100' style='border-radius: 5px;'>",
                     'wholesaler_detail' => $wholesaler ? "
-                        <div class='my-2'><strong>Name:</strong> <span class='text-start text-dark fw-bold'>{$wholesaler->company_name}</span></div>
-                        <div class='my-2'><strong>Email:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->email}</span></div>
-                        <div class='my-2'><strong>Mobile:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->phone_number}</span></div>
+                        <div class='my-2'><strong class='fw-bold text-gray-700'>Name:</strong> <span class='text-start text-dark fw-bold'>{$wholesaler->company_name}</span></div>
+                        <div class='my-2'><strong class='fw-bold text-gray-700'>Email:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->email}</span></div>
+                        <div class='my-2'><strong class='fw-bold text-gray-700'>Mobile:</strong> <span class='text-start text-dark fw-bold'>{$order->wholesaler->phone_number}</span></div>
                     " : 'N/A',
                 ];
             }

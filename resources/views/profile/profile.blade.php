@@ -12,7 +12,7 @@
                             Account Settings</h1>
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -174,7 +174,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label required fw-semibold fs-6">Company</label>
                                                         <input type="text" name="company"
@@ -185,7 +185,7 @@
                                                             <div class="invalid-feedback">{{ $message }} </div>
                                                         @enderror
                                                     </div>
-                                                
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label required fw-semibold fs-6">Email</label>
                                                         <input type="email"
@@ -196,7 +196,7 @@
                                                             <div class="invalid-feedback">{{ $message }} </div>
                                                         @enderror
                                                     </div>
-                                               
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required">Contact Phone</span>
@@ -217,7 +217,7 @@
                                                             <div class="invalid-feedback">{{ $message }} </div>
                                                         @enderror
                                                     </div>
-                                                
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required">Country</span>
@@ -240,7 +240,7 @@
                                                             </option>
                                                         </select>
                                                     </div>
-                                                
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required">State</span>
@@ -285,7 +285,7 @@
                                                             </option>
                                                         </select>
                                                     </div>
-                                                
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label required fw-semibold fs-6">Address</label>
                                                         <input type="text" name="address"
@@ -293,7 +293,7 @@
                                                             placeholder="Address"
                                                             value="{{ @$userprofile->userDetail->address }}" />
                                                     </div>
-                                                
+
                                                     <div class="col-lg-6 fv-row">
                                                         <label class="col-form-label required fw-semibold fs-6">Pincode</label>
                                                         <input type="text" name="pincode"

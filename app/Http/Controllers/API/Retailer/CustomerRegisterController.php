@@ -89,7 +89,11 @@ class CustomerRegisterController extends Controller
                 'password' => 'required|string|min:6',
             ]);
         } catch (ValidationException $e) {
-            return ApiResponse::error('Validation failed', $e->errors(), 422);
+            return ApiResponse::error(
+                'Validation failed',
+                $e->validator->errors()->first(),
+                422
+            );
         }
 
         // Step 2: Validate retailer token
