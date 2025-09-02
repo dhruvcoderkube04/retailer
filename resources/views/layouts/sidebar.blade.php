@@ -535,7 +535,7 @@
                         <!--begin:Menu link-->
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-basket fs-1 text-white">
+                                <i class="ki-duotone ki-file fs-1 text-white">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>

@@ -20,11 +20,14 @@ use App\Models\CustomerCart;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
 use App\Models\CustomerOrders;
+use App\Models\WebsiteAboutUs;
+use App\Models\WebsiteContent;
 use App\Mail\RetailerOrderMail;
 use App\Models\CustomerDetails;
 use App\Models\ProductVariation;
 use App\Models\RetailerCategory;
 use App\Models\RetailerProducts;
+use App\Models\WebsiteContactUs;
 use App\Mail\RetailerEnquiryMail;
 use App\Mail\WelcomeCustomerMail;
 use App\Models\OrderNotification;
@@ -449,15 +452,16 @@ class RetailerProductController extends Controller
             $cloneProducts = RetailerCloneProduct::with('productVariations')
                 ->where('retailer_id', $retailerId)
                 ->where('status', 'active')
-                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->get();
 
             // Filter in-stock cloned products
             $cloneProducts = $cloneProducts->filter(function ($item) {
                 if ($item->productVariations->isNotEmpty()) {
-                    return $item->productVariations->sum('stock') > 0;
+                    return $item->productVariations->sum('quantity') > 0;
                 }
-                return $item->stock > 0;
+
+                return $item->quantity > 0;
             });
 
             $products = $products->concat($cloneProducts);
@@ -477,9 +481,9 @@ class RetailerProductController extends Controller
 
                     $inStock = $wholesalerProducts->filter(function ($item) {
                         if ($item->productVariations->isNotEmpty()) {
-                            return $item->productVariations->sum('stock') > 0;
+                            return $item->productVariations->sum('quantity') > 0;
                         }
-                        return $item->stock > 0;
+                        return $item->quantity > 0;
                     });
 
                     $products = $products->concat($inStock);
@@ -533,6 +537,212 @@ class RetailerProductController extends Controller
         }
     }
 
+    // public function searchProducts(Request $request)
+    // {
+    //     try {
+    //         // validate API key
+    //         $apiKey = $request->header('API-KEY');
+    //         if (!$apiKey) {
+    //             return ApiResponse::error('API Key is required', 401);
+    //         }
+
+    //         // validate retailer
+    //         $retailer = RetailerWebManagement::with([
+    //             'retailer' => function ($query) {
+    //                 $query->where('is_delete', 0)
+    //                     ->where('status', 1);
+    //             }
+    //         ])
+    //             ->whereHas('retailer', function ($query) {
+    //                 $query->where('is_delete', 0)
+    //                     ->where('status', 1);
+    //             })->where('product_listing_key', $apiKey)
+    //             ->first();
+    //         if (!$retailer) {
+    //             return ApiResponse::error('Unauthorized: Invalid API Key', 403);
+    //         }
+
+    //         $retailerId = $retailer->retailer_id;
+    //         $retailerUser = User::where('id', $retailerId)->where('status', 1)->where('is_delete', 0)->first();
+    //         if (!$retailerUser) {
+    //             return response()->json(['error' => 'Retailer user not found.'], 404);
+    //         }
+
+    //         // <---------------- get product data ---------------------->
+    //         $retailerProducts = collect();
+    //         $retailerEditedProducts = collect();
+    //         if ($retailerUser->is_all_wholesaler_visible == 1) {
+    //             $retailerProductQuery = RetailerProducts::where('retailer_id', $retailerId)->get();
+
+    //             // to get edited wholesaler products-list
+    //             $retailerEditedProducts = $retailerProductQuery->whereNotNull('product_id')->values();
+
+    //             // to get non-edited wholesaler products
+    //             $pairs = $retailerProductQuery->whereNull('product_id')->values();
+    //             $sqlRetailerProducts = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
+    //                 ->where('status', 'active')
+    //                 ->where(function ($query) use ($pairs) {
+    //                     foreach ($pairs as $pair) {
+    //                         $query->orWhere(function ($q) use ($pair) {
+    //                             $q->where('wholesaler_id', $pair->wholesaler_id)
+    //                                 ->where('sub_category_id', $pair->sub_category_id);
+    //                         });
+    //                     }
+    //                 });
+
+    //             // search product by its name
+    //             $searchProductIds = collect();
+    //             if (!empty($request->search)) {
+    //                 $searchProductIds = $retailerProductQuery
+    //                     ->whereNotNull('product_id')
+    //                     ->filter(function ($item) use ($request) {
+    //                         return stripos($item->product_name, $request->search) !== false;
+    //                     })
+    //                     ->pluck('product_id')
+    //                     ->unique()
+    //                     ->values();
+    //             }
+    //             if (!empty($request->search)) {
+    //                 $sqlRetailerProducts->where(function ($query) use ($request, $searchProductIds) {
+    //                     $query->where('name', 'like', '%' . $request->search . '%');
+
+    //                     if ($searchProductIds->isNotEmpty()) {
+    //                         $query->orWhereIn('id', $searchProductIds);
+    //                     }
+    //                 });
+    //             }
+
+    //             $retailerProducts = $sqlRetailerProducts->get();
+    //         }
+
+    //         // Retailer cloned products with search
+    //         $sqlRetailerCloneProducts = RetailerCloneProduct::with('productVariations:id,product_id,product_variation,old_price,price,stock')
+    //             ->where('retailer_id', $retailerId)
+    //             ->where('status', 'active');
+
+    //         if (!empty($request->search)) {
+    //             $sqlRetailerCloneProducts->where('name', 'like', '%' . $request->search . '%');
+    //         }
+
+    //         $retailerCloneProducts = $sqlRetailerCloneProducts->get();
+
+    //         $allProducts = collect($retailerProducts)->concat($retailerCloneProducts);
+
+    //         // <---------------- map product data ---------------------->
+    //         $products = $allProducts->map(function ($item) use ($pairs, $retailerEditedProducts) {
+    //             $margin = 0;
+    //             foreach ($retailerEditedProducts as $editedProduct) {
+    //                 if ($item->id == $editedProduct->product_id) {
+    //                     if ($editedProduct->margin) {
+    //                         $margin = $editedProduct->margin;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             if ($margin == 0) {
+    //                 foreach ($pairs as $pair) {
+    //                     if ($pair->wholesaler_id == $item->wholesaler_id && $pair->sub_category_id == $item->sub_category_id) {
+    //                         $margin = $pair->margin;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+
+    //             if (!empty($item->productVariations) && $item->productVariations->isNotEmpty()) {
+    //                 foreach ($item->productVariations as $variation) {
+    //                     $variation->price = (float) $variation->price;
+    //                     $variation->old_price = (float) $variation->old_price;
+    //                     $variation->final_price = $variation->price + $margin;
+    //                     $variation->old_price += $margin;
+    //                 }
+    //             } else {
+    //                 $item->new_price = (float) $item->new_price;
+    //                 $item->old_price = (float) $item->old_price;
+    //                 $item->final_price = $item->new_price + $margin;
+    //                 $item->old_price += $margin;
+    //             }
+
+    //             return $item;
+    //         })->filter(function ($item) use ($retailerEditedProducts) {
+    //             //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
+    //             foreach ($retailerEditedProducts as $editedProduct) {
+    //                 if ($item->id == $editedProduct->product_id) {
+    //                     if ($editedProduct->product_status == 'inactive' || $editedProduct->is_deleted_product == 1) {
+    //                         return false;
+    //                     }
+    //                 }
+    //             }
+    //             return true;
+    //         })->map(function ($item) use ($retailerEditedProducts) {
+    //             return $this->formatProductFromClone($item, $item->final_price, $retailerEditedProducts);
+    //         })->values();
+
+    //         //<------ Default Filters ------>
+    //         $products = $products->sortBy([
+    //             // retailer own product at top and wholesaler's subscribed product at last
+    //             fn($a, $b) => is_null($b['wholesaler_id']) <=> is_null($a['wholesaler_id']),
+
+    //             // out-of-stock products at last
+    //             fn($a, $b) => ($a['quantity'] == 0) <=> ($b['quantity'] == 0),
+    //         ])->values();
+
+    //         $subCategoryIds = $products->pluck('sub_category_id')->filter()->unique();
+    //         $subCategories = SubCategory::select('id', 'category_id', 'sub_category_name')
+    //             ->whereIn('id', $subCategoryIds)
+    //             ->where('status', 1)
+    //             ->get();
+
+    //         //<------------ handle single product response --------------->
+    //         if ($request->has('product_id')) {
+    //             $single = $products->where('id', $request->product_id)->first();
+    //             if (!$single) {
+    //                 return ApiResponse::error('Product not found', 404);
+    //             }
+
+    //             return ApiResponse::success(['product' => $single], 'Product fetched successfully');
+    //         }
+
+    //         // <---------------- pagination ---------------------->
+    //         $perPage = 12;
+    //         $currentPage = LengthAwarePaginator::resolveCurrentPage();
+    //         $productsCollection = new Collection($products);
+    //         $currentPageItems = $productsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+    //         $paginatedProducts = new LengthAwarePaginator($currentPageItems, $productsCollection->count(), $perPage);
+    //         $paginatedProducts->setPath(url()->current());
+
+    //         $items = $paginatedProducts->items();
+    //         foreach ($items as &$product) {
+    //             $product_image = explode(',', $product['product_images'] ?? '');
+    //             $product_image_array = [];
+
+    //             foreach ($product_image as $image) {
+    //                 if (!empty($image)) {
+    //                     $product_image_array[] = Storage::disk('spaces')->url($image);
+    //                 }
+    //             }
+
+    //             $product['product_images'] = implode(',', $product_image_array);
+    //             $product['product_video'] = $product['product_video'] ? Storage::disk('spaces')->url($product['product_video']) : '';
+    //         }
+
+    //         $paginatedProducts->setCollection(collect($items));
+
+    //         // <---------------- return data ---------------------->
+    //         return ApiResponse::success([
+    //             'products' => $paginatedProducts,
+    //             'sub_categories' => $subCategories,
+    //         ], 'Products fetched successfully');
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error in getRetailerProducts: ' . $e->getMessage(), [
+    //             'line' => $e->getLine(),
+    //             'file' => $e->getFile(),
+    //             'trace' => $e->getTraceAsString(),
+    //         ]);
+
+    //         return ApiResponse::error('An unexpected error occurred', 500);
+    //     }
+    // }
+
     public function searchProducts(Request $request)
     {
         try {
@@ -564,16 +774,23 @@ class RetailerProductController extends Controller
                 return response()->json(['error' => 'Retailer user not found.'], 404);
             }
 
+            // Normalize search term (remove duplicate spaces and trim)
+            $normalizedSearch = null;
+            if (!empty($request->search)) {
+                $normalizedSearch = preg_replace('/\s+/', ' ', trim($request->search));
+                $normalizedSearchNoSpaces = str_replace(' ', '', $normalizedSearch);
+            }
+
             // <---------------- get product data ---------------------->
             $retailerProducts = collect();
             $retailerEditedProducts = collect();
             if ($retailerUser->is_all_wholesaler_visible == 1) {
                 $retailerProductQuery = RetailerProducts::where('retailer_id', $retailerId)->get();
 
-                // to get edited wholesaler products-list
+                // edited wholesaler products
                 $retailerEditedProducts = $retailerProductQuery->whereNotNull('product_id')->values();
 
-                // to get non-edited wholesaler products
+                // non-edited wholesaler products
                 $pairs = $retailerProductQuery->whereNull('product_id')->values();
                 $sqlRetailerProducts = Product::with(['wholesaler', 'productVariations:id,product_id,product_variation,old_price,price,stock'])
                     ->where('status', 'active')
@@ -588,19 +805,21 @@ class RetailerProductController extends Controller
 
                 // search product by its name
                 $searchProductIds = collect();
-                if (!empty($request->search)) {
+                if (!empty($normalizedSearch)) {
                     $searchProductIds = $retailerProductQuery
                         ->whereNotNull('product_id')
-                        ->filter(function ($item) use ($request) {
-                            return stripos($item->product_name, $request->search) !== false;
+                        ->filter(function ($item) use ($normalizedSearch) {
+                            return stripos(str_replace(' ', '', $item->product_name), str_replace(' ', '', $normalizedSearch)) !== false;
                         })
                         ->pluck('product_id')
                         ->unique()
                         ->values();
                 }
-                if (!empty($request->search)) {
-                    $sqlRetailerProducts->where(function ($query) use ($request, $searchProductIds) {
-                        $query->where('name', 'like', '%' . $request->search . '%');
+
+                if (!empty($normalizedSearch)) {
+                    $sqlRetailerProducts->where(function ($query) use ($normalizedSearchNoSpaces, $searchProductIds) {
+                        // ignore spaces while searching
+                        $query->whereRaw("REPLACE(name, ' ', '') LIKE ?", ['%' . $normalizedSearchNoSpaces . '%']);
 
                         if ($searchProductIds->isNotEmpty()) {
                             $query->orWhereIn('id', $searchProductIds);
@@ -609,6 +828,8 @@ class RetailerProductController extends Controller
                 }
 
                 $retailerProducts = $sqlRetailerProducts->get();
+            } else {
+                $pairs = collect();
             }
 
             // Retailer cloned products with search
@@ -616,8 +837,8 @@ class RetailerProductController extends Controller
                 ->where('retailer_id', $retailerId)
                 ->where('status', 'active');
 
-            if (!empty($request->search)) {
-                $sqlRetailerCloneProducts->where('name', 'like', '%' . $request->search . '%');
+            if (!empty($normalizedSearch)) {
+                $sqlRetailerCloneProducts->whereRaw("REPLACE(name, ' ', '') LIKE ?", ['%' . $normalizedSearchNoSpaces . '%']);
             }
 
             $retailerCloneProducts = $sqlRetailerCloneProducts->get();
@@ -660,7 +881,7 @@ class RetailerProductController extends Controller
 
                 return $item;
             })->filter(function ($item) use ($retailerEditedProducts) {
-                //<------ DEFAULT FILTER - single product Inactive or Delete check ------>
+                // filter inactive or deleted
                 foreach ($retailerEditedProducts as $editedProduct) {
                     if ($item->id == $editedProduct->product_id) {
                         if ($editedProduct->product_status == 'inactive' || $editedProduct->is_deleted_product == 1) {
@@ -1038,6 +1259,15 @@ class RetailerProductController extends Controller
             // Check if any required fields are missing in DB
             $missingFields = [];
 
+            if (empty($customerDetails->firstname)) {
+                $missingFields[] = 'firstname';
+            }
+            if (empty($customerDetails->lastname)) {
+                $missingFields[] = 'lastname';
+            }
+            if (empty($customerDetails->email)) {
+                $missingFields[] = 'email';
+            }
             if (empty($customerDetails->address)) {
                 $missingFields[] = 'address';
             }
@@ -1063,7 +1293,24 @@ class RetailerProductController extends Controller
                             $customMessages["$field.required"] = 'Pincode is required.';
                             $customMessages["$field.digits"] = 'Pincode must be exactly 6 digits.';
                             break;
-
+                        case 'address':
+                            $validationRules[$field] = 'required|string|max:250';
+                            $customMessages["$field.required"] = 'Address is required.';
+                            $customMessages["$field.string"] = 'Address must be a valid string.';
+                            $customMessages["$field.max"] = 'Address cannot exceed 250 characters.';
+                            break;
+                        case 'email':
+                            $validationRules[$field] = 'required|email';
+                            $customMessages["$field.required"] = 'Email is required.';
+                            $customMessages["$field.email"] = 'Please provide a valid email address.';
+                            break;
+                        case 'firstname':
+                        case 'lastname':
+                            $validationRules[$field] = 'required|string|max:30';
+                            $customMessages["$field.required"] = ucfirst($field) . ' is required.';
+                            $customMessages["$field.string"] = ucfirst($field) . ' must be a string.';
+                            $customMessages["$field.max"] = ucfirst($field) . ' cannot exceed 30 characters.';
+                            break;
                         default:
                             $validationRules[$field] = 'required|string|max:250';
                             $customMessages["$field.required"] = ucfirst($field) . ' is required.';
@@ -1119,6 +1366,7 @@ class RetailerProductController extends Controller
             foreach ($request->products as $product) {
                 $orderID = 'ORD' . now()->timestamp . rand(10000, 99999);
                 $orderIDs[] = $orderID;
+
 
                 $wholesalerId = $product['wholesaler_id'] ?? null;
                 $retailerId = $product['retailer_id'] ?? $retailer->retailer_id;
@@ -2074,20 +2322,32 @@ class RetailerProductController extends Controller
                 $imageString = $product->images ?? '';
                 $imageArray = explode(',', $imageString);
 
+                if ($order->coupon_applied_id) {
+                    $coupon = Coupon::find($order->coupon_applied_id);
+                    $couponCode = $coupon ? $coupon->coupon_code : null;
+                    $discountAmount = $coupon ? $coupon->discount : null;
+                } else {
+                    $couponCode = null;
+                    $discountAmount = null;
+                }
+                $coupon =
 
-                $orderList[] = [
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'product_variation' => $product->product_variation,
-                    'product_name' => $product->name ?? null,
-                    'image' => $imageArray,
-                    'quantity' => $order->quantity,
-                    'price' => ($order->final_amount) ? $order->final_amount : null,
-                    'order_date' => $order->created_at->format('d F Y'),
-                    'product_link' => $productUrl,
-                    'checkout_type' => $order->checkout_type,
-                    'status' => $order->status
-                ];
+                    $orderList[] = [
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'product_variation' => $product->product_variation,
+                        'product_name' => $product->name ?? null,
+                        'image' => $imageArray,
+                        'quantity' => $order->quantity,
+                        'price' => ($order->final_amount) ? $order->final_amount : null,
+                        'discount_amount' => $discountAmount,
+                        'final_amount'     => ($order->final_amount - $discountAmount) ? ($order->final_amount - $discountAmount) : $order->final_amount,
+                        'coupon_code'      => $couponCode,
+                        'order_date' => $order->created_at->format('d F Y'),
+                        'product_link' => $productUrl,
+                        'checkout_type' => $order->checkout_type,
+                        'status' => $order->status
+                    ];
             }
 
             $customerData[] = [
@@ -3048,5 +3308,114 @@ class RetailerProductController extends Controller
                 'error' => $e->getMessage() // uncomment for debugging
             ], 500);
         }
+    }
+
+    public function getHomePageSections()
+    {
+        try {
+            $sections = WebsiteContent::select('section', 'title', 'content', 'image')
+                ->orderBy('section', 'asc')
+                ->get()
+                ->map(function ($item) {
+                    $item->image_url = $item->image
+                        ? asset('storage/' . $item->image)
+                        : null;
+                    return $item;
+                });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Home page sections retrieved successfully',
+                'data' => $sections,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getAboutUsPage()
+    {
+        try {
+            $aboutUs = WebsiteAboutUs::first();
+
+            if (!$aboutUs) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'About Us page not found',
+                    'data' => null,
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'About Us page retrieved successfully',
+                'data' => $aboutUs,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getContactUsPage()
+    {
+        try {
+            $contactUs = WebsiteContactUs::first();
+
+            if (!$contactUs) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Contact Us page not found',
+                    'data' => null,
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Contact Us page retrieved successfully',
+                'data' => $contactUs,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getShippingAddress()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+        $shippingAddressData = [
+            'firstname' => $user->firstname ?? '',
+            'lastname' => $user->lastname ?? '',
+            'email' => $user->email ?? '',
+            'phone_number' => $user->phone_number ?? '',
+            'address' => $user->address ?? '',
+            'state' => $user->state ?? '',
+            'city' => $user->city ?? '',
+            'pincode' => $user->pincode ?? '',
+        ];
+        return response()->json([
+            'status' => true,
+            'message' => 'Shipping address retrieved successfully',
+            'data' => $shippingAddressData,
+        ], 200);
     }
 }
