@@ -16,8 +16,10 @@ Reset Password | TechtrendMart
         }
     </style>
 
-    <div class="d-flex flex-column flex-lg-row flex-column-fluid">
-        <div class="d-flex flex-lg-row-fluid">
+     <section class="d-flex align-items-center h-100 login-section" style="background-image: url({{asset('assets/media/auth/bg-login.jpg')}}); background-size: cover; background-position: bottom; background-repeat: no-repeat;">
+            <div class="container">
+                <div class="row">
+        <div class="col-lg-6 d-none">
             <div class="d-flex flex-column flex-center pb-0 pb-lg-10 p-10 w-100">
                 <img class="theme-light-show mx-auto mw-100 w-150px w-lg-300px mb-10 mb-lg-20" src="{{ asset('assets/media/auth/agency.png') }}" alt=""/>
                 <img class="theme-dark-show mx-auto mw-100 w-150px w-lg-300px mb-10 mb-lg-20" src="{{ asset('assets/media/auth/agency-dark.png') }}" alt=""/>
@@ -25,9 +27,9 @@ Reset Password | TechtrendMart
             </div>
         </div>
 
-        <div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center justify-content-lg-end p-12">
-            <div class="bg-body d-flex flex-column flex-center rounded-4 w-md-600px p-10">
-                <div class="d-flex flex-center flex-column align-items-stretch h-lg-100 w-md-400px">
+        <div class="col-lg-5">
+            <div class="bg-body d-flex flex-column flex-center rounded-4 w-100 p-15 login-box shadow">
+                <div class="d-flex flex-center flex-column align-items-stretch h-lg-100 w-100">
 
                     @if (session('status'))
                         <div class="alert alert-success">
@@ -46,15 +48,26 @@ Reset Password | TechtrendMart
                         </div>
                     @endif
 
-                    <div class="d-flex flex-center flex-column flex-column-fluid pb-15 pb-lg-20">
+                    <div class="d-flex flex-center flex-column flex-column-fluid">
                         <form class="form w-100" action="{{ route('retailer.password.update') }}" method="POST">
                             @csrf
 
                             <input type="hidden" name="token" value="{{ $token }}">
 
-                            <div class="text-center mb-11">
+                            {{-- <div class="text-center mb-11">
                                 <h1 class="text-gray-900 fw-bolder mb-3">Reset Your Password</h1>
                                 <p class="text-gray-500 fw-semibold fs-6">Enter a new password to access your account</p>
+                            </div> --}}
+                            <div class="text-center mb-8">
+                                <!--begin::Title-->
+                                {{-- <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1> --}}
+                                    <img class="theme-light-show mx-auto mw-100 w-150px w-lg-200px mb-8 mb-lg-10" src="{{asset('assets/media/auth/logo-dark.svg')}}" alt="" />
+                                    <img class="theme-dark-show mx-auto mw-100 w-150px w-lg-200px mb-8 mb-lg-10" src="{{asset('assets/media/auth/logo-light.svg')}}" alt="" />
+                                    <h1 class="text-gray-900 fw-bolder mb-3">Reset Your Password</h1>
+                                    <p class="text-gray-500 fw-semibold fs-6">Enter a new password to access your account</p>
+                                    {{-- <p class="text-gray-500 fw-semibold fs-6">Enter your email to receive a password reset link</p> --}}
+                                    {{-- <p class="text-gray-500 fw-semibold fs-6">Enter your email to receive a password reset link</p> --}}
+
                             </div>
                             <input type="hidden" name="email" value="{{ $email }}"  required />
                            <!-- New Password Field -->
@@ -90,7 +103,7 @@ Reset Password | TechtrendMart
                             </div>
 
                             <div class="d-grid mb-10">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-dark">
                                     <span class="indicator-label">Reset Password</span>
                                     <span class="indicator-progress">Please wait...
                                         <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>

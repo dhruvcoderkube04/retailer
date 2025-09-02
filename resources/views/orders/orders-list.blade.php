@@ -7,7 +7,7 @@
     <style>
         #selected-courier-display {
             color: #17a2b8;
-            font-size: 0.9rem;
+            /* font-size: 0.9rem; */
             margin-top: 0.5rem;
             line-height: 1.5;
         }
@@ -478,8 +478,9 @@
                                                 style="display: none;">
                                                 Select Courier Service
                                             </button>
+                                            <hr style="opacity: 0.1">
                                             <!-- Display selected courier -->
-                                            <div id="selected-courier-display" class="mt-2 text-info"></div>
+                                            <div id="selected-courier-display" class="mt-2 text-info fs-6"></div>
                                             <!-- Hidden input to store selected courier -->
                                             <input type="hidden" name="courier_service" id="courier_service"
                                                 value="">
@@ -1722,9 +1723,9 @@
                 // <strong>COD Charge:</strong> ₹${codCharge}<br>
                 // <strong>RTO Charge:</strong> ₹${rtoCharge}<br>
                 $('#selected-courier-display').html(`
-                                <strong>Selected Courier:</strong> ${courierName}<br>
-                                <strong>Total Charge:</strong> ${totalCharge}<br>
-                                <strong>Service Mode:</strong> ${serviceMode}
+                                <strong>Selected Courier:</strong><span class="fw-bold"> ${courierName}</span><br>
+                                <strong>Total Charge:</strong><span class="fw-bold"> ${totalCharge}</span><br>
+                                <strong>Service Mode:</strong><span class="fw-bold"> ${serviceMode}</span>
                             `);
 
                 // Validate courier match
