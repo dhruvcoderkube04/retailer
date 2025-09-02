@@ -22,7 +22,7 @@
         ];
 
         $courierName = strtolower($courier_service ?? '');
-        $logo = 'default.png'; // fallback
+        $logo = 'default.png'; // fallbacks
 
         foreach ($courierLogos as $key => $file) {
             if (str_contains($courierName, $key)) {
@@ -57,12 +57,10 @@
                     <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/courier_partner/new_logo/' . $logo))) }}" height="50" style="max-height:100px; max-width:100%;">
                 </td>
                 <td style="height:150px; text-align:center; vertical-align:middle; padding:10px; border-left:2px solid #000;">
-                        <b>
-                           Powered by <br>
-                           JDWEBNSHIP
-                        </b>
-                    {{-- <img src="https://selloship.com/frontend/v2/images/SELLOSHIP_new.png"
-                        alt="Brand Logo" style="max-height:100px; max-width:100%;"> --}}
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/media/logos/dark-logo.svg'))) }}" height="50" style="max-height:100px; max-width:100%;">
+                    <b>
+                       Powered by
+                    </b>
                 </td>
             </tr>
 
@@ -72,7 +70,7 @@
         <table style="width:100%; border-collapse:collapse;">
             <tr>
                 <td style="padding:15px 20px; border-bottom:2px solid #000;">
-                    <b>{{ @$productName }}  {{ @$customerOrder->order_product_detail->variation ?? '' }} ( Qty : {{ @$customerOrder->order_product_detail->quantity }}),</b>
+                    <b>{{ @$productName }}  {{ @$customerOrder->order_product_detail->variation ?? '' }} ( Qty : {{ @$customerOrder->order_product_detail->quantity }})</b>
                 </td>
             </tr>
         </table>

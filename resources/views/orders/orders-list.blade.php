@@ -197,9 +197,25 @@
                         </div>
 
                         <div class="card-body pt-0">
+
+                            @if (in_array($type,['pickup','in-transit']))
+                                <div class="mb-3">
+                                    <button id="print_label" class="btn btn-primary btn-sm" disabled>
+                                        <i class="fas fa-print"></i> Print Label
+                                    </button>
+                                    <button id="menifest_label" class="btn btn-success btn-sm" disabled>
+                                        <i class="fas fa-menifest"></i> Print Menifest
+                                    </button>
+                                </div>
+                            @endif
+
                             <table class="table align-middle fs-7 table-striped" id="kt_datatable_order_list">
                                 <thead>
                                     <tr class="text-start text-gray-700 fw-bolder fs-6 text-uppercase gs-0">
+                                        <th class="text-center py-5 border-0 align-middle min-w-30px"
+                                            style="background: #0d0e12;color:#fff !important;">
+                                            <input type="checkbox" id="select_all">
+                                        </th>
                                         <th class="text-center min-w-50px">SR NO</th>
                                         <th class="text-center min-w-50px">ORDER DATE</th>
                                         <th class="text-center min-w-110px">MEDIA</th>
@@ -1117,7 +1133,16 @@
 
         //<------------- START : server-side transaction datatable ------------->
         const type = @json($type);
-        let columns = [{
+        let columns = [
+            {
+                className: 'text-center',
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    return `<input type="checkbox" class="row_checkbox" value="${row.order_id}">`;
+                }
+            },
+            {
                 data: 'sr_no',
                 className: 'text-center',
                 orderable: false
@@ -3089,6 +3114,128 @@
                 return logoUrl;
             }
 
+            // <--------Multiple Shipping label  and Menifest--------->
+            function toggleShippingLabelButton() {
+                if ($('.row_checkbox:checked').length > 0) {
+                    $('#print_label,#menifest_label').prop('disabled', false);
+
+                } else {
+                    $('#print_label,#menifest_label').prop('disabled', true);
+                }
+            }
+
+            $(document).on('click', '#select_all', function () {
+                $('.row_checkbox').prop('checked', this.checked);
+                toggleShippingLabelButton();
+            });
+
+            // Sync select all checkbox if all rows checked
+            $(document).on('click', '.row_checkbox', function () {
+                if ($('.row_checkbox:checked').length === $('.row_checkbox').length) {
+                    $('#select_all').prop('checked', true);
+                } else {
+                    $('#select_all').prop('checked', false);
+                }
+                toggleShippingLabelButton();
+            });
+
+            // print shipping label
+            $(document).on('click', '#print_label', function () {
+                var order_id = [];
+                $('.row_checkbox:checked').each(function () {
+                    order_id.push($(this).val());
+                });
+
+                if (order_id.length === 0) {
+                    Swal.fire('No selection', 'Please select at least one record.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    icon: 'primary',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Print it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('retailer.order.print-label') }}",
+                            type: 'POST',
+                            data: {
+                                order_id: order_id,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            xhrFields: {
+                                responseType: 'blob' // <--- important
+                            },
+                            success: function (data, status, xhr) {
+                                let blob = new Blob([data], { type: 'application/pdf' });
+
+                                let fileName = xhr.getResponseHeader('X-Filename') || "JDWebnship-Labels.pdf";
+
+                                let link = document.createElement('a');
+                                link.href = window.URL.createObjectURL(blob);
+                                link.download = fileName;
+                                link.click();
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // print  menifest
+            $(document).on('click', '#menifest_label', function () {
+                var order_id = [];
+                $('.row_checkbox:checked').each(function () {
+                    order_id.push($(this).val());
+                });
+
+                if (order_id.length === 0) {
+                    Swal.fire('No selection', 'Please select at least one record.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    icon: 'primary',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Print it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('retailer.order.print-menifest') }}",
+                            type: 'POST',
+                            data: {
+                                order_id: order_id,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            xhrFields: {
+                                responseType: 'blob' // <--- important
+                            },
+                            success: function (data, status, xhr) {
+                                let blob = new Blob([data], { type: 'application/pdf' });
+
+                                let fileName = xhr.getResponseHeader('X-Filename') || "JDWebnship-Labels.pdf";
+
+                                let link = document.createElement('a');
+                                link.href = window.URL.createObjectURL(blob);
+                                link.download = fileName;
+                                link.click();
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
         });
     </script>
 @endsection
