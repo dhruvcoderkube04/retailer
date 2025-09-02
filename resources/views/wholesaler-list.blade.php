@@ -24,7 +24,7 @@
                                 <!--begin::Item-->
                                 <li class="breadcrumb-item text-muted">
                                     <a href="{{ route('retailer.dashboard') }}"
-                                        class="text-muted text-hover-primary">Home</a>
+                                        class="text-muted text-hover-primary">Dashboard</a>
                                 </li>
                                 <!--end::Item-->
                                 <!--begin::Item-->

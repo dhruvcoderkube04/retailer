@@ -23,7 +23,7 @@ Ticket Manage | TechtrendMart
                     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                         <!--begin::Item-->
                         <li class="breadcrumb-item text-muted">
-                            <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                            <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                         </li>
                         <!--end::Item-->
                         <!--begin::Item-->
@@ -70,7 +70,7 @@ Ticket Manage | TechtrendMart
                         <!--begin::Card title-->
                         <!--begin::Card toolbar-->
                         <div class="card-toolbar">
-                           
+
                         </div>
                         <!--end::Card toolbar-->
                     </div>
