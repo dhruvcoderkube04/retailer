@@ -27,3 +27,6 @@ storage/debugbar
 /public/uploads/products/
 /vendor/
 bootstrap/cache/routes-v7.php
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
