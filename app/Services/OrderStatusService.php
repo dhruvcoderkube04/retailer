@@ -337,7 +337,7 @@ class OrderStatusService
                         'isRemoteEnabled' => true,
                         'isHtml5ParserEnabled' => true
                     ]);
-                    $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+                    $filename = 'orders/shipping-labels/order_' . $customerOrder->order_id . '.pdf';
 
                     if (Storage::disk('spaces')->exists($filename)) {
                         Storage::disk('spaces')->delete($filename);
@@ -397,7 +397,7 @@ class OrderStatusService
                             'isHtml5ParserEnabled' => true
                         ]);
 
-                        $filename = 'orders/shipping-labels/order_' . $customerOrder->id . '.pdf';
+                        $filename = 'orders/shipping-labels/order_' . $customerOrder->order_id . '.pdf';
 
                         if (Storage::disk('spaces')->exists($filename)) {
                             Storage::disk('spaces')->delete($filename);

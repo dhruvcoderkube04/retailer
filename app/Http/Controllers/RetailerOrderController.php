@@ -29,10 +29,12 @@ use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use setasign\Fpdi\Fpdi;
 
 use App\Services\Courier\FShipService;
 use App\Services\Courier\LorrigoService;  //for test
 use App\Services\Courier\LorrigoServiceLive; // for live
+use Illuminate\Support\Facades\Http;
 
 class RetailerOrderController extends Controller
 {
@@ -359,7 +361,7 @@ class RetailerOrderController extends Controller
                 ->whereDate('created_at', '<=', $to);
         }
 
-        // 🔍 Search
+        // Search
         if (!empty($search)) {
             $search = trim($search);
             $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
@@ -399,12 +401,12 @@ class RetailerOrderController extends Controller
             });
         }
 
-        // 💳 Payment filter
+        // Payment filter
         if (!empty($payment_method_filter) && $payment_method_filter != 'all') {
             $query->where('payment_method', $payment_method_filter);
         }
 
-        // 📑 Sorting
+        // Sorting
         $columnMap = [
             'order_id' => 'order_id',
             'final_amount' => 'final_amount',
@@ -412,7 +414,7 @@ class RetailerOrderController extends Controller
             // add more if needed
         ];
 
-        if ($request->has('order') && isset($request->order[0])) {
+        if ($request->has('order') && isset($request->order[1])) {
             $columnIndex = $request->order[0]['column'];
             $columnName = $request->columns[$columnIndex]['data'];
             $direction = $request->order[0]['dir'];
@@ -428,13 +430,13 @@ class RetailerOrderController extends Controller
             }
         }
 
-        // 📊 Count before pagination
+        // Count before pagination
         $cntFilter = clone $query;
 
-        // 🔄 Pagination
+        // Pagination
         $orders = $query->offset($page)->limit($limit)->get();
 
-        // 🔢 Total count
+        // Total count
         $queryTotalSql = CustomerOrders::where('retailer_id', $retailer->id);
         if ($type !== 'all') {
             $queryTotalSql->whereDate($stageDateMap[$type], '>=', $from)
@@ -715,6 +717,7 @@ class RetailerOrderController extends Controller
             </a></div>';
 
             $data[] = array(
+                'order_id' => $item->order_id,
                 'sr_no' => $i,
                 'order_date' => $order_date,
                 'order_detail' => $order_detail,
@@ -1393,4 +1396,79 @@ class RetailerOrderController extends Controller
         }
     }
     //<-------------- END : NDR ------------------>
+
+    public function printShippinLabel(Request $request)
+    {
+        $request->validate([
+            'order_id'   => 'required|array',
+            'order_id.*' => 'string'
+        ]);
+
+        // Step 2: Fetch matching orders by order_number
+        $orders = CustomerOrders::whereIn('order_id', $request->order_id)
+            ->pluck('shipping_label_url');
+
+        if ($orders->isEmpty()) {
+            return back()->with('error', 'No PDFs found for selected orders.');
+        }
+
+        $fpdi = new Fpdi();
+
+        // Step 3: Loop through each PDF URL
+        foreach ($orders as $url) {
+            if ($url && str_ends_with(strtolower($url), '.pdf')) {
+                $response = Http::get($url);
+
+                if ($response->ok()) {
+                    $tmpPath = storage_path('app/tmp_' . uniqid() . '.pdf');
+                    file_put_contents($tmpPath, $response->body());
+
+                    $pageCount = $fpdi->setSourceFile($tmpPath);
+
+                    for ($i = 1; $i <= $pageCount; $i++) {
+                        $tplId = $fpdi->importPage($i);
+                        $size = $fpdi->getTemplateSize($tplId);
+
+                        // keep original page size
+                        $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                        $fpdi->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
+                    }
+
+                    unlink($tmpPath); // cleanup
+                }
+            }
+        }
+
+        // Step 4: Return merged PDF as download
+        $mergedPdf = $fpdi->Output('S');
+        $fileName = 'JDWebnship-Labels-' . Carbon::now()->format('d-M-Y-H-i') . '.pdf';
+        return response($mergedPdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"')
+            ->header('X-Filename', $fileName);
+    }
+
+    public function printMenifest(Request $request)
+    {
+        $orderIds = $request->input('order_id', []);
+
+        if (empty($orderIds)) {
+            return response()->json(['error' => 'No orders selected'], 400);
+        }
+
+        $orders = CustomerOrders::with(['customer'])->whereIn('order_id', $orderIds)->get();
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.manifest', [
+            'orders' => $orders,
+            'date'   => now()->format('d/m/Y'),
+        ])->setPaper('a4', 'portrait');
+
+        $fileName = "JDWebnship-Menifest-" . now()->format('d-M-Y-H-i') . ".pdf";
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="'.$fileName.'"')
+            ->header('X-Filename', $fileName);
+    }
 }
