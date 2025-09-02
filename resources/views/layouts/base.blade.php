@@ -16,7 +16,7 @@
     <meta property="og:site_name" content="#" />
     <link rel="canonical" href="#" />
     {{-- <link rel="shortcut icon" href="#" /> --}}
-    <link rel="icon" href="{{ asset('assets/media/favicon/android-icon-36x36.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('assets/media/favicon/favicon.ico') }}" type="image/png" />
     <!--begin::Fonts(mandatory for all pages)-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <!--end::Fonts-->
