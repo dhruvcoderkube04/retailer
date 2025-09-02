@@ -3315,7 +3315,13 @@ class RetailerProductController extends Controller
         try {
             $sections = WebsiteContent::select('section', 'title', 'content', 'image')
                 ->orderBy('section', 'asc')
-                ->get();
+                ->get()
+                ->map(function ($item) {
+                    $item->image_url = $item->image
+                        ? asset('storage/' . $item->image)
+                        : null;
+                    return $item;
+                });
 
             return response()->json([
                 'status' => true,
