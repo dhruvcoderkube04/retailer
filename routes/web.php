@@ -148,6 +148,10 @@ Route::middleware(['retailer', 'user.active'])->group(function () {
         Route::post('/pickup-image/upload', [RetailerOrderController::class, 'pickupImageUpload'])->name('retailer.order.pickup-image.upload');
         Route::post('/action/in-transit-order', [RetailerOrderController::class, 'inTransitOrderAction'])->name('retailer.order.action.in-transit-order');
         Route::post('/action/cancel-order', [RetailerOrderController::class, 'cancelOrderAction'])->name('retailer.order.action.cancel-order');
+
+        // print label
+        Route::post('/print-label', [RetailerOrderController::class, 'printShippinLabel'])->name('retailer.order.print-label');
+        Route::post('/print-menifest', [RetailerOrderController::class, 'printMenifest'])->name('retailer.order.print-menifest');
     });
 
     // my-order
