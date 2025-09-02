@@ -21,7 +21,7 @@
                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-6 my-0 pt-1">
                             <!--begin::Item-->
                             <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
+                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Dashboard</a>
                             </li>
                             <!--end::Item-->
                             <!--begin::Item-->
@@ -52,19 +52,19 @@
                                     {{ session('success') }}
                                 </div>
                             @endif
-        
+
                             @if (session('error'))
                                 <div class="alert alert-danger text-red-600 p-2">
                                     {{ session('error') }}
                                 </div>
                             @endif
-        
+
                             @if (session('info'))
                                 <div class="alert alert-warning text-yellow-400 p-2">
                                     {{ session('info') }}
                                 </div>
                             @endif
-        
+
                             <!--begin::Basic info-->
                             <div class="card mb-5 mb-xl-10">
                                 <!--begin::Card header-->
@@ -94,14 +94,14 @@
                                                 <!--begin::Col-->
                                                 <div class="col-lg-8">
                                                     <!--begin::Image input-->
-        
+
                                                     <div class="image-input image-input-outline" data-kt-image-input="true"
                                                         style="background-image: url('assets/media/svg/avatars/blank.svg')">
                                                         <!--begin::Preview existing avatar-->
                                                         <div class="image-input-wrapper w-125px h-125px"
                                                             style="background-image: url('{{ $store->logo ? Storage::disk('spaces')->url($store->logo) : asset('uploads/company_logo/default.png') }}')">
                                                         </div>
-        
+
                                                         {{-- <div class="image-input-wrapper w-125px h-125px" style="background-image: url(assets/media/avatars/300-1.jpg)"></div> --}}
                                                         <!--end::Preview existing avatar-->
                                                         <!--begin::Label-->
@@ -161,7 +161,7 @@
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                 </div>
-        
+
                                                 <div class="col-lg-6 fv-row">
                                                     <label class="col-form-label required fw-semibold fs-6">Web Token</label>
                                                     <input type="text" value="{{ $store->product_listing_key }}"
@@ -197,8 +197,8 @@
                                                         <span class="text-danger">{{ $message }}</span>
                                                     @enderror
                                                 </div>
-        
-        
+
+
                                                 <div class="col-lg-12 fv-row">
                                                     <label class="col-form-label fw-semibold fs-6">
                                                         <span class="required">Address</span>
@@ -217,9 +217,9 @@
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                 </div>
-                                                
+
                                             </div>
-        
+
                                             <div class="row mb-6 g-5">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -244,7 +244,7 @@
                                                                 onerror="this.onerror=null;this.src='{{ $defaultFavicon }}';" />
                                                         @endif
                                                     </div>
-        
+
                                                     {{-- <div id="favicon-preview-container" class="d-flex gap-2 mt-2"></div> --}}
                                                 </div>
                                                 <div class="col-md-6">
@@ -269,10 +269,10 @@
                                                         @endif
                                                     </div>
                                                     {{-- <div id="banner-preview-container" class="mt-3"></div> --}}
-        
+
                                                 </div>
                                             </div>
-        
+
                                             <!--begin::Input group-->
                                             <div class="row mb-6 g-5">
                                                 <!--begin::Label-->
@@ -296,7 +296,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Banner Title </span>
@@ -316,7 +316,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Banner Sub Title </span>
@@ -336,7 +336,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Banner Button Title</span>
@@ -356,7 +356,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Facebook URL </span>
@@ -377,7 +377,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                      <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Google Analytics Id</span>
@@ -398,7 +398,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Twitter URL</span>
@@ -419,7 +419,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Instagram Id </span>
@@ -440,7 +440,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Google Plus URL </span>
@@ -461,7 +461,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Facebook Pixel ID </span>
@@ -482,7 +482,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> App Store URL </span>
@@ -503,7 +503,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Linkedin URL </span>
@@ -524,7 +524,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Play Store URL </span>
@@ -545,7 +545,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Instagram URL </span>
@@ -566,7 +566,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Meta Title </span>
@@ -648,7 +648,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Shipping Charge </span>
@@ -669,7 +669,7 @@
                                                                 <span class="text-danger">{{ $message }}</span>
                                                             @enderror
                                                     </div>
-        
+
                                                     <div class="col-lg-4 fv-row">
                                                         <label class="col-form-label fw-semibold fs-6">
                                                             <span class="required"> Cart Limit Value </span>
@@ -690,7 +690,7 @@
                                                             @enderror
                                                     </div>
                                             </div>
-                                            
+
                                             <div class="row mb-6 g-5">
                                                 <div class="col-lg-3 fv-row">
                                                     <label class="col-form-label fw-semibold fs-6">
@@ -716,7 +716,7 @@
                                                             {{ $store->sms_service == 0 ? 'checked' : '' }}> OFF
                                                     </label>
                                                 </div>
-    
+
                                                 <div class="col-lg-3 fv-row">
                                                     <label class="col-form-label fw-semibold fs-6">
                                                         <span class="required"> Enquiry Whatsapp </span>
@@ -741,7 +741,7 @@
                                                             {{ $store->enquiry_whatsapp == 0 ? 'checked' : '' }}> Inactive
                                                     </label>
                                                 </div>
-    
+
                                                 <div class="col-lg-3 fv-row">
                                                     <label class="col-form-label fw-semibold fs-6">
                                                         <span class="required"> Hide Pickup Address </span>
@@ -766,7 +766,7 @@
                                                             {{ $store->hide_pickup_address == 0 ? 'checked' : '' }}> NO
                                                     </label>
                                                 </div>
-    
+
                                                 <div class="col-lg-3 fv-row">
                                                     <label class="col-form-label fw-semibold fs-6">
                                                         <span class="required"> Request Offer </span>
@@ -792,7 +792,7 @@
                                                     </label>
                                                 </div>
                                             </div>
-        
+
                                         </div>
                                         <!--end::Card body-->
                                         <!--begin::Actions-->
