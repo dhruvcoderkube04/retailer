@@ -1,234 +1,122 @@
-@extends('layouts.base')
-@section('title')
-    Customer List | TechtrendMart
-@endsection
-@section('content')
-    <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-        <div class="d-flex flex-column flex-column-fluid">
-            <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-                <div id="kt_app_toolbar_container" class="app-container  d-flex flex-stack">
-                    <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                        <h1 class="page-heading text-gray-900 fw-bold fs-2 my-0">
-                            Customer List</h1>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Shipping Label</title>
+</head>
 
-                        <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                            <li class="breadcrumb-item text-muted">
-                                <a href="{{ route('retailer.dashboard') }}" class="text-muted text-hover-primary">Home</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <span class="bullet bg-gray-500 w-5px h-2px"></span>
-                            </li>
-                            <li class="breadcrumb-item text-muted">Customer List</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+<body style="margin:0; padding:0; font-family: Arial, Helvetica, sans-serif; font-size:14px; color:#000;">
+    <table style="width:100%; border-collapse:collapse; table-layout:fixed; border-bottom:px solid #000;">
+        <tbody><tr>
+            <td style="height:150px; text-align:center; vertical-align:middle; padding:10px;">
+            </td>
+        </tr>
+    </tbody></table>
+    <div style="width:288px; margin:0 auto; border:2px solid #000;">
 
-            <div id="kt_app_content" class="app-content flex-column-fluid">
-                <div id="kt_app_content_container" class="app-container ">
 
-                    <div class="card card-flush">
-                        <div class="card-body mt-1">
-                            <div class="tab-content">
-                                <table class="table align-middle table-row-dashed fs-7 table-striped" id="kt_datatable_customer_list">
-                                    <thead>
-                                        <tr class="text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="text-center py-5 border-0 align-middle">Sr No</th>
-                                            <th class="text-center py-5 border-0 align-middle">Name</th>
-                                            <th class="text-center py-5 border-0 align-middle">Mobile No</th>
-                                            <th class="text-center py-5 border-0 align-middle">Email</th>
-                                            <th class="text-center py-5 border-0 align-middle">State</th>
-                                            <th class="text-center py-5 border-0 align-middle">City</th>
-                                            <th class="text-center py-5 border-0 align-middle">Pincode</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="fw-semibold text-gray-700 fs-6">
+        <!-- Header (3 equal cells for logos or text) -->
+        <table style="width:100%; border-collapse:collapse; table-layout:fixed; border-bottom:2px solid #000;">
+            <tbody><tr>
+                <td style="height:50px; text-align:center; vertical-align:middle; padding:10px;">
+                    <img src="https://cdn.cartpe.in/images/store_logo_sm/5a54b9246d7275de736a243272170c3d.png" alt="Retailer Logo" style="max-height:100px; max-width:100%;">
+                </td>
+                <td style="height:50px; text-align:center; vertical-align:middle; padding:10px; border-left:2px solid #000;">
+                    <img src="https://images.seeklogo.com/logo-png/2/1/blue-dart-express-logo-png_seeklogo-20437.png" alt="Courier Logo" style="max-height:100px; max-width:100%;">
+                </td>
+                <td style="height:50px; text-align:center; vertical-align:middle; padding:10px; border-left:2px solid #000;">
+                    <img src="https://selloship.com/frontend/v2/images/SELLOSHIP_new.png" alt="Brand Logo" style="max-height:100px; max-width:100%;">
+                </td>
+            </tr>
 
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </tbody></table>
 
-            {{-- withdrawal-request-modal --}}
-            {{-- <div class="modal fade" id="withdrawalRequestModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered mw-550px">
-                    <div class="modal-content">
-                        <div class="modal-header bg-white border-bottom">
-                            <h2 class="fw-bold mb-0">Withdrawal Request</h2>
-                            <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                                <i class="ki-duotone ki-cross fs-2">
-                                    <span class="path1"></span>
-                                    <span class="path2 text-dark"></span>
-                                </i>
-                            </div>
-                        </div>
+        <!-- Product Details -->
+        <table style="width:100%; border-collapse:collapse;">
+            <tbody><tr>
+                <td style="padding:10px 15px; border-bottom:2px solid #000;">
+                    <b>Lacoste Red Polo - Ax White K03-W T-Shirt Size M ( Qty : 1) ,</b>
+                </td>
+            </tr>
+        </tbody></table>
 
-                        <div class="modal-body p-5">
-                            <div class="mb-7">
-                                <div class="bg-light-primary p-4 rounded">
-                                    <div class="text-gray-700 fs-6">
-                                        <div class="mb-2"><strong>Current Balance:</strong>
-                                            ₹{{ number_format($user->userDetail->success_wallet, 2) }}</div>
-                                        <div class="mb-2"><strong>Account Number:</strong>
-                                            {{ Auth::user()->userDetail->account_number ?? 'N/A' }}</div>
-                                        <div class="mb-2"><strong>IFSC Code:</strong>
-                                            {{ Auth::user()->userDetail->ifsc_code ?? 'N/A' }}</div>
-                                        <div><strong>Account Holder Name:</strong>
-                                            {{ Auth::user()->userDetail->account_holder_name ?? 'N/A' }}</div>
-                                    </div>
-                                </div>
-                            </div>
+        <!-- Seller -->
+        <table style="width:100%; border-collapse:collapse;">
+            <tbody><tr>
+                <td style="padding:10px 15px; border-bottom:2px solid #000;">
+                    <b>This order comes from -</b> arghubs
+                </td>
+            </tr>
+        </tbody></table>
 
-                            <form method="POST" id="withdrawalRequestForm" class="m-1">
-                                @csrf
-                                <div class="form-group mb-4">
-                                    <label class="form-label fw-semibold">Withdrawal Amount <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" name="request_amount"
-                                        class="form-control form-control-solid border-secondary" placeholder="Enter amount"
-                                        min="1" step="0.01" autocomplete="off">
-                                    <span class="error error_request_amount text-danger m-2 d-none"></span>
-                                </div>
-                                <div class="form-group mb-4">
-                                    <label class="form-label fw-semibold">Remarks</label>
-                                    <textarea name="remarks" class="form-control form-control-solid border-secondary"
-                                        placeholder="Enter remarks" autocomplete="off"></textarea>
-                                    <span class="error error_remarks text-danger m-2 d-none"></span>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <span class="indicator-label">Submit Request</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
+        <!-- Note + Order Info -->
+        <table style="width:100%; border-collapse:collapse;">
+            <tbody><tr>
+                <td style="padding:10px 15px; border-bottom:2px solid #000;">
+                    <b>Note- No Open Delivery Allowed</b><br>
+                    <b>Order Number-</b> 28031422 &nbsp;&nbsp; || &nbsp;&nbsp;
+                    <b>Channel Order ID:</b>
+                </td>
+            </tr>
+        </tbody></table>
 
-            @include('layouts.footer')
-        </div>
+        <!-- Buyer Details + COD Box (no absolute positioning) -->
+        <table style="width:100%; border-collapse:collapse; border-bottom:1px solid #000;">
+            <tbody><tr>
+                <!-- Buyer -->
+                <td style="width:100%; vertical-align:top; padding:10px 15px;">
+                    <b>Buyer Details:</b><br>
+                    Rohit Singh<br>
+                    H-109 Sec-27 Noida Mother dairy H Block Landmark Near<br>
+                    kidzee school<br><br>
+                    Gautam Buddha Nagar-UTTAR PRADESH-201301<br><br>
+                    <b>Contact Number:</b> 9971776700
+                </td>
+            </tr>
+            <tr>
+                <!-- COD Box -->
+                <td style="width:100%; padding:0px; vertical-align:middle;">
+                    <table style="width:100%;border-collapse:collapse;border: 1px solid #000;text-align:center;/* border-right: 0; */">
+                        <tbody>
+                            <tr>
+                                <td style="padding:8px;">
+                                    <b>COD</b><br><b>Rs.2596</b>
+                                </td>
+                                <td style="padding:8px;">
+                                        <b>395001</b>
+                                </td>
+                                <td style="padding:8px;">
+                                    <b>Bluedart</b>
+                                </td>
+                            </tr>
+                    </tbody></table>
+                </td>
+            </tr>
+        </tbody></table>
+
+        <!-- Barcode placeholder -->
+        <table style="width:100%;border-collapse:collapse;border-bottom:1px solid #000;">
+            <tbody><tr>
+                <td style="text-align:center; padding:10px 15px;">
+                    <b>XPRESSBEES</b><br>
+                    <img src="https://via.placeholder.com/250x60?text=BARCODE" alt="Barcode" style="display:block; margin:15px auto;">
+                    <!-- Tracking number placeholder if needed -->
+                </td>
+            </tr>
+        </tbody></table>
+
+        <!-- Return Address -->
+        <table style="width:100%; border-collapse:collapse;">
+            <tbody><tr>
+                <td style="padding:10px 15px;">
+                    <b>If not delivered, please return at below address:-</b><br>
+                    Arg Hub<br>
+                    Return Address: 201 ERA Tower Building Nearby Cp Plus Nearby Elite Bakery Nanpura
+                    Main Road Surat gujarat India,surat,Gujarat ,India,395001<br>
+                    <b>Mobile:</b> 8905895242
+                </td>
+            </tr>
+        </tbody></table>
+
     </div>
-@endsection
 
-@section('script')
-    <script>
-        //<------------- START : server-side transaction datatable ------------->
-        dataTable = $('#kt_datatable_customer_list').DataTable({
-            dom: "<'row mb-5'" +
-            "<'col-8 col-sm-6 col-md-12 d-flex align-items-center justify-content-end dt-toolbar datatable-search-section'f>" +
-            ">" +
-            "<'table-responsive'tr>" +
-            "<'row d-flex align-items-center justify-content-between' \
-                <'col d-flex align-items-center gap-3'l i> \
-                <'col-auto'p> \
-            >",
-            pageLength: 20,
-            lengthMenu: [10, 20, 50, 100],
-            processing: true,
-            serverSide: true,
-            // fixedHeader: {
-            // header: true,
-            //     headerOffset: document.querySelector("#kt_app_header_wrapper").offsetHeight // height of your fixed header
-            // },
-            ajax: {
-                url: "{{ route('retailer.customers.fetch-record') }}",
-                type: "POST",
-                data: function (d) {
-                    d._token = '{{ csrf_token() }}';
-                    d.order = d.order; // Add order data
-                    d.columns = d.columns; // Add columns data
-                },
-                dataSrc: function (json) {
-                    return json.data;
-                },
-                error: function (xhr) {
-                    // Detect 400 Bad Request from Laravel
-                    if (xhr.status === 400) {
-                        let message = 'An error occurred.';
-                        try {
-                            let response = JSON.parse(xhr.responseText);
-                            message = response.message || message;
-                        } catch (e) {
-                            message = xhr.responseText || message;
-                        }
 
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid Search',
-                            text: message,
-                        }).then(() => {
-                            // Clear only the search input field that caused it
-                            $('#search_input').val('');
-                            // You can choose to comment this out to prevent auto-refresh
-                            dataTable.search('').draw();
-
-                        });
-                    }
-                }
-            },
-            order: [],
-            columns: [{
-                data: 'sr_no',
-                className: 'text-center',
-                orderable: true,
-            },
-            {
-                data: 'name',
-                className: 'text-center',
-            },
-            {
-                data: 'mobile_no',
-                className: 'text-center',
-            },
-            {
-                data: 'email',
-                className: 'text-center',
-            },
-            {
-                data: 'state',
-                className: 'text-center'
-            },
-            {
-                data: 'city',
-                className: 'text-center'
-            },
-            {
-                data: 'pincode',
-                className: 'text-center'
-            },
-            ],
-            initComplete: function () {
-                let searchBox = $('.datatable-search-section input');
-                let searchLabel = $('.datatable-search-section label');
-                let lengthSelect = $('.datatable-length-section select');
-
-                searchBox.wrap('<div class="d-flex align-items-center position-relative my-1 w-100"></div>');
-                searchBox.before(
-                    '<i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>'
-                ); // add icon
-                searchBox.addClass('form-control form-control-solid w-100 ps-12 bg-secondary').attr(
-                    'placeholder', 'Search'); // style the search input
-                searchBox.css({
-                    'padding': '13px 15px 12px 15px',
-                    'font-size': '14px',
-                });
-
-                searchLabel.css({
-                    'display': 'none',
-                });
-
-                lengthSelect.addClass('form-control form-control-solid w-100 bg-secondary');
-                lengthSelect.css({
-                    'padding': '13px 27px 12px 14px',
-                    'font-size': '14px',
-                })
-            }
-        });
-        //<------------- END : server-side transaction datatable ------------->
-    </script>
-@endsection
+</body></html>
