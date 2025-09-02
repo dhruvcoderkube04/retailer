@@ -6,9 +6,7 @@
 /storage/*.key
 /storage/pail
 /vendor
-.env
 .env.backup
-.env.production
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -19,7 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.nova
-/.vscode
 /.zed
 storage/debugbar
 /public/uploads/
@@ -27,3 +24,8 @@ storage/debugbar
 /public/uploads/products/
 /vendor/
 bootstrap/cache/routes-v7.php
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
+config.bat
