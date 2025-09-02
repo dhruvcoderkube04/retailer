@@ -27,7 +27,7 @@
   --bs-gray-500: #99A1B7;
   --bs-gray-600: #78829D;
   --bs-gray-700: #4B5675;
-  --bs-gray-800: #252F4A;
+  --bs-gray-800: #002042;
   --bs-gray-900: #071437;
   --bs-light: #F9F9F9;
   --bs-primary: #1B84FF;
@@ -51285,4 +51285,63 @@ table tbody .badge{
 .track-tab .nav.nav-tabs .nav-item .nav-link.active{
   color: #1f86ff;
   border-bottom: 2px solid #1f86ff;
+}
+
+/* Login */
+.login-section .form-control {
+    background: #F1F1F1 !important;
+    /* border: 0; */ 
+    padding: 1.35rem 1.35rem;
+}
+
+.login-section h1 {
+  font-size: calc(2rem + 0.6vw) !important;
+}
+
+.login-section .form-control:-webkit-autofill,
+.login-section .form-control:-webkit-autofill:hover,
+.login-section .form-control:-webkit-autofill:focus,
+.login-section .form-control:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #F1F1F1 inset !important;
+}
+
+.login-section .login-box{
+    border: 1px solid #002042;
+}
+
+.login-section .bg-img {
+  background: linear-gradient(181deg,rgba(0, 123, 255, 1) 0%, rgba(0, 74, 153, 1) 100%);
+  border-radius: 20px;
+  height: 100%;
+}
+
+.login-section .btn {
+  padding: 1.35rem 1.35rem !important;
+  box-shadow: 0px 16px 32px 0px #0020423D !important;
+}
+
+[data-bs-theme="light"] .login-section  .btn.btn-dark{
+  background-color: #002042 !important;
+  border: 1px solid #002042 !important;
+}
+
+[data-bs-theme="dark"] .login-section .form-control:-webkit-autofill,
+[data-bs-theme="dark"] .login-section .form-control:-webkit-autofill:hover,
+[data-bs-theme="dark"] .login-section .form-control:-webkit-autofill:focus,
+[data-bs-theme="dark"] .login-section .form-control:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #000000b0 inset !important;
+}
+
+[data-bs-theme="dark"] .login-section .form-control {
+  background: #000000b0 !important;
+}
+
+
+/* 
+[data-bs-theme="dark"]{
+
+} */
+
+.modal  .select2-container{
+  z-index: 99999;
 }
